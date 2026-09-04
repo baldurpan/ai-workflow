@@ -1,11 +1,14 @@
 {
-  "name": "@baldurpan/ai-workflow-monorepo",
+  "name": "@baldurpan/ai-workflow",
   "private": true,
   "description": "Monorepo for the ai-workflow installer and the sites built around it.",
   "license": "MIT",
   "author": "Baldur Páll Hólmgeirsson",
   "type": "module",
-  "workspaces": ["packages/*", "apps/*"],
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "engines": {
     "node": ">=20.10.0"
   },
