@@ -1,0 +1,26 @@
+{
+  "name": "@baldurpan/create-ai-workflow",
+  "version": "0.1.0",
+  "description": "Overlay a tiered planning workflow — roadmap, plans, phase ledgers, verification gates — onto an existing repository, for coding agents.",
+  "keywords": ["ai", "agents", "claude-code", "workflow", "planning", "AGENTS.md"],
+  "license": "MIT",
+  "author": "Baldur Páll Hólmgeirsson",
+  "type": "module",
+  "bin": {
+    "create-ai-workflow": "dist/bin.js"
+  },
+  "files": ["dist", "templates", "README.md", "LICENSE"],
+  "engines": {
+    "node": ">=20.10.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build && npm test",
+    "test": "node --test \"test/*.test.ts\"",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.9.2"
+  }
+}
