@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - package.json
+      - packages/create-ai-workflow/package.json
   workflow_dispatch:
 
 permissions:
@@ -23,7 +23,7 @@ jobs:
         id: version
         shell: bash
         run: |
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          CURRENT_VERSION=$(node -p "require('./packages/create-ai-workflow/package.json').version")
           echo "current=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
 
@@ -32,7 +32,7 @@ jobs:
             exit 0
           fi
 
-          PREV_JSON=$(git show "${{ github.event.before }}:package.json" 2>/dev/null || true)
+          PREV_JSON=$(git show "${{ github.event.before }}:packages/create-ai-workflow/package.json" 2>/dev/null || true)
           if [[ -z "$PREV_JSON" ]]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
             exit 0

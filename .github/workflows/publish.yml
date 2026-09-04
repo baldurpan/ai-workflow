@@ -24,13 +24,13 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - run: npm ci
-      - run: npm test
-      - run: npm run build
+      - run: npm test -w @baldurpan/create-ai-workflow
+      - run: npm run build -w @baldurpan/create-ai-workflow
 
       - name: Publish stable
         if: github.event.release.prerelease == false
-        run: npm publish
+        run: npm publish -w @baldurpan/create-ai-workflow
 
       - name: Publish prerelease
         if: github.event.release.prerelease == true
-        run: npm publish --tag next
+        run: npm publish -w @baldurpan/create-ai-workflow --tag next
