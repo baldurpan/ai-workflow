@@ -13,13 +13,17 @@ Every `§`-number below points into that document.
 2. `npm test` — 72 tests. Six of them guard *content* invariants rather than code, and they are the
    fastest way to see what the design refuses to let rot: runtime neutrality, one home for commands, one
    home for dispatch, no self-declared status, inert stubs, and every relative link resolving after
-   install — in both skill trees.
+   install — in both skill trees. `ci.yml` runs them on every push and pull request against `main`, plus
+   an `engines-floor` job that builds on Node 20.10.0 and runs the packed CLI there — the suite itself
+   cannot, since it executes `.ts` directly and that needs type stripping.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** v0.2.0, unpublished. 128 tracked files. Installs a `context/` tree, the seven skills into
-**both** `.claude/skills/` and `.agents/skills/`, two Claude subagents, a merged `AGENTS.md` block and a
-manifest that draws the ownership boundary — 99 tool-owned files, 6 project-owned stubs.
+**State:** v0.3.0, published. An npm workspaces monorepo — the installer lives in
+`packages/create-ai-workflow/`, and `apps/*` is reserved for a landing site or hosted documentation.
+Installs a `context/` tree, the seven skills into **both** `.claude/skills/` and `.agents/skills/`, two
+Claude subagents, a merged `AGENTS.md` block and a manifest that draws the ownership boundary — 99
+tool-owned files, 6 project-owned stubs.
 
 ---
 
@@ -60,14 +64,23 @@ unsettled. They ship on the author's own authority and nothing more.
 **The cheap fix is upstream:** add a LICENSE to that repo and this closes. Until then it is the one thing
 in the package that could not be defended to a third party.
 
-### 3. Publish
+### 3. Publish — done, and the pipeline is proven
 
-`npm whoami` returns E401 on this machine; `npm login` is required first. Nothing is published.
+v0.2.0 was published by hand, because a trusted publisher cannot be configured for a package that does
+not exist yet. v0.3.0 then went out through CI end to end: a version change on `main` tags `vX.Y.Z`, and
+publishing that tag as a GitHub release runs `publish.yml`, which authenticates over OIDC and attaches a
+provenance attestation. **There is no npm token in this repository.**
 
-`npm pack` produces a working 141 kB / 116-file tarball — verified by installing it into a clean repo and
-running `install`, `check` and `update --dry-run` against it, with the standards tree landing 78 files and
-`standards/templates/.gitignore` restored from `_dot_gitignore`. Do that again after any change to
-`templates/`.
+The prerelease branch of that workflow — a GitHub pre-release publishing under the `next` dist-tag — has
+never run. It is the one path in the release pipeline still unexercised.
+
+**Item 1 below was supposed to happen before this.** It did not. The live-agent run is now the
+outstanding risk against a package other people can already install.
+
+`npm pack` produces a working 141.9 kB / 116-file tarball — verified by installing it into a clean repo
+and running `install`, `check` and `update --dry-run` against it, with the standards tree landing 78
+files and `standards/templates/.gitignore` restored from `_dot_gitignore`. Do that again after any change
+to `templates/`.
 
 ### 4. Try an offloaded executor for real
 

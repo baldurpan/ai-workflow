@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# A newer push to the same branch makes an in-flight run irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+      - run: npm test
+
+  # package.json promises node >=20.10.0, and nothing else here checks it: the
+  # test suite runs .ts directly, which needs type stripping and so cannot run
+  # on 20 at all. What consumers actually execute is the compiled dist, so
+  # build it on the floor version and run the binary.
+  engines-floor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.10.0'
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Run the built CLI on the oldest supported Node
+        working-directory: packages/create-ai-workflow
+        run: |
+          node dist/bin.js --version
+          node dist/bin.js --help > /dev/null
+
+      - name: Install from a packed tarball and run it
+        run: |
+          TARBALL=$(npm pack -w @baldurpan/create-ai-workflow --silent --pack-destination "$RUNNER_TEMP")
+          npm install -g "$RUNNER_TEMP/$TARBALL"
+          create-ai-workflow --version
