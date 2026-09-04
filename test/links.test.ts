@@ -25,6 +25,7 @@ function ourInstalledMarkdown(): string[] {
       .map((rel) => path.join('context', rel))
       .filter((rel) => !rel.split(path.sep).includes('standards')),
     ...walk(path.join(root, '.claude')).map((rel) => path.join('.claude', rel)),
+    ...walk(path.join(root, '.agents')).map((rel) => path.join('.agents', rel)),
     'AGENTS.md',
     'CLAUDE.md',
   ].filter((rel) => rel.endsWith('.md'));

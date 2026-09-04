@@ -11,14 +11,21 @@ Run `/onboard` to fill this in.
 <!-- Empty means: implement in-host. That is a valid configuration, not a gap.
 
      If an external coder CLI is configured, write its exact invocation here, including any directory or
-     permission scoping it needs on this machine. The system prompt is context/roles/coder.md. -->
+     permission scoping it needs on this machine. The system prompt is context/roles/coder.md.
+
+     Record alongside it whether that executor was actually observed reading this repository unaided, and
+     when. /onboard tests it; the standing rule below says why the answer changes how briefs are written. -->
 
 **Not configured — implement in-host.**
 
 ## Reviewer
 
 <!-- Empty means: the host reviews the diff itself against the plan's review checklist. Weaker than an
-     independent reviewer, but still a gate, and it must say which one it ran. -->
+     independent reviewer, but still a gate, and it must say which one it ran.
+
+     A host that offers review often offers more than one shape of it — a review subcommand, a review skill
+     it can be asked to run, or both — and they do not review alike. Whichever was chosen, write the exact
+     invocation. Nothing shipped with this tool names one, because the winner differs per host. -->
 
 **Not configured — the host reviews the diff against the plan's review checklist, and says so.**
 

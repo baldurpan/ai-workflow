@@ -3,6 +3,7 @@ import path from 'node:path';
 import { apply as applyBlock, BlockConflictError, inspect } from '../agents-block.ts';
 import {
   AGENTS_BLOCK_KEY,
+  DEFAULT_ADAPTERS,
   STANDARDS_PREFIX,
   agentsBlockBody,
   managedFiles,
@@ -13,7 +14,7 @@ import { bold, cyan, dim, green, info, red, UserError, warn, yellow } from '../l
 import { readManifest, writeManifest } from '../manifest.ts';
 import { exists, hash, packageVersion } from '../paths.ts';
 
-type Action = 'replace' | 'restore' | 'unchanged' | 'conflict' | 'remove' | 'adopt';
+type Action = 'replace' | 'restore' | 'add' | 'unchanged' | 'conflict' | 'remove' | 'adopt';
 
 interface Step {
   dest: string;
@@ -24,6 +25,7 @@ interface Step {
 const LABEL: Record<Action, string> = {
   replace: green('update '),
   restore: green('restore'),
+  add: green('add    '),
   unchanged: dim('same   '),
   conflict: red('CONFLICT'),
   remove: yellow('remove '),
@@ -40,7 +42,15 @@ function sourceRef(text: string | null): string | null {
 
 export function update(root: string, options: { dryRun: boolean; force: boolean }): number {
   const manifest = readManifest(root);
-  const files = managedFiles(manifest.adapters);
+
+  // Adapters reconcile to what this version ships rather than to what the install recorded. An install
+  // made before a tree existed is the only way that tree ever arrives, and a tree this version has
+  // dropped falls through to the no-longer-shipped branch below and is removed. Both are reported.
+  const adapters = DEFAULT_ADAPTERS;
+  const gained = adapters.filter((a) => !manifest.adapters.includes(a));
+  const dropped = manifest.adapters.filter((a) => !adapters.includes(a));
+
+  const files = managedFiles(adapters);
   const byDest = new Map<string, ManagedFile>(files.map((f) => [f.dest, f]));
 
   // The standards tree is tool-owned only while it is ours and unmodified. One edited file makes the whole
@@ -65,7 +75,11 @@ export function update(root: string, options: { dryRun: boolean; force: boolean 
     const onDisk = readIfExists(path.join(root, file.dest));
 
     if (onDisk === null) {
-      steps.push({ dest: file.dest, action: 'restore' });
+      steps.push(
+        recorded === undefined
+          ? { dest: file.dest, action: 'add', note: 'new in this version' }
+          : { dest: file.dest, action: 'restore' },
+      );
     } else if (recorded === undefined) {
       steps.push({
         dest: file.dest,
@@ -123,7 +137,13 @@ export function update(root: string, options: { dryRun: boolean; force: boolean 
 
   // Report.
   info(bold(`ai-workflow ${manifest.version} → ${packageVersion()}`));
-  info(dim(`adapters: ${manifest.adapters.join(', ')}`));
+  info(
+    dim(
+      gained.length || dropped.length
+        ? `adapters: ${manifest.adapters.join(', ')} → ${adapters.join(', ')}`
+        : `adapters: ${adapters.join(', ')}`,
+    ),
+  );
   info();
 
   const conflicts = steps.filter((s) => s.action === 'conflict');
@@ -213,6 +233,7 @@ export function update(root: string, options: { dryRun: boolean; force: boolean 
   }
 
   manifest.version = packageVersion();
+  manifest.adapters = [...adapters];
   writeManifest(root, manifest);
 
   info();

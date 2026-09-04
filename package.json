@@ -1,6 +1,6 @@
 {
   "name": "@baldurpan/create-ai-workflow",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Overlay a tiered planning workflow — roadmap, plans, phase ledgers, verification gates — onto an existing repository, for coding agents.",
   "keywords": ["ai", "agents", "claude-code", "workflow", "planning", "AGENTS.md"],
   "license": "MIT",

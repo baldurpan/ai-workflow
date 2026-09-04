@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { MANIFEST_PATH, type Adapter } from './layout.ts';
+import { MANIFEST_PATH, isAdapter, type Adapter } from './layout.ts';
 import { UserError } from './log.ts';
 import { exists } from './paths.ts';
 
@@ -45,10 +45,13 @@ export function readManifest(root: string): Manifest {
   if (!manifest.managedFiles || typeof manifest.managedFiles !== 'object') {
     throw new UserError(`${MANIFEST_PATH} has no managedFiles map.`);
   }
+  // An adapter this version does not know is dropped rather than carried: `managedFiles` still lists
+  // whatever it wrote, so `update` reports those files as no longer shipped instead of losing them.
+  const adapters = (manifest.adapters ?? []).filter(isAdapter);
   return {
     schemaVersion: SCHEMA_VERSION,
     version: manifest.version ?? '0.0.0',
-    adapters: manifest.adapters?.length ? manifest.adapters : ['claude'],
+    adapters: adapters.length ? adapters : ['claude'],
     managedFiles: manifest.managedFiles,
   };
 }

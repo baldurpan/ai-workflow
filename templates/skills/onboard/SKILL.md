@@ -19,12 +19,34 @@ Read [`context/workflow.md`](../../../context/workflow.md) for the tier model.
 | File | Gets |
 |---|---|
 | [`context/verify.md`](../../../context/verify.md) | the real Lint / Typecheck / Build / Test commands — **only ones that exited 0** |
-| [`context/executors.md`](../../../context/executors.md) | how Gate 2 dispatches a reviewer |
+| [`context/executors.md`](../../../context/executors.md) | how this project dispatches a coder and a reviewer |
 | [`context/stack.md`](../../../context/stack.md) | runtime, layout, conventions |
 
 Show every proposed edit before writing it, and **do not commit.** The user reviews and commits.
 
-## Step 1 — Reviewer dispatch
+## Step 1 — Coder dispatch
+
+Ask whether implementation runs **in-host** or is **offloaded** to an external coder CLI.
+
+- **In-host** is the default, and a valid configuration rather than a gap. Leave the Coder section of
+  `context/executors.md` saying so.
+- **Offloaded** — the user names the invocation. Write it into `context/executors.md` verbatim, including
+  any directory or permission scoping it needs on this machine. Its system prompt is
+  [`context/roles/coder.md`](../../../context/roles/coder.md).
+
+If an external coder is named, **test one assumption before writing it down**: that it can read this
+repository unaided. Briefs cite paths rather than pasting file contents, so everything downstream depends
+on that being true, and it is true of some executors and not others.
+
+1. Pick a fact only available by opening a file here — a heading partway down `context/workflow.md` does.
+2. Send a one-line brief that cites the path and asks for that fact. Nothing else.
+3. If the fact comes back, record in `context/executors.md` that repository reads were verified, and when.
+4. If it comes back empty, guessed, or refused, record that **this executor needs content inline** — the
+   one case where a brief carries file contents instead of paths.
+
+Never write down an invocation you have not run. This is the same rule as Step 4, for the same reason.
+
+## Step 2 — Reviewer dispatch
 
 Ask how Gate 2 should get a review:
 
@@ -34,10 +56,15 @@ Ask how Gate 2 should get a review:
 - **An external reviewer** — the user names the invocation. Write it into `context/executors.md` verbatim,
   including any scoping it needs on this machine.
 
-Whatever is chosen, the contract in that file stands: a review happens, every blocking finding carries a
-`P0`–`P3` severity, and a `FAIL` writes a finding before the loopback.
+A host that offers review usually offers more than one shape of it — a review subcommand, a review skill it
+can be asked to run, or both — and they do not review alike. **Find out what this host actually provides
+rather than assuming**, show the user what you found, and let them choose. Nothing shipped here names a
+winner: it differs per host and changes underneath you. What ships is the contract, not the command.
 
-## Step 2 — Standards source
+Whatever is chosen, that contract stands: a review happens, every blocking finding carries a `P0`–`P3`
+severity, and a `FAIL` writes a finding before the loopback.
+
+## Step 3 — Standards source
 
 `context/standards/` ships with a bundled default. Ask whether that is right for this project.
 
@@ -50,7 +77,7 @@ Whatever is chosen, the contract in that file stands: a review happens, every bl
 Say plainly what the default is and that a wrong set is not inert — agents load from that README's
 conditional table unprompted, on every task.
 
-## Step 3 — Verification commands
+## Step 4 — Verification commands
 
 **This is the most valuable step in this command.** Do it properly.
 
@@ -70,7 +97,7 @@ conditional table unprompted, on every task.
 Explain what you are doing: this turns `verify.md` from someone's guess into something verified at install
 time, which is the one moment it is cheap to catch.
 
-## Step 4 — Stack
+## Step 5 — Stack
 
 A few questions, then write `context/stack.md`:
 

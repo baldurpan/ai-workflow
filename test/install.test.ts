@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
@@ -8,11 +8,22 @@ import { install } from '../src/commands/install.ts';
 import { update } from '../src/commands/update.ts';
 import { AGENTS_BLOCK_KEY, SKILL_NAMES, STANDARDS_PREFIX } from '../src/layout.ts';
 import { UserError } from '../src/log.ts';
-import { readManifest } from '../src/manifest.ts';
+import { readManifest, writeManifest } from '../src/manifest.ts';
 import { exists } from '../src/paths.ts';
 
 function scratch(): string {
   return mkdtempSync(path.join(tmpdir(), 'aiw-install-'));
+}
+
+/** Rewind an install to what v1 wrote: the Claude tree only, and a manifest that says so. */
+function rewindToClaudeOnly(root: string): void {
+  const manifest = readManifest(root);
+  for (const key of Object.keys(manifest.managedFiles)) {
+    if (key.startsWith('.agents/')) delete manifest.managedFiles[key];
+  }
+  manifest.adapters = ['claude'];
+  writeManifest(root, manifest);
+  rmSync(path.join(root, '.agents'), { recursive: true, force: true });
 }
 
 const quiet = <T>(fn: () => T): T => {
@@ -51,6 +62,30 @@ describe('install', () => {
     }
     assert.ok(manifest.managedFiles['context/workflow.md']);
     assert.ok(manifest.managedFiles[AGENTS_BLOCK_KEY]);
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  it('writes the second tree from the same body, differing by exactly the Claude-only line', () => {
+    const root = scratch();
+    quiet(() => install(root));
+    const manifest = readManifest(root);
+
+    for (const name of SKILL_NAMES) {
+      const claude = readFileSync(path.join(root, `.claude/skills/${name}/SKILL.md`), 'utf8');
+      const agents = readFileSync(path.join(root, `.agents/skills/${name}/SKILL.md`), 'utf8');
+
+      assert.doesNotMatch(agents, /disable-model-invocation/, `${name}: that key is Claude Code's`);
+      assert.equal(
+        claude
+          .split('\n')
+          .filter((line) => line !== 'disable-model-invocation: true')
+          .join('\n'),
+        agents,
+        `${name}: one body, two trees`,
+      );
+      assert.ok(manifest.managedFiles[`.agents/skills/${name}/SKILL.md`], `${name} is hashed`);
+    }
+    assert.deepEqual(manifest.adapters, ['claude', 'agents']);
     rmSync(root, { recursive: true, force: true });
   });
 
@@ -155,6 +190,37 @@ describe('update', () => {
     assert.ok(text.includes('also keep me'));
     assert.ok(!text.includes('stale'));
     assert.equal(text.match(/ai-workflow:start/g)?.length, 1);
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  it('adds a tree to an install made before that tree existed', () => {
+    const root = scratch();
+    quiet(() => install(root));
+    rewindToClaudeOnly(root);
+
+    const code = quiet(() => update(root, { dryRun: false, force: false }));
+    assert.equal(code, 0);
+    for (const name of SKILL_NAMES) {
+      assert.ok(exists(path.join(root, `.agents/skills/${name}/SKILL.md`)), `${name} arrived`);
+    }
+    assert.deepEqual(readManifest(root).adapters, ['claude', 'agents']);
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  it('refuses a skill directory this tool did not write, rather than adopting it', () => {
+    const root = scratch();
+    quiet(() => install(root));
+    rewindToClaudeOnly(root);
+    const mine = path.join(root, '.agents/skills/roadmap/SKILL.md');
+    mkdirSync(path.dirname(mine), { recursive: true });
+    writeFileSync(mine, 'mine\n', 'utf8');
+
+    assert.throws(() => quiet(() => update(root, { dryRun: false, force: false })), UserError);
+    assert.equal(readFileSync(mine, 'utf8'), 'mine\n');
+    assert.ok(
+      !exists(path.join(root, '.agents/skills/orchestrate/SKILL.md')),
+      'nothing was written at all',
+    );
     rmSync(root, { recursive: true, force: true });
   });
 

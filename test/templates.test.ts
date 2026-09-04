@@ -93,6 +93,32 @@ describe('one home for commands', () => {
   });
 });
 
+describe('one home for dispatch', () => {
+  // The reverse of §4.2's rule about verification commands, for executors. Which coder or reviewer runs
+  // is a per-machine fact, so it belongs in executors.md, written by /onboard from an answer. A host name
+  // in a shipped template is a winner hardcoded — and hosts change their review facilities underneath us.
+  const HOSTS = /\b(codex|claude|agy|aider|cursor-agent|opencode|goose|copilot|gemini)\b/i;
+
+  // `CLAUDE.md` and `.claude/` are paths this tool writes, named in the ownership table because a reader
+  // has to know which files are theirs. A path is not an invocation.
+  const PATHS = /(`?CLAUDE\.md`?|\.claude\/|\.agents\/)/g;
+
+  it('nothing shipped names a coding-agent CLI', () => {
+    for (const { rel, text } of ourTemplates()) {
+      const hit = HOSTS.exec(text.replace(PATHS, ''));
+      assert.equal(hit, null, `${rel} names a host: ${hit?.[0] ?? ''}`);
+    }
+  });
+
+  it('the skills point at executors.md rather than at an invocation', () => {
+    const dispatching = SKILL_NAMES.filter((name) => /Gate 2|reviewer|coder/i.test(skillBody(name)));
+    assert.ok(dispatching.length > 0);
+    for (const name of dispatching) {
+      assert.match(skillBody(name), /executors\.md/, `${name} names the dispatch home`);
+    }
+  });
+});
+
 describe('no document states its own status', () => {
   it('nothing the tool installs carries a **Status:** header', () => {
     for (const { rel, text } of ourTemplates()) {

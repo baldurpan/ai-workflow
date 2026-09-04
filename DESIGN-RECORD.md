@@ -13,20 +13,23 @@ is still the reference for anything not covered here.
 
 ---
 
-## 0. Scope — v1 is Claude Code only
+## 0. Scope — v1 deferred four things; v2 landed them
 
-Codex support is deferred. That reduces the build but **does not change the design**, and the
-distinction matters because two of these are cheap now and expensive later.
+v1 shipped Claude Code only. The claim being tested was that this **reduces the build without changing
+the design**. It held: no SKILL.md was rewritten, and the second tree cost nine lines in `managedFiles`.
 
-**Deferred to v2, not redesigned:**
+| Deferred in v1 | What v2 did with it |
+|---|---|
+| The `.agents/skills/` tree — v1 wrote `.claude/skills/` only (§5.1) | Both trees ship, from one body. The one-line difference was already isolated in `claudeSkillTransform`, so the second tree is a `dest` and no transform |
+| Coder offload. Gate 1 and Gate 2 ran in-host | `/onboard` Step 1 asks — and **tests** the §1.1 assumption per machine before writing an invocation down, rather than inheriting it |
+| `/onboard`'s host and offload questions (§3.9 steps 1–3) | The host question **dissolved rather than shipped.** Both trees install unconditionally, so there is nothing to ask and nothing to branch on. Step 1 became coder dispatch; steps renumbered |
+| §8.1, reviewer dispatch under a second host | Not answered — **refused, and the refusal is enforced.** No host's review command appears anywhere in the package; `/onboard` finds what the host offers and writes the choice into `executors.md`. A test fails the build if a template names a coding-agent CLI |
 
-- The `.agents/skills/` tree. v1 writes `.claude/skills/` only (§5.1).
-- Coder offload to Codex/`agy`. Gate 1 and Gate 2 run in-host.
-- `/onboard`'s host and offload questions (§3.9 steps 1–3); the standards, verification and stack
-  questions remain, and the verification step is the most valuable part of that command.
-- Open item §8.1, reviewer dispatch under Codex.
+The last row is the one that generalises. A host's review facilities are a moving target — a subcommand,
+a system skill, both, neither — so the package that hardcodes a winner is wrong on some machine on some
+day, silently. Shipping the contract and asking costs one question at onboard time and never rots.
 
-**Not compromised, and the reason:**
+**What the deferral protected — and it held:**
 
 - **§3.2 runtime neutrality is non-negotiable.** Writing the seven SKILL.md bodies Claude-shaped —
   naming `Agent`, `subagent_type` or `AskUserQuestion` inline — costs nothing today and costs a rewrite
@@ -42,7 +45,9 @@ distinction matters because two of these are cheap now and expensive later.
 - The tier model, ownership, manifest, and `check` are host-independent throughout.
 
 One honest note on evidence: test B (§1.1) was run against Codex, so it licenses a thin `AGENTS.md` for
-*that* host directly. For Claude Code the mechanism differs — `@AGENTS.md` is expanded into context at
+*that* host directly. v2 stops relying on it by inheritance — `/onboard` Step 1 re-runs the test against
+whatever executor is actually configured, and records the answer in `executors.md`, because the executors
+that fail it are exactly the ones nobody has checked. For Claude Code the mechanism differs — `@AGENTS.md` is expanded into context at
 launch, and the skills instruct their own reads explicitly rather than relying on spontaneous traversal.
 The conclusion holds, but by a different route.
 
@@ -256,9 +261,9 @@ Codex has no `Agent` tool and no `subagent_type`. Every delegation is written as
 
 Host-specific dispatch lines live in `context/executors.md` (§4.3), never in a skill.
 
-**This survives the v1 scope cut (§0).** v1 emits one tree, but a body written against `Agent`,
-`subagent_type` or `AskUserQuestion` by name is a body that has to be rewritten when the second tree
-arrives. Neutral costs nothing now.
+**This survived the v1 scope cut (§0), and that is the whole reason v2 was cheap.** v1 emitted one tree;
+a body written against `Agent`, `subagent_type` or `AskUserQuestion` by name would have had to be
+rewritten seven times when the second tree arrived. It was rewritten zero times.
 
 ### 3.3 `/roadmap` — Tier 1
 
@@ -472,15 +477,25 @@ Re-runnable. Fills the project-owned stubs that `init` deliberately leaves empty
 Asking is not guessing; `init` guessing a project's test command recreates the exact rot this design
 removes.
 
-1. ~~**Host agent**~~ — deferred (§0). v1 is Claude Code.
-2. ~~**Coder offload**~~ — deferred (§0). Gate 1 and Gate 2 run in-host.
-3. **Reviewer dispatch** — writes Gate 2's invocation into `executors.md`. One line in v1.
-4. **Standards source** — the bundled default or a git URL (§6.3).
-5. **Verification commands** — propose candidates from `package.json` scripts or the stack equivalent,
+*(A host question was step 1 in the v1 design. It dissolved — both trees install unconditionally, so
+there is nothing to branch on. Steps renumbered.)*
+
+1. **Coder dispatch** — in-host or offloaded. If offloaded, the invocation goes into `executors.md`, but
+   **only after the §1.1 assumption is tested against that executor**: cite a path, ask for a fact only
+   readable from the file, and record whether it came back. An executor that fails needs content inline,
+   which is a fact about briefs that nothing downstream can guess.
+2. **Reviewer dispatch** — writes Gate 2's invocation into `executors.md`. What it must *not* do is
+   assume: a host commonly offers several shapes of review that do not review alike, so it finds out,
+   shows the user, and lets them pick (§0).
+3. **Standards source** — the bundled default or a git URL (§6.3).
+4. **Verification commands** — propose candidates from `package.json` scripts or the stack equivalent,
    **run each one, and write only those that exit 0** into `context/verify.md`. This turns that file
    from someone's guess into something verified at install time, which is the F-001 failure mode caught
    at the only moment it is cheap to catch.
-6. **Stack** — a few questions to seed `context/stack.md`.
+5. **Stack** — a few questions to seed `context/stack.md`.
+
+Steps 1, 2 and 4 are the same move applied to three subjects: **do not write down a thing you have not
+run.** That is the whole of what this command is for.
 
 Writes placeholders, never secrets (§2.7). Does not commit.
 
@@ -505,8 +520,8 @@ context/
   drafts/  plans/  archive/         project   .gitkeep
   .state/manifest.json   tool      version, adapters, sha256 per managed file
 
-.claude/skills/<seven>/SKILL.md     tool      when the host includes Claude Code
-.agents/skills/<seven>/SKILL.md     tool      DEFERRED to v2 — see §0
+.claude/skills/<seven>/SKILL.md     tool      the shared body plus `disable-model-invocation: true`
+.agents/skills/<seven>/SKILL.md     tool      the shared body, verbatim
 .claude/agents/*.agent.md           tool      Claude subagent definitions (planner, reviewer)
 
 AGENTS.md    a delimited block, merged (§5.2)
@@ -576,8 +591,8 @@ It also carries the operational lessons that are genuinely portable:
 
 ### 5.1 Two skill trees, one body
 
-**v1 emits `.claude/skills/` only (§0).** The rest of this section is the v2 target, and §3.2 is what
-keeps it cheap to reach.
+**Both trees ship.** §3.2 is what made the second one cheap to reach: it arrived as a `dest` in
+`managedFiles` with no transform, and not one skill body was touched.
 
 Per §1.2 and the Claude Code equivalent, the two hosts read disjoint directories. So the same SKILL.md
 body is written to both, differing only in the `disable-model-invocation` frontmatter line (§3.1).
@@ -587,7 +602,14 @@ body is written to both, differing only in the `disable-model-invocation` frontm
 
 Duplication is the cost. It is contained because one canonical source lives in the package, both trees
 are written at install, both are hashed in the manifest, and neither is ever hand-edited — so drift is
-structurally impossible rather than merely discouraged.
+structurally impossible rather than merely discouraged. Editing one copy is a conflict on the next
+`update`, which is the same signal as editing any other managed file, reported the same way.
+
+An install predating a tree gains it: `update` reconciles adapters to what the running version ships
+rather than to what the manifest recorded, and reports the change on its own line. The reverse holds too
+— a tree this tool stops shipping falls through the no-longer-shipped branch and is removed. A skill
+directory the tool did **not** write is a conflict, never an adoption: it is not in the manifest, and
+that is exactly the case the manifest exists to catch.
 
 **Rejected: a thin CLI** (`npx <name> feature-plan` printing a procedure). It puts a Node process
 between an agent and a hand-written file it can already open, becomes a second home for the procedure,
@@ -808,5 +830,8 @@ dispatch under Codex) and §8.4 (`agy` untested against §1.1) are now under *v2
 8. Dogfood: install into a scratch repo, run the full loop — `/roadmap` → `/feature-plan` →
    `/feature-implement` → `/feature-close` — under Claude Code.
 
-**Steps 1–7 shipped.** Step 8 is the first item in [`PLAN.md`](PLAN.md): the loop has been run by hand,
-following each SKILL.md literally, but not yet under a live agent.
+9. The second adapter tree and the executor questions v1 deferred (§0).
+
+**Steps 1–7 and 9 shipped.** Step 8 is the first item in [`PLAN.md`](PLAN.md): the loop has been run by
+hand, following each SKILL.md literally, but not yet under a live agent — and that verification now has
+two trees to cover, not one.

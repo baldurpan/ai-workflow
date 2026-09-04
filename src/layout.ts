@@ -2,10 +2,25 @@ import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import { templatesDir, toPosix, walk } from './paths.ts';
 
-export type Adapter = 'claude';
+export type Adapter = 'claude' | 'agents';
 
-/** v1 emits the Claude Code tree only. `.agents/` is v2 — see the plan's §0 and §5.1. */
-export const DEFAULT_ADAPTERS: Adapter[] = ['claude'];
+/**
+ * Both trees ship. The hosts read disjoint directories — Codex finds `.agents/skills/` and never looks
+ * at `.claude/skills/` (§1.2) — so a repository worked on by more than one agent needs both, and a
+ * repository worked on by one pays a directory it never opens. Neither tree is ever hand-edited, which
+ * is what keeps the duplication structural rather than a drift risk (§5.1).
+ */
+export const DEFAULT_ADAPTERS: Adapter[] = ['claude', 'agents'];
+
+/** Where each adapter's host looks for project-local skills. */
+export const ADAPTER_SKILL_DIRS: Record<Adapter, string> = {
+  claude: '.claude/skills',
+  agents: '.agents/skills',
+};
+
+export function isAdapter(value: unknown): value is Adapter {
+  return value === 'claude' || value === 'agents';
+}
 
 /** The manifest key for the delimited block inside AGENTS.md. Not a file — a region of one. */
 export const AGENTS_BLOCK_KEY = 'AGENTS.md#ai-workflow';
@@ -75,13 +90,25 @@ export function managedFiles(adapters: readonly Adapter[]): ManagedFile[] {
     for (const name of SKILL_NAMES) {
       files.push({
         source: `skills/${name}/SKILL.md`,
-        dest: `.claude/skills/${name}/SKILL.md`,
+        dest: `${ADAPTER_SKILL_DIRS.claude}/${name}/SKILL.md`,
         transform: claudeSkillTransform,
       });
     }
     for (const rel of walk(path.join(templatesDir, 'claude', 'agents'))) {
       const posix = toPosix(rel);
       files.push({ source: `claude/agents/${posix}`, dest: `.claude/agents/${posix}` });
+    }
+  }
+
+  // The same seven bodies, verbatim. No transform: `disable-model-invocation` is Claude Code's key and
+  // means nothing here, and there is no subagent tree to go with it — the skills already write
+  // delegation as optional.
+  if (adapters.includes('agents')) {
+    for (const name of SKILL_NAMES) {
+      files.push({
+        source: `skills/${name}/SKILL.md`,
+        dest: `${ADAPTER_SKILL_DIRS.agents}/${name}/SKILL.md`,
+      });
     }
   }
 

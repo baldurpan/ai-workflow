@@ -50,6 +50,23 @@ describe('manifest', () => {
     rmSync(root, { recursive: true, force: true });
   });
 
+  it('drops an adapter it does not know rather than acting on it', () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'aiw-manifest-'));
+    mkdirSync(path.join(root, 'context/.state'), { recursive: true });
+    writeFileSync(
+      path.join(root, 'context/.state/manifest.json'),
+      JSON.stringify({
+        schemaVersion: SCHEMA_VERSION,
+        version: '9.9.9',
+        adapters: ['claude', 'jetbrains'],
+        managedFiles: {},
+      }),
+      'utf8',
+    );
+    assert.deepEqual(readManifest(root).adapters, ['claude']);
+    rmSync(root, { recursive: true, force: true });
+  });
+
   it('says what to run when there is no install at all', () => {
     const root = mkdtempSync(path.join(tmpdir(), 'aiw-manifest-'));
     assert.throws(() => readManifest(root), /no manifest/);

@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { apply as applyBlock, BlockConflictError } from '../agents-block.ts';
 import {
+  ADAPTER_SKILL_DIRS,
   AGENTS_BLOCK_KEY,
   CONTEXT_DIR,
   DEFAULT_ADAPTERS,
@@ -52,6 +53,12 @@ export function install(root: string): number {
     manifest.managedFiles[file.dest] = hash(content);
   }
   info(`${green('+')} ${managed.length} tool-owned files ${dim('(replaced on update)')}`);
+  info(
+    dim(
+      `    the seven skills go to ${adapters.map((a) => `${ADAPTER_SKILL_DIRS[a]}/`).join(' and ')} — ` +
+        'one body, one directory per host, neither hand-edited',
+    ),
+  );
 
   for (const stub of STUBS) {
     write(root, stub.dest, readTemplate(stub.source));

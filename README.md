@@ -70,6 +70,7 @@ context/
   drafts/  plans/  archive/                                                                yours
   .state/manifest.json
 .claude/skills/<seven>/SKILL.md   .claude/agents/*.agent.md                                tool-owned
+.agents/skills/<seven>/SKILL.md   the same seven bodies, for hosts that read that tree       tool-owned
 AGENTS.md   a delimited block, merged into whatever is already there
 CLAUDE.md   a single @AGENTS.md line, and only when the file does not exist
 ```
@@ -132,10 +133,23 @@ positive points at the document that is out of step.
 
 ## Scope
 
-v1 targets **Claude Code**. The skill bodies are written runtime-neutral — no runtime primitive is named
-in one — so the second adapter tree (`.agents/`, for Codex and anything else following the `AGENTS.md`
-convention) is a directory to write, not a rewrite. `AGENTS.md` is already the content home, which is why
-Cursor, Copilot and Gemini CLI get the block for free today.
+**Both skill trees ship.** Claude Code reads `.claude/skills/`; Codex reads `.agents/skills/` and never
+looks at the other one. They get the same seven bodies — the only difference is one frontmatter line,
+`disable-model-invocation: true`, which is Claude Code's key and means nothing elsewhere. The bodies are
+written runtime-neutral, with no runtime primitive named in any of them, and a test enforces it.
+
+Duplication is the cost, and it is contained by construction rather than by discipline: one canonical
+source lives in the package, both trees are written at install, both are hashed in the manifest, and
+neither is ever hand-edited. Editing one is a conflict, not a divergence.
+
+`AGENTS.md` is the content home, so Cursor, Copilot and Gemini CLI get the command block for free without
+a tree of their own. An install made before the second tree existed gains it on the next `update`, listed
+as `add` in the plan.
+
+**No host's review command is named anywhere in the package.** Which coder or reviewer serves Gate 2 is a
+per-machine fact that hosts change underneath you, so `/onboard` asks and writes the chosen invocation into
+`context/executors.md`. What ships is the contract — a review happens, blocking findings carry a `P0`–`P3`
+severity, a `FAIL` writes a finding before the loopback — not the command.
 
 Requires Node 20.10 or newer. One `context/` per repository.
 
