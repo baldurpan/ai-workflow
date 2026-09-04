@@ -5,11 +5,22 @@
   "keywords": ["ai", "agents", "claude-code", "workflow", "planning", "AGENTS.md"],
   "license": "MIT",
   "author": "Baldur Páll Hólmgeirsson",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/baldurpan/ai-workflow.git"
+  },
+  "homepage": "https://github.com/baldurpan/ai-workflow#readme",
+  "bugs": {
+    "url": "https://github.com/baldurpan/ai-workflow/issues"
+  },
   "type": "module",
   "bin": {
     "create-ai-workflow": "dist/bin.js"
   },
   "files": ["dist", "templates", "README.md", "LICENSE"],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=20.10.0"
   },
