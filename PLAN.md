@@ -108,6 +108,12 @@ This is why "agent-agnostic" needs no CLI shim and no prose procedures — it ne
 - `npm create @baldurpan/ai-workflow` maps to the same package —
   `npm/lib/commands/init.js:113` rewrites `@user/project` → `@user/create-project`.
 - `npm whoami` returns E401 on this machine; `npm login` is required before publishing.
+- **npm refuses to publish a file named `.gitignore`.** It is stripped from the tarball with no warning.
+  The vendored standards tree carries one (`templates/.gitignore`), so the published package would have
+  shipped 77 of upstream's 78 files while `standards/.source` claimed a ref the installed tree did not
+  match. It ships as `templates/_dot_gitignore` and the leading dot is restored at write time; the
+  installed tree now diffs clean against upstream `git ls-files`. Anything else vendored in future needs
+  the same check — `npm pack --dry-run` against the source tree, not a file count.
 
 ---
 
@@ -784,12 +790,39 @@ from judgement into a check.
    reviewer configured, Gate 2 degrades to the host reviewing the diff against the plan's review
    checklist — weaker, but still a gate, and it says so.
 
-2. **`npm login`** is required before the first publish; this machine returns E401.
+2. **`npm login`** is required before the first publish; this machine returns E401. Nothing is
+   published. `npm pack` produces a working 139 kB / 115-file tarball, verified by installing it into a
+   clean repo and running `install`, `check` and `update --dry-run` against it.
 
-3. **Licensing** for the vendored standards, if they ship into arbitrary repos by default.
+3. **Licensing for the vendored standards — checked, and it is a real gap.**
+   `baldurpan/ai-engineering-standards` has **no LICENSE file** (`git ls-files | grep -i licen` returns
+   nothing). So the terms under which 78 vendored files may be redistributed into arbitrary repositories
+   are unsettled; they are bundled on the author's own authority and nothing more. The README says so
+   plainly and points at `standards add <git-url>` for anyone who needs known terms. **The cheap fix is
+   upstream:** add a LICENSE to that repo and the item closes. Until then this is the one thing in the
+   package that could not be defended to a third party.
 
 4. **`agy` is untested** against §1.1. The F-002 result covers Codex only. Anything that assumes an
    executor can read project files should degrade safely if it cannot.
+
+5. **The dogfood was run by hand, not under a live agent.** §9 step 8 was executed by following each
+   SKILL.md literally — install into a scratch repo with a real `package.json`, `/onboard`'s
+   run-each-candidate pass, `/roadmap` → `/feature-plan` → `/feature-implement` (both phases, both
+   gates) → `/feature-close`, with `check` clean at every step and correctly reporting four planted
+   breakages afterwards. That proves the documents are *executable* and mutually consistent. It does
+   **not** prove the descriptions fire correctly, that `disable-model-invocation` suppresses
+   auto-matching, or that a real session picks the right phase unprompted. **Run the loop under Claude
+   Code before publishing**; description auto-matching (§3.1) is the part least testable from here and
+   the part most likely to be wrong.
+
+6. **Two findings from the build, both fixed, both worth not re-learning.**
+   - Importing the CLI module executed it: a test that imported `parseArgs` ran the installer into the
+     tool's own repo. Entry point is now split — `cli.ts` exports, `bin.ts` runs. Any future entry point
+     keeps that split.
+   - The stubs' commented-out example entries were parsed as real content by a naïve scan. `check`
+     strips HTML comments so it was never fooled, but an agent or a one-off script would be. Examples
+     now sit in blockquotes above the `---`, outside the sections anything scans, and three tests assert
+     the stubs parse to zero entries, zero findings, zero history rows.
 
 ---
 
@@ -806,3 +839,60 @@ from judgement into a check.
 7. `standards add` (§6.3).
 8. Dogfood: install into a scratch repo, run the full loop — `/roadmap` → `/feature-plan` →
    `/feature-implement` → `/feature-close` — under Claude Code.
+
+Steps 1–7 are built and tested (66 tests). Step 8 is done by hand and not yet under a live agent — see
+§8.5.
+
+---
+
+## 10. Decisions taken during implementation
+
+Three places where the plan left the call open and the build had to make one, plus a note on what the
+test suite actually guards. Recorded because each is cheap to reverse now and annoying later.
+
+### 10.1 A closed finding is a `note`, not an error
+
+§6.4 lists "a closed finding still sitting in `findings.md`" among the rules, and §3.8 says `check`
+"**reports**" it. The build takes that word literally: `check` has two levels, and this rule is the only
+one at `note` — printed, but it does not fail the exit code.
+
+The reason is §6.4's own closing paragraph. A session that closes a finding legitimately leaves it in
+the *Closed* section until `/feature-close` sweeps it, so an error-level rule would turn `check` red
+during the normal window between those two events. "A validator that cries wolf after a template change
+is worse than none" applies just as hard to one that cries wolf during ordinary work.
+
+**To reverse:** change the one `level: 'note'` in `src/check/rules.ts` to `'error'`.
+
+### 10.2 The standards tree is adopted whole, not per file
+
+§6.2's table says a hash mismatch is a conflict; §4.1 says `standards/` is tool-owned only "while ours
+and unmodified". Those disagree for standards specifically. The build follows §4.1: **one edited file
+under `context/standards/` hands the entire tree to the project** — every standards entry drops out of
+the manifest, `update` reports the adoption rather than a conflict, and nothing there is ever written
+again, `--force` included.
+
+Per-file adoption was rejected because the tree is an interface, not a bag of files: the README's
+conditional table and the files it names have to agree, and a half-managed tree is one where an update
+replaces a file the user's own table no longer points at.
+
+### 10.3 Subagent definitions use `model: inherit`
+
+The reference pins `model: opus` on its planner and `model: sonnet` on its reviewer. The package ships
+into other people's accounts, so it assumes nothing about model access: both `.claude/agents/*.agent.md`
+use `inherit`. Pinning is a one-line edit in a file the user owns after install — and it is in the
+manifest, so pinning it makes it a conflict on the next `update`, which is the correct signal.
+
+### 10.4 Tests guard the invariants that would otherwise rot silently
+
+Four of the 66 are not testing code; they are testing that the *content* still holds its own rules, and
+they exist because the reference violated exactly these:
+
+- **No skill body names a runtime primitive** (§3.2) — the guard that keeps the v2 tree a directory to
+  write rather than a rewrite of seven files.
+- **Only `verify.md` names a verification command** (§4.2, §7.1) — scans every template, and would have
+  caught all four of the reference's copies.
+- **Nothing carries a `**Status:**` header** (§2.1).
+- **Every relative link resolves after install** — this one found two real cases where a link is correct
+  at its *destination* rather than its source: `plan-template.md`'s `../roadmap.md` (correct once copied
+  into `plans/`) and `/feature-close`'s archived-header example (correct once written into `archive/`).
+  The second is now a fenced block, which is clearer for the agent anyway.
