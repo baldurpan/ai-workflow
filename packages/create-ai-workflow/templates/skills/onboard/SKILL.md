@@ -1,6 +1,6 @@
 ---
 name: onboard
-description: "Fill in this project's own workflow stubs — context/verify.md, context/executors.md and context/stack.md — by adopting what the repository already documented, asking wherever a claim's destination is unclear, and running each candidate verification command so only the ones that pass are written down. Explicit invocation only — run this when the user types /onboard. Do NOT match on 'set up the project', 'get started', or general setup requests."
+description: "Fill in this project's own workflow stubs — context/verify.md, context/executors.md, context/git.md and context/stack.md — by adopting what the repository already documented, asking wherever a claim's destination is unclear, and running each candidate verification command so only the ones that pass are written down. Explicit invocation only — run this when the user types /onboard. Do NOT match on 'set up the project', 'get started', or general setup requests."
 ---
 
 # /onboard
@@ -21,8 +21,9 @@ Read [`context/workflow.md`](../../../context/workflow.md) for the tier model.
 |---|---|
 | [`context/verify.md`](../../../context/verify.md) | the real Lint / Typecheck / Build / Test commands — **only ones that exited 0** |
 | [`context/executors.md`](../../../context/executors.md) | how this project dispatches a coder and a reviewer |
+| [`context/git.md`](../../../context/git.md) | who commits the work, and at what granularity |
 | [`context/stack.md`](../../../context/stack.md) | runtime, layout, conventions |
-| [`AGENTS.md`](../../../AGENTS.md) | pruned, on confirmation, of what moved into those three. The region between the `ai-workflow` markers is never touched |
+| [`AGENTS.md`](../../../AGENTS.md) | pruned, on confirmation, of what moved into those four. The region between the `ai-workflow` markers is never touched |
 
 Show every proposed edit before writing it, and **do not commit.** The user reviews and commits.
 
@@ -44,8 +45,9 @@ Break what you read into claims — a paragraph, a table row, a bullet — and p
 | A claim about | Goes to |
 |---|---|
 | what the project is, its layout, its conventions | `context/stack.md` |
-| a lint, typecheck, build or test command | a **candidate** for `context/verify.md` — Step 5 still has to run it |
+| a lint, typecheck, build or test command | a **candidate** for `context/verify.md` — Step 6 still has to run it |
 | how a coder or a reviewer is dispatched | `context/executors.md` |
+| a rule about who commits, or when work is committed | `context/git.md` |
 | a rule the bundled standards already state | nowhere — the standards own it. Ask before dropping |
 | planning or review process this workflow now owns | nowhere — superseded. Ask before dropping |
 | anything else — ownership, contacts, external links | stays in `AGENTS.md`, outside the block |
@@ -63,7 +65,7 @@ destination. Two kinds of row are never decided alone:
 An adopted claim is an *input* to the steps below, not a substitute for them. A command lifted out of the
 old file is a candidate like any other and still has to run.
 
-**Nothing is deleted here.** Pruning is Step 7, after the destination files exist.
+**Nothing is deleted here.** Pruning is Step 8, after the destination files exist.
 
 On a re-run, a claim its destination file already states is already adopted. Say so in a line and move on.
 
@@ -87,7 +89,7 @@ on that being true, and it is true of some executors and not others.
 4. If it comes back empty, guessed, or refused, record that **this executor needs content inline** — the
    one case where a brief carries file contents instead of paths.
 
-Never write down an invocation you have not run. This is the same rule as Step 5, for the same reason.
+Never write down an invocation you have not run. This is the same rule as Step 6, for the same reason.
 
 ## Step 3 — Reviewer dispatch
 
@@ -107,7 +109,33 @@ winner: it differs per host and changes underneath you. What ships is the contra
 Whatever is chosen, that contract stands: a review happens, every blocking finding carries a `P0`–`P3`
 severity, and a `FAIL` writes a finding before the loopback.
 
-## Step 4 — Standards source
+## Step 4 — Who commits
+
+**Ask this one. It is the question the workflow used to answer by inference.**
+
+Every command that lands code closes out by updating a ledger row *as part of the same change as the work*,
+and `done` has always meant the scope landed and the gates passed. Given no policy, an agent resolves that
+the only way it can — by committing, every phase, in someone else's repository. That is a call for the
+project to make, so ask it and write the answer to [`context/git.md`](../../../context/git.md).
+
+Ask, using your runtime's question mechanism if it has one:
+
+- **The user commits** — the default, and what the stub ships saying. A phase ends verified, with its
+  ledger row updated, left in the working tree. The agent reports and stops.
+- **The agent commits** — one commit per phase, the code and its ledger row together.
+
+Then confirm the granularity if the agent commits, and **say plainly what is not being decided**: nothing in
+this workflow branches, pushes, or opens a pull request under either answer, and choosing one does not start
+that.
+
+Write the answer as the surviving line under **Who commits**, and delete the other. If `context/git.md` does
+not exist — an install from before it shipped — create it, with a `## Who commits` section holding the
+chosen line, a `## Granularity` section, and a line recording that branches and pushes are out of scope.
+
+If Step 1 turned up an existing rule about committing, quote it here and let it win unless the user says
+otherwise. Prose someone wrote about their own repository beats a default.
+
+## Step 5 — Standards source
 
 `context/standards/` ships with a bundled default. Ask whether that is right for this project.
 
@@ -121,7 +149,7 @@ Say plainly what the default is and that a wrong set is not inert — agents loa
 conditional table unprompted, on every task. If Step 1 turned up house rules that the bundled set already
 covers, this is the moment that matters: keeping both means the project has two answers.
 
-## Step 5 — Verification commands
+## Step 6 — Verification commands
 
 **This is the most valuable step in this command.** Do it properly.
 
@@ -143,7 +171,7 @@ covers, this is the moment that matters: keeping both means the project has two 
 Explain what you are doing: this turns `verify.md` from someone's guess into something verified at install
 time, which is the one moment it is cheap to catch.
 
-## Step 6 — Stack
+## Step 7 — Stack
 
 Start from what Step 1 routed here, show it back as a draft, and ask only for the gaps:
 
@@ -158,9 +186,9 @@ Start from what Step 1 routed here, show it back as a draft, and ask only for th
 Point out that anything else added under `context/` should be indexed in `stack.md`, not in
 `context/README.md`, which is tool-owned and replaced on update.
 
-## Step 7 — Prune the sources
+## Step 8 — Prune the sources
 
-Only now, with the three stubs written, remove from `AGENTS.md` and `CLAUDE.md` what has landed elsewhere.
+Only now, with the four stubs written, remove from `AGENTS.md` and `CLAUDE.md` what has landed elsewhere.
 Duplication left standing is the failure this step exists to prevent: two statements of one fact drift, and
 the stale copy is indistinguishable from the live one.
 

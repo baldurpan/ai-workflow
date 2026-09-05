@@ -83,11 +83,15 @@ Everything goes under `prototypes/<NAME>/` at the repository root, where `<NAME>
 
 `NOTES.md` is the durable part. The HTML is scaffolding for a conversation; the notes are what a plan reads.
 
-## 4. Commit it
+## 4. It gets committed
 
 `prototypes/` is yours, not the tool's — nothing installs it, nothing updates it, nothing validates it.
-**Commit it anyway.** Until a plan absorbs `NOTES.md` its conclusions live nowhere else, and neither the
-notes nor the mockups survive a cleared context or a second machine if they were never tracked.
+**It gets committed anyway.** Until a plan absorbs `NOTES.md` its conclusions live nowhere else, and neither
+the notes nor the mockups survive a cleared context or a second machine if they were never tracked.
+
+Who does the committing is [`context/git.md`](../../../context/git.md)'s answer, not this command's. Where
+the user commits, say plainly that these files are worth tracking rather than leaving them to be mistaken
+for scratch output.
 
 ## 5. Hand off and stop
 

@@ -120,7 +120,7 @@ blocked by definition), then escalate to the user with the current state and the
 
 ## 10. Close out the ledger row
 
-In the same commit as the work:
+The row is part of the same change as the work — never a separate step afterwards:
 
 - **All of the phase's scope landed and both gates passed** → `done`.
 - **Some landed** → stays `in progress`, Note rewritten to name exactly what remains.
@@ -129,9 +129,22 @@ In the same commit as the work:
 **Never mark `done` on a coder's self-report** — the gate output is the evidence. **Refuse `done` while an
 open `P0` or `P1` is tied to this phase**; leave it `in progress` and name the finding.
 
-## 11. Report
+`done` is a verdict about the gates, not about git. Whether the change is committed at all is the next step.
 
-- What changed, and which files.
+## 11. Land it — read [`context/git.md`](../../../context/git.md)
+
+**Do not commit until you have read that file, and do not commit at all unless it says the agent does.**
+It is the only place this project's answer lives, the same way `verify.md` is the only place its commands
+live. If it does not exist — an install from before it shipped — the answer is *the user commits*: say so
+once, and name `/onboard`.
+
+- **The user commits** → leave the change in the working tree, ledger row and all. Report it, hand it over,
+  and stop. Do not stage-and-commit "to be helpful", and do not push or branch under either answer.
+- **The agent commits** → the code and the ledger row in one commit, at the granularity that file names.
+
+## 12. Report
+
+- What changed, and which files — and whether it is committed or waiting in the tree.
 - Gate 1 output, and Gate 2's verdict.
 - Loopback counts, if any.
 - Findings written or closed, by id.

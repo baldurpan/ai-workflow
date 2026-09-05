@@ -1,6 +1,6 @@
 {
   "name": "@baldurpan/create-ai-workflow",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Overlay a tiered planning workflow — roadmap, plans, phase ledgers, verification gates — onto an existing repository, for coding agents.",
   "keywords": [
     "ai",

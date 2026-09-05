@@ -36,7 +36,7 @@ never a prerequisite for anything.
 | `/feature-close` | Tier 2 → retired | `history.md`, `archive/`, the reference sweep |
 | `/orchestrate` | one ad-hoc gated change | the code, and `findings.md` |
 | `/prototype` | one throwaway HTML/CSS mockup — no gates, no application code | `prototypes/<NAME>/`, and nothing else |
-| `/onboard` | the project-owned stubs | `verify.md`, `executors.md`, `stack.md`, and the pruning of what they replace |
+| `/onboard` | the project-owned stubs | `verify.md`, `executors.md`, `git.md`, `stack.md`, and the pruning of what they replace |
 
 ## One source of truth per fact
 
@@ -86,6 +86,16 @@ features may hold plans at once, and that is what makes planning ahead possible.
 `/orchestrate` is the ad-hoc escape hatch, not the way to skip planning. It refuses anything larger than a
 commit-sized unit and anything an existing roadmap entry already covers.
 
+### Nothing commits unless `git.md` says so
+
+> **Read [`git.md`](git.md) before closing out any command that lands code. If it does not exist, or does
+> not say the agent commits, the work is left in the working tree and the user commits it.**
+
+This workflow has always described phases as commit-sized and `done` as landed — which an agent, given no
+policy, resolves by committing on its own every phase. That is a call about someone else's repository, so
+it is a written answer rather than an inference. Branching and pushing are outside it: nothing here creates
+a branch, pushes, or opens a pull request under either answer.
+
 ### Never transcribe a credential
 
 > **A DSN, token or key is described and pointed at the secret store, never copied into a tracked file.**
@@ -115,10 +125,15 @@ To pick the next phase: take the **lowest-numbered phase that is not `done` and 
 are all `done`.** State which one you picked before starting. If it is already `in progress`, read its Note
 and resume — do not restart it.
 
-`done` means committed and verified, and whoever finishes a phase updates its row in the same commit.
+`done` means the phase's scope landed and both gates passed — **a verdict about the gates, not about git.**
+Whoever finishes a phase updates its row **as part of the same change as the work**: one commit where the
+agent commits, one working tree handed over where the user does. A row updated separately is a row that
+disagrees with the repository in between.
 
 If the ledger's claim disagrees with the repo — a phase marked `done` whose files do not exist, or the
-reverse — **stop and say so.** Never silently re-do or skip a phase on a stale ledger.
+reverse — **stop and say so.** Never silently re-do or skip a phase on a stale ledger. A `done` row whose
+change is still uncommitted is not that: under the default policy in [`git.md`](git.md) it is the normal
+end state.
 
 ## The gates
 

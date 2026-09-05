@@ -3,27 +3,29 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 837 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 927 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 72 tests. Six of them guard *content* invariants rather than code, and they are the
+2. `npm test` — 80 tests. Seven of them guard *content* invariants rather than code, and they are the
    fastest way to see what the design refuses to let rot: runtime neutrality, one home for commands, one
-   home for dispatch, no self-declared status, inert stubs, and every relative link resolving after
-   install — in both skill trees. `ci.yml` runs them on every push and pull request against `main`, plus
-   an `engines-floor` job that builds on Node 20.10.0 and runs the packed CLI there — the suite itself
-   cannot, since it executes `.ts` directly and that needs type stripping.
+   home for dispatch, one home for git etiquette, no self-declared status, inert stubs, and every relative
+   link resolving after install — in both skill trees. `ci.yml` runs them on every push and pull request
+   against `main`, plus an `engines-floor` job that builds on Node 20.10.0 and runs the packed CLI there —
+   the suite itself cannot, since it executes `.ts` directly and that needs type stripping.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** v0.3.0, published. An npm workspaces monorepo — the installer lives in
-`packages/create-ai-workflow/`, and `apps/*` is reserved for a landing site or hosted documentation.
+**State:** v0.4.1 published; v0.5.0 in the tree, unreleased — it carries two changes, `/prototype` and
+`context/git.md`, since `/prototype` landed without a bump of its own. An npm workspaces monorepo — the
+installer lives in `packages/create-ai-workflow/`, and `apps/*` is reserved for a landing site or hosted
+documentation.
 Installs a `context/` tree, the eight skills into **both** `.claude/skills/` and `.agents/skills/`, two
 Claude subagents, a merged `AGENTS.md` block and a manifest that draws the ownership boundary — 101
-tool-owned files, 6 project-owned stubs.
+tool-owned files, 7 project-owned stubs.
 
 ---
 
@@ -102,13 +104,14 @@ content inline has never been taken.
 
 ## Decisions that are cheap to reverse now
 
-Four places the design left the call open and the build had to make one.
+Five places the design left the call open and the build had to make one.
 
 | Decision | Why | To reverse |
 |---|---|---|
 | `update` reconciles adapters to **what the running version ships**, not to what the manifest recorded — so a v0.1 install silently gains `.agents/skills/` | It is the only way an existing install ever reaches a new tree, and the alternative is a flag nobody knows to pass. The eight files are reported as `add`, visible under `--dry-run`, and a directory the tool did not write is still a conflict rather than an adoption | `const adapters = DEFAULT_ADAPTERS` → `manifest.adapters` in `src/commands/update.ts`, plus a way to opt in |
 | A closed finding in `findings.md` is a **`note`**, not an error — printed, but it does not fail the exit code | §6.4 says `check` "reports" it, and a finding legitimately sits in *Closed* until `/feature-close` sweeps it. An error would turn `check` red during ordinary work — the crying-wolf failure §6.4 warns against | one `level: 'note'` → `'error'` in `src/check/rules.ts` |
 | An edited `context/standards/` file hands over **the whole tree**, not that file | §6.2 says a hash mismatch is a conflict; §4.1 says standards are ours only "while unmodified". The tree is an interface — the README's conditional table and the files it names have to agree, so a half-managed tree is one where an update replaces a file the user's own table no longer points at | the tree-level branch in `src/commands/update.ts` |
+| An upgraded install **never gets `context/git.md`** — `update` cannot write stubs, so only a fresh install has one | Stubs are project-owned; a pass that writes missing ones is a pass that can overwrite a file someone deleted on purpose. Instead the file's *absence* is a defined state, read as "the user commits" — the same shape as an empty `verify.md` section, and the conservative answer either way | a stub-restore pass in `src/commands/update.ts` that writes only stubs whose destination does not exist, reported as `add` |
 | Subagents use **`model: inherit`** | The package installs into other people's accounts and assumes nothing about model access. The reference pinned `opus` and `sonnet` | one line in each `templates/claude/agents/*.agent.md`. Note that pinning after install makes it a conflict on the next `update` — which is the correct signal |
 
 ---

@@ -52,6 +52,7 @@ describe('install', () => {
       'context/stack.md',
       'context/verify.md',
       'context/executors.md',
+      'context/git.md',
       'context/roadmap.md',
       'context/history.md',
       'context/findings.md',

@@ -58,6 +58,11 @@ test commands. No skill, agent prompt or role file carries a copy — a hardcode
 project changes shape, and a second copy rots faster. `/onboard` **runs each candidate and writes only the
 ones that exit 0.**
 
+**Nothing commits unless you said it could.** `context/git.md` holds one answer — the user commits, or
+the agent does — and every command that lands code reads it before closing out. It ships saying *the user
+commits*: a tool installed into a repository it knows nothing about does not get to write that
+repository's history unasked. Branches, pushes and pull requests are outside the workflow entirely.
+
 **A finding outlives the session that found it.** A reviewer `FAIL` or a capped gate is written to
 `context/findings.md` *before* the loopback, so it survives the conversation ending. An open `P0`/`P1`
 blocks its phase from being marked `done` and blocks `/feature-close`.
@@ -67,7 +72,7 @@ blocks its phase from being marked `done` and blocks `/feature-close`.
 ```
 context/
   README.md  workflow.md  plan-template.md  plan-template.notes.md  roles/  standards/     tool-owned
-  stack.md  verify.md  executors.md  roadmap.md  history.md  findings.md                   yours
+  stack.md  verify.md  executors.md  git.md  roadmap.md  history.md  findings.md           yours
   drafts/  plans/  archive/                                                                yours
   .state/manifest.json
 .claude/skills/<eight>/SKILL.md   .claude/agents/*.agent.md                                tool-owned
@@ -80,7 +85,7 @@ Nothing is committed. Review the diff yourself.
 
 **Onto a repository that already documents itself**, the installer only appends — your existing
 `AGENTS.md` prose is left exactly where it is. `/onboard` reconciles the two afterwards: it classifies
-each existing claim into `stack.md`, `verify.md` or `executors.md`, asks wherever a destination is
+each existing claim into `stack.md`, `verify.md`, `git.md` or `executors.md`, asks wherever a destination is
 unclear or the old text contradicts the installed workflow, and prunes the source only once the
 replacement is written and shown.
 

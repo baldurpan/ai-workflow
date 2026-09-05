@@ -32,4 +32,4 @@ What this project is, and what an agent has to know before touching it. Run `/on
      line lost. -->
 
 Verification commands are in [`verify.md`](verify.md), not here. Executor dispatch is in
-[`executors.md`](executors.md).
+[`executors.md`](executors.md), and who commits is in [`git.md`](git.md).

@@ -161,7 +161,7 @@ export function update(root: string, options: { dryRun: boolean; force: boolean 
   info();
   info(bold('Ownership'));
   info(`  ${green('replaced by update')}  ${dim('the tool-owned files above — every one is in the manifest')}`);
-  info(`  ${cyan('yours, untouched')}    ${dim('context/stack.md, verify.md, executors.md, roadmap.md,')}`);
+  info(`  ${cyan('yours, untouched')}    ${dim('context/stack.md, verify.md, executors.md, git.md, roadmap.md,')}`);
   info(`                      ${dim('history.md, findings.md, drafts/, plans/, archive/, CLAUDE.md,')}`);
   info(`                      ${dim('and anything else you have added under context/')}`);
   info(dim('  A project-owned file is not in the manifest, so no code path here reaches it.'));

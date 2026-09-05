@@ -119,6 +119,27 @@ describe('one home for dispatch', () => {
   });
 });
 
+describe('one home for git etiquette', () => {
+  // The workflow described phases as commit-sized and `done` as landed without ever saying who commits —
+  // which an agent, given no policy, resolves by committing every phase in a repository it was installed
+  // into. The answer lives in git.md, and every command that lands code reads it before closing out.
+  const LANDS_CODE = ['feature-implement', 'orchestrate', 'feature-close', 'prototype'];
+
+  it('every command that lands code names the policy home', () => {
+    for (const name of LANDS_CODE) {
+      assert.match(skillBody(name), /git\.md/, `${name} must read the commit policy before closing out`);
+    }
+  });
+
+  it('no template carries the phrasing that used to imply the answer', () => {
+    // "in the same commit as the work" reads as an instruction to commit. What survives is "as part of
+    // the same change", which is true under either answer.
+    for (const { rel, text } of ourTemplates()) {
+      assert.doesNotMatch(text, /in the same commit as the work/i, `${rel}`);
+    }
+  });
+});
+
 describe('no document states its own status', () => {
   it('nothing the tool installs carries a **Status:** header', () => {
     for (const { rel, text } of ourTemplates()) {
@@ -161,7 +182,7 @@ describe('/onboard adopts an existing AGENTS.md', () => {
 
   it('classifies before it moves, and moves before it deletes', () => {
     const adopt = onboard.indexOf('## Step 1 — Adopt');
-    const prune = onboard.indexOf('## Step 7 — Prune');
+    const prune = onboard.indexOf('## Step 8 — Prune');
     assert.ok(adopt > 0, 'the adoption step exists');
     assert.ok(prune > adopt, 'pruning comes after every step that writes a destination');
     assert.match(onboard, /Nothing is deleted here/, 'the adoption step deletes nothing');

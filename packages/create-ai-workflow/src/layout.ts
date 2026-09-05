@@ -121,6 +121,7 @@ export const STUBS: ReadonlyArray<{ source: string; dest: string }> = [
   { source: 'stubs/stack.md', dest: 'context/stack.md' },
   { source: 'stubs/verify.md', dest: 'context/verify.md' },
   { source: 'stubs/executors.md', dest: 'context/executors.md' },
+  { source: 'stubs/git.md', dest: 'context/git.md' },
   { source: 'stubs/roadmap.md', dest: 'context/roadmap.md' },
   { source: 'stubs/history.md', dest: 'context/history.md' },
   { source: 'stubs/findings.md', dest: 'context/findings.md' },

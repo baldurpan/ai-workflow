@@ -639,6 +639,42 @@ It also carries the operational lessons that are genuinely portable:
 - **No blanket permission-bypass flag.** Scope permissions in the CLI's own config instead. A standing
   bypass-everything instruction in a committed file is persistent privilege escalation.
 
+### 4.4 `git.md` — who commits
+
+The third file in the same shape as `verify.md` and `executors.md`: hand-written prose, project-owned,
+read fresh at the moment it is needed. **Added after a live run, not designed in.**
+
+The workflow never told an agent to commit. It said phases are commit-sized, that `done` means landed,
+and that a ledger row is updated "in the same commit as the work" — three statements that presuppose a
+commit without ever saying who makes it. An agent resolves that the only way it can, and the observed
+behaviour was a commit at the end of every phase, in a repository the tool had been installed into.
+
+That is the general failure worth naming: **an unstated premise is not neutral.** A document that
+assumes an answer while declining to state it does not leave the question open — it delegates the answer
+to whatever the reader infers, which is the one outcome nobody chose. Two other files exist for exactly
+this reason; this one was missing.
+
+- **Default: the user commits.** A tool that installs itself into someone else's repository does not get
+  to write that repository's history unasked. It is also the answer `/onboard` already gave about its own
+  edits ("Do not commit. The user reviews and commits"), so the package was internally inconsistent.
+- **The invariant survives both answers.** "In the same commit as the work" became "as part of the same
+  change as the work" everywhere: one commit where the agent commits, one working tree handed over where
+  the user does. What must not happen — a ledger row landing separately from the code it describes — is
+  unchanged.
+- **`done` is a verdict about the gates, not about git.** It had been defined as "committed and
+  verified", which under the default answer would be unreachable. `/feature-status` used to report an
+  uncommitted `done` row as something to name; it is now the normal end state.
+- **Branching and pushing are explicitly out of scope**, in the file itself. The workflow has never
+  created a branch or pushed, and a file about git is exactly where someone will assume it does.
+- **The absence of the file is a defined state**, like an empty `verify.md` section: an install from
+  before it shipped reads as *the user commits*, said once, with `/onboard` named. `update` cannot write
+  stubs — that is what makes stubs project-owned — so upgraded installs have no `git.md` and must not
+  break.
+- **`/onboard` Step 4 asks it**, between reviewer dispatch and the standards question, and a commit rule
+  found in inherited `AGENTS.md` prose now has a destination in Step 1's routing table.
+- **A test enforces it**, per §7.3's lesson: every command that lands code names `git.md`, and no
+  template anywhere carries the phrase "in the same commit as the work" again.
+
 ---
 
 ## 5. Agent-agnostic distribution
