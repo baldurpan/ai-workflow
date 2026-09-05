@@ -86,7 +86,7 @@ You are working inside a project that references this standards repository. Load
 | [`tooling/`](tooling/) | TanStack, Nx, Vite, Biome, Tailwind, shadcn, Prisma |
 | [`security/`](security/) | Validation, secrets, auth, API security |
 | [`examples/`](examples/) | Concrete good and bad code examples |
-| [`templates/`](templates/) | Drop-in starter files — `CLAUDE.md`, `AGENTS.md`, `tsconfig.json`, `biome.json`, `eslint.config.js`, `.gitignore`, `.editorconfig`, `.nvmrc`, project README, PR template |
+| [`templates/`](templates/) | Drop-in starter files — `CLAUDE.md`, `AGENTS.md`, `tsconfig.json`, `biome-example.json`, `eslint.config.js`, `.gitignore`, `.editorconfig`, `.nvmrc`, project README, PR template |
 | [`php/`](php/) | **Secondary stack.** PHP standards — only when the task is explicitly PHP |
 
 ### Core Philosophy

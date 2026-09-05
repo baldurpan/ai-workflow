@@ -92,6 +92,15 @@ describe('the conditional-loading table is the interface', () => {
     assert.equal(undotted('typescript/rules.md'), 'typescript/rules.md');
   });
 
+  it('installs no file a tool would auto-discover as its own config', () => {
+    const dests = managedFiles(['claude']).map((f) => f.dest);
+    assert.ok(dests.includes('context/standards/templates/biome-example.json'));
+    assert.ok(
+      !dests.some((d) => path.basename(d) === 'biome.json'),
+      'a vendored biome.json configures Biome for the files beside it, in every project this installs into',
+    );
+  });
+
   it('records where it came from, so update can say when upstream moved', () => {
     const marker = readTemplate('standards/.source');
     assert.match(marker, /^origin=https:\/\/github\.com\/\S+$/m);

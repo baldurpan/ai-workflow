@@ -18,7 +18,9 @@ pnpm add --save-dev --save-exact @biomejs/biome
 pnpm biome init
 ```
 
-Or copy [`templates/biome.json`](../templates/biome.json) into your project as a starting point.
+Or copy [`templates/biome-example.json`](../templates/biome-example.json) into your project as
+`biome.json` — it ships under an `-example` name so Biome does not pick it up as a live config where
+these standards are vendored.
 
 ## Key Commands
 
@@ -68,7 +70,8 @@ Enable format on save:
 
 ## Config Reference
 
-See [`templates/biome.json`](../templates/biome.json) for the canonical Biome config.
+See [`templates/biome-example.json`](../templates/biome-example.json) for the canonical Biome config.
+Rename it to `biome.json` when you copy it in.
 
 ## Migrating from ESLint + Prettier
 

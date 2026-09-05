@@ -125,6 +125,13 @@ This is why "agent-agnostic" needs no CLI shim and no prose procedures — it ne
   match. It ships as `templates/_dot_gitignore` and the leading dot is restored at write time; the
   installed tree now diffs clean against upstream `git ls-files`. Anything else vendored in future needs
   the same check — `npm pack --dry-run` against the source tree, not a file count.
+- **A vendored file named `biome.json` is a live Biome config.** Biome discovers configuration by name,
+  walking up from each file, so `templates/biome.json` in the standards tree configured Biome for the
+  files beside it — in this repository, and in every project the tree installs into as
+  `context/standards/templates/`. It is vendored and installed as `templates/biome-example.json`
+  instead, which is the one deviation from upstream that is *not* undone at write time: restoring the
+  name would hand the problem to every consumer. Recorded in `standards/.source`. The same reasoning
+  applies to anything else vendored under a name a tool auto-discovers.
 
 ---
 
