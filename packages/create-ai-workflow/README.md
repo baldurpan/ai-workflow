@@ -7,7 +7,7 @@
 npx @baldurpan/create-ai-workflow      # or: npm create @baldurpan/ai-workflow
 ```
 
-You get a backlog, plan documents with phase ledgers, two verification gates, and seven commands that
+You get a backlog, plan documents with phase ledgers, two verification gates, and eight commands that
 move work between them. Your coding agent runs the commands; you read and hand-edit the files.
 
 ---
@@ -39,6 +39,7 @@ starting point — nothing has to be looked up first.
 | `/feature-status` | read-only. Reconciles the ledger against the repo, then names **exactly one** next action |
 | `/feature-close` | retires a feature: a `history.md` row, a `git mv` into `archive/`, and a reviewed reference sweep |
 | `/orchestrate` | one ad-hoc, commit-sized change through the same gates — no entry, no ledger |
+| `/prototype` | a throwaway HTML/CSS mockup under `prototypes/`, to settle a layout question before a plan commits to it — no gates, no application code |
 | `/onboard` | fills in your own stubs, adopting what the repo already documented and running each verification command before writing it down |
 
 ## What makes it different
@@ -69,8 +70,8 @@ context/
   stack.md  verify.md  executors.md  roadmap.md  history.md  findings.md                   yours
   drafts/  plans/  archive/                                                                yours
   .state/manifest.json
-.claude/skills/<seven>/SKILL.md   .claude/agents/*.agent.md                                tool-owned
-.agents/skills/<seven>/SKILL.md   the same seven bodies, for hosts that read that tree       tool-owned
+.claude/skills/<eight>/SKILL.md   .claude/agents/*.agent.md                                tool-owned
+.agents/skills/<eight>/SKILL.md   the same eight bodies, for hosts that read that tree       tool-owned
 AGENTS.md   a delimited block, merged into whatever is already there
 CLAUDE.md   a single @AGENTS.md line, and only when the file does not exist
 ```
@@ -140,7 +141,7 @@ positive points at the document that is out of step.
 ## Scope
 
 **Both skill trees ship.** Claude Code reads `.claude/skills/`; Codex reads `.agents/skills/` and never
-looks at the other one. They get the same seven bodies — the only difference is one frontmatter line,
+looks at the other one. They get the same eight bodies — the only difference is one frontmatter line,
 `disable-model-invocation: true`, which is Claude Code's key and means nothing elsewhere. The bodies are
 written runtime-neutral, with no runtime primitive named in any of them, and a test enforces it.
 

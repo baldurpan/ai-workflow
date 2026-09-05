@@ -55,7 +55,7 @@ export function install(root: string): number {
   info(`${green('+')} ${managed.length} tool-owned files ${dim('(replaced on update)')}`);
   info(
     dim(
-      `    the seven skills go to ${adapters.map((a) => `${ADAPTER_SKILL_DIRS[a]}/`).join(' and ')} — ` +
+      `    the eight skills go to ${adapters.map((a) => `${ADAPTER_SKILL_DIRS[a]}/`).join(' and ')} — ` +
         'one body, one directory per host, neither hand-edited',
     ),
   );

@@ -89,6 +89,10 @@ inline. Either way the brief is the same, and the output contract is the templat
 planner's own default shape:
 
 - The roadmap entry verbatim, and the full content of its draft if there was one.
+- **If `prototypes/<NAME>/` exists at the repository root**, its `NOTES.md` and the mockups beside it. A
+  sketch someone has already looked at settles a design question that a paragraph would only argue. Carry
+  what it settled into §4 Design and cite the folder; treat anything it marked invented as a proposal, not
+  a fact. **No folder, no step** — this is a conditional read, not a prerequisite.
 - **The full section list from `context/plan-template.md`, stated as required output**, in order, with the
   ledger's exact column set. A general-purpose planner will otherwise emit implementation-steps-and-
   acceptance-criteria — a per-phase artifact, not a plan — and you will throw it away.

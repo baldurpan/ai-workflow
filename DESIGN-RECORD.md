@@ -230,7 +230,8 @@ tracked files. `/onboard` writes `$SENTRY_DSN`-style placeholders and names wher
 
 ## 3. The commands
 
-Seven skills. Five are the loop, one is the escape hatch, one is setup.
+Eight skills. Five are the loop, one is the escape hatch, one is setup, and one — §3.10 — is a
+pre-plan sketchpad that nothing else depends on.
 
 Every command **finds its own starting point**. Nothing has to be looked up first, and
 `/feature-status` is never a prerequisite for anything.
@@ -508,6 +509,52 @@ Writes placeholders, never secrets (§2.7). Does not commit.
 
 ---
 
+### 3.10 `/prototype` — the pre-plan sketchpad
+
+```
+/prototype "<what to mock>"
+```
+
+Throwaway HTML and CSS under `prototypes/<NAME>/`, to settle a layout or look-and-feel question a plan
+would otherwise argue about in prose. Ported in spirit from `aiblueprinthq/ai-blueprint`'s `/prototype`,
+not in substance — that one exists to **lock a new project's look**, with `theme.css` tokens ported into a
+scaffolded app's `@theme` as its durable output. This tool overlays repositories that already have a look,
+so the deliverable is inverted: **borrow before inventing**, mark every invented value, and the durable
+part is `NOTES.md` — what the sketch settled — not the tokens.
+
+**It is the one stack-shaped skill, and that is defensible only because of what it is not.** It crosses no
+tier, has no ledger, runs no gates, writes no application code, and nothing in the loop requires it. A Rust
+CLI or a headless API never invokes it and loses nothing; the other seven stay stack-agnostic, and the
+`one home for commands` test still holds across all eight. Had this been a loop step, the answer would have
+been no.
+
+**`prototypes/` at the repository root**, not under `context/`. Rejected: `context/drafts/<NAME>/`, which
+reads correctly — "source material for an idea not yet planned" — but collides with §3.4's `git mv` of a
+draft *file* to `plans/<NAME>-PLAN.md`; a directory cannot follow it, so the mockups would strand in
+`drafts/` for a feature that is no longer there. Also rejected: `context/prototypes/`, which fixes that at
+the cost of a `/feature-close` sweep line for a folder the tool does not own. The root keeps a disposable
+artifact visibly disposable, and keeps `context/` documents-only.
+
+**Committed, not ignored** — blueprint's reasoning holds unchanged: until a plan absorbs `NOTES.md`, its
+conclusions live nowhere else, and an untracked folder does not survive a cleared context or a second
+machine. It is short-lived in git, not throwaway that never lands.
+
+**One conditional line in `/feature-plan` (§3.4), and nothing else in the loop.** Its research brief reads
+`prototypes/<NAME>/` *if the folder exists*. Absent, the step is a no-op — which is what keeps the command
+optional in fact and not just in prose. Without it the prototype's value would depend on the user
+remembering to mention the folder.
+
+**No `feature-` prefix.** That rule (§3.1) is collision-driven — `/plan` and `/status` are host built-ins.
+`/prototype` collides with nothing and is not feature-tier-bound, so it is named like `/roadmap`,
+`/orchestrate` and `/onboard`.
+
+**Single file, no bundled `reference/`.** `managedFiles` ships `skills/<name>/SKILL.md` and nothing else
+per skill; a reference asset means walking the skill directory in the installer and a manifest entry for
+every file in it. Blueprint's `theme-variables.css` is one small example — the skill states the shape in
+prose instead and pays nothing.
+
+---
+
 ## 4. What gets installed
 
 ```
@@ -527,8 +574,8 @@ context/
   drafts/  plans/  archive/         project   .gitkeep
   .state/manifest.json   tool      version, adapters, sha256 per managed file
 
-.claude/skills/<seven>/SKILL.md     tool      the shared body plus `disable-model-invocation: true`
-.agents/skills/<seven>/SKILL.md     tool      the shared body, verbatim
+.claude/skills/<eight>/SKILL.md     tool      the shared body plus `disable-model-invocation: true`
+.agents/skills/<eight>/SKILL.md     tool      the shared body, verbatim
 .claude/agents/*.agent.md           tool      Claude subagent definitions (planner, reviewer)
 
 AGENTS.md    a delimited block, merged (§5.2)

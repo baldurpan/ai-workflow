@@ -21,8 +21,8 @@ Every `§`-number below points into that document.
 
 **State:** v0.3.0, published. An npm workspaces monorepo — the installer lives in
 `packages/create-ai-workflow/`, and `apps/*` is reserved for a landing site or hosted documentation.
-Installs a `context/` tree, the seven skills into **both** `.claude/skills/` and `.agents/skills/`, two
-Claude subagents, a merged `AGENTS.md` block and a manifest that draws the ownership boundary — 99
+Installs a `context/` tree, the eight skills into **both** `.claude/skills/` and `.agents/skills/`, two
+Claude subagents, a merged `AGENTS.md` block and a manifest that draws the ownership boundary — 101
 tool-owned files, 6 project-owned stubs.
 
 ---
@@ -45,8 +45,13 @@ matters most in practice:
 - **Does a real session pick the right phase unprompted**, and stop when the ledger disagrees with the
   repo?
 
-Install into a scratch repo and try to trip each of the seven skills, both ways: invoke it explicitly,
+Install into a scratch repo and try to trip each of the eight skills, both ways: invoke it explicitly,
 then describe the same work in prose and confirm it stays quiet.
+
+**`/prototype` (§3.10) is the sharpest case of this and has never been run at all.** Its subject matter
+is the one an agent is most likely to volunteer for unasked — "mock this up", "what should this look
+like" — so it is the best test of whether a narrow description plus the flag actually holds, and the
+worst skill to have firing on its own. Try to trip it in prose first.
 
 **This is now two runs, not one.** `.agents/skills/` ships as of v0.2.0 and has never been exercised by
 the host that reads it. §1.2 proved that tree is *discovered*; nothing has yet proved a skill in it fires
@@ -77,7 +82,7 @@ never run. It is the one path in the release pipeline still unexercised.
 **Item 1 below was supposed to happen before this.** It did not. The live-agent run is now the
 outstanding risk against a package other people can already install.
 
-`npm pack` produces a working 141.9 kB / 116-file tarball — verified by installing it into a clean repo
+`npm pack` produces a working 146.9 kB / 117-file tarball — verified by installing it into a clean repo
 and running `install`, `check` and `update --dry-run` against it, with the standards tree landing 78
 files and `standards/templates/.gitignore` restored from `_dot_gitignore`. Do that again after any change
 to `templates/`.
@@ -101,7 +106,7 @@ Four places the design left the call open and the build had to make one.
 
 | Decision | Why | To reverse |
 |---|---|---|
-| `update` reconciles adapters to **what the running version ships**, not to what the manifest recorded — so a v0.1 install silently gains `.agents/skills/` | It is the only way an existing install ever reaches a new tree, and the alternative is a flag nobody knows to pass. The seven files are reported as `add`, visible under `--dry-run`, and a directory the tool did not write is still a conflict rather than an adoption | `const adapters = DEFAULT_ADAPTERS` → `manifest.adapters` in `src/commands/update.ts`, plus a way to opt in |
+| `update` reconciles adapters to **what the running version ships**, not to what the manifest recorded — so a v0.1 install silently gains `.agents/skills/` | It is the only way an existing install ever reaches a new tree, and the alternative is a flag nobody knows to pass. The eight files are reported as `add`, visible under `--dry-run`, and a directory the tool did not write is still a conflict rather than an adoption | `const adapters = DEFAULT_ADAPTERS` → `manifest.adapters` in `src/commands/update.ts`, plus a way to opt in |
 | A closed finding in `findings.md` is a **`note`**, not an error — printed, but it does not fail the exit code | §6.4 says `check` "reports" it, and a finding legitimately sits in *Closed* until `/feature-close` sweeps it. An error would turn `check` red during ordinary work — the crying-wolf failure §6.4 warns against | one `level: 'note'` → `'error'` in `src/check/rules.ts` |
 | An edited `context/standards/` file hands over **the whole tree**, not that file | §6.2 says a hash mismatch is a conflict; §4.1 says standards are ours only "while unmodified". The tree is an interface — the README's conditional table and the files it names have to agree, so a half-managed tree is one where an update replaces a file the user's own table no longer points at | the tree-level branch in `src/commands/update.ts` |
 | Subagents use **`model: inherit`** | The package installs into other people's accounts and assumes nothing about model access. The reference pinned `opus` and `sonnet` | one line in each `templates/claude/agents/*.agent.md`. Note that pinning after install makes it a conflict on the next `update` — which is the correct signal |

@@ -20,7 +20,7 @@ running something else.
 | Tier 1 → a plan | `/feature-plan` |
 | a plan → being worked, then phase by phase | `/feature-implement` |
 | Tier 2 → retired | `/feature-close` |
-| no tier crossed | `/orchestrate` — one ad-hoc gated change; `/feature-status` — read-only |
+| no tier crossed | `/orchestrate` — one ad-hoc gated change; `/feature-status` — read-only; `/prototype` — a throwaway mockup |
 
 **Every command finds its own starting point.** Nothing has to be looked up first, and `/feature-status` is
 never a prerequisite for anything.
@@ -35,6 +35,7 @@ never a prerequisite for anything.
 | `/feature-status` | nothing — read-only | — |
 | `/feature-close` | Tier 2 → retired | `history.md`, `archive/`, the reference sweep |
 | `/orchestrate` | one ad-hoc gated change | the code, and `findings.md` |
+| `/prototype` | one throwaway HTML/CSS mockup — no gates, no application code | `prototypes/<NAME>/`, and nothing else |
 | `/onboard` | the project-owned stubs | `verify.md`, `executors.md`, `stack.md`, and the pruning of what they replace |
 
 ## One source of truth per fact
