@@ -12,7 +12,7 @@ the standing rules, and every command cites it rather than restating it.
 | `/feature-status` | read-only "where do things stand". **Never a prerequisite** for anything |
 | `/feature-close` | retires a finished or abandoned feature into `context/archive/` |
 | `/orchestrate` | one ad-hoc, gated, commit-sized change — no roadmap entry, no ledger |
-| `/onboard` | fills in this project's own stubs: `verify.md`, `executors.md`, `stack.md` |
+| `/onboard` | fills in this project's own stubs — `verify.md`, `executors.md`, `stack.md` — adopting what an existing `AGENTS.md` already said |
 
 | Read | For |
 |---|---|

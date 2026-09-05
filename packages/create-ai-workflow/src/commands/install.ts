@@ -104,6 +104,14 @@ export function install(root: string): number {
   info(bold('Next'));
   info(`  1. Review the diff. ${dim('Nothing was committed — that is deliberate.')}`);
   info(`  2. Run ${cyan('/onboard')} in your agent to fill in verify.md, executors.md and stack.md.`);
+  if (before !== null) {
+    info(
+      dim(
+        '     AGENTS.md already said things of its own — /onboard folds those into the three files\n' +
+          '     above and prunes what it moved, asking before anything is deleted.',
+      ),
+    );
+  }
   info(`  3. ${cyan('/roadmap "some idea"')} starts the loop.`);
   return 0;
 }

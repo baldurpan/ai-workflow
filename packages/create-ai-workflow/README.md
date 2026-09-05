@@ -39,7 +39,7 @@ starting point — nothing has to be looked up first.
 | `/feature-status` | read-only. Reconciles the ledger against the repo, then names **exactly one** next action |
 | `/feature-close` | retires a feature: a `history.md` row, a `git mv` into `archive/`, and a reviewed reference sweep |
 | `/orchestrate` | one ad-hoc, commit-sized change through the same gates — no entry, no ledger |
-| `/onboard` | fills in your own stubs, running each verification command before writing it down |
+| `/onboard` | fills in your own stubs, adopting what the repo already documented and running each verification command before writing it down |
 
 ## What makes it different
 
@@ -76,6 +76,12 @@ CLAUDE.md   a single @AGENTS.md line, and only when the file does not exist
 ```
 
 Nothing is committed. Review the diff yourself.
+
+**Onto a repository that already documents itself**, the installer only appends — your existing
+`AGENTS.md` prose is left exactly where it is. `/onboard` reconciles the two afterwards: it classifies
+each existing claim into `stack.md`, `verify.md` or `executors.md`, asks wherever a destination is
+unclear or the old text contradicts the installed workflow, and prunes the source only once the
+replacement is written and shown.
 
 ### The ownership boundary is a data structure, not a rule
 

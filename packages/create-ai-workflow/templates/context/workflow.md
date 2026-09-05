@@ -35,7 +35,7 @@ never a prerequisite for anything.
 | `/feature-status` | nothing — read-only | — |
 | `/feature-close` | Tier 2 → retired | `history.md`, `archive/`, the reference sweep |
 | `/orchestrate` | one ad-hoc gated change | the code, and `findings.md` |
-| `/onboard` | the project-owned stubs | `verify.md`, `executors.md`, `stack.md` |
+| `/onboard` | the project-owned stubs | `verify.md`, `executors.md`, `stack.md`, and the pruning of what they replace |
 
 ## One source of truth per fact
 

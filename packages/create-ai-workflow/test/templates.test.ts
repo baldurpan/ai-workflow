@@ -155,3 +155,38 @@ describe('the AGENTS.md block', () => {
     assert.ok(agentsBlockBody().split('\n').length < 40, 'the block is not a second copy of the rules');
   });
 });
+
+describe('/onboard adopts an existing AGENTS.md', () => {
+  const onboard = skillBody('onboard');
+
+  it('classifies before it moves, and moves before it deletes', () => {
+    const adopt = onboard.indexOf('## Step 1 — Adopt');
+    const prune = onboard.indexOf('## Step 7 — Prune');
+    assert.ok(adopt > 0, 'the adoption step exists');
+    assert.ok(prune > adopt, 'pruning comes after every step that writes a destination');
+    assert.match(onboard, /Nothing is deleted here/, 'the adoption step deletes nothing');
+    assert.match(onboard, /Copy before cut/, 'the ordering is stated as a standing rule');
+  });
+
+  it('asks rather than guessing on the two undecidable rows', () => {
+    for (const pattern of [/\*\*Unsure\*\*/, /\*\*Contradicts\*\*/, /Quote both and ask which stands/]) {
+      assert.match(onboard, pattern, `the adoption step names ${String(pattern)}`);
+    }
+  });
+
+  it('never lets an inherited command skip the run', () => {
+    // The whole point of Step 5 is that a written command has exited 0. A command lifted out of prose
+    // someone wrote months ago is the likeliest of all to have rotted, so it enters as a candidate.
+    assert.match(onboard, /a \*\*candidate\*\* for `context\/verify\.md`/);
+    assert.match(onboard, /Never write a command that has not passed/);
+  });
+
+  it('keeps the tool-owned block out of the migration in both directions', () => {
+    assert.match(onboard, /Never touch the region between the `ai-workflow` markers/);
+    assert.match(onboard, /nothing migrates into it/);
+  });
+
+  it('loses nothing it could not place', () => {
+    assert.match(onboard, /Never delete a claim you could not place/);
+  });
+});
