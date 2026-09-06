@@ -19,6 +19,14 @@ export function stripComments(text: string): string {
   return text.replace(/<!--[\s\S]*?-->/g, (match) => match.replace(/[^\n]/g, ' '));
 }
 
+/**
+ * Blank out fenced code blocks, preserving line count. A `##` inside a fence is an illustration — the
+ * stubs sketch a directory layout in one — not a heading of the document.
+ */
+export function stripFences(text: string): string {
+  return text.replace(/^```[\s\S]*?^```/gm, (match) => match.replace(/[^\n]/g, ' '));
+}
+
 function splitCells(line: string): string[] {
   return line
     .trim()

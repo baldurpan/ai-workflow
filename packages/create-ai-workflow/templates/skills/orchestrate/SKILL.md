@@ -45,6 +45,11 @@ A refusal here is the workflow working.
 
 Read `context/stack.md` and load `context/standards/README.md` per its conditional table.
 
+**Check that file's Documentation section, and the tree if it is empty.** If this change makes something
+there wrong — a README, a docs page, a changelog, help text in the code — the fix is part of this change,
+per the standing rule in [`context/workflow.md`](../../../context/workflow.md). A one-shot change is where
+that gets skipped most, because there is no plan holding the row.
+
 Delegate to a coder per [`context/executors.md`](../../../context/executors.md) if one is configured;
 otherwise implement in-host. The coder's system prompt is
 [`context/roles/coder.md`](../../../context/roles/coder.md). The brief **cites paths, it does not paste

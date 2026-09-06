@@ -38,7 +38,8 @@ detailed it looks.
 This is the step that used to be structural: `/feature-plan` stopped and you typed a second command. It is
 explicit here now, or it is lost.
 
-1. **Surface the plan's §8 Open questions and require an acknowledgement.** Do not proceed on silence.
+1. **Surface the plan's Open questions section and require an acknowledgement.** Do not proceed on
+   silence. Cite it by name — a plan written against an earlier template numbers its sections differently.
 2. **Re-check that the files the plan cites still exist.** A plan drafted a month ago against a
    since-changed tree is a state that can now exist and could not before. Name anything that has moved.
 3. **Check the one-active-feature rule** in [`context/workflow.md`](../../../context/workflow.md). If
@@ -83,6 +84,12 @@ under either answer in [`context/git.md`](../../../context/git.md). Never commit
 ## 7. Do the work
 
 Read the phase's §6.2 sub-section: its scope, its **Files:**, and what `done` means for it.
+
+**The plan's Documentation rows assigned to this phase are part of this phase**, not a follow-up — their
+paths are on the same **Files:** line as the code. Per the standing rule in
+[`context/workflow.md`](../../../context/workflow.md), whatever this phase makes untrue is fixed by this
+phase. If the work turned out differently from the plan and made something *else* untrue — a README the
+plan never listed — fix that too and say so; the sweep happened before the code existed.
 
 Delegate to a coder per [`context/executors.md`](../../../context/executors.md) if one is configured;
 otherwise implement in-host. The coder's system prompt is
@@ -137,7 +144,8 @@ blocked by definition), then escalate to the user with the current state and the
 
 The row is part of the same change as the work — never a separate step afterwards:
 
-- **All of the phase's scope landed and both gates passed** → `done`.
+- **All of the phase's scope landed and both gates passed** → `done`. Its documentation rows are part of
+  that scope: a phase whose doc update has not landed has not landed.
 - **Some landed** → stays `in progress`, Note rewritten to name exactly what remains.
 - **A gate hit its cap, or something external blocks it** → `blocked`, with the blocker in the Note.
 

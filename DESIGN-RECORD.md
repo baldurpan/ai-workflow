@@ -244,6 +244,42 @@ or a *retain* ("*stays* `in progress`") — and "stays" is wording that presuppo
 never specified. A phase therefore went `not started` → `done` in one step, `/feature-status` counted a
 running phase as `not started`, and both documented resume paths were unreachable.
 
+### 2.9 Documentation is part of the change
+
+A plan named every source file it touched and nothing about the documentation those files made wrong. The
+gates could not catch it: Gate 1 runs lint, typecheck, build and test, and a README that describes a
+renamed flag passes all four. Gate 2 reviews the diff against the plan — and the plan never asked for the
+doc, so its absence is not a deviation. **Docs are the only output of this workflow with nothing behind
+them**, which is why the drift is invisible until someone follows the old instructions.
+
+Fixed with three pieces, one per existing home, and no new gate:
+
+- **Where the docs are** — a `## Documentation` section in `stack.md`, the project-owned file that already
+  holds what an agent must know before touching this repo. `/onboard` Step 7 fills it: a sweep of the tree
+  for READMEs, `docs/`, a docs site, an API reference, a changelog, help text in the code, **plus a
+  question about what is published elsewhere.** A wiki or a docs site built from another repository is
+  invisible to any sweep, and it is the surface that rots longest.
+- **What this feature makes untrue** — §7 of the plan template, one row per surface, each assigned to a
+  phase. Inserted before Verification, which pushed it to §8 and Open questions to §9.
+- **Who carries it** — the phase named in the row, whose `Files:` line names the same path. This is the
+  whole reason §7 is a table with a Phase column rather than a paragraph: a documentation item not on a
+  `Files:` line is a follow-up, and follow-ups are what this failure is made of. Nothing new reconciles it
+  — `/feature-status` already checks `Files:` against the repo, so a doc path lands inside a check that
+  exists.
+
+Two smaller calls worth recording:
+
+- **An empty index is not "no docs".** The same shape as §4.4's unstated premise: a section nobody filled
+  in and a project that documents itself nowhere are different facts, and a command that cannot tell them
+  apart will resolve it the cheap way every time. So `/onboard` writes `none` explicitly, `/feature-plan`
+  sweeps the tree when the section is empty, and a plan that changes no documentation has to say which
+  surfaces it checked.
+- **`/feature-implement` cites the section by name, not by number.** It reads plans it did not write,
+  including ones drafted against the older template where Open questions is §8. `/feature-plan` still cites
+  numbers, because it writes against the template shipping beside it. A test parses the template's headings
+  and fails any *titled* citation anywhere in the package that does not resolve — untitled ones like
+  `// SMART-CROP-PLAN.md §7.3` are illustrations of a plan of unknown vintage and are left alone.
+
 ## 3. The commands
 
 Eight skills. Five are the loop, one is the escape hatch, one is setup, and one — §3.10 — is a
@@ -801,6 +837,53 @@ Borrowed from create-ai-blueprint, whose mechanism is the right one. The manifes
 
 `update` is the upgrade path for everything tool-owned, including the `AGENTS.md` block. `--dry-run`
 prints the plan and changes nothing.
+
+#### What `update` cannot do, said out loud
+
+The manifest is a reachability boundary, and the cost of that boundary is that a new version's tool-owned
+files can expect something of a project-owned one. §2.9 shipped a `## Documentation` section in the
+`stack.md` stub and four commands that read it; an existing install takes the commands on `update` and
+keeps its own `stack.md`, which has no such section. The same shape as `git.md` (§4.4): an install made
+before that file shipped never gets one, because a pass that writes missing stubs is a pass that can
+overwrite a file someone deleted on purpose.
+
+Nothing said so. `install` ends with "run `/onboard`"; `update` ended with *"yours, untouched — a
+project-owned file is not in the manifest, so no code path here reaches it"*, which reads as reassurance
+at the one moment there is something to do.
+
+`update` now compares the `##` headings of each shipped stub against the installed file and reports what is
+missing, under a **Next** heading, last:
+
+```
+Next
+  ! context/stack.md has no "Documentation" section — this version's stub has one
+  ! context/git.md is missing — a stub is project-owned, so update cannot write one
+  Run /onboard in your agent. ...
+```
+
+- **It reports and writes nothing**, which keeps §4.1's boundary exactly where it was. The alternative —
+  a stub-restore pass — is the one recorded in `PLAN.md` as reversible, and it stays rejected: writing a
+  stub whose destination is missing cannot distinguish "never had one" from "deleted on purpose".
+- **A note, never an error.** The exit code stays the conflict count's. Failing an update over the shape of
+  a file the tool may not touch would be reporting someone else's business as its own breakage — the same
+  call as the closed-finding `note` in `check` (§6.4).
+- **Structural, not versioned.** It compares against what this version's stubs ship, so a future stub
+  section reports itself with no changelog to maintain and no per-version list to forget to update.
+- **Only the four stubs `/onboard` fills** — `stack.md`, `verify.md`, `executors.md`, `git.md`. The other
+  three are written by the workflow as it runs, so a question about their shape belongs to `check`, which
+  already reports a missing `roadmap.md`. Caught by demonstrating the feature rather than by reasoning
+  about it: the first build examined all seven and would have answered a mangled `findings.md` with "run
+  `/onboard`", a command that never opens that file. The two validators now split on who writes the file —
+  `update` covers what a person supplies, `check` covers what the loop produces.
+- **Rejected: recording stub state in the manifest** to tell "this version added it" from "you deleted
+  it". It would sharpen one line of output at the cost of the property that makes the boundary legible —
+  *a project-owned file is not in the manifest* — and the fix is `/onboard` either way. A user who removed
+  a section on purpose sees one line saying so, which is true.
+- **Headings are compared without backticks or case**, and headings inside fences or HTML comments are not
+  headings. The stubs sketch a layout in a fenced block and carry their guidance in comments, so a naive
+  scan reports gaps nobody can close.
+- `/onboard` now says it is what an update's **Next** block is asking for, and that adding a named section
+  means adding the heading — not rewriting the prose someone already wrote around it.
 
 ### 6.3 Standards
 

@@ -96,6 +96,20 @@ policy, resolves by committing on its own every phase. That is a call about some
 it is a written answer rather than an inference. Branching and pushing are outside it: nothing here creates
 a branch, pushes, or opens a pull request under either answer.
 
+### Documentation is part of the change
+
+> **Find where this project documents itself before planning — the Documentation index in
+> [`stack.md`](stack.md), and the repository itself when that index is missing or empty. Whatever a change
+> makes untrue there is fixed by the phase that makes it untrue, not by a follow-up.**
+
+Documentation is the one output with no gate behind it. Nothing fails when a README goes on describing a
+flag that was renamed, so the drift is invisible until someone follows the old instructions and it is not
+invisible to them. `/feature-plan` writes the affected surfaces into the plan's §7, each assigned to a
+phase, and that phase's **Files:** line carries the path like anything else it touches.
+
+*"Nothing here describes this feature"* is a legitimate answer, and it names the surfaces that were
+checked. Saying nothing is not that answer.
+
 ### Never transcribe a credential
 
 > **A DSN, token or key is described and pointed at the secret store, never copied into a tracked file.**

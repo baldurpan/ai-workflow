@@ -116,15 +116,22 @@ export function managedFiles(adapters: readonly Adapter[]): ManagedFile[] {
   return files;
 }
 
-/** Project-owned files. Written once, at install, and never reachable by `update`. */
-export const STUBS: ReadonlyArray<{ source: string; dest: string }> = [
-  { source: 'stubs/stack.md', dest: 'context/stack.md' },
-  { source: 'stubs/verify.md', dest: 'context/verify.md' },
-  { source: 'stubs/executors.md', dest: 'context/executors.md' },
-  { source: 'stubs/git.md', dest: 'context/git.md' },
-  { source: 'stubs/roadmap.md', dest: 'context/roadmap.md' },
-  { source: 'stubs/history.md', dest: 'context/history.md' },
-  { source: 'stubs/findings.md', dest: 'context/findings.md' },
+/**
+ * Project-owned files. Written once, at install, and never reachable by `update`.
+ *
+ * `onboard` marks the four whose content a person supplies, through `/onboard`. The other three are
+ * written by the workflow as it runs — a roadmap entry, a history row, a finding — so a question about
+ * their shape is `check`'s, and pointing at `/onboard` for one of them would name a command that does not
+ * touch it.
+ */
+export const STUBS: ReadonlyArray<{ source: string; dest: string; onboard: boolean }> = [
+  { source: 'stubs/stack.md', dest: 'context/stack.md', onboard: true },
+  { source: 'stubs/verify.md', dest: 'context/verify.md', onboard: true },
+  { source: 'stubs/executors.md', dest: 'context/executors.md', onboard: true },
+  { source: 'stubs/git.md', dest: 'context/git.md', onboard: true },
+  { source: 'stubs/roadmap.md', dest: 'context/roadmap.md', onboard: false },
+  { source: 'stubs/history.md', dest: 'context/history.md', onboard: false },
+  { source: 'stubs/findings.md', dest: 'context/findings.md', onboard: false },
 ];
 
 export const STUB_DIRS = ['context/drafts', 'context/plans', 'context/archive'] as const;

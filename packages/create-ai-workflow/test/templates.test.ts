@@ -171,6 +171,77 @@ describe('the ledger row opens before the work', () => {
   });
 });
 
+describe('documentation is part of the change', () => {
+  // A plan could name every file it touched and still leave the README describing the flag it renamed.
+  // Nothing fails for that — docs are the one output with no gate behind them — so the drift is invisible
+  // until someone follows the old instructions. The fix is three files with one job each: stack.md says
+  // where the docs are, the plan's §7 says what this feature makes untrue there, and the phase that makes
+  // it untrue carries the path on its own `Files:` line.
+  it('the rule has one home, and it is the file every command already cites', () => {
+    assert.match(readTemplate('context/workflow.md'), /^### Documentation is part of the change$/m);
+  });
+
+  it('the plan template has the section, and the notes say what goes in it', () => {
+    assert.match(readTemplate('context/plan-template.md'), /^## 7\. Documentation$/m);
+    assert.match(readTemplate('context/plan-template.notes.md'), /\*\*§7 Documentation\*\*/);
+  });
+
+  it('the stub has somewhere to record where the docs are', () => {
+    assert.match(readTemplate('stubs/stack.md'), /^## Documentation$/m);
+  });
+
+  it('every command that plans or lands work reads the index', () => {
+    for (const name of ['feature-plan', 'feature-implement', 'orchestrate', 'onboard']) {
+      assert.match(skillBody(name), /Documentation/, `${name} must account for the project's own docs`);
+    }
+  });
+
+  it('an empty index is never read as "there are no docs"', () => {
+    // The failure this guards is the same shape as §4.4's: an unstated premise is not neutral. A section
+    // nobody filled in and a project that documents itself nowhere are different facts, and a command that
+    // cannot tell them apart resolves the ambiguity the cheap way, every time.
+    assert.match(skillBody('feature-plan'), /is not evidence that there\s+are no docs/);
+    assert.match(skillBody('onboard'), /Write "none" if there is none/);
+  });
+
+  it('a documentation row is carried by a phase, not left as a follow-up', () => {
+    assert.match(skillBody('feature-plan'), /`Files:` line names the same path/);
+    assert.match(readTemplate('context/plan-template.notes.md'), /row with no phase is a follow-up/);
+  });
+});
+
+describe('a §-citation names the section it points at', () => {
+  // Inserting §7 pushed Verification and Open questions down one. Every citation that carries the section
+  // *name* has to move with it — and a citation that does not carry one (`// SMART-CROP-PLAN.md §7.3`,
+  // written for a plan of unknown vintage) is left alone, which is why only titled ones are checked.
+  const sections = new Map(
+    [...readTemplate('context/plan-template.md').matchAll(/^#{2,4} (\d+(?:\.\d+)?)\.? +(.+)$/gm)].map(
+      (m) => [m[1] as string, m[2] as string],
+    ),
+  );
+
+  it('reads the template', () => {
+    assert.ok(sections.size > 8, 'the template numbers its sections');
+  });
+
+  it('resolves every titled citation in every template we ship', () => {
+    const wrong: string[] = [];
+
+    for (const { rel, text } of ourTemplates()) {
+      for (const match of text.matchAll(/§(\d+(?:\.\d+)?) (\*{0,2}[A-Z][a-z]+)/g)) {
+        const [, number, cited] = match as unknown as [string, string, string];
+        const word = cited.replace(/\*/g, '');
+        const title = sections.get(number);
+        if (title === undefined || !title.startsWith(word)) {
+          wrong.push(`${rel}: §${number} ${word} — the template's §${number} is "${title ?? 'missing'}"`);
+        }
+      }
+    }
+
+    assert.deepEqual(wrong, [], `stale section citations:\n  ${wrong.join('\n  ')}`);
+  });
+});
+
 describe('no document states its own status', () => {
   it('nothing the tool installs carries a **Status:** header', () => {
     for (const { rel, text } of ourTemplates()) {

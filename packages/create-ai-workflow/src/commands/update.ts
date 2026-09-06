@@ -10,9 +10,10 @@ import {
   renderManaged,
   type ManagedFile,
 } from '../layout.ts';
-import { bold, cyan, dim, green, info, red, UserError, warn, yellow } from '../log.ts';
+import { bold, cyan, dim, green, info, red, UserError, yellow } from '../log.ts';
 import { readManifest, writeManifest } from '../manifest.ts';
 import { exists, hash, packageVersion } from '../paths.ts';
+import { stubGaps, type StubGap } from '../stubs.ts';
 
 type Action = 'replace' | 'restore' | 'add' | 'unchanged' | 'conflict' | 'remove' | 'adopt';
 
@@ -173,9 +174,12 @@ export function update(root: string, options: { dryRun: boolean; force: boolean 
     info(`${yellow('!')} the bundled standards moved: ${dim(installedRef.slice(0, 8))} → ${dim(bundledRef.slice(0, 8))}`);
   }
 
+  const gaps = stubGaps(root);
+
   if (options.dryRun) {
     info();
     info(dim('--dry-run: nothing was written.'));
+    reportStubGaps(gaps);
     return conflicts.length > 0 && !options.force ? 1 : 0;
   }
 
@@ -238,7 +242,34 @@ export function update(root: string, options: { dryRun: boolean; force: boolean 
 
   info();
   info(`${green('done')} ${written} file${written === 1 ? '' : 's'} written. Review the diff — nothing was committed.`);
+  reportStubGaps(gaps);
   return 0;
+}
+
+/**
+ * What this version's stubs expect and the install does not have. Printed last, because it is the only
+ * part of an update that needs a person: everything above it has already happened, and nothing here can.
+ *
+ * This is a note, never an error — the exit code is the conflict count's to set. A tool that fails an
+ * update over the shape of a file it is forbidden to touch would be reporting someone else's business as
+ * its own breakage.
+ */
+function reportStubGaps(gaps: StubGap[]): void {
+  if (gaps.length === 0) return;
+
+  info();
+  info(bold('Next'));
+  for (const gap of gaps) {
+    info(
+      gap.section === undefined
+        ? `  ${yellow('!')} ${gap.dest} ${dim('is missing — a stub is project-owned, so update cannot write one')}`
+        : `  ${yellow('!')} ${gap.dest} ${dim(`has no "${gap.section}" section — this version's stub has one`)}`,
+    );
+  }
+  info(
+    `  Run ${cyan('/onboard')} in your agent. ${dim('It is re-runnable, and it is the only thing that')}`,
+  );
+  info(`  ${dim('reaches these files — the commands above now read them.')}`);
 }
 
 function describeBad(state: { kind: 'duplicate'; count: number } | { kind: 'malformed'; reason: string }) {

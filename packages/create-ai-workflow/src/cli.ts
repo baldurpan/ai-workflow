@@ -11,7 +11,8 @@ const USAGE = `${bold('create-ai-workflow')} — overlay a tiered planning workf
 ${bold('Usage')}
   npx @baldurpan/create-ai-workflow                      install into this repository
   npm  create @baldurpan/ai-workflow                     the same thing, shorter
-  npx @baldurpan/create-ai-workflow update               replace the tool-owned files with this version
+  npx @baldurpan/create-ai-workflow update               replace the tool-owned files with this version,
+                                                         and name what only ${cyan('/onboard')} can fill
   npx @baldurpan/create-ai-workflow standards add <url>  swap context/standards/ for a git repository
   npx @baldurpan/create-ai-workflow check                report structural breakage; never writes
 

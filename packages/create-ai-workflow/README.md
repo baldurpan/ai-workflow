@@ -40,7 +40,7 @@ starting point — nothing has to be looked up first.
 | `/feature-close` | retires a feature: a `history.md` row, a `git mv` into `archive/`, and a reviewed reference sweep |
 | `/orchestrate` | one ad-hoc, commit-sized change through the same gates — no entry, no ledger |
 | `/prototype` | a throwaway HTML/CSS mockup under `prototypes/`, to settle a layout question before a plan commits to it — no gates, no application code |
-| `/onboard` | fills in your own stubs, adopting what the repo already documented and running each verification command before writing it down |
+| `/onboard` | fills in your own stubs, adopting what the repo already documented, indexing where it documents itself, and running each verification command before writing it down |
 
 ## What makes it different
 
@@ -62,6 +62,13 @@ ones that exit 0.**
 the agent does — and every command that lands code reads it before closing out. It ships saying *the user
 commits*: a tool installed into a repository it knows nothing about does not get to write that
 repository's history unasked. Branches, pushes and pull requests are outside the workflow entirely.
+
+**Documentation is part of the change.** A plan starts by finding where the project explains itself —
+`context/stack.md` holds that index, `/onboard` fills it by sweeping the tree and asking what is published
+elsewhere — and every plan carries a §7 naming what the feature makes untrue there. Each row is assigned to
+a phase, and its path goes on that phase's `Files:` line, so the README lands with the rename rather than
+after it. Docs are the one output with no gate behind them: nothing fails when a page keeps describing a
+flag that no longer exists.
 
 **A finding outlives the session that found it.** A reviewer `FAIL` or a capped gate is written to
 `context/findings.md` *before* the loopback, so it survives the conversation ending. An open `P0`/`P1`
@@ -108,6 +115,22 @@ npx @baldurpan/create-ai-workflow update --force     # back up edited files (.ba
 | differs | reports a conflict; `--force` backs up and replaces |
 | missing | restores |
 | not in the manifest | nothing — it cannot reach it |
+
+**Run `/onboard` after an update.** That last row is the whole reason: a new version's tool-owned files can
+expect something of a project-owned one — a section of `context/stack.md` that every plan now reads, a
+`context/git.md` older than the file itself — and the updater is forbidden to write either. So it ends by
+naming each gap and stops:
+
+```
+Next
+  ! context/stack.md has no "Documentation" section — this version's stub has one
+  ! context/git.md is missing — a stub is project-owned, so update cannot write one
+  Run /onboard in your agent. It is re-runnable, and it is the only thing that
+  reaches these files — the commands above now read them.
+```
+
+It is a note, not a failure — the exit code is the conflict count's to set. A tool that failed an update
+over the shape of a file it may not touch would be calling someone else's business its own breakage.
 
 ## Standards
 

@@ -32,7 +32,7 @@ generated "current state" file — hand-editing a ledger row changes every comma
 | [`plan-template.notes.md`](plan-template.notes.md) | what goes in each section of that skeleton | tool |
 | [`roles/coder.md`](roles/coder.md) | the coder system prompt — names no commands | tool |
 | [`standards/`](standards/README.md) | engineering standards, loaded per that README's conditional table | tool* |
-| [`stack.md`](stack.md) | this project's runtime, layout, conventions, and an index of your own files | project |
+| [`stack.md`](stack.md) | this project's runtime, layout, conventions, where it documents itself, and an index of your own files | project |
 | [`verify.md`](verify.md) | this project's real lint / typecheck / build / test commands | project |
 | [`executors.md`](executors.md) | how this project dispatches a coder and a reviewer | project |
 | [`git.md`](git.md) | who commits the work an agent produces, and at what granularity | project |
@@ -71,6 +71,11 @@ hash, `update` walks that manifest, and a project-owned file is not in it — so
 
 `update` prints both columns when it runs. A visible boundary beats a documented one.
 
+The boundary has a cost, and `update` prints that too: a new version's tool-owned files can expect
+something of a project-owned one — a section of [`stack.md`](stack.md), a `git.md` that predates the
+file — and nothing in the updater may write it. So it names each gap under **Next** and stops there.
+Closing them is `/onboard`, which is re-runnable for exactly this reason.
+
 **Anything else you add under `context/` is yours forever**, by the same property — `context/decisions.md`,
 `context/glossary.md`, `context/ops-notes.md` all survive by default, with no feature required to protect
 them. Index your own additions in [`stack.md`](stack.md), not here: this file is replaced on every update,
@@ -80,3 +85,7 @@ so a line you add to it is a line you lose.
 
 Planning artifacts live in `context/`, wherever else your docs live. Product specs, API references and
 anything else written for humans or library consumers stay where this project already keeps them.
+
+They are not out of scope for being elsewhere, though. [`stack.md`](stack.md)'s Documentation section
+indexes where "elsewhere" is, so a plan can name what a feature makes untrue there and a phase can carry
+the fix — the standing rule is in [`workflow.md`](workflow.md).

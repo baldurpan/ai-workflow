@@ -63,10 +63,22 @@ differently-shaped one nearby is a decoy that gets read by mistake.
 
 **Done when:** <a condition checkable against the repo>
 
-## 7. Verification
+## 7. Documentation
+
+<What this feature makes untrue in the project's own documentation. Start from the Documentation index in
+[`../stack.md`](../stack.md), and from the repository itself if that index is empty.>
+
+| Surface | What changes | Phase |
+|---|---|---|
+| <path, or the URL of a docs site> | <what it claims now that this makes wrong, or what it will not say yet> | <n> |
+
+<If nothing changes, name the surfaces you checked and why none of them describe this. An empty section
+reads as "not checked", and nothing downstream can tell those apart.>
+
+## 8. Verification
 
 <How to prove the feature works, beyond `context/verify.md` passing.>
 
-## 8. Open questions
+## 9. Open questions
 
 - <Anything the plan could not settle. An honest gap is worth more than an invented decision.>

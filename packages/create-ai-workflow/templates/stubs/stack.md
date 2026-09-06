@@ -25,6 +25,19 @@ What this project is, and what an agent has to know before touching it. Run `/on
      things deliberately kept separate, where local secrets live, what must never be run against
      production. -->
 
+## Documentation
+
+<!-- Every place this project explains itself, one line each: the path or URL, who reads it, and what kind
+     of change has to reach it. READMEs at the root and in each package, docs/, a docs site or landing page,
+     an API reference or OpenAPI document, a changelog, a wiki, help text that lives in the code, comments
+     that are the only description of a format.
+
+     Say which ones are actually maintained — a directory nobody has updated in two years is worth writing
+     down as that, rather than leaving the next reader to discover it.
+
+     If this project documents itself nowhere, write "none". An empty section reads as "nobody checked",
+     and a plan cannot tell those two apart. -->
+
 ## Also in `context/`
 
 <!-- Index anything you add under context/ here — decisions.md, glossary.md, ops-notes.md. Not in

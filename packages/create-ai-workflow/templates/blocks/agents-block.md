@@ -17,7 +17,7 @@ the standing rules, and every command cites it rather than restating it.
 
 | Read | For |
 |---|---|
-| [`context/stack.md`](context/stack.md) | runtime, layout, conventions |
+| [`context/stack.md`](context/stack.md) | runtime, layout, conventions, and where this project documents itself |
 | [`context/standards/README.md`](context/standards/README.md) | engineering standards — load per its conditional table |
 | [`context/verify.md`](context/verify.md) | the real lint / typecheck / build / test commands — the only file that names one |
 | [`context/git.md`](context/git.md) | who commits, and at what granularity — read it before closing out any change |
@@ -30,6 +30,9 @@ the row as part of the same change as the work. **If the ledger disagrees with t
 the working tree and the user commits it.
 
 **An open `P0` or `P1` in [`context/findings.md`](context/findings.md) blocks its phase from being `done`.**
+
+**Documentation is part of the change.** Whatever a change makes untrue in this project's own docs is fixed
+by the phase that makes it untrue, not by a follow-up.
 
 **Require evidence, not assertion.** A claim about what a file contains needs the file read, not recalled —
 yours as much as a subagent's.
