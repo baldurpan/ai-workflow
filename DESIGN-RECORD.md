@@ -228,6 +228,22 @@ tracked files. `/onboard` writes `$SENTRY_DSN`-style placeholders and names wher
 
 ---
 
+### 2.8 A phase row is written twice
+
+The ledger row **opens** to `in progress` when work on the phase starts, and **closes** to `done`,
+`in progress` or `blocked` when it ends. Only the closing write is bound by "as part of the same change
+as the work" (§4.4); the opening one is left in the working tree and lands with the work it describes.
+
+The two writes answer different questions. The closing write records a verdict. The opening one exists so
+that a run interrupted mid-phase — context exhausted, session closed, run cancelled — leaves behind a row
+that says so, because the half-finished tree it leaves behind cannot say it itself.
+
+**This was missing from v2 as shipped.** `in progress` was a legal value that nothing ever wrote: every
+mention of it across the skills and `workflow.md` was a *read* ("if it is already `in progress`, resume")
+or a *retain* ("*stays* `in progress`") — and "stays" is wording that presupposes an entry-write which was
+never specified. A phase therefore went `not started` → `done` in one step, `/feature-status` counted a
+running phase as `not started`, and both documented resume paths were unreachable.
+
 ## 3. The commands
 
 Eight skills. Five are the loop, one is the escape hatch, one is setup, and one — §3.10 — is a
@@ -355,22 +371,24 @@ phases within it.
 4. **Check `findings.md`.** An open P0/P1 tied to this phase *is* the work.
 5. **Stop on disagreement.** If the ledger's claim contradicts the repo — a phase marked `done` whose
    files do not exist, or the reverse — say so and stop. Never silently re-do or skip a phase.
-6. **Do the work.** Delegate to a coder per `executors.md` if one is configured; otherwise implement
+6. **Open the row.** Set the phase to `in progress`, with a Note naming what is underway, **before any
+   code.** The opening write is not committed on its own; it lands with the work.
+7. **Do the work.** Delegate to a coder per `executors.md` if one is configured; otherwise implement
    in-host.
-7. **Gate 1 — verification.** Read `context/verify.md` and run its sections in order: Lint →
+8. **Gate 1 — verification.** Read `context/verify.md` and run its sections in order: Lint →
    Typecheck → Build → Test. **Never carry a copy of these commands and never invent one.** A missing
    section is skipped, never faked. Exit 0 is the verdict regardless of summary text. If `verify.md`
    does not exist, stop and say so. Docs-only changes run Lint plus a read of the diff.
-8. **Gate 2 — review.** Dispatch per `executors.md`. Requires concrete evidence — file paths, command
+9. **Gate 2 — review.** Dispatch per `executors.md`. Requires concrete evidence — file paths, command
    output — for every verdict, and a P0–P3 severity on every blocking finding. A `FAIL` is **written to
    `findings.md` first, then** looped back. Cap: 2 loops, then write a finding and escalate.
    Escalating is not a substitute for recording: the conversation ends, the file does not.
-9. **Close out the row**, in the same commit as the work. All scope landed and both gates passed →
-   `done`. Some landed → stays `in progress`, Note rewritten to name exactly what remains. Gate capped
-   or externally blocked → `blocked`, blocker in the Note. **Never mark `done` on a coder's
-   self-report** — the gate output is the evidence — and **refuse `done` while an open P0/P1 is tied to
-   the phase.**
-10. **When every phase is `done`, say so and name `/feature-close`.** Do not move files, stamp headers
+10. **Close out the row**, as part of the same change as the work. All scope landed and both gates
+    passed → `done`. Some landed → stays `in progress`, Note rewritten to name exactly what remains.
+    Gate capped or externally blocked → `blocked`, blocker in the Note. **Never mark `done` on a
+    coder's self-report** — the gate output is the evidence — and **refuse `done` while an open P0/P1
+    is tied to the phase.**
+11. **When every phase is `done`, say so and name `/feature-close`.** Do not move files, stamp headers
     or sweep references. That is a tier boundary and crossing it is an explicit command.
 
 ### 3.6 `/feature-status` — read-only

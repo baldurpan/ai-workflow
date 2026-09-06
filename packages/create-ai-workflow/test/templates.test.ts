@@ -140,6 +140,37 @@ describe('one home for git etiquette', () => {
   });
 });
 
+describe('the ledger row opens before the work', () => {
+  // `in progress` was a legal status that nothing ever wrote. Every mention of it across the skills and
+  // `workflow.md` was a read ("if it is already `in progress`, resume") or a retain ("*stays* `in
+  // progress`") — wording that presupposes an entry-write which was never specified. A phase went
+  // `not started` → `done` in one step, and a run interrupted mid-phase left a tree with half a phase in
+  // it under a row claiming nothing had started.
+  it('/feature-implement sets the row as a step of its own, before the work', () => {
+    const body = skillBody('feature-implement');
+    const opens = body.indexOf('## 6. Open the ledger row');
+    const works = body.indexOf('## 7. Do the work');
+    assert.ok(opens > 0, 'the opening write is a step, not a clause inside another one');
+    assert.ok(works > opens, 'the row is set before any code is written');
+  });
+
+  it('every step number the skill cites resolves to a heading it has', () => {
+    // The opening write was inserted mid-list, so every "go to step n" shifted with it.
+    const body = skillBody('feature-implement');
+    const headings = new Set([...body.matchAll(/^## (\d+)\. /gm)].map((m) => m[1]));
+    const cited = [...body.matchAll(/\bstep (\d+)\b/g)].map((m) => m[1]);
+    assert.ok(cited.length > 0, 'the skill cross-references its own steps');
+    for (const n of cited) {
+      assert.ok(headings.has(n), `step ${n} is cited but no "## ${n}." heading exists`);
+    }
+  });
+
+  it('the phase-status rules name the entry-write, not only the reads', () => {
+    assert.match(readTemplate('context/workflow.md'), /written twice/);
+    assert.match(readTemplate('context/plan-template.md'), /goes to `in progress` when work/);
+  });
+});
+
 describe('no document states its own status', () => {
   it('nothing the tool installs carries a **Status:** header', () => {
     for (const { rel, text } of ourTemplates()) {

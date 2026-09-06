@@ -125,10 +125,16 @@ To pick the next phase: take the **lowest-numbered phase that is not `done` and 
 are all `done`.** State which one you picked before starting. If it is already `in progress`, read its Note
 and resume — do not restart it.
 
+**A phase's row is written twice.** It opens to `in progress` when the work starts, before any code, and
+closes to `done`, `in progress` or `blocked` when the phase ends. The opening write is what makes an
+interruption survivable: a run that dies mid-phase leaves a tree with half the work in it, and the row is
+the only thing that can say so.
+
 `done` means the phase's scope landed and both gates passed — **a verdict about the gates, not about git.**
 Whoever finishes a phase updates its row **as part of the same change as the work**: one commit where the
-agent commits, one working tree handed over where the user does. A row updated separately is a row that
-disagrees with the repository in between.
+agent commits, one working tree handed over where the user does. A closing row updated separately is a row
+that disagrees with the repository in between. The opening write is not a change of its own — it is left in
+the tree and lands with the work it describes.
 
 If the ledger's claim disagrees with the repo — a phase marked `done` whose files do not exist, or the
 reverse — **stop and say so.** Never silently re-do or skip a phase on a stale ledger. A `done` row whose

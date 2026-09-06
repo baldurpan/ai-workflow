@@ -3,24 +3,25 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 927 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 945 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 80 tests. Seven of them guard *content* invariants rather than code, and they are the
+2. `npm test` — 83 tests. Eight of them guard *content* invariants rather than code, and they are the
    fastest way to see what the design refuses to let rot: runtime neutrality, one home for commands, one
-   home for dispatch, one home for git etiquette, no self-declared status, inert stubs, and every relative
-   link resolving after install — in both skill trees. `ci.yml` runs them on every push and pull request
-   against `main`, plus an `engines-floor` job that builds on Node 20.10.0 and runs the packed CLI there —
-   the suite itself cannot, since it executes `.ts` directly and that needs type stripping.
+   home for dispatch, one home for git etiquette, no self-declared status, inert stubs, a ledger row that
+   opens before the work, and every relative link resolving after install — in both skill trees. `ci.yml`
+   runs them on every push and pull request against `main`, plus an `engines-floor` job that builds on
+   Node 20.10.0 and runs the packed CLI there — the suite itself cannot, since it executes `.ts` directly
+   and that needs type stripping.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** v0.4.1 published; v0.5.0 in the tree, unreleased — it carries two changes, `/prototype` and
-`context/git.md`, since `/prototype` landed without a bump of its own. An npm workspaces monorepo — the
+**State:** v0.5.0 published; v0.5.1 in the tree, unreleased — it carries one change, the ledger's opening
+write: `in progress` was a status every command read and none ever set. An npm workspaces monorepo — the
 installer lives in `packages/create-ai-workflow/`, and `apps/*` is reserved for a landing site or hosted
 documentation.
 Installs a `context/` tree, the eight skills into **both** `.claude/skills/` and `.agents/skills/`, two

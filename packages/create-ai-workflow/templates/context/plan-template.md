@@ -36,9 +36,11 @@ Written <YYYY-MM-DD>. <One line on what this is.> The `<name>` entry in
 | 1 | <name> | not started | — | |
 | 2 | <name> | not started | 1 | |
 
-Status is one of `not started`, `in progress`, `blocked`, `done`. `done` only when the scope landed and both
-gates passed, and whoever finishes a phase updates the row as part of the same change as the work — who
-commits that change is [`../git.md`](../git.md)'s answer, not this table's.
+Status is one of `not started`, `in progress`, `blocked`, `done`. A row goes to `in progress` when work on
+the phase starts, before any code, so an interrupted run leaves a ledger that says what was underway. `done`
+only when the scope landed and both gates passed, and whoever finishes a phase updates the row as part of
+the same change as the work — who commits that change is [`../git.md`](../git.md)'s answer, not this
+table's.
 
 **Exactly one table in this document has these columns.** Do not add a second phase table — a
 differently-shaped one nearby is a decoy that gets read by mistake.
