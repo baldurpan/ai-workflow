@@ -4,30 +4,58 @@ How this project dispatches a **coder** and a **reviewer**. Hand-written prose, 
 time — the exact parallel to [`verify.md`](verify.md), and for the same reason: a skill that hardcodes an
 invocation bakes one machine's setup into a tool that ships everywhere.
 
+Each has three answers: **in-host** directly, **in-host but isolated** in a subagent, or **offloaded** to
+an external CLI. The middle one is described in terms of what it does, never by naming a runtime's
+primitive — a host that has no subagent mechanism reads it and falls back to the first.
+
 Run `/onboard` to fill this in.
 
 ## Coder
 
-<!-- Empty means: implement in-host. That is a valid configuration, not a gap.
+<!-- Exactly one of the three answers below is this project's. Keep it, delete the others.
 
-     If an external coder CLI is configured, write its exact invocation here, including any directory or
-     permission scoping it needs on this machine. The system prompt is context/roles/coder.md.
+     Shipped as: in-host. That is a valid configuration, not a gap.
 
-     Record alongside it whether that executor was actually observed reading this repository unaided, and
+     The subagent answer needs no invocation written down — the brief is context/roles/coder.md, which is
+     already in this repository. Keep it only if this host actually has such a mechanism.
+
+     For an external coder CLI, write its exact invocation, including any directory or permission scoping
+     it needs on this machine. Its system prompt is context/roles/coder.md too — one prompt, whichever way
+     it is dispatched.
+
+     Record alongside an external one whether it was actually observed reading this repository unaided, and
      when. /onboard tests it; the standing rule below says why the answer changes how briefs are written. -->
 
 **Not configured — implement in-host.**
 
+<!-- **A subagent, briefed with [`roles/coder.md`](roles/coder.md).** The phase's implementation runs in its
+     own context and returns that file's output contract; the ledger, the gates and `findings.md` stay with
+     the caller. Same code, smaller caller — worth most on long plans, where the alternative is a context
+     window carrying every file read of every phase.
+
+     **Offloaded to `<the exact invocation>`.** Repository reads verified: `<yes / needs content inline>`,
+     `<when>`. -->
+
 ## Reviewer
 
-<!-- Empty means: the host reviews the diff itself against the plan's review checklist. Weaker than an
-     independent reviewer, but still a gate, and it must say which one it ran.
+<!-- Exactly one of the three answers below is this project's. Keep it, delete the others.
+
+     Shipped as: the host reviews its own diff. It is the weakest of the three and the only one that
+     always works, which is why it is the default rather than the recommendation.
 
      A host that offers review often offers more than one shape of it — a review subcommand, a review skill
-     it can be asked to run, or both — and they do not review alike. Whichever was chosen, write the exact
-     invocation. Nothing shipped with this tool names one, because the winner differs per host. -->
+     it can be asked to run, a subagent it installs — and they do not review alike. Whichever was chosen,
+     write it down. Nothing shipped with this tool names an invocation, because the winner differs per
+     host. -->
 
 **Not configured — the host reviews the diff against the plan's review checklist, and says so.**
+
+<!-- **A reviewer subagent.** An independent reader that never saw the implementation being written — the
+     cheapest real independence available, and it needs no invocation written down. `/onboard` finds what
+     this host installs or offers; if this tool wrote one into a host-specific directory, that is what this
+     answer means.
+
+     **Offloaded to `<the exact invocation>`.** -->
 
 ## The contract, whatever is configured
 

@@ -44,8 +44,19 @@ explicit here now, or it is lost.
    since-changed tree is a state that can now exist and could not before. Name anything that has moved.
 3. **Check the one-active-feature rule** in [`context/workflow.md`](../../../context/workflow.md). If
    another entry holds the slot, stop and name it.
-4. Set the marker to `active`. One token, one place — do not move the entry, add a section, or write a
-   summary line anywhere.
+4. **Be where the work lands.** Read *Where work lands* in [`context/git.md`](../../../context/git.md).
+   Only the first phase checks it — a feature's branch or tree is made once, before any of its work.
+   - *The main working tree* → nothing to do.
+   - *A branch per feature* → if you are on the default branch, create this feature's branch per
+     [`context/executors.md`](../../../context/executors.md) and say so; if it already exists, switch to
+     it. Never start a phase on the default branch under this answer.
+   - *A worktree per feature* → if this working tree's branch is not this feature's, **stop.** Name the
+     tree the work belongs in, and how `executors.md` says to create one if it does not exist. Do not
+     create it from here and do not carry on in the wrong tree: under this answer the working directory
+     *is* the feature, and a session cannot relocate itself into a tree it has just made.
+5. Set the marker to `active`, in this working tree. One token, one place — do not move the entry, add a
+   section, or write a summary line anywhere. Under the worktree answer that marker never leaves the tree,
+   and that is what lets several features hold one at once.
 
 ## 3. Pick the phase
 
@@ -91,9 +102,15 @@ paths are on the same **Files:** line as the code. Per the standing rule in
 phase. If the work turned out differently from the plan and made something *else* untrue — a README the
 plan never listed — fix that too and say so; the sweep happened before the code existed.
 
-Delegate to a coder per [`context/executors.md`](../../../context/executors.md) if one is configured;
-otherwise implement in-host. The coder's system prompt is
-[`context/roles/coder.md`](../../../context/roles/coder.md).
+Dispatch per [`context/executors.md`](../../../context/executors.md), which holds one of three answers:
+implement in-host, hand the work to a **coder subagent if your runtime provides one**, or offload to an
+external CLI. The brief is the same either way, and so is the system prompt —
+[`context/roles/coder.md`](../../../context/roles/coder.md). A runtime with no subagent mechanism reads
+that answer and implements in-host; that is a fallback, not a failure, and say which one you ran.
+
+**Isolating the implementation does not move the gates.** They run here, in the caller, on the diff the
+coder produced. A coder that reports its own success has reported nothing — that is what step 11 means by
+refusing `done` on a self-report.
 
 The brief **cites paths, it does not paste files.** Point at `context/standards/README.md` and say to load
 per its conditional table; point at `context/stack.md` and the phase's own section. Anything that can read
@@ -115,9 +132,14 @@ A failure is the verdict — go to step 10 with the failing output verbatim as t
 
 ## 9. Gate 2 — review
 
-Dispatch per [`context/executors.md`](../../../context/executors.md). With no independent reviewer
-configured, review the diff yourself against the plan's review expectations and the standards — weaker, and
-**say which one you ran.**
+Dispatch per [`context/executors.md`](../../../context/executors.md), which holds one of three answers: an
+external reviewer, a **reviewer subagent if your runtime provides one**, or the host reading its own diff.
+
+The last is the default and the weakest — the session that wrote the code judging whether the code is good
+— so **say which one you ran**, every time. The middle one is the cheapest real independence available: a
+reader that never saw the implementation being written, only what it produced. Where the runtime has no
+such mechanism, fall back to reviewing the diff yourself against the plan's review expectations and the
+standards, and say that is what happened.
 
 Require concrete evidence — file paths, command output — for every verdict, and a `P0`–`P3` severity on
 every blocking finding.
@@ -162,8 +184,13 @@ live. If it does not exist — an install from before it shipped — the answer 
 once, and name `/onboard`.
 
 - **The user commits** → leave the change in the working tree, ledger row and all. Report it, hand it over,
-  and stop. Do not stage-and-commit "to be helpful", and do not push or branch under either answer.
-- **The agent commits** → the code and the ledger row in one commit, at the granularity that file names.
+  and stop. Do not stage-and-commit "to be helpful".
+- **The agent commits** → the code and the ledger row in one commit, at the granularity that file names, on
+  the branch step 2 put you on.
+
+**A phase never pushes**, whatever *Push and pull request* says. That answer is acted on once, by
+`/feature-close`, when the branch carries the whole feature. A phase that pushes publishes a half-built
+feature and turns every phase after it into a force-push.
 
 ## 13. Report
 

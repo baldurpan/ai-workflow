@@ -20,14 +20,14 @@ the standing rules, and every command cites it rather than restating it.
 | [`context/stack.md`](context/stack.md) | runtime, layout, conventions, and where this project documents itself |
 | [`context/standards/README.md`](context/standards/README.md) | engineering standards — load per its conditional table |
 | [`context/verify.md`](context/verify.md) | the real lint / typecheck / build / test commands — the only file that names one |
-| [`context/git.md`](context/git.md) | who commits, and at what granularity — read it before closing out any change |
+| [`context/git.md`](context/git.md) | who commits, where work lands, whether it is pushed, and at what granularity — read it before closing out any change |
 
 **Phase status lives in the active plan's status ledger and nowhere else.** Work the lowest-numbered phase
 that is not `done` and whose `Depends on` are all `done`; state which you picked before starting; update
 the row as part of the same change as the work. **If the ledger disagrees with the repo, stop and say so.**
 
-**Nothing commits unless [`context/git.md`](context/git.md) says so.** Absent or silent, the work is left in
-the working tree and the user commits it.
+**Nothing commits, branches or pushes unless [`context/git.md`](context/git.md) says so.** Absent or silent,
+the work is left in the working tree and the user commits it.
 
 **An open `P0` or `P1` in [`context/findings.md`](context/findings.md) blocks its phase from being `done`.**
 

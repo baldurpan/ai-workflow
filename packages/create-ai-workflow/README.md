@@ -36,7 +36,7 @@ starting point — nothing has to be looked up first.
 | `/roadmap` | prints the backlog, or appends one `pending` entry — capturing any material you supply as a draft |
 | `/feature-plan` | turns an entry into a plan document and **stops**. Planning is not activation |
 | `/feature-implement` | activates a planned feature and runs **one phase**, through both gates |
-| `/feature-status` | read-only. Reconciles the ledger against the repo, then names **exactly one** next action |
+| `/feature-status` | read-only. Reconciles the ledger against the repo — sweeping every worktree where the project works that way — then names **exactly one** next action |
 | `/feature-close` | retires a feature: a `history.md` row, a `git mv` into `archive/`, and a reviewed reference sweep |
 | `/orchestrate` | one ad-hoc, commit-sized change through the same gates — no entry, no ledger |
 | `/prototype` | a throwaway HTML/CSS mockup under `prototypes/`, to settle a layout question before a plan commits to it — no gates, no application code |
@@ -58,10 +58,24 @@ test commands. No skill, agent prompt or role file carries a copy — a hardcode
 project changes shape, and a second copy rots faster. `/onboard` **runs each candidate and writes only the
 ones that exit 0.**
 
-**Nothing commits unless you said it could.** `context/git.md` holds one answer — the user commits, or
-the agent does — and every command that lands code reads it before closing out. It ships saying *the user
-commits*: a tool installed into a repository it knows nothing about does not get to write that
-repository's history unasked. Branches, pushes and pull requests are outside the workflow entirely.
+**Nothing commits, branches or pushes unless you said it could.** `context/git.md` holds four independent
+answers — who commits, **where work lands** (the main working tree, a branch per feature, or a worktree per
+feature), **whether the agent pushes and opens a pull request**, and at what granularity — and every command
+that lands code reads it before closing out. Each ships as the most conservative option: *the user commits*,
+in *the main working tree*, pushing *nothing*. A tool installed into a repository it knows nothing about
+does not get to write that repository's history unasked.
+
+They are four answers rather than three named modes because they are orthogonal — a worktree per feature
+does not imply a pull request, and a pull request does not imply a worktree — and two facts that cannot
+disagree is the same reason no document here states its own status. `/onboard` still *asks* them as three
+named shapes, because that is how people think about it.
+
+**Under the worktree answer, nothing tracks what is in flight.** `git worktree list` is the answer, and
+`/feature-status` sweeps it: *"in flight" is not a status, it is the observation that a worktree exists* —
+the same move as *"planned" is the observation that a document exists in `plans/`*. A file recording it
+would be a cache of something git already knows, and it would be wrong in the one case you reach for it.
+Merging stays outside the workflow entirely: nothing here merges a pull request, deletes a branch, or
+removes a worktree.
 
 **Documentation is part of the change.** A plan starts by finding where the project explains itself —
 `context/stack.md` holds that index, `/onboard` fills it by sweeping the tree and asking what is published
@@ -185,6 +199,14 @@ as `add` in the plan.
 per-machine fact that hosts change underneath you, so `/onboard` asks and writes the chosen invocation into
 `context/executors.md`. What ships is the contract — a review happens, blocking findings carry a `P0`–`P3`
 severity, a `FAIL` writes a finding before the loopback — not the command.
+
+Each executor has **three answers**: in-host, in-host but isolated in a subagent, or offloaded to an
+external CLI. The middle one is written as *"a subagent if your runtime provides one"* — described by what
+it does, never by naming a runtime primitive — so a host without the mechanism reads it and falls back to
+the first. For the coder it buys a caller that keeps the ledger and the gates while the implementation's
+file reads stay elsewhere; for the reviewer it buys the cheapest real independence there is, a reader that
+never saw the code being written. The gates do not move either way: they run in the caller, on the diff,
+because **an executor that reports its own success has reported nothing.**
 
 Requires Node 20.10 or newer. One `context/` per repository.
 

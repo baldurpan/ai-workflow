@@ -729,6 +729,109 @@ this reason; this one was missing.
 - **A test enforces it**, per §7.3's lesson: every command that lands code names `git.md`, and no
   template anywhere carries the phrase "in the same commit as the work" again.
 
+### 4.5 `git.md` answers three more — where work lands, and whether it is pushed
+
+§4.4 ends by saying branching and pushing are out of scope, "in the file itself." That was a real boundary,
+not an oversight, and it held for exactly as long as one working tree was the only shape on offer. Three
+workflows were wanted: straight to `main`, a branch per feature, and a worktree per feature with several in
+flight at once.
+
+**The answers are orthogonal, not an enum.** The obvious shape is one three-valued mode. It is wrong for
+the reason §2.1 gives: branch-without-a-pull-request is real, and so is worktree-without-one, and a
+three-valued field cannot represent either. `git.md` grew **two** independent sections — *Where work lands*
+(the main tree, a branch per feature, a worktree per feature) and *Push and pull request* — beside the two
+it had. `/onboard` still **asks** them as three named shapes, because that is how people describe their own
+repository; it writes two answers. The named shapes are a question, not a data structure.
+
+**"In flight" is not a status.** The first instinct for a repository with four worktrees is a state file in
+the main checkout tracking what each one is doing, gitignored because it is momentary. That is a cache, and
+§2.4 exists to refuse it. Every fact it would hold already has a live home: which features are in flight is
+`git worktree list`, which phase each is on is that tree's own ledger, whether an agent is alive in one is
+whatever `executors.md` names, and whether it is PR'd is the forge. **The failure mode is what settles it**
+— a state file is most wrong in the one case you reach for it, a crashed run or a tree removed by hand,
+because the thing it mirrors moved and it did not. A worktree's *existence* is the claim, and removing the
+tree withdraws it. This is §2.1's move again, one level up: *"planned" is the observation that a document
+exists in `plans/`*, and *"in flight" is the observation that a worktree exists.*
+
+**The `active` marker did not need changing, and that is why it survived.** The proposal was to drop it in
+worktree mode, since the worktree already answers what it answers. But it is already scoped to the tree that
+sets it: `/feature-implement` writes it in the worktree, on the branch, and `/feature-close` deletes the
+entry before that branch merges — so the default branch never observes `active` at all. It is ephemeral,
+self-cleaning, and invisible to the merge, which is every property the removal was chasing. Dropping it
+would have bought the same behaviour at the cost of a mode-dependent data model and an `if worktree` branch
+in every skill that touches a marker. **The one-active-feature rule became "per working tree"** and git
+enforces it for free — the same branch cannot be checked out twice.
+
+**One file conflicts on every merge, and it is not the one you would guess.** Parallel feature branches all
+edit `context/`. `roadmap.md` merges cleanly (each branch deletes a different entry); plans and `archive/`
+are one branch each; **`findings.md` nets to zero**, because findings are raised and swept inside a single
+branch's life and `/feature-close` is blocked while a `P0`/`P1` is open. Only `history.md` conflicts every
+time, being pure append — `merge=union` in `.gitattributes` settles it permanently. **The same line on
+`findings.md` would be a bug**: closed findings *leave* that file, and union merge resurrects the lines one
+side deleted. `/onboard` offers the first and is told to refuse the second.
+
+**A plan lands before its worktree exists.** A worktree carries only what its source ref already holds, and
+a roadmap entry whose **Doc** points at a plan that is not there is `check`'s `deadLink`. So the plan is
+committed to the default branch — and pushed, where the configured source ref is a remote one — *before* the
+tree is created. It is the one ordering in this workflow where a document lands first and separately, rather
+than with the work it describes, and `/feature-plan` §7 says so explicitly for that reason.
+
+**Merging stayed out**, and is now the only thing that is. Nothing here merges a pull request, deletes a
+branch, or removes a worktree. §4.4's lesson applies unchanged — a file about git is exactly where someone
+will assume it does — so the boundary is written down rather than left to be inferred.
+
+**The upgrade path needed no code.** Two new `##` sections in a project-owned stub is precisely what §6.2's
+**Next** block was built to report, and it did, unprompted: `update` against a 0.6.0 install names both
+sections and points at `/onboard`. §2.9 was that machinery's first consumer and this is its second, which is
+the first evidence it generalises rather than serving the case it was written for.
+
+**A test caught a restatement, again.** The first fix to the `AGENTS.md` block spelled out the push and
+merge policy in four lines. `stays small — everything but the commands is a pointer` failed with *"the block
+is not a second copy of the rules"* — correctly: that policy is `git.md`'s, and the block's job is to point
+at it. The 40-line ceiling is doing §7.1's work without anybody having to remember §7.1.
+
+### 4.6 Three answers per executor — and the subagent nobody pointed at
+
+`executors.md` shipped with two answers each: in-host or offloaded for the coder, self-review or offloaded
+for the reviewer. Both defaults are the weak one, and under Claude Code the reviewer default was weak for
+no reason — **`reviewer.agent.md` was already on disk and nothing named it.**
+
+Three roles, three different wirings, and only one of them complete:
+
+| Role | Ships a subagent | Skill has the *"if your runtime provides one"* hook | Routed through `executors.md` |
+|---|---|---|---|
+| planner | yes | yes, `/feature-plan` | no |
+| reviewer | yes | **no** | yes, default = self-review |
+| coder | **no** | **no** | yes, default = in-host |
+
+The planner worked because §3.2's runtime-neutral phrasing is *how* a host-specific asset gets reached
+without being named: "delegate to a planner subagent if your runtime provides one" lets a host that has the
+mechanism find it and a host that does not fall through. The reviewer shipped the asset and never wrote the
+sentence, so the gate that matters most ran at its weakest setting by default while a purpose-built
+independent reader sat three directories away.
+
+- **The fix is the sentence, not another file.** Both dispatch sites gained the hook and both
+  `executors.md` sections gained a third answer. `/onboard` Step 3 now looks for an agent this installation
+  already put on disk, because that is exactly where a review contract would have been written.
+- **A `coder.agent.md` was the obvious symmetric fix and is the wrong one.** `roles/coder.md` is already
+  the coder's prompt; a host-specific copy needs §5.1's one-body-two-destinations machinery to stay honest,
+  and it buys a discovery surface where "coder" is the single hardest description to keep from firing on
+  *"write this for me"* — §3.10's problem with a much larger blast radius, and `disable-model-invocation`
+  is a skill key with no agent equivalent. The hook reaches any host's generic subagent mechanism and costs
+  no file, which also means Codex gets both answers, where an `.claude/agents/` file would have served one
+  host.
+- **Isolation does not move the gates.** They run in the caller, on the diff. An executor reporting its own
+  success is what §3.5 step 11 already refuses to accept — the subagent answer changes where the work
+  happens and nothing about what counts as evidence.
+- **One prompt, three dispatches.** `roles/coder.md` is the system prompt whether the coder is in-host,
+  a subagent, or an external CLI. That it was already runtime-neutral — §7.1 stripped the commands out of
+  it — is what made a third answer free.
+- **Existing installs are not told.** No `##` heading changed, so §6.2's **Next** block reports nothing:
+  it detects a missing *section*, not changed guidance inside one. The third answer arrives when `/onboard`
+  is re-run, which is already the standing advice after an update. A stub whose *content* a new version
+  expects more of is a gap that machinery cannot see, and widening it to notice would mean recording stub
+  state in the manifest — the one thing §6.2 refused.
+
 ---
 
 ## 5. Agent-agnostic distribution

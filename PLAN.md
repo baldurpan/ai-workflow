@@ -3,7 +3,7 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 981 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 1132 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
@@ -21,14 +21,25 @@ Every `§`-number below points into that document.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** v0.5.1 is published and is npm's `latest` — the ledger's opening write, tagged at `babf0e2`.
-`package.json` now says **`0.6.0`, in the tree and unreleased**, carrying two changes. The documentation
-rule (§2.9): a plan finds where the project documents itself, says in §7 what the feature makes untrue
-there, and hands each row to the phase whose `Files:` line carries it. And `update`'s **Next** block
-(§6.2), which names the project-owned sections a new version expects and cannot write — §2.9 is the first
-change that makes an upgraded install *need* something of a stub, so the two ship together or the first
-one arrives silently broken. **To release: commit and push to `main`** — that tags `v0.6.0` — **then
-publish the tag as a GitHub release.** An npm workspaces monorepo — the installer lives in
+**State:** v0.6.0 is published and is npm's `latest` — the documentation rule and `update`'s **Next**
+block, tagged at `6baa9ce`. `package.json` now says **`0.7.0`, in the tree and unreleased**, carrying two
+changes.
+
+**`git.md`'s two new sections (§4.5)**, *Where work lands* and *Push and pull request*, which end the
+"branching and pushing are out of scope" boundary §4.4 drew: three workflows — straight to `main`, a branch
+per feature, a worktree per feature — written as orthogonal answers rather than one three-valued mode, with
+`/feature-status` sweeping `git worktree list` because **"in flight" is not a status**. It is the **Next**
+block's second consumer and needed no code for it, which is the first evidence that machinery generalises.
+
+And **three answers per executor (§4.6)**: in-host, in-host isolated in a subagent, or offloaded. The
+subagent answer is written as *"if your runtime provides one"* — the same runtime-neutral phrasing that
+already reached the planner — which closes a real hole: `reviewer.agent.md` shipped from v1 and **nothing
+named it**, so Gate 2 ran at its weakest setting by default with a purpose-built reviewer sitting unused in
+`.claude/agents/`. No `##` heading changed there, so `update` reports nothing; that third answer arrives
+only when `/onboard` is re-run.
+
+**To release: commit and push to `main`** — that tags `v0.7.0` — **then publish the tag as a GitHub
+release.** An npm workspaces monorepo — the installer lives in
 `packages/create-ai-workflow/`, and `apps/*` is reserved for a landing site or hosted documentation.
 Installs a `context/` tree, the eight skills into **both** `.claude/skills/` and `.agents/skills/`, two
 Claude subagents, a merged `AGENTS.md` block and a manifest that draws the ownership boundary — 101
@@ -62,6 +73,19 @@ is the one an agent is most likely to volunteer for unasked — "mock this up", 
 like" — so it is the best test of whether a narrow description plus the flag actually holds, and the
 worst skill to have firing on its own. Try to trip it in prose first.
 
+**Neither subagent answer has been run**, and `/onboard` Step 3's instruction to go looking for a reviewer
+this installation already put on disk has never been followed by a live agent. It is the cheap half of this
+item: one scratch repo, `/onboard`, and a check that Step 3 surfaces `reviewer.agent.md` rather than
+defaulting past it.
+
+**The worktree answer has never been run at all**, and it is the largest untested surface in the package.
+`/feature-status`'s sweep resolves `<path>/context/plans/<NAME>-PLAN.md` across trees it did not create;
+`/feature-implement` step 2 is supposed to **stop** rather than carry on when the working tree's branch is
+not the feature's; `/feature-close` pushes and opens a pull request. None of that has met a second worktree.
+The prose is right — it is whether an agent follows it that is open, and it is the same class of gap as the
+rest of this item. Set a scratch repo to the worktree and pull-request answers, plan two features on `main`,
+and run them in parallel trees.
+
 **This is now two runs, not one.** `.agents/skills/` ships as of v0.2.0 and has never been exercised by
 the host that reads it. §1.2 proved that tree is *discovered*; nothing has yet proved a skill in it fires
 on the right prompt and stays quiet on the wrong one. That host has no `disable-model-invocation`
@@ -91,10 +115,10 @@ never run. It is the one path in the release pipeline still unexercised.
 **Item 1 below was supposed to happen before this.** It did not. The live-agent run is now the
 outstanding risk against a package other people can already install.
 
-`npm pack` produces a working 155.4 kB / 119-file tarball — verified again after §2.9 and §6.2's **Next**
-block by installing it into a clean repo and running `install`, `check` and `update --dry-run` against it,
-with the standards tree landing 78 files and `standards/templates/.gitignore` restored from
-`_dot_gitignore`. Do that again after any change to `templates/`.
+`npm pack` produces a working 162.0 kB / 119-file tarball — verified again after §4.5 and §4.6 by installing it
+into a clean repo and running `install`, `check` and `update --dry-run` against it, with the standards tree
+landing 78 files and `standards/templates/.gitignore` restored from `_dot_gitignore`. Do that again after
+any change to `templates/`.
 
 ### 4. Try an offloaded executor for real
 

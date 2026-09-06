@@ -138,7 +138,22 @@ state for a planned-but-not-started feature.
 plan, skip the activation, and name the feature that holds it.** The plan is valuable and harmless on its
 own; discarding it over a marker would undo the point of the split.
 
-### 7. Report and stop
+### 7. The plan and its entry travel together
+
+They are one change: the entry's **Doc** field points at the document, and `check` reports a dead link if
+the entry exists where the plan does not. Never leave one behind.
+
+**Under [`git.md`](../../../context/git.md)'s worktree answer that ordering is load-bearing.** A worktree
+branches from a ref, and it carries only what that ref already holds — so the plan has to be committed, and
+pushed if the configured source ref is a remote one, **before the worktree exists.** Plan first, land it on
+the default branch, then create the tree. A worktree made too early gets an entry whose **Doc** points at
+nothing, and `check` inside that tree is red from its first run.
+
+This is the one place the ordering is not obvious: everywhere else in this workflow a document and the work
+it describes land together, and here the document has to land *first*, in a different tree from the one that
+will use it.
+
+### 8. Report and stop
 
 State the document path, the phase count, the documentation surfaces §7 commits to updating, and the open
 questions. Then say plainly that **what you produced

@@ -84,6 +84,25 @@ and writes no history, so it is safe under either answer — but the commit that
 make only where that file says so. If it does not exist, the answer is *the user commits*: show the whole
 retirement as one reviewable change and hand it over.
 
+### Then push, if `git.md` says so
+
+Read *Push and pull request* in that same file — **after the retirement is committed, never before.** This
+is the only command in the workflow that acts on that answer.
+
+- **Neither** → stop here. Report what changed and hand it over.
+- **The agent pushes and opens a pull request** → push this feature's branch and open the pull request. Its
+  body is the plan's summary and the phases it landed; link the archived plan at its **new** path, the one
+  the sweep just rewrote everything else to.
+
+**Both gates have already passed on every phase** — that is what the ledger check at the top of this mode
+enforced. A pull request is where finished work goes to be read by a person, not where unfinished work goes
+to be verified.
+
+**Nothing merges it.** This command does not merge the pull request, delete the branch, or remove the
+worktree. Under the worktree answer all three happen after the merge, and removing a stale tree is the job
+of whatever [`context/executors.md`](../../../context/executors.md) names — not of this command, which has
+ended by then.
+
 ## Mode 2 — `--dropped`
 
 For an entry that will not be built. **There is no ledger check in this mode** — unfinished phases are
