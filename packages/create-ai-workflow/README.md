@@ -88,12 +88,28 @@ flag that no longer exists.
 `context/findings.md` *before* the loopback, so it survives the conversation ending. An open `P0`/`P1`
 blocks its phase from being marked `done` and blocks `/feature-close`.
 
+**Where the backlog and the ledgers live is an answer too.** `context/tracking.md` holds it, and it ships
+saying *in the working tree* — `roadmap.md` for the backlog, a document under `plans/` per feature, a
+`history.md` row when one retires. The second answer puts the same three tiers in **GitHub issues**: a
+feature is an issue, a phase is a sub-issue, and a closed issue *is* the archive, with its plan, its whole
+discussion and its pull request at an id nothing had to rewrite.
+
+That answer exists for one reason — **several agents working several features at once.** A worktree carries
+only what its ref holds, so a plan on one branch is invisible to every other tree, and there is no shared
+place to claim a feature. A tracker sits outside every tree. Under it `roadmap.md`, `history.md`,
+`archive/`, `drafts/` and `plans/` stop existing, and so does the `merge=union` workaround they needed.
+
+**No skill names GitHub.** The commands ask for the *fact* they need — is this feature being worked, where
+does this phase stand — and `tracking.md` alone says how this project answers it. That is what keeps a
+different tracker a rewrite of one file rather than of every command.
+
 ## What gets installed
 
 ```
 context/
   README.md  workflow.md  plan-template.md  plan-template.notes.md  roles/  standards/     tool-owned
-  stack.md  verify.md  executors.md  git.md  roadmap.md  history.md  findings.md           yours
+  stack.md  verify.md  executors.md  git.md  tracking.md                                   yours
+  roadmap.md  history.md  findings.md                                                      yours
   drafts/  plans/  archive/                                                                yours
   .state/manifest.json
 .claude/skills/<eight>/SKILL.md   .claude/agents/*.agent.md                                tool-owned
@@ -106,7 +122,8 @@ Nothing is committed. Review the diff yourself.
 
 **Onto a repository that already documents itself**, the installer only appends — your existing
 `AGENTS.md` prose is left exactly where it is. `/onboard` reconciles the two afterwards: it classifies
-each existing claim into `stack.md`, `verify.md`, `git.md` or `executors.md`, asks wherever a destination is
+each existing claim into `stack.md`, `verify.md`, `git.md`, `tracking.md` or `executors.md`, asks wherever a
+destination is
 unclear or the old text contradicts the installed workflow, and prunes the source only once the
 replacement is written and shown.
 

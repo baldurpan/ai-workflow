@@ -3,8 +3,9 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { after, before, describe, it } from 'node:test';
-import { runChecks, type Problem } from '../src/check/rules.ts';
+import { runChecks, trackingAnswer, type Problem } from '../src/check/rules.ts';
 import { install } from '../src/commands/install.ts';
+import { readTemplate } from '../src/layout.ts';
 
 let root: string;
 
@@ -165,5 +166,54 @@ describe('check', () => {
     write('context/plans/WIDGETS-PLAN.md', plan());
     write('context/findings.md', '# Findings\n\n## Open\n\n## Closed\n');
     assert.deepEqual(runChecks(root), []);
+  });
+});
+
+describe('the tracker answer', () => {
+  let alt: string;
+
+  before(() => {
+    alt = mkdtempSync(path.join(tmpdir(), 'aiw-tracking-'));
+    install(alt);
+  });
+  after(() => rmSync(alt, { recursive: true, force: true }));
+
+  const setTracking = (body: string) =>
+    writeFileSync(path.join(alt, 'context/tracking.md'), body, 'utf8');
+
+  it('a missing file is the working-tree answer', () => {
+    rmSync(path.join(alt, 'context/tracking.md'), { force: true });
+    assert.equal(trackingAnswer(alt), 'tree');
+  });
+
+  it('the shipped stub reads as the working tree, because the alternative is commented', () => {
+    setTracking(readTemplate('stubs/tracking.md'));
+    assert.equal(trackingAnswer(alt), 'tree');
+  });
+
+  it('reads the tracker answer once the alternative is the one kept', () => {
+    setTracking('# Tracking\n\n## Where tracking lives\n\n**In an issue tracker.** A feature is an issue.\n');
+    assert.equal(trackingAnswer(alt), 'tracker');
+  });
+
+  it('does not fault a missing roadmap under the tracker answer', () => {
+    rmSync(path.join(alt, 'context/roadmap.md'), { force: true });
+    rmSync(path.join(alt, 'context/history.md'), { force: true });
+    rmSync(path.join(alt, 'context/plans'), { recursive: true, force: true });
+    const problems = runChecks(alt);
+    assert.deepEqual(
+      problems.filter((p) => p.level === 'error'),
+      [],
+      `errors: ${messages(problems).join(', ')}`,
+    );
+  });
+
+  it('still faults a missing roadmap under the working-tree answer', () => {
+    setTracking('# Tracking\n\n## Where tracking lives\n\n**In the working tree.** The backlog is roadmap.md.\n');
+    const problems = runChecks(alt);
+    assert.ok(
+      problems.some((p) => p.file === 'context/roadmap.md' && /missing/.test(p.message)),
+      `expected the missing-roadmap error, got: ${messages(problems).join(', ')}`,
+    );
   });
 });

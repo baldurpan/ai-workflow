@@ -1,6 +1,6 @@
 ---
 name: feature-close
-description: "Retire a finished or abandoned feature — write its context/history.md row, git mv its document to context/archive/, and sweep every reference to its old path for review. Explicit invocation only — run this when the user types /feature-close. Do NOT match on 'we're done with X', 'close this out', or general wrap-up requests."
+description: "Retire a finished or abandoned feature — write its context/history.md row and git mv its document to context/archive/, or close its issue with the matching reason where context/tracking.md says so. Explicit invocation only — run this when the user types /feature-close. Do NOT match on 'we're done with X', 'close this out', or general wrap-up requests."
 ---
 
 # /feature-close
@@ -8,7 +8,9 @@ description: "Retire a finished or abandoned feature — write its context/histo
 Owns the **Tier 2 → retired** transition. Nothing else in this workflow archives a plan —
 `/feature-implement` detects that a feature is finished and *names* this command; it never does the work.
 
-Read [`context/workflow.md`](../../../context/workflow.md) for the tier model.
+Read [`context/workflow.md`](../../../context/workflow.md) for the tier model, and
+[`context/tracking.md`](../../../context/tracking.md) for where a retired feature goes. **Everything below
+is written for the working-tree answer**; *Under the tracker answer* at the end says what changes.
 
 ## Usage
 
@@ -116,10 +118,45 @@ expected.
    in `context/plans/` — `git mv` it to `context/archive/`, repoint its header at the `history.md` row (no
    stamped outcome, same rule as Mode 1), and sweep.
 
+## Under the tracker answer
+
+Read [`context/tracking.md`](../../../context/tracking.md) first. **Both refusals are unchanged** — every
+phase finished, no open `P0` or `P1` — and so is everything about pushing.
+
+| Above | Becomes |
+|---|---|
+| resolve from `roadmap.md` | resolve from the issues carrying the backlog label |
+| every phase `done` | **every sub-issue closed** |
+| remove the entry, append a `history.md` row | **close the issue** — *completed* for shipped, *not planned* for `--dropped` |
+| the one-line why | the closing comment |
+| `git mv` the plan to `archive/` | nothing moves; the issue keeps its body and its whole thread |
+| rewrite the document header | nothing — a closed issue does not claim to be open |
+| the reference sweep | **nothing to sweep.** No path changed, so no link broke |
+
+**The archive is the closed issue**, and it is more than the file it replaces: the plan, the discussion
+that shaped it, every phase as a closed sub-issue, and the pull request, all at one id that nothing had to
+rewrite. This is why the sweep and the header rewrite both disappear rather than being ported.
+
+**Keep the label and keep the assignee.** The label is what makes retired features findable later, and the
+assignee is the record of who ran it. Neither means anything once the issue is closed, and removing either
+loses a fact for no gain.
+
+**Closed findings go into the closing comment**, not into an archived document — same rule, same reason:
+`findings.md` must not grow for the life of the project.
+
+**`--dropped` closes as *not planned*, and the reason goes in the comment**, verbatim in substance. That
+comment is what stops the idea being re-proposed, so a vague one makes it worthless — exactly what the
+`history.md` row was for.
+
+**Then push, if `git.md` says so.** Unchanged, except that the pull request body links the issue rather
+than an archived path, and the commit or pull request carries the trailer that closes it. **Under this
+answer that trailer is not optional**: it is how the close lands in the same change as the work, which is
+the dependency [`context/tracking.md`](../../../context/tracking.md) records between the two answers.
+
 ## Rules
 
-- **Never delete a plan document.** Archiving keeps the reasoning; deleting throws away the record of a
-  decision someone will otherwise re-litigate.
+- **Never delete a plan document**, and under the tracker answer never delete an issue. Archiving keeps the
+  reasoning; deleting throws away the record of a decision someone will otherwise re-litigate.
 - **Never leave `roadmap.md` and `history.md` inconsistent.** An entry is in exactly one of them.
 - **Never commit the sweep unreviewed** — and never commit it at all unless `git.md` says the agent commits.
 - **Never mark a phase `done` to get past the refusal.** If phases are unfinished, the feature is

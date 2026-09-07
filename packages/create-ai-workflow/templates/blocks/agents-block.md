@@ -13,7 +13,7 @@ the standing rules, and every command cites it rather than restating it.
 | `/feature-close` | retires a finished or abandoned feature into `context/archive/` |
 | `/orchestrate` | one ad-hoc, gated, commit-sized change — no roadmap entry, no ledger |
 | `/prototype` | a throwaway HTML/CSS mockup under `prototypes/` — no gates, no ledger, no application code |
-| `/onboard` | fills in this project's own stubs — `verify.md`, `executors.md`, `git.md`, `stack.md` — adopting what an existing `AGENTS.md` already said |
+| `/onboard` | fills in this project's own stubs — `verify.md`, `executors.md`, `git.md`, `tracking.md`, `stack.md` — adopting what an existing `AGENTS.md` already said |
 
 | Read | For |
 |---|---|
@@ -21,6 +21,7 @@ the standing rules, and every command cites it rather than restating it.
 | [`context/standards/README.md`](context/standards/README.md) | engineering standards — load per its conditional table |
 | [`context/verify.md`](context/verify.md) | the real lint / typecheck / build / test commands — the only file that names one |
 | [`context/git.md`](context/git.md) | who commits, where work lands, whether it is pushed, and at what granularity — read it before closing out any change |
+| [`context/tracking.md`](context/tracking.md) | where the backlog, the plans and the phase ledgers live — a file in `context/`, or the issue tracker |
 
 **Phase status lives in the active plan's status ledger and nowhere else.** Work the lowest-numbered phase
 that is not `done` and whose `Depends on` are all `done`; state which you picked before starting; update

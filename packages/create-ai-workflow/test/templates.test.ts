@@ -4,6 +4,7 @@ import path from 'node:path';
 import { describe, it } from 'node:test';
 import { claudeSkillTransform, SKILL_NAMES, agentsBlockBody, readTemplate } from '../src/layout.ts';
 import { parseFindings, parseHistory, parseRoadmap } from '../src/check/parse.ts';
+import { stripComments } from '../src/check/markdown.ts';
 import { templatesDir, walk } from '../src/paths.ts';
 
 const skillBody = (name: string) => readTemplate(`skills/${name}/SKILL.md`);
@@ -137,6 +138,50 @@ describe('one home for git etiquette', () => {
     for (const { rel, text } of ourTemplates()) {
       assert.doesNotMatch(text, /in the same commit as the work/i, `${rel}`);
     }
+  });
+});
+
+describe('one home for the tracker', () => {
+  // §10.8: the skills describe the *fact* they need and `tracking.md` says how this project answers it.
+  // A forge command in a skill is the same failure as a verification command in one — it hardcodes a
+  // winner, and it is what makes a second tracker a rewrite of eight files instead of one section.
+  const FORGE = /\bgh (issue|pr|api|repo|label)\b|api\.github\.com|\bglab\b|\bjira\b/i;
+
+  it('no skill names a forge command', () => {
+    for (const name of SKILL_NAMES) {
+      const hit = FORGE.exec(skillBody(name));
+      assert.equal(hit, null, `${name} names a forge invocation: ${hit?.[0] ?? ''}`);
+    }
+  });
+
+  it('every skill that reads workflow state points at tracking.md', () => {
+    const READS_STATE = ['roadmap', 'feature-plan', 'feature-implement', 'feature-status', 'feature-close'];
+    for (const name of READS_STATE) {
+      assert.match(skillBody(name), /tracking\.md/, `${name} must name where workflow state lives`);
+    }
+  });
+
+  it('the stub ships the working-tree answer, so an install reads as the tree', () => {
+    const stub = readTemplate('stubs/tracking.md');
+    assert.match(stub, /\*\*In the working tree\.\*\*/, 'the shipped answer is written out');
+    // The alternative ships commented, the way git.md's do — otherwise a fresh install would carry two.
+    assert.doesNotMatch(
+      stripComments(stub),
+      /\*\*In an issue tracker\.\*\*/,
+      'the tracker answer ships commented out',
+    );
+  });
+
+  it('the plan write order is stated where a phase cannot be lost', () => {
+    // §10.4: the body is written before the sub-issues exist, so a run that dies between them leaves a
+    // complete plan that reads as a draft. The order and the resume are the fix, and both must be written.
+    const plan = skillBody('feature-plan');
+    assert.match(plan, /commit point/i, 'the sub-issues are named as the commit point');
+    // The body lists the phases and the sub-issues carry their status, which is what makes a half-created
+    // plan detectable instead of indistinguishable from a draft.
+    assert.match(plan, /Status column/i, 'the status column moves out of the body');
+    assert.match(plan, /interrupted run/i, 'a partial set of sub-issues has a named verdict');
+    assert.match(plan, /count and names/i, 'the reconciliation is mechanical, not a judgement call');
   });
 });
 
@@ -283,8 +328,9 @@ describe('/onboard adopts an existing AGENTS.md', () => {
   const onboard = skillBody('onboard');
 
   it('classifies before it moves, and moves before it deletes', () => {
+    // Matched by name, not by number: steps get inserted, and the claim here is the ordering.
     const adopt = onboard.indexOf('## Step 1 — Adopt');
-    const prune = onboard.indexOf('## Step 8 — Prune');
+    const prune = onboard.search(/^## Step \d+ — Prune/m);
     assert.ok(adopt > 0, 'the adoption step exists');
     assert.ok(prune > adopt, 'pruning comes after every step that writes a destination');
     assert.match(onboard, /Nothing is deleted here/, 'the adoption step deletes nothing');

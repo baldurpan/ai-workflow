@@ -11,7 +11,9 @@ agent.**
 **It is never a prerequisite.** Every other command resolves its own starting point — nobody has to run
 this first. It exists for when *you* want to know.
 
-Read [`context/workflow.md`](../../../context/workflow.md) for the tier model.
+Read [`context/workflow.md`](../../../context/workflow.md) for the tier model, and
+[`context/tracking.md`](../../../context/tracking.md) for where the state it reports lives. **Everything
+below is written for the working-tree answer**; *Under the tracker answer* at the end says what changes.
 
 ## 1. Read, in this order
 
@@ -122,12 +124,56 @@ the report says so in one line rather than ranking them.
 
 "Exactly one" is the point. A list of three things to consider is what this command exists to replace.
 
+## Under the tracker answer
+
+Read [`context/tracking.md`](../../../context/tracking.md) first. This command still writes nothing and
+still ends with exactly one next action.
+
+| Above | Becomes |
+|---|---|
+| step 1's `roadmap.md` | the open issues carrying the backlog label |
+| step 1's status ledger | that issue's sub-issues |
+| step 1's `findings.md` and git state | unchanged — both are still files in this tree |
+| step 2's worktree sweep | **one query: the assigned issues** |
+
+**Step 2 gets shorter and stronger, and it is the clearest payoff of this answer.** The sweep exists
+because `roadmap.md` on the default branch cannot see what is in flight, so it walks every tree and reads
+each one's files. That only ever worked for trees **on this machine**. The tracker is outside every tree:
+one query for the assigned issues answers what is in flight across every machine, and it answers it for
+agents this checkout has never heard of.
+
+Keep `git worktree list` anyway, and report the two side by side. They answer different questions — which
+trees exist *here*, and which features are claimed *anywhere* — and the interesting line is where they
+disagree:
+
+- **Assigned with no local tree** — normal. Someone else's agent has it.
+- **A local tree whose feature is unassigned** — a claim that was dropped, or a tree left behind after a
+  close. Report it; do not assign anything.
+
+### Two reconciliations that only exist here
+
+Add these to step 3, and stop on them the same way:
+
+- **A stale claim.** An issue assigned whose last comment is old — the phase opened and nothing since. The
+  heartbeat is what makes this visible; say how long, and that reclaiming is a person's decision. **Never
+  un-assign someone else's agent.**
+- **A sub-issue closed whose phase's `Files:` do not exist.** Same shape as a `done` row with no files, one
+  substrate over.
+- **The sub-issues do not match the body's phase list** — a listed phase with no sub-issue, or a sub-issue
+  naming no listed phase. The body is the authoritative list of what the phases *are*; the sub-issues are
+  only where each one stands. A count that disagrees is usually a `/feature-plan` run that died partway;
+  say which side has the extra and stop.
+
+**A sub-issue closed while its commit is still unpushed is not a discrepancy** — the same way a `done` row
+with uncommitted changes is not. It is the normal state between the gates passing and the branch landing.
+
 ## Rules
 
 - **Read-only. No exceptions.** Not the ledger, not the roadmap, not a finding, not a "quick fix while I'm
   here". If you spot something that needs changing, name it as the next action and let the user decide.
 - **Never create, remove or switch a working tree.** The sweep reads `git worktree list` and the files it
   points at. Naming a tree to go to is this command's job; going there is not.
-- **Never invoke another agent.**
+- **Never invoke another agent**, and under the tracker answer never assign, un-assign, label or close
+  anything. Reading is the whole of this command.
 - **Never mark anything.** Reporting that a phase looks finished is not marking it `done`; only
   `/feature-implement` does that, on gate evidence.

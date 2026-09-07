@@ -103,7 +103,7 @@ export function install(root: string): number {
   info();
   info(bold('Next'));
   info(`  1. Review the diff. ${dim('Nothing was committed — that is deliberate.')}`);
-  info(`  2. Run ${cyan('/onboard')} in your agent to fill in verify.md, executors.md, git.md and stack.md.`);
+  info(`  2. Run ${cyan('/onboard')} in your agent to fill in verify.md, executors.md, git.md, tracking.md and stack.md.`);
   if (before !== null) {
     info(
       dim(

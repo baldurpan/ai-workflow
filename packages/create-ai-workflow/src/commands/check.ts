@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { runChecks } from '../check/rules.ts';
+import { runChecks, trackingAnswer } from '../check/rules.ts';
 import { CONTEXT_DIR } from '../layout.ts';
 import { bold, dim, green, info, red, UserError, yellow } from '../log.ts';
 import { exists } from '../paths.ts';
@@ -22,7 +22,11 @@ export function check(root: string): number {
   const notes = problems.filter((p) => p.level === 'note');
 
   if (problems.length === 0) {
-    info(`${green('ok')} roadmap, plans, history and findings are structurally sound`);
+    // Under the tracker answer the first three do not exist, and naming them would be reporting on files
+    // this install does not have.
+    const scanned =
+      trackingAnswer(root) === 'tracker' ? 'findings' : 'roadmap, plans, history and findings';
+    info(`${green('ok')} ${scanned} ${scanned.includes(',') ? 'are' : 'is'} structurally sound`);
     return 0;
   }
 

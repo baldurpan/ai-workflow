@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { exists, walk } from '../paths.ts';
+import { stripComments } from './markdown.ts';
 import {
   PHASE_STATUSES,
   parseFindings,
@@ -48,6 +49,23 @@ function read(root: string, rel: string): string | null {
   return exists(full) ? readFileSync(full, 'utf8') : null;
 }
 
+/**
+ * Which answer `context/tracking.md` carries. The stub ships both, one of them commented out, and
+ * `/onboard` keeps one and deletes the other — so the surviving lead-in is the answer, and comments are
+ * stripped first because the alternative is still in the file as one.
+ *
+ * A missing file is the working-tree answer, which is the rule the stub itself states and the same shape
+ * as `git.md`'s: absence is a defined state, not an error.
+ *
+ * This reads a shape, not a workflow question (§2.4). It decides which files this command should expect to
+ * exist — nothing about what any of them mean.
+ */
+export function trackingAnswer(root: string): 'tree' | 'tracker' {
+  const text = read(root, 'context/tracking.md');
+  if (text === null) return 'tree';
+  return /\*\*In an issue tracker\.\*\*/.test(stripComments(text)) ? 'tracker' : 'tree';
+}
+
 export function expectedColumns(root: string): string[] {
   const template = read(root, 'context/plan-template.md');
   const ledger = template ? parseLedgers(template)[0] : undefined;
@@ -66,7 +84,11 @@ export function runChecks(root: string): Problem[] {
   const roadmapText = read(root, 'context/roadmap.md');
   const roadmap = roadmapText ? parseRoadmap(roadmapText) : [];
 
-  if (roadmapText === null) {
+  // Under the tracker answer the backlog is a set of issues and this file is expected to be gone, so its
+  // absence is the normal state rather than a broken install. Every rule below already degrades to nothing
+  // when what it parses is missing, which is why skipping what is absent costs one condition and no
+  // knowledge of any forge.
+  if (roadmapText === null && trackingAnswer(root) === 'tree') {
     problems.push({
       level: 'error',
       file: 'context/roadmap.md',

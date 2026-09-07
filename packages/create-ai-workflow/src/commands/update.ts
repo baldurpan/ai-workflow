@@ -5,6 +5,8 @@ import {
   AGENTS_BLOCK_KEY,
   DEFAULT_ADAPTERS,
   STANDARDS_PREFIX,
+  STUB_DIRS,
+  STUBS,
   agentsBlockBody,
   managedFiles,
   renderManaged,
@@ -35,6 +37,35 @@ const LABEL: Record<Action, string> = {
 
 function readIfExists(file: string): string | null {
   return exists(file) ? readFileSync(file, 'utf8') : null;
+}
+
+/**
+ * The project-owned list, derived from `STUBS` and `STUB_DIRS` rather than retyped. §4.1 makes the
+ * ownership boundary a property of the data structure; a hand-written copy of it here would be a second
+ * place to remember, and it was already one stub out of date before this was derived.
+ */
+function projectOwnedLines(width = 62): string[] {
+  const names = [
+    `context/${path.posix.basename(STUBS[0]?.dest ?? '')}`,
+    ...STUBS.slice(1).map((s) => path.posix.basename(s.dest)),
+    ...STUB_DIRS.map((d) => `${path.posix.basename(d)}/`),
+    'CLAUDE.md',
+  ];
+
+  const lines: string[] = [];
+  let line = '';
+  for (const name of names) {
+    const next = line ? `${line} ${name},` : `${name},`;
+    if (line && next.length > width) {
+      lines.push(line);
+      line = `${name},`;
+    } else {
+      line = next;
+    }
+  }
+  if (line) lines.push(line);
+  lines.push('and anything else you have added under context/');
+  return lines;
 }
 
 function sourceRef(text: string | null): string | null {
@@ -162,9 +193,10 @@ export function update(root: string, options: { dryRun: boolean; force: boolean 
   info();
   info(bold('Ownership'));
   info(`  ${green('replaced by update')}  ${dim('the tool-owned files above — every one is in the manifest')}`);
-  info(`  ${cyan('yours, untouched')}    ${dim('context/stack.md, verify.md, executors.md, git.md, roadmap.md,')}`);
-  info(`                      ${dim('history.md, findings.md, drafts/, plans/, archive/, CLAUDE.md,')}`);
-  info(`                      ${dim('and anything else you have added under context/')}`);
+  for (const [i, line] of projectOwnedLines().entries()) {
+    const label = i === 0 ? `  ${cyan('yours, untouched')}    ` : '                      ';
+    info(label + dim(line));
+  }
   info(dim('  A project-owned file is not in the manifest, so no code path here reaches it.'));
 
   const installedRef = sourceRef(readIfExists(path.join(root, `${STANDARDS_PREFIX}.source`)));

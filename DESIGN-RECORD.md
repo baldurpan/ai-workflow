@@ -1129,3 +1129,344 @@ dispatch under Codex) and §8.4 (`agy` untested against §1.1) are now under *v2
 **Steps 1–7 and 9 shipped.** Step 8 is the first item in [`PLAN.md`](PLAN.md): the loop has been run by
 hand, following each SKILL.md literally, but not yet under a live agent — and that verification now has
 two trees to cover, not one.
+
+---
+
+## 10. The tracking substrate — an issue tracker as the shared home
+
+**This section is at the end because §-numbers are cited from source comments and from every skill, and
+§3.7 refuses to rewrite them.** Read it after §2 and §4.5; it changes where the things those sections
+describe are *stored*, and almost nothing about what they mean.
+
+### 10.1 The hole: `git worktree list` is a single-machine answer
+
+§4.5 settled "what is in flight" without a state file: *"which features are in flight is `git worktree
+list`, and 'in flight' is the observation that a worktree exists."* That is correct, and it is correct only
+inside one clone. Worktrees share a `.git`, which is what lets git enforce one-checkout-per-branch and what
+made the one-active-feature rule free. **That enforcement ends at the clone boundary.** Two agents in two
+containers, two clones, both start `payment-retry`, and nothing anywhere notices.
+
+The `active` marker cannot fill the gap, and §4.5 is the reason why: it is set inside the worktree and
+never reaches the default branch, which the section correctly presents as a virtue — ephemeral,
+self-cleaning, invisible to the merge. The consequence is that **no shared location in the design says a
+feature is claimed.** For one agent that is not a defect; it is the point. For several it is the missing
+primitive, and nothing already on disk can supply it.
+
+An issue tracker is not wanted here for visibility. It is wanted because it is the only thing in the
+picture that sits **outside every worktree and is writable by all of them.**
+
+### 10.2 Why the plan document cannot stay in the tree
+
+The first draft of this decision kept `plans/<NAME>-PLAN.md` as a tracked file and mirrored the phases into
+sub-issues. Every argument for that is a **single-writer** argument — it diffs, it reviews inside the pull
+request, `git mv` archives it with its history — and each one inverts under several worktrees:
+
+- A plan file lives on a branch. Another agent cannot read it without fetching that branch.
+- The sharp case is not visibility but **correctness**: when a phase reveals the plan was wrong and the
+  agent amends it, the amendment is branch-local. There is now no single plan, and no way to notice.
+- §4.5's *"a plan lands before its worktree exists"* — the plan committed and pushed to the default branch
+  before the tree is created, "the one ordering in this workflow where a document lands first and
+  separately" — was already the design straining against its substrate. It exists only because a tracked
+  file cannot be seen by a tree that does not have it yet. Move the plan out of the tree and the exception
+  disappears rather than being worked around.
+
+### 10.3 What collapses
+
+| Today | Under the tracker answer |
+|---|---|
+| a `roadmap.md` entry | the issue |
+| `drafts/<NAME>.md` | the issue body, before it has phases |
+| `plans/<NAME>-PLAN.md` | the issue body, after — **same id**, edited in place |
+| a ledger row | a sub-issue, one per phase |
+| the `active` marker | the assignee |
+| `archive/` + a `history.md` row | the closed issue |
+
+Six things become two. **The four files that conflict on parallel branches stop existing**, and with
+`history.md` goes the `merge=union` line §4.5 prescribes for it — a workaround for exactly the contention
+this removes. `/feature-close`'s reference sweep goes too: no path moves, so nothing links to a moved path.
+
+Keeping the issue id across the draft → plan transition is strictly better than the `git mv` it replaces
+(§2.3). A `git mv` carries the file and discards the discussion, the original wording, and everyone
+subscribed; editing the body in place keeps all three.
+
+**`drafts/` does not map to anything — it stops existing.** §2.1's table has three pre-plan states:
+`pending` with no document, `pending` with a `drafts/` document, and `pending` with a plan. The first two
+collapse here, because the issue body always exists and *an idea* versus *an idea with pasted material* is
+only a question of how much body there is. Nothing is lost: that same table already reads both as **an
+idea**, and no command has ever branched on which one it was.
+
+**One rule dissolves rather than porting.** `roadmap.md` opens with *"High-level by design: depth belongs
+in the plan document, not here"* — a constraint that existed because **one file held every entry**, so
+depth in it made the file unreadable. That is also why the draft and the plan had to be separate documents
+at all. An issue list has no such pressure: the list view is titles, and depth sits inside each issue
+behind a click. The rule was a property of the file, not of the tier, which is what makes §10.3's
+same-id transition possible in the first place.
+
+### 10.4 The primitive map — two labels, and everything else observed
+
+§2.1's test is the one that decides each primitive: **does it let a fact be observed, or does it require a
+stored copy someone must maintain?** *"Planned" is the observation that a document exists in `plans/`* is
+the same move, one substrate down.
+
+| Fact | Primitive | |
+|---|---|---|
+| idea, or has a plan | **whether it has sub-issues** | observed |
+| being worked | **assignee** | observed |
+| phase `done` | **sub-issue closed** | observed |
+| phase `in progress` | **sub-issue assigned** | observed |
+| retired, and its outcome | **closed, with GitHub's state reason** | observed |
+| phase `blocked` | `workflow:blocked` | **stored → label** |
+| whether this issue is the workflow's at all | `workflow:feature` | **stored → label** |
+
+**Two labels, and both earn it by having no structural home.** `blocked` is needed because phase selection
+takes *the lowest-numbered phase that is not `done` and whose `Depends on` are all `done`* — open/closed
+cannot express *stuck*, so without a marker an agent picks a blocked phase up, fails, and re-blocks it. The
+ownership label is needed because a repository's tracker also holds bug reports, questions and Dependabot,
+and nothing structurally separates "a feature this workflow manages" from "someone filed a bug."
+
+Every other label anyone will reach for — `draft`, `planned`, `in-progress`, `done` — is a second place for
+a fact that already has one, and `draft` is the sharpest: **an issue with sub-issues is a plan.** GitHub's
+*issue types* would serve the ownership label natively but are org-scoped, which is dead for a personal
+repository and would make the workflow depend on org configuration. A label is portable.
+
+**The namespace is load-bearing, and `feature` is §2.6's word rather than a kind.** *"If you would want a
+`history.md` row for it, it is a feature"* — a bug large enough for that row is a feature in the only
+vocabulary this workflow has. `workflow:feature` says *a feature in the workflow's sense*, which is the
+claim being made; a bare `feature` would both assert a taxonomy the design does not hold and collide with
+the enhancement label most repositories already carry. **The stub has to say this outright**, because
+someone will otherwise see the label on a bug report and read it as a miscategorisation.
+
+**The workflow does not distinguish features from bugs, and must not start.** §2.6 already partitions the
+work — *does it deserve a record* — and a kind-taxonomy laid across it produces a 2×2 the loop only ever
+reads one axis of, which is §2.2's warning about two vocabularies in a new place. The repository's tracker
+already has that taxonomy, usually better tuned than anything a stub could ship, and under this substrate
+the workflow **inherits it for nothing**: an issue keeps every label it already had, and one orthogonal bit
+is added on top.
+
+**The two close reasons match `/feature-close`'s two modes exactly** — shipped is *closed as completed*,
+`--dropped` is *closed as not planned*. Native, queryable, no label, and it removes the Outcome column from
+what `history.md` used to carry. The *Why* becomes the closing comment.
+
+**The assignee is the claim and the status in one write.** In the file design those are two facts that can
+disagree; here there is nothing to disagree with. That is the strongest single argument for this substrate
+and it is not a visibility argument at all.
+
+**No issue states its own status, and the body is where someone will try.** §2.1 bans a `**Status:**`
+header anywhere under `context/`, and that rule has to survive the move intact — an issue body looks like a
+natural home for a line reading *in progress*, and one written there is a second answer that goes stale
+against the assignee within a phase. **The body holds content and never a claim about where the work
+stands**: the problem before planning, the plan after. Everything else is read off the structure.
+
+#### Draft or plan — the test, and the transition that has to hold it
+
+**An issue with sub-issues is a plan.** That is §2.1's move one substrate down — *"planned" is the
+observation that a document exists in `plans/`* becomes *"planned" is the observation that phases exist* —
+and nothing stores it, so nothing can drift. `workflow:planned` is refused for the usual reason: a label
+shadowing an observable fact, wrong the first time someone adds phases without relabelling.
+
+**It is a stronger test than the directory it replaces.** §2.3 claims a misfiled document "breaks a link
+loudly rather than lying quietly", but nothing actually cross-checks a file against its directory — a draft
+moved into `plans/` looks exactly like a plan until someone opens it. Here both failure modes are
+checkable against the body, and both resolve to §2.4's existing instruction to stop and say so:
+
+| Observed | Means |
+|---|---|
+| body names phases, no sub-issues | an interrupted `/feature-plan` |
+| sub-issues exist, body names no phases | someone attached one by hand |
+
+**The window is real, and the fix is to split the ledger rather than move it.** Phases come from the plan,
+so the body is written before the sub-issues can exist, and a run that dies between them leaves a complete
+plan that reads as a draft forever.
+
+**So the body keeps the phase list and the sub-issues keep the status.** The ledger does not move wholesale:
+its `#`, `Phase`, `Depends on` and `Files:` stay in the body — the authoritative answer to *which phases
+exist, in what order, depending on what* — and only the Status column becomes the sub-issues, which answer
+*where each one stands*. Those are different facts, so this is §2.1 rather than a violation of it, and the
+Status column is **dropped** from the body precisely so it cannot become a second home.
+
+The split is what turns a careful ordering into a checkable one. The body is the expected set and the
+sub-issues are what exists, so every run compares **count and names** before writing:
+
+| Body says | Sub-issues | Verdict |
+|---|---|---|
+| 5 phases | none | a draft |
+| 5 phases | 5, names match | a finished plan |
+| 5 phases | 3, all listed | an interrupted run — create the missing two |
+| 5 phases | one naming no listed phase | stop; the two disagree |
+
+**The first draft of this section had the ledger becoming sub-issues outright**, which loses the
+authoritative list and leaves *"is this a draft or a half-written plan"* answerable only by judgement. Rows
+three and four are the whole point: the interrupted state has to be able to say what it is, which is §2.8's
+argument at the tier boundary instead of inside the ledger.
+
+#### Adoption — how an issue the workflow did not create gets in
+
+That inheritance is only real if an existing issue can enter the loop, and under the file substrate it
+could not: a bug report and a `roadmap.md` entry are unrelated objects, and the only path in is retyping
+one as the other — the duplication this whole design refuses. Here they are the same object, so
+**`/roadmap` has a second mode: apply `workflow:feature` to an issue that already exists.** Nothing is
+copied, the reporter stays subscribed, and the discussion that produced it stays attached to the work.
+
+- **§2.6 still decides, unchanged.** An issue too small for a `history.md` row is not adopted at all — it
+  is `/orchestrate` work, closed by `Closes #N` on the commit, and it never enters the loop. The workflow
+  staying out of the ordinary tracker flow is the correct behaviour, not a gap in it.
+- **A promoted finding (§10.5) arrives by this same door**, and loses its `P0`–`P3` on the way. That
+  severity meant *does this block the phase*; outside the branch that raised it, it blocks nothing.
+
+
+### 10.5 What stays in the working tree, and why it is not arbitrary
+
+`verify.md`, `executors.md`, `git.md`, `stack.md` and `standards/` do not move. **Each is read at gate time
+and must match the commit being gated** — a `verify.md` fetched from a tracker could describe a build this
+branch does not have, which is the one way to make Gate 1 lie.
+
+`findings.md` does not move either, and the reason is different: a finding is **branch-scoped by
+construction** and nets to zero within one branch's life (§4.5), so it is never the thing two agents
+contend over. The escape hatch is written down rather than inferred — **a finding that outlives its branch
+is promoted to its own issue**, which is also the only way a cross-cutting defect becomes visible to agents
+working elsewhere.
+
+### 10.6 Claiming, and the lock with no TTL
+
+Two things are genuinely new here. Neither exists in the tree-based design because with one agent neither
+is a problem.
+
+**Claiming is optimistic, because assignment is not compare-and-swap.** GitHub assignment is
+last-write-wins, so two agents can both read *unassigned* and both assign. The rule: **assign, re-read,
+confirm you are the sole assignee, and back off if you are not.** Cheap, and it closes the window that
+actually matters.
+
+**A heartbeat, because an assignee is a lock with no expiry.** An agent that dies holding a claim leaves
+the issue assigned forever and nothing reclaims it. This is §2.8's argument moved up a level: the opening
+ledger write exists because *"the half-finished tree it leaves behind cannot say it itself"* — and under
+several agents that evidence must also be readable **from a machine that is not the one that died.** So the
+agent comments on the issue at each phase boundary, naming the phase and the commit. That makes staleness
+*observable* — "phase 2 in progress, last activity six hours ago" — without a state file, which §2.4 would
+refuse anyway.
+
+**Both live in the skills, not in `tracking.md` (§10.8).** A project chooses its tracker and its labels; it
+does not choose a different backoff rule or a different write order. Putting either in a project-owned file
+would freeze it at install time, reachable only by re-running `/onboard` — and a defect in a claim protocol
+is exactly the kind of thing `update` has to be able to repair.
+
+**The dead claim is not solved, and that is deliberate.** A TTL, a supervisor, or a lease would each be a
+mechanism this design has no other use for. The heartbeat makes the condition visible and leaves the
+reclaim to a person or to whatever `executors.md` names. Recording that it is unsolved is the point:
+§4.4's lesson is that an unstated premise gets answered by whoever reads it next.
+
+### 10.7 Rejected — Projects, milestones, and why cost decided nothing
+
+Availability was checked rather than assumed, and it settles nothing: issues, labels, milestones and
+Projects are on every plan including Free, private repositories included; sub-issues are GA at 100 per
+parent and eight levels of nesting, with no plan restriction. **The decisions below are design decisions,
+not budget ones.**
+
+**Projects are refused**, on four grounds:
+
+- A `Status` field is **stored state duplicating the assignee and open/closed** — the first real drift risk
+  anyone would introduce here, and precisely what §2.1 exists to refuse.
+- **Membership is a second thing to maintain.** An issue exists whether or not it is on a board, so the
+  workflow would have to remember to add it, and *"is it on the board"* becomes a failure mode with no
+  structural answer.
+- **GraphQL.** Everything else here is reachable from `gh issue`, sub-issues included — `gh issue create
+  --parent`, `gh issue edit --add-sub-issue`. Projects v2 needs node ids for the project, the field *and*
+  the option, which is per-installation machinery and therefore `executors.md`'s business (§4.3), not a
+  skill's.
+- It buys a **view, not a fact.** Everything a board shows is derivable from the issues, and a user can
+  point a Project at the repository themselves, with auto-add, without the workflow knowing.
+
+**Milestones are left alone**, and not merely as unneeded. The three-tier model has no tier one maps to —
+a feature is an issue, a phase is a sub-issue, and there is no release tier. The operative reason is that
+**an issue belongs to at most one milestone**: a workflow that claims that slot spends the user's only one
+on something it does not need. Left alone, milestones stay available for release planning, assigned by
+asking for it in the moment — the tracker's version of §4.1's *anything else you add is yours forever.*
+
+**One convention worth fixing now:** the phase number goes in the sub-issue title — `[2] Wire the retry
+queue`. Sub-issue order is preserved in the parent, but a title that sorts survives someone dragging them.
+
+### 10.8 It ships as an answer, not a mode
+
+`context/tracking.md` is the fifth file in the shape of `verify.md`, `executors.md` and `git.md`:
+hand-written prose, project-owned, absent from the manifest, read fresh. It ships with **in the working
+tree** as the first answer, which is what every existing install already does, so §4.5's rule holds
+unchanged — *if the file is missing, the answer is the first one in every section.*
+
+**`/onboard` asks it, and states the precondition in the question**: the tracker answer requires the
+project to be a git repository with a GitHub remote. Where it is not, the question says so and the answer
+is not offered — the same shape as Step 2's *"offer this only where the host has such a mechanism."*
+
+**It holds the answer and its parameters — never the protocol.** Which substrate, which tracker, which
+labels, which remote: those are this project's choices and belong in a project-owned file. The claim
+protocol (§10.6), the heartbeat, and `/feature-plan`'s body-before-sub-issues ordering (§10.4) are **not**
+choices — they are how the workflow works, and a project that picked its own would simply be wrong. They
+stay in the skills, which are tool-owned, so `update` can repair a defect in one. The ownership boundary
+§4.1 draws is the whole argument: a project-owned file is unreachable by the updater **by construction**,
+so anything written there is frozen until someone re-runs `/onboard`. That is right for an answer and wrong
+for a mechanism.
+
+It also keeps the file the size of `git.md` rather than twice it, and it is what makes the primitive map
+(§10.4) the *only* GitHub-shaped thing in the installation.
+
+**Under the tracker answer, five installed stubs have nothing to write to them**, and `install` cannot know
+— it writes all seven stubs and all three directories before the tracking question is ever asked. So
+`/onboard` names them and **offers to remove them, only where they are empty**, in Step 8's existing shape:
+shown as a diff, applied on confirmation, and nothing removed that cannot be pointed at.
+
+| Removed if empty | Stays under both answers |
+|---|---|
+| `roadmap.md`, `history.md` | `findings.md` (§10.5) |
+| `drafts/`, `plans/`, `archive/` | `verify.md`, `executors.md`, `git.md`, `stack.md`, `standards/` |
+
+**Empty is the discriminator, and it is observed rather than stored** — a non-empty `history.md` is the
+frozen prior-era record below, and is never offered. The parser that answers it already exists: `check`
+reads these files for shape, and three tests already assert exactly this property of the shipped stubs —
+*the roadmap stub contains no parseable entry*, *the history stub has a table and no rows*.
+
+**This is the first genuine dependency between two `git.md` answers, and it is recorded rather than
+discovered.** §4.5 insisted the answers are orthogonal, not an enum. The tracker answer breaks that: the
+atomicity rule — *the ledger row lands with the work* — is preserved by putting `Closes #N` in the commit
+or pull request, so the forge performs the closing write as part of the change. That only fires on the
+default branch, so **the tracker answer presupposes the push-and-pull-request answer.** Defensible, since
+nobody wants shared tracking and a repository they never push, but it is a real weakening of a property
+§4.5 built on purpose, and `/onboard` refuses the pair rather than writing two answers that cannot both be
+true.
+
+**`/onboard` sets the answer; it does not migrate the work.** Switching substrates is a data migration —
+every roadmap entry becomes an issue, every plan an issue with a sub-issue per phase — and `/onboard` is a
+configuration command whose every step asks something and writes it into a stub, reviewable as a diff
+before anything lands. Running a migration off the back of question five is a **side-effect**, which is the
+one thing the tier model refuses everywhere else: *every boundary is crossed by an explicit command, never
+as a side-effect of running something else.*
+
+The concrete failure behind the principle is that a file write lands or does not, while twenty issue
+creations are twenty non-atomic remote writes. Fail at twelve and the repository is in **neither**
+substrate. Idempotency is reachable by observation rather than by a state file — *does a `workflow:feature`
+issue with this name already exist* — so §2.4 is not the obstacle; the obstacle is that it is real work and
+it is not this command's.
+
+- **Refuse to switch while anything is in flight**, in `/feature-close`'s refuse-first shape: name the
+  active feature and every entry holding a plan, and stop. The alternative is an agent in a worktree
+  reading a substrate that moved underneath it mid-phase — §2.4's read-fresh model assumes the answer does
+  not move, and that is the one moment it would.
+- **From a clean state the switch is free**, because there is nothing to migrate. That is also the
+  realistic moment for it: on adoption, or between features. A pending backlog with no plans is cheap to
+  re-create, one `/roadmap` per entry.
+- **A real backlog migration is its own command if it is ever wanted.** Nothing here needs it to exist.
+
+**`history.md` and `archive/` are never converted, in either direction.** Fabricating closed issues for
+features shipped months ago produces wrong dates, empty discussion threads, and an audit trail that looks
+real and is not. The files **stay, frozen, as the record of the era before the switch** — §4.1 already
+guarantees it, since anything under `context/` is project-owned forever, so it costs nothing. New closures
+become closed issues; the old ones stay where they happened. That is not two homes for one fact (§2.1), it
+is two eras, each honest about what it covers.
+
+**The switch is not symmetric.** Tracker → files loses discussion, reporters and cross-links that no
+markdown file can hold; files → tracker loses nothing. Worth stating, because the reverse direction reads
+like an undo and is not one.
+
+**A second tracker is an answer, not a rewrite.** The rows in §10.4 are facts, and only the right-hand
+column is GitHub-shaped. Jira, Linear and ClickUp each answer the same seven rows with their own
+primitives — a parent/child link, an assignee, a resolution — so adding one is a section in this stub and a
+dispatch line in `executors.md`, not a mode in eight skills. Nothing in the loop is to name GitHub
+directly: the skills describe the *fact* they need, and `tracking.md` says how this project answers it.
+That is §3.2's runtime neutrality applied to the forge, and it is what keeps the second integration cheap.

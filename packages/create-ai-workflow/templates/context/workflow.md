@@ -36,7 +36,7 @@ never a prerequisite for anything.
 | `/feature-close` | Tier 2 → retired | `history.md`, `archive/`, the reference sweep, and the push and pull request where [`git.md`](git.md) says so |
 | `/orchestrate` | one ad-hoc gated change | the code, and `findings.md` |
 | `/prototype` | one throwaway HTML/CSS mockup — no gates, no application code | `prototypes/<NAME>/`, and nothing else |
-| `/onboard` | the project-owned stubs | `verify.md`, `executors.md`, `git.md`, `stack.md`, and the pruning of what they replace |
+| `/onboard` | the project-owned stubs | `verify.md`, `executors.md`, `git.md`, `tracking.md`, `stack.md`, and the pruning of what they replace |
 
 ## One source of truth per fact
 
@@ -108,6 +108,22 @@ as the most conservative option: **where work lands** (the main working tree, a 
 worktree per feature), **whether the agent pushes and opens a pull request** (it does not), and at what
 **granularity** it commits. A push happens once per feature, at `/feature-close` — never at the end of a
 phase — and nothing here merges a pull request, deletes a branch, or removes a worktree under any answer.
+
+### Where this state lives is an answer, not an assumption
+
+> **Read [`tracking.md`](tracking.md) before reading or writing any workflow state. If it does not exist,
+> or does not say otherwise, the backlog is `roadmap.md`, a plan is a document under `plans/`, and a
+> retired feature is a `history.md` row.**
+
+Everything above describes the working-tree answer, which is the default and what every install does
+until someone changes it. The second answer puts the same tiers in an issue tracker — a feature is an
+issue, a phase is a sub-issue, a closed issue is the archive — because **a file cannot be the shared home
+for several agents at once.** A worktree carries only what its ref holds, so a plan on one branch is
+invisible to every other tree; a tracker sits outside all of them.
+
+**The tier model is identical under both.** What changes is where a fact is read, and only
+[`tracking.md`](tracking.md) says how — no skill names a tracker, which is what keeps a different one a
+rewrite of that file rather than of every command.
 
 ### Documentation is part of the change
 

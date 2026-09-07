@@ -3,14 +3,14 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 1132 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 1472 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 101 tests. Ten of them guard *content* invariants rather than code, and they are the
+2. `npm test` — 110 tests. Ten of them guard *content* invariants rather than code, and they are the
    fastest way to see what the design refuses to let rot: runtime neutrality, one home for commands, one
    home for dispatch, one home for git etiquette, no self-declared status, inert stubs, a ledger row that
    opens before the work, documentation reaching the plan, a titled §-citation resolving against the
@@ -21,24 +21,24 @@ Every `§`-number below points into that document.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** v0.6.0 is published and is npm's `latest` — the documentation rule and `update`'s **Next**
-block, tagged at `6baa9ce`. `package.json` now says **`0.7.0`, in the tree and unreleased**, carrying two
-changes.
+**State:** v0.7.0 is published and is npm's `latest` — `git.md`'s *Where work lands* and *Push and pull
+request* sections (§4.5), and three answers per executor (§4.6), tagged at `7a2afdb`. `package.json` now
+says **`0.8.0`, in the tree and unreleased**, carrying one change.
 
-**`git.md`'s two new sections (§4.5)**, *Where work lands* and *Push and pull request*, which end the
-"branching and pushing are out of scope" boundary §4.4 drew: three workflows — straight to `main`, a branch
-per feature, a worktree per feature — written as orthogonal answers rather than one three-valued mode, with
-`/feature-status` sweeping `git worktree list` because **"in flight" is not a status**. It is the **Next**
-block's second consumer and needed no code for it, which is the first evidence that machinery generalises.
+**The tracker answer (§10)** — `context/tracking.md`, the fifth project-owned stub, and the substrate behind
+it. It ships with *in the working tree* as the first answer, so every existing install behaves exactly as
+before; the second answer puts the three tiers in GitHub issues, where a feature is an issue, a phase is a
+sub-issue and a closed issue is the archive. It exists for one reason — **several agents on several features
+at once.** §4.5 answered *what is in flight* with `git worktree list`, which holds only inside one clone, so
+nothing shared says a feature is claimed. Under this answer `roadmap.md`, `history.md`, `archive/`,
+`drafts/` and `plans/` stop existing, and so does the `merge=union` workaround they needed.
 
-And **three answers per executor (§4.6)**: in-host, in-host isolated in a subagent, or offloaded. The
-subagent answer is written as *"if your runtime provides one"* — the same runtime-neutral phrasing that
-already reached the planner — which closes a real hole: `reviewer.agent.md` shipped from v1 and **nothing
-named it**, so Gate 2 ran at its weakest setting by default with a purpose-built reviewer sitting unused in
-`.claude/agents/`. No `##` heading changed there, so `update` reports nothing; that third answer arrives
-only when `/onboard` is re-run.
+**No skill names GitHub.** Each of the five reads the *fact* it needs from `tracking.md`, which is the only
+place any tracker's vocabulary appears — a test fails the build if a skill names a forge command, modelled
+on the coding-agent-CLI ban that already existed. That is what keeps a second tracker a rewrite of one file
+rather than of eight.
 
-**To release: commit and push to `main`** — that tags `v0.7.0` — **then publish the tag as a GitHub
+**To release: commit and push to `main`** — that tags `v0.8.0` — **then publish the tag as a GitHub
 release.** An npm workspaces monorepo — the installer lives in
 `packages/create-ai-workflow/`, and `apps/*` is reserved for a landing site or hosted documentation.
 Installs a `context/` tree, the eight skills into **both** `.claude/skills/` and `.agents/skills/`, two
@@ -130,6 +130,45 @@ end. The path from a `FAIL` verdict through a written finding to the loopback ha
 `agy` in particular remains untested against §1.1. That is no longer a claim the package makes on its
 behalf — Step 1 tests it rather than assuming it — but it does mean the branch where an executor needs
 content inline has never been taken.
+
+### 5. The tracker answer (§10) — built, and never run by an agent
+
+`context/tracking.md` ships as the fifth project-owned stub, with **in the working tree** as the first
+answer, so every existing install behaves exactly as before. The second answer puts the three tiers in
+GitHub issues: a feature is an issue, a phase is a sub-issue, a closed issue is the archive.
+
+What landed:
+
+- **The stub** — the answer and its parameters only. The primitive map (§10.4) is the single place any
+  tracker's vocabulary appears; the claim protocol, the heartbeat and the plan write order live in the
+  skills, because a project-owned file is unreachable by `update` and a mechanism has to stay repairable
+  (§10.8).
+- **`/onboard` Step 5**, which states the git-and-GitHub-remote precondition inside the question, refuses
+  the pair the tracker answer cannot hold with *Push and pull request: neither*, and offers to remove the
+  five stubs the answer makes dead — **only where they are empty**, since a non-empty one is the frozen
+  record of the era before the switch. Steps 5–8 renumbered to 6–9.
+- **Five skills**, each with an *Under the tracker answer* section in `git.md`'s "under the worktree
+  answer" shape, so the default answer's prose is untouched. Includes `/roadmap`'s adoption mode and
+  `/feature-plan`'s write-order contract.
+- **`check` skips what is absent**, which cost one condition: every other rule already degrades to nothing
+  when what it parses is missing. `trackingAnswer()` reads which answer survived in the stub — a shape
+  read, not a workflow question.
+- **Nine new tests**, including the one that matters most: **no skill may name a forge command.** That is
+  what keeps a second tracker a rewrite of one file rather than of eight.
+
+**Nothing here has been run by a live agent, and that is now the whole of the risk.** The file-substrate
+half of the argument rests on §4.5's documented contention; the multi-agent half rests on nothing yet. Two
+things in particular have never executed: **optimistic claiming** (assign, re-read, confirm sole assignee,
+back off) and the **phase-boundary heartbeat**. Both are small and additive, and both are guesses until a
+second agent has actually raced the first.
+
+Fold this into item 1's run rather than testing it separately — the worktree scenario and this one exercise
+the same surface, so it is one scratch repo instead of two. Set it to the tracker and pull-request answers,
+plan two features, and run them in parallel trees.
+
+**One thing to watch:** the `AGENTS.md` block is now 39 lines against a hard ceiling of 40. The next pointer
+added to it needs something removed, or the ceiling argued up — and that test exists because the block kept
+turning into a second copy of the rules.
 
 ---
 

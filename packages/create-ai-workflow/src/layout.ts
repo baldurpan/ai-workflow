@@ -119,7 +119,7 @@ export function managedFiles(adapters: readonly Adapter[]): ManagedFile[] {
 /**
  * Project-owned files. Written once, at install, and never reachable by `update`.
  *
- * `onboard` marks the four whose content a person supplies, through `/onboard`. The other three are
+ * `onboard` marks the five whose content a person supplies, through `/onboard`. The other three are
  * written by the workflow as it runs — a roadmap entry, a history row, a finding — so a question about
  * their shape is `check`'s, and pointing at `/onboard` for one of them would name a command that does not
  * touch it.
@@ -129,6 +129,7 @@ export const STUBS: ReadonlyArray<{ source: string; dest: string; onboard: boole
   { source: 'stubs/verify.md', dest: 'context/verify.md', onboard: true },
   { source: 'stubs/executors.md', dest: 'context/executors.md', onboard: true },
   { source: 'stubs/git.md', dest: 'context/git.md', onboard: true },
+  { source: 'stubs/tracking.md', dest: 'context/tracking.md', onboard: true },
   { source: 'stubs/roadmap.md', dest: 'context/roadmap.md', onboard: false },
   { source: 'stubs/history.md', dest: 'context/history.md', onboard: false },
   { source: 'stubs/findings.md', dest: 'context/findings.md', onboard: false },
