@@ -10,7 +10,7 @@ Every `§`-number below points into that document.
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 110 tests. Ten of them guard *content* invariants rather than code, and they are the
+2. `npm test` — 111 tests. Ten of them guard *content* invariants rather than code, and they are the
    fastest way to see what the design refuses to let rot: runtime neutrality, one home for commands, one
    home for dispatch, one home for git etiquette, no self-declared status, inert stubs, a ledger row that
    opens before the work, documentation reaching the plan, a titled §-citation resolving against the
@@ -21,24 +21,28 @@ Every `§`-number below points into that document.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** v0.7.0 is published and is npm's `latest` — `git.md`'s *Where work lands* and *Push and pull
-request* sections (§4.5), and three answers per executor (§4.6), tagged at `7a2afdb`. `package.json` now
-says **`0.8.0`, in the tree and unreleased**, carrying one change.
+**State:** v0.8.0 is published and is npm's `latest` — the tracker answer (§10), tagged at `3f614d9`.
+`package.json` now says **`0.8.1`, in the tree and unreleased**, carrying one fix.
 
-**The tracker answer (§10)** — `context/tracking.md`, the fifth project-owned stub, and the substrate behind
-it. It ships with *in the working tree* as the first answer, so every existing install behaves exactly as
-before; the second answer puts the three tiers in GitHub issues, where a feature is an issue, a phase is a
-sub-issue and a closed issue is the archive. It exists for one reason — **several agents on several features
-at once.** §4.5 answered *what is in flight* with `git worktree list`, which holds only inside one clone, so
-nothing shared says a feature is claimed. Under this answer `roadmap.md`, `history.md`, `archive/`,
-`drafts/` and `plans/` stop existing, and so does the `merge=union` workaround they needed.
+**`/onboard` Step 5 was silent in its most common case**, found on the first real install of 0.8.0. A
+brand-new repository usually has no remote yet, and Step 4 ships saying *neither* a push nor a pull
+request — so both of Step 5's checks closed at once, the step had nothing to ask, and **asking nothing was
+read as saying nothing.** The user never learned the tracker answer existed.
 
-**No skill names GitHub.** Each of the five reads the *fact* it needs from `tracking.md`, which is the only
-place any tracker's vocabulary appears — a test fails the build if a skill names a forge command, modelled
-on the coding-agent-CLI ban that already existed. That is what keeps a second tracker a rewrite of one file
-rather than of eight.
+Two fixes, and the second is the design error rather than the wording one:
 
-**To release: commit and push to `main`** — that tags `v0.8.0` — **then publish the tag as a GitHub
+- **A step that can ask nothing must still report.** Step 5 now states which answer the project got and
+  why, in one line, always — and a failed precondition names what would lift it.
+- **The dependency on Step 4 resolves forward, never backward.** It used to pre-refuse the tracker answer
+  when Step 4 said *neither*. A default taken three questions earlier is not a decision about this
+  question, so Step 5 now offers the answer and offers to change Step 4's along with it. What is forbidden
+  is *writing* a pair that cannot hold, not offering one.
+
+A test guards both. The general lesson is worth more than the fix: **a conditional step needs an
+unconditional output**, or its quiet path is indistinguishable from a bug — and the quiet path is usually
+the default one.
+
+**To release: commit and push to `main`** — that tags `v0.8.1` — **then publish the tag as a GitHub
 release.** An npm workspaces monorepo — the installer lives in
 `packages/create-ai-workflow/`, and `apps/*` is reserved for a landing site or hosted documentation.
 Installs a `context/` tree, the eight skills into **both** `.claude/skills/` and `.agents/skills/`, two

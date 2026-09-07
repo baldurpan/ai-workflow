@@ -337,6 +337,24 @@ describe('/onboard adopts an existing AGENTS.md', () => {
     assert.match(onboard, /Copy before cut/, 'the ordering is stated as a standing rule');
   });
 
+  it('the tracking step reports even when it has nothing to ask', () => {
+    // Shipped in 0.8.0 silent in its most common case: a new repo has no remote, and Step 4's default is
+    // *neither* a push nor a pull request, so both checks closed at once and the step asked nothing — and
+    // asking nothing was read as saying nothing. A step that can ask nothing must still report.
+    // Prose wraps, so every assertion here is whitespace-tolerant.
+    const step = onboard
+      .slice(onboard.indexOf('## Step 5 — Tracking'), onboard.indexOf('## Step 6'))
+      .replace(/\s+/g, ' ');
+    assert.ok(step.length > 0, 'the tracking step exists');
+    assert.match(step, /in one line — always/i, 'it reports its outcome unconditionally');
+    assert.match(step, /name what would make it available/i, 'a failed precondition names its own fix');
+    assert.match(
+      step,
+      /does not silently remove this one/i,
+      "an earlier step's default must not delete this answer without saying so",
+    );
+  });
+
   it('asks rather than guessing on the two undecidable rows', () => {
     for (const pattern of [/\*\*Unsure\*\*/, /\*\*Contradicts\*\*/, /Quote both and ask which stands/]) {
       assert.match(onboard, pattern, `the adoption step names ${String(pattern)}`);

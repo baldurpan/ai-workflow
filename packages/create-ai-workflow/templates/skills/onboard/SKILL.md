@@ -200,17 +200,27 @@ Ask where the backlog, the plans and the phase ledgers live, and write the answe
   shared home every working tree can reach. This is the answer for **several agents working several
   features at once**: the tracker is the only thing outside every worktree that all of them can write to.
 
-**Check the precondition before you ask, and state it inside the question.** The tracker answer needs a git
-repository with a GitHub remote. Find out first — a repository check and a remote check — and where either
-comes back empty, **say so in the question and do not offer that answer**: *"tracking in an issue tracker
-requires this project to be a git repository with a GitHub remote, and it is neither, so the working-tree
-answer is the only one available."* Offering an answer that cannot be carried out is worse than not
-offering it, and this is the same shape as Step 2's *"offer this only where the host has such a mechanism."*
+**Say which answer this project got, and why, in one line — always, including when only one was
+available.** This step is silent in exactly the case it most needs to speak: a brand-new repository often
+has no remote yet, and Step 4's shipped answer is *neither* a push nor a pull request, so both of the
+checks below can close at once and leave nothing to ask. A step that asks nothing must still **report**,
+or the user never learns the second answer exists.
 
-**Refuse the impossible pair.** The tracker answer depends on Step 4's *Push and pull request* answer being
-*the agent pushes and opens a pull request* — a phase closes its sub-issue through `Closes #N` on the
-commit, which only fires once the branch reaches the default branch. If Step 4 said *neither*, say plainly
-that the two cannot both hold and ask which one changes. **Do not write a pair that cannot both be true.**
+**Check the precondition first.** The tracker answer needs a git repository with a GitHub remote — a
+repository check and a remote check. Where either comes back empty, do not offer that answer, and **name
+what would make it available**: *"tracking in an issue tracker needs a GitHub remote and this project has
+none yet — add one and re-run `/onboard` if you want it."* Offering an answer that cannot be carried out is
+worse than not offering it; leaving unsaid that it exists is worse than both.
+
+**The dependency on Step 4 resolves forward, never backward.** The tracker answer needs *Push and pull
+request* to be *the agent pushes and opens a pull request*, because a phase closes its sub-issue through
+`Closes #N` on the commit and that only fires once the branch reaches the default branch.
+
+**Step 4's answer does not silently remove this one.** If Step 4 said *neither* — which is what it ships
+saying — still offer the tracker answer, say that choosing it means changing that earlier answer, and
+**offer to change it**. A default taken three questions ago is not a decision about this question. What is
+forbidden is *writing* the pair, not offering it: if the user wants the tracker answer, Step 4's answer
+changes with it and you say so plainly in both files.
 
 ### Under the tracker answer
 
