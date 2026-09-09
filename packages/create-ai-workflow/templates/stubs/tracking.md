@@ -10,6 +10,11 @@ this project's choices. *How* a phase is claimed, when a heartbeat is written, a
 its phases are created are not choices; they live in the skills, so a defect in one can be fixed by an
 update. Run `/onboard` to set the answer below, or edit it here.
 
+**Setting the answer is not moving the work.** `/onboard` writes the answer; `/tracking-migrate` carries
+whatever already exists in the tree onto it. Where the two disagree — this file naming a tracker while
+`roadmap.md` still holds entries — every command reads an **empty backlog**, so the migration is a task
+rather than an option. If that split exists here, it is named in this file.
+
 ## Where tracking lives
 
 <!-- Exactly one of the two answers below is this project's. Keep it, delete the other.
@@ -90,5 +95,9 @@ written down anywhere, and a file that tracked it would be a cache of something 
 - **A finding is not an issue.** [`findings.md`](findings.md) stays a file under both answers: a finding is
   raised and swept within one branch's life, so it is never the thing two agents contend over. A finding
   that outlives its branch is promoted to an ordinary issue and stops being a finding.
+- **Neither `history.md` nor `archive/` is ever converted, in either direction.** Fabricating closed
+  issues for features shipped months ago produces wrong dates, empty threads and an audit trail that looks
+  real and is not. Under the tracker answer they stay as the frozen record of the era before the switch —
+  new closures become closed issues, the old ones stay where they happened. Two eras, not two homes.
 - **If this file is missing, the answer is the first one in every section.** An install from before it
   existed has no policy written down: treat it as *in the working tree*, say so once, and name `/onboard`.

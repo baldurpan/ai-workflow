@@ -216,4 +216,34 @@ describe('the tracker answer', () => {
       `expected the missing-roadmap error, got: ${messages(problems).join(', ')}`,
     );
   });
+
+  // The failure that shipped in 0.8.0: the answer was switched and the entries stayed. They are still
+  // well-formed, the file is still there, and nothing else in the workflow can notice — every command
+  // reads the tracker, finds nothing, and reports an empty backlog. This is the only detector for it.
+  it('faults a backlog left behind under the tracker answer', () => {
+    setTracking('# Tracking\n\n## Where tracking lives\n\n**In an issue tracker.** A feature is an issue.\n');
+    writeFileSync(
+      path.join(alt, 'context/roadmap.md'),
+      roadmapWith(entry('widgets', 'pending', 'drafts/WIDGETS.md')),
+      'utf8',
+    );
+    mkdirSync(path.join(alt, 'context/drafts'), { recursive: true });
+    writeFileSync(path.join(alt, 'context/drafts/WIDGETS.md'), '# Widgets\n', 'utf8');
+
+    const problems = runChecks(alt);
+    const split = problems.find((p) => /tracking\.md says the backlog is in an issue tracker/.test(p.message));
+    assert.ok(split, `expected the unmigrated-backlog error, got: ${messages(problems).join(', ')}`);
+    assert.equal(split.level, 'error', 'an unreachable backlog is not a note');
+    assert.match(split.message, /\/tracking-migrate/, 'the message names the command that resolves it');
+  });
+
+  it('says nothing once the backlog has moved', () => {
+    rmSync(path.join(alt, 'context/roadmap.md'), { force: true });
+    const problems = runChecks(alt);
+    assert.deepEqual(
+      problems.filter((p) => /issue tracker/.test(p.message)),
+      [],
+      `errors: ${messages(problems).join(', ')}`,
+    );
+  });
 });

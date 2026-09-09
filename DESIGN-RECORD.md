@@ -1470,3 +1470,112 @@ primitives — a parent/child link, an assignee, a resolution — so adding one 
 dispatch line in `executors.md`, not a mode in eight skills. Nothing in the loop is to name GitHub
 directly: the skills describe the *fact* they need, and `tracking.md` says how this project answers it.
 That is §3.2's runtime neutrality applied to the forge, and it is what keeps the second integration cheap.
+
+### 10.9 The migration — built, because §10.8 predicted the failure and shipped neither guard
+
+§10.8 settled two things and 0.8.0 implemented neither: that `/onboard` **refuses to switch while anything
+is in flight**, and that **a real backlog migration is its own command if it is ever wanted**. The second
+sentence ended *"nothing here needs it to exist"*, which was true of the design and false of the second
+repository the tracker answer met.
+
+**What actually happened.** `/onboard` Step 5 wrote *in an issue tracker* over a repository holding four
+roadmap entries — one `active` with a seven-phase plan — three retired features in `archive/`, a draft, and
+a `history.md` with rows. It created the two labels and stopped, correctly by its own prose: it removes a
+dead path *only where it is empty*, and none of these were. Every command in the workflow then read the
+tracker, found nothing, and reported an **empty backlog**. The repository's own `tracking.md` ended up
+documenting a *"the rule is by date"* split — features from before the switch read from the tree, features
+after it read from the tracker — which is a coherent sentence and a substrate no skill implements.
+
+**The entries were not lost. They were unreachable, which is worse**, because a lost file is a visible
+failure and an unreachable one reads as a clean install. This is §2.1's *one home per fact* inverted: not
+two homes disagreeing, but one home nothing opens.
+
+**The defect is a class, not an instance:** *a configuration write that strands data is not a configuration
+write.* Setting an answer and moving the work are two acts, and a command that performs the first while
+silently declining the second ships a broken repository that reports as a working one. It is the same shape
+as the 0.8.1 fix one level up — there, a step that asked nothing said nothing; here, a step that moved
+nothing said nothing about what it had left behind.
+
+**§10.8's argument for keeping them separate survives intact, and is why the fix is two commands rather
+than a bigger Step 5.** Every `/onboard` step asks something and writes it into a stub, reviewable as a
+diff before anything lands. Twenty issue creations are twenty non-atomic remote writes, and a remote write
+is not a diff anyone can read first. Running that off the back of question five is a **side-effect**, which
+§1's tier model refuses everywhere else.
+
+What was missing was not the separation. It was that **nothing named the second half**, so the split became
+permanent by default.
+
+#### `/onboard` Step 5 now has three outcomes, and only one writes the answer alone
+
+It reads `roadmap.md`, `drafts/` and `plans/` **before** writing anything, and reports what it found —
+always, including *nothing*, on the 0.8.1 principle that a conditional step needs an unconditional output.
+
+| The tree holds | Step 5 does |
+|---|---|
+| nothing | writes the answer. The switch is free, which is §10.8's *"from a clean state the switch is free"* — now observed rather than assumed |
+| entries, drafts or plans | writes the answer, **names `/tracking-migrate` as the required next step**, and records the split in `tracking.md`. Removes nothing |
+| a phase `in progress` | **refuses the tracker answer** and leaves the working-tree answer standing |
+
+The refusal is narrower than §10.8's *"anything in flight"*, deliberately. An entry holding a plan is not a
+hazard — it is data, and data is what the migration is for. A phase `in progress` is a hazard: an agent may
+be inside it in another tree right now, and §2.4's read-fresh model assumes the substrate does not move
+underneath a running phase. Refusing over a plan would have made the migration unreachable in exactly the
+case it exists for.
+
+**Step 5 never writes the answer and removes the tree files in one run.** Removal is the irreversible half,
+and `/onboard` has no way to show a remote write as a diff beforehand.
+
+#### `/tracking-migrate` — per-feature atomicity is what answers §10.8's objection
+
+§10.8's concrete argument against migrating was: *"a file write lands or does not, while twenty issue
+creations are twenty non-atomic remote writes. Fail at twelve and the repository is in **neither**
+substrate."*
+
+That is true of a bulk migration and false of this one, because the unit is the feature and the removal is
+last. Per feature: create the issue, create its sub-issues, set their states, assign if `active`, and
+**only then remove that feature's `roadmap.md` entry and its document.** Steps one to four are additive and
+a partial issue is visibly partial; step five cannot happen before the thing replacing it exists. Fail at
+feature twelve and twelve are migrated, eight are not, and **every one of the twenty is in exactly one
+substrate.** A partial run is a valid state rather than a corrupt one.
+
+**Resumption is by observation, not by a state file**, which §10.8 had already noted was reachable — *does
+an issue with this name already exist*. It is `/feature-plan`'s body-versus-sub-issues reconciliation
+(§10.4) one level up, with the same five verdicts and the same refusal to guess past a disagreement. A
+progress file would have been a second home for a fact the tracker already answers (§2.1), and §2.4 forbids
+caching workflow state anyway.
+
+**One direction only.** §10.8 already recorded that the switch is not symmetric; the command enforces it.
+Tracker → tree would discard a thread, a reporter, subscribers and cross-links that no markdown file holds,
+so the honest reverse is to change `tracking.md` back and leave the issues standing as the record of that
+era — exactly what `history.md` does in the forward direction.
+
+**`history.md` and `archive/` are never converted**, unchanged from §10.8 and now stated in three files:
+the migration, `/onboard`, and the stub. A test asserts all three say why, because this is the rule most
+likely to be "helpfully" relaxed by whoever runs the migration next.
+
+#### `check` is the detector, and it is the part that generalises
+
+Nothing in the workflow could notice the split. The entries stayed well-formed, `roadmap.md` stayed where
+it was, and every command behaved correctly given what `tracking.md` told it — the state was invisible
+precisely because no single file was wrong. `check` now faults it: the tracker answer plus a non-empty
+`roadmap.md` is two installed files disagreeing about which substrate holds the backlog.
+
+That is shape, not a workflow question (§2.4). It is the same family as *a plan no entry points at* and
+*a dead `Doc` link* — a cross-file structural disagreement — and it obeys §6.4's rule that every message
+quotes the rule it enforces and names what resolves it. It is an **error** rather than a note, unlike a
+closed finding: a finding legitimately sits in the file during ordinary work, and an unreachable backlog
+never legitimately sits anywhere.
+
+**The general form is worth keeping:** every answer this workflow writes into a project-owned file makes
+some other file's content reachable or unreachable, and the moment an answer can be set independently of
+the data it governs, `check` is the only thing standing between a wrong pair and a silent one.
+
+#### What it cost
+
+One skill, a rewritten Step 5, a paragraph in `workflow.md` and one in the stub, and eight tests. The
+`AGENTS.md` block reached its 40th line, which PLAN.md had flagged as needing *"something removed, or the
+ceiling argued up"*. Neither, in the end: **the ceiling was wrong, not the block.** A flat line count made
+the block's one legitimate growth — a row per command, which is the whole reason it inlines the table —
+indistinguishable from the failure it guards, which is the block turning into a second copy of the rules.
+It is now a budget on the prose, `lines - SKILL_NAMES.length < 32`, and the prose budget is byte-identical
+to what it was at eight commands.

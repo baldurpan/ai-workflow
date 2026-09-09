@@ -3,18 +3,19 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 1472 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 1581 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 111 tests. Ten of them guard *content* invariants rather than code, and they are the
+2. `npm test` — 121 tests. Eighteen of them guard *content* invariants rather than code, and they are the
    fastest way to see what the design refuses to let rot: runtime neutrality, one home for commands, one
-   home for dispatch, one home for git etiquette, no self-declared status, inert stubs, a ledger row that
-   opens before the work, documentation reaching the plan, a titled §-citation resolving against the
-   template, and every relative link resolving after install — in both skill trees. `ci.yml`
+   home for dispatch, one home for git etiquette, one home for the tracker, no self-declared status, inert
+   stubs, a ledger row that opens before the work, a substrate answer that never strands the data it
+   names, documentation reaching the plan, a titled §-citation resolving against the template, and every
+   relative link resolving after install — in both skill trees. `ci.yml`
    runs them on every push and pull request against `main`, plus an `engines-floor` job that builds on
    Node 20.10.0 and runs the packed CLI there — the suite itself cannot, since it executes `.ts` directly
    and that needs type stripping.
@@ -22,31 +23,52 @@ Every `§`-number below points into that document.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
 **State:** v0.8.0 is published and is npm's `latest` — the tracker answer (§10), tagged at `3f614d9`.
-`package.json` now says **`0.8.1`, in the tree and unreleased**, carrying one fix.
+`package.json` now says **`0.9.0`, in the tree and unreleased**, carrying 0.8.1's fix and a ninth command.
 
 **`/onboard` Step 5 was silent in its most common case**, found on the first real install of 0.8.0. A
 brand-new repository usually has no remote yet, and Step 4 ships saying *neither* a push nor a pull
 request — so both of Step 5's checks closed at once, the step had nothing to ask, and **asking nothing was
-read as saying nothing.** The user never learned the tracker answer existed.
+read as saying nothing.** The user never learned the tracker answer existed. Two fixes: a step that can ask
+nothing must still **report**, and the dependency on Step 4 **resolves forward, never backward** — Step 5
+offers the tracker answer and offers to change Step 4's along with it, rather than pre-refusing on a
+default taken three questions earlier. The general lesson is worth more than the fix: **a conditional step
+needs an unconditional output**, or its quiet path is indistinguishable from a bug — and the quiet path is
+usually the default one.
 
-Two fixes, and the second is the design error rather than the wording one:
+**Then the second real install found the larger half of the same defect.** Step 5 wrote the tracker answer
+over a repository whose backlog, drafts, plans and `active` feature were all still files, created the two
+labels, and stopped. Nothing was lost and nothing was broken — and every command in the workflow then read
+the tracker, found nothing, and reported an **empty backlog**. The entries were unreachable, which is worse
+than lost because it looks like a clean install. The repository's own `tracking.md` ended up documenting a
+*"the rule is by date"* split that no skill knows how to read.
 
-- **A step that can ask nothing must still report.** Step 5 now states which answer the project got and
-  why, in one line, always — and a failed precondition names what would lift it.
-- **The dependency on Step 4 resolves forward, never backward.** It used to pre-refuse the tracker answer
-  when Step 4 said *neither*. A default taken three questions earlier is not a decision about this
-  question, so Step 5 now offers the answer and offers to change Step 4's along with it. What is forbidden
-  is *writing* a pair that cannot hold, not offering one.
+**§10.8 always said what to do about it and 0.8.0 shipped neither half.** The design record's answer was
+that `/onboard` refuses to switch while anything is in flight, and that a real migration is its own
+command. 0.9.0 ships both:
 
-A test guards both. The general lesson is worth more than the fix: **a conditional step needs an
-unconditional output**, or its quiet path is indistinguishable from a bug — and the quiet path is usually
-the default one.
+- **`/onboard` Step 5 looks at the tree before it writes the answer**, and says what it found — always.
+  Nothing there, the switch is free. Entries, drafts or plans, it writes the answer and names
+  `/tracking-migrate` as the required next step, recording the split in `tracking.md` so it is a task
+  rather than a trap. A phase `in progress`, it **refuses**: an agent may be inside that phase in another
+  tree, and the substrate must not move underneath one.
+- **`/tracking-migrate` is the ninth command.** It moves data and never chooses the substrate. Per
+  feature, additively, with the tree files removed **last** — so a run that fails at feature twelve leaves
+  twelve migrated and eight not, each in exactly one substrate, and a re-run finishes it by observing what
+  is already there rather than by reading a progress file. One direction only, and `history.md` and
+  `archive/` are never converted in either.
 
-**To release: commit and push to `main`** — that tags `v0.8.1` — **then publish the tag as a GitHub
+Ten tests guard it, including the one that would have caught it in the field: **`check` now faults a
+backlog left in `roadmap.md` under the tracker answer.** Nothing else could notice — the entries stay
+well-formed and the file stays where it was, it is simply no longer read. **The lesson generalises past this command: a configuration write that strands data
+is not a configuration write.** Setting an answer and moving the work are two acts, and a command that
+does the first while silently declining the second has shipped a broken repository that reports as a
+working one.
+
+**To release: commit and push to `main`** — that tags `v0.9.0` — **then publish the tag as a GitHub
 release.** An npm workspaces monorepo — the installer lives in
 `packages/create-ai-workflow/`, and `apps/*` is reserved for a landing site or hosted documentation.
-Installs a `context/` tree, the eight skills into **both** `.claude/skills/` and `.agents/skills/`, two
-Claude subagents, a merged `AGENTS.md` block and a manifest that draws the ownership boundary — 101
+Installs a `context/` tree, the nine skills into **both** `.claude/skills/` and `.agents/skills/`, two
+Claude subagents, a merged `AGENTS.md` block and a manifest that draws the ownership boundary — 103
 tool-owned files, 7 project-owned stubs.
 
 ---
@@ -69,7 +91,7 @@ matters most in practice:
 - **Does a real session pick the right phase unprompted**, and stop when the ledger disagrees with the
   repo?
 
-Install into a scratch repo and try to trip each of the eight skills, both ways: invoke it explicitly,
+Install into a scratch repo and try to trip each of the nine skills, both ways: invoke it explicitly,
 then describe the same work in prose and confirm it stays quiet.
 
 **`/prototype` (§3.10) is the sharpest case of this and has never been run at all.** Its subject matter
@@ -119,7 +141,7 @@ never run. It is the one path in the release pipeline still unexercised.
 **Item 1 below was supposed to happen before this.** It did not. The live-agent run is now the
 outstanding risk against a package other people can already install.
 
-`npm pack` produces a working 162.0 kB / 119-file tarball — verified again after §4.5 and §4.6 by installing it
+`npm pack` produces a working 177.6 kB / 121-file tarball — verified again after §4.5 and §4.6 by installing it
 into a clean repo and running `install`, `check` and `update --dry-run` against it, with the standards tree
 landing 78 files and `standards/templates/.gitignore` restored from `_dot_gitignore`. Do that again after
 any change to `templates/`.
@@ -151,6 +173,9 @@ What landed:
   the pair the tracker answer cannot hold with *Push and pull request: neither*, and offers to remove the
   five stubs the answer makes dead — **only where they are empty**, since a non-empty one is the frozen
   record of the era before the switch. Steps 5–8 renumbered to 6–9.
+- **`/tracking-migrate`** (0.9.0, §10.9), which carries an existing backlog onto the answer Step 5 wrote.
+  0.8.0 shipped the answer with no way to move the data and no refusal to stop it, so the second real
+  install ended with a full tree and a tracker every command read as empty.
 - **Five skills**, each with an *Under the tracker answer* section in `git.md`'s "under the worktree
   answer" shape, so the default answer's prose is untouched. Includes `/roadmap`'s adoption mode and
   `/feature-plan`'s write-order contract.
@@ -158,21 +183,27 @@ What landed:
   when what it parses is missing. `trackingAnswer()` reads which answer survived in the stub — a shape
   read, not a workflow question.
 - **Nine new tests**, including the one that matters most: **no skill may name a forge command.** That is
-  what keeps a second tracker a rewrite of one file rather than of eight.
+  what keeps a second tracker a rewrite of one file rather than of eight. Ten more in 0.9.0 guard the
+  migration: the ordering that makes a failed run resumable, resumption by observation rather than by a
+  state file, and the never-convert rule stated in all three files that could relax it.
 
 **Nothing here has been run by a live agent, and that is now the whole of the risk.** The file-substrate
-half of the argument rests on §4.5's documented contention; the multi-agent half rests on nothing yet. Two
-things in particular have never executed: **optimistic claiming** (assign, re-read, confirm sole assignee,
-back off) and the **phase-boundary heartbeat**. Both are small and additive, and both are guesses until a
-second agent has actually raced the first.
+half of the argument rests on §4.5's documented contention; the multi-agent half rests on nothing yet.
+Three things in particular have never executed: **optimistic claiming** (assign, re-read, confirm sole
+assignee, back off), the **phase-boundary heartbeat**, and **`/tracking-migrate` itself** — whose
+interesting path is not the happy one but the interrupted one, so the run worth doing is killing it between
+an issue and its sub-issues and checking that a re-run finishes rather than duplicates. All three are small
+and additive, and all three are guesses until they have actually run.
 
 Fold this into item 1's run rather than testing it separately — the worktree scenario and this one exercise
 the same surface, so it is one scratch repo instead of two. Set it to the tracker and pull-request answers,
 plan two features, and run them in parallel trees.
 
-**One thing to watch:** the `AGENTS.md` block is now 39 lines against a hard ceiling of 40. The next pointer
-added to it needs something removed, or the ceiling argued up — and that test exists because the block kept
-turning into a second copy of the rules.
+**The `AGENTS.md` block hit its ceiling and the ceiling turned out to be the wrong shape.** It was a flat
+`< 40` lines; a ninth command made it 40. Neither of the two options this file named was right — the
+ceiling is now a budget on the *prose*, `lines - SKILL_NAMES.length < 32`, which is byte-identical to what
+the prose was allowed at eight commands. A flat count made the block's one legitimate growth — a row per
+command, which is the entire reason it inlines the table — indistinguishable from the failure it guards.
 
 ---
 

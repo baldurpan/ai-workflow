@@ -38,6 +38,7 @@ export const SKILL_NAMES = [
   'orchestrate',
   'prototype',
   'onboard',
+  'tracking-migrate',
 ] as const;
 
 export interface ManagedFile {
@@ -101,7 +102,7 @@ export function managedFiles(adapters: readonly Adapter[]): ManagedFile[] {
     }
   }
 
-  // The same eight bodies, verbatim. No transform: `disable-model-invocation` is Claude Code's key and
+  // The same bodies, verbatim. No transform: `disable-model-invocation` is Claude Code's key and
   // means nothing here, and there is no subagent tree to go with it — the skills already write
   // delegation as optional.
   if (adapters.includes('agents')) {

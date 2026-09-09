@@ -185,6 +185,77 @@ describe('one home for the tracker', () => {
   });
 });
 
+describe('changing the answer is not moving the work', () => {
+  // 0.8.0 shipped /onboard able to write the tracker answer over a repository whose backlog, plans and
+  // active feature were all still files. Every command then read the tracker, found nothing, and reported
+  // an empty backlog — the entries were not lost, they were unreachable, which is worse because it looks
+  // like a clean install. The answer and the data are now two commands, and neither may produce that state.
+  // Prose wraps at 110 columns, so every assertion here reads the flattened text: a claim that fits on
+  // one line today is one edit away from being split across two, and a test that noticed would be
+  // testing the line breaks rather than the rule.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const onboard = flat(skillBody('onboard'));
+  const migrate = flat(skillBody('tracking-migrate'));
+  const raw = skillBody('onboard');
+  const step5 = flat(raw.slice(raw.indexOf('## Step 5 — Tracking'), raw.indexOf('## Step 6')));
+
+  it('/onboard looks at the tree before it writes the tracker answer', () => {
+    assert.match(step5, /before the answer is written/i, 'the check precedes the write');
+    assert.match(step5, /empty backlog/i, 'it names what the split actually costs a reader');
+    assert.match(step5, /\/tracking-migrate/, 'it names the command that finishes the switch');
+  });
+
+  it('/onboard refuses the switch while a phase is in progress', () => {
+    assert.match(step5, /Refuse the tracker answer/i, 'the refusal is written as a refusal');
+    assert.match(step5, /A phase is `in progress`/, 'and it names the condition that fires it');
+  });
+
+  it('/onboard never writes the answer and removes the tree files in one run', () => {
+    // Removal is the irreversible half. /onboard cannot show a remote write as a diff beforehand, so it is
+    // not allowed to trade one for the other.
+    assert.match(step5, /Never write the tracker answer and delete the tree files in the same run/i);
+  });
+
+  it('the migration never invents the substrate it writes into', () => {
+    // Its refusal list is what keeps the two commands from both owning the answer: the repository and the
+    // labels are Step 5's to collect, and a migration that guessed one would write into the wrong place.
+    assert.match(migrate, /It moves data\. It does not choose the substrate\./);
+    assert.match(migrate, /name `\/onboard`/, 'it points at the command that owns the answer');
+  });
+
+  it('nothing is removed before the thing that replaces it exists', () => {
+    // The safety argument for a bulk of non-atomic remote writes. Per feature, additively, removal last:
+    // a run that dies leaves every feature in exactly one substrate, never in neither.
+    assert.match(migrate, /Never remove a tree file before the issue that replaces it exists/);
+    assert.match(migrate, /never in neither substrate/i);
+  });
+
+  it('resuming is observed, not recorded', () => {
+    // Nothing in this workflow caches state. A migration is the obvious place to reach for a progress
+    // file, and a progress file is a second home for a fact the tracker already answers.
+    assert.match(migrate, /by observation, not by a state file/i);
+    assert.match(migrate, /Never create a second issue for a name that already has one/);
+  });
+
+  it('the frozen era is never converted, and every file that could says so', () => {
+    for (const [where, text] of [
+      ['/tracking-migrate', migrate],
+      ['/onboard', onboard],
+      ['the stub', flat(readTemplate('stubs/tracking.md'))],
+    ] as const) {
+      assert.match(text, /looks real and is not/, `${where} says why history is not fabricated`);
+    }
+    assert.match(migrate, /Never convert `history\.md` or `archive\/`/);
+  });
+
+  it('the migration runs one way and says why', () => {
+    // Tracker -> tree reads like an undo and is not one: a thread, a reporter and subscribers have no
+    // markdown equivalent, so the reverse would discard the reason the answer was taken.
+    assert.match(migrate, /There is no reverse/i);
+    assert.match(migrate, /reads like an undo and is not one/);
+  });
+});
+
 describe('the ledger row opens before the work', () => {
   // `in progress` was a legal status that nothing ever wrote. Every mention of it across the skills and
   // `workflow.md` was a read ("if it is already `in progress`, resume") or a retain ("*stays* `in
@@ -320,7 +391,11 @@ describe('the AGENTS.md block', () => {
   });
 
   it('stays small — everything but the commands is a pointer', () => {
-    assert.ok(agentsBlockBody().split('\n').length < 40, 'the block is not a second copy of the rules');
+    // The ceiling is on the *prose*, not on the file, so a ninth command costs a row and nothing else.
+    // A flat line count would have made the block's one legitimate growth indistinguishable from the
+    // failure it guards — the block turning into a second copy of the rules.
+    const lines = agentsBlockBody().split('\n').length;
+    assert.ok(lines - SKILL_NAMES.length < 32, `the block is not a second copy of the rules (${lines})`);
   });
 });
 

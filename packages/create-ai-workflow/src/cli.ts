@@ -26,8 +26,8 @@ ${bold('Options')}
 ${bold('What it installs')}
   context/            the workflow's documents. Tool-owned files are replaced on update; your
                       roadmap, plans, findings, stack, verify and executors never are.
-  .claude/            eight skills and two subagent definitions, for Claude Code.
-  .agents/            the same eight skills, for Codex and anything else reading that tree.
+  .claude/            nine skills and two subagent definitions, for Claude Code.
+  .agents/            the same nine skills, for Codex and anything else reading that tree.
   AGENTS.md           a delimited block, merged into whatever is already there.
   CLAUDE.md           a single ${cyan('@AGENTS.md')} line, and only if the file does not exist.
 

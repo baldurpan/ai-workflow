@@ -222,6 +222,34 @@ saying — still offer the tracker answer, say that choosing it means changing t
 forbidden is *writing* the pair, not offering it: if the user wants the tracker answer, Step 4's answer
 changes with it and you say so plainly in both files.
 
+### Look at what the tree already holds before writing the answer
+
+**This is a check, not a question, and it runs before the answer is written.** Read `roadmap.md`, `drafts/`
+and `plans/`, and say what is there — the entry count, which entry is `active`, which entries hold a plan.
+**Always say it**, including when the answer is *nothing*, for the same reason this step reports at all.
+
+Setting the answer does not move the work. A repository whose `tracking.md` says *tracker* while its
+entries sit in `roadmap.md` reads as an **empty backlog** to every command in this workflow: `/roadmap`
+prints nothing, `/feature-plan` says the backlog is empty, and the active feature and its ledger become
+invisible. That is not a mixed state anyone chose — it is the state a switch produces if nobody says so.
+
+Three outcomes, and only the first writes the answer alone:
+
+- **The tree holds nothing** — no entries, no drafts, no plans. The switch is free, because there is
+  nothing to migrate. Write the answer and carry on.
+- **The tree holds entries, drafts or plans, and no phase is `in progress`.** Write the answer, then **name
+  `/tracking-migrate` as the required next step** and say plainly that until it runs the backlog reads as
+  empty. Record that in `context/tracking.md` too: a split that is written down is a task, and one that is
+  not is a trap. **Remove nothing** — the removal is the migration's last act, not this command's.
+- **A phase is `in progress`.** **Refuse the tracker answer**, name the feature and the phase, and leave
+  the working-tree answer standing. An agent may be inside that phase right now, in this tree or another,
+  and [`workflow.md`](../../../context/workflow.md)'s read-fresh model assumes the substrate does not move
+  underneath a running phase. Say the answer is available once the phase finishes or is parked back to
+  `not started` — that is a person's decision, not this command's.
+
+**Never write the tracker answer and delete the tree files in the same run.** Removal is what makes the
+migration irreversible, and this command has no way to show a remote write as a diff first.
+
 ### Under the tracker answer
 
 Collect these and write them into the file, then delete the answer that was not chosen along with this
@@ -234,22 +262,29 @@ subsection's heading:
    is exactly why these are namespaced. Say that `feature` here is [`workflow.md`](../../../context/workflow.md)'s
    word — work you would want a history row for — and not a claim that the issue is not a bug.
 3. **Create the labels if they are absent**, and say so before doing it. This is the first thing this
-   command does that is visible to anyone else with access to the repository.
+   command does that is visible to anyone else with access to the repository — which is why the check
+   above runs first: a refusal that fires after two labels exist is a refusal that already wrote.
 
 Then say plainly what the workflow will **not** touch: this project's own labels, its Projects, and its
 milestones. Nothing in the loop reads or writes any of them, so a board or a release milestone can be used
 alongside the workflow without interference.
 
-### Then offer to remove what the answer makes dead
+### Then say what the answer makes dead — and remove only what is already empty
 
 Under the tracker answer five installed files have nothing to write to them — `roadmap.md`, `history.md`,
 and the `drafts/`, `plans/` and `archive/` directories. The installer wrote them before this question
 existed and could not have known.
 
-**Offer to remove them, and only where they are empty.** An empty file is a stub nobody used; a file with
-entries or rows in it is the record of the work done before the switch, and that record stays. Show the
+**Offer to remove them, and only where they are empty.** An empty file is a stub nobody used. Show the
 removal the way Step 9 shows its pruning — as a diff, applied on confirmation — and never remove one you
 cannot show is empty.
+
+**A non-empty one is not this command's to touch, and the reason differs by file:**
+
+| Non-empty | Belongs to |
+|---|---|
+| `roadmap.md`, `drafts/`, `plans/` | `/tracking-migrate` — the entries and documents move, then the files go |
+| `history.md`, `archive/` | nobody. They are the frozen record of the era before the switch and are never converted, in either direction — fabricating closed issues for features shipped months ago produces wrong dates, empty threads, and an audit trail that looks real and is not |
 
 **`findings.md` stays under both answers.** A finding is raised and swept inside a single branch's life, so
 it is never the thing two agents contend over.

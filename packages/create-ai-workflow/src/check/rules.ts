@@ -42,6 +42,8 @@ const RULES = {
     'context/workflow.md — "Each entry\'s **Doc** field points at its document" · "a link into `context/archive/`"',
   closedFinding:
     'context/findings.md — "Closed findings leave this file … This file must not grow for the life of the project."',
+  unmigrated:
+    'context/tracking.md — "Setting the answer is not moving the work." · context/workflow.md — "Changing the answer is not moving the work."',
 } as const;
 
 function read(root: string, rel: string): string | null {
@@ -94,6 +96,26 @@ export function runChecks(root: string): Problem[] {
       file: 'context/roadmap.md',
       message: 'missing — the Tier-1 backlog is where every feature status lives',
       rule: RULES.active,
+    });
+  }
+
+  // The reverse of the same disagreement, and the one that is silent without this. Under the tracker
+  // answer the backlog is a set of issues, so entries still sitting in this file are unreachable: every
+  // command reads the tracker, finds nothing, and reports an empty backlog. Nothing else in the workflow
+  // can notice — the entries are well-formed, and the file they are in is simply no longer read.
+  //
+  // Shape, not a workflow question (§2.4): two installed files disagree about which substrate holds the
+  // backlog. `check` says so and names the command that resolves it; it does not resolve it.
+  if (trackingAnswer(root) === 'tracker' && roadmap.length > 0) {
+    problems.push({
+      level: 'error',
+      file: 'context/roadmap.md',
+      line: roadmap[0]?.line,
+      message:
+        `holds ${roadmap.length} ${roadmap.length === 1 ? 'entry' : 'entries'} while tracking.md says the ` +
+        'backlog is in an issue tracker — every command reads the tracker and reports an empty backlog. ' +
+        'Run /tracking-migrate',
+      rule: RULES.unmigrated,
     });
   }
 

@@ -7,7 +7,7 @@
 npx @baldurpan/create-ai-workflow      # or: npm create @baldurpan/ai-workflow
 ```
 
-You get a backlog, plan documents with phase ledgers, two verification gates, and eight commands that
+You get a backlog, plan documents with phase ledgers, two verification gates, and nine commands that
 move work between them. Your coding agent runs the commands; you read and hand-edit the files.
 
 ---
@@ -41,6 +41,7 @@ starting point — nothing has to be looked up first.
 | `/orchestrate` | one ad-hoc, commit-sized change through the same gates — no entry, no ledger |
 | `/prototype` | a throwaway HTML/CSS mockup under `prototypes/`, to settle a layout question before a plan commits to it — no gates, no application code |
 | `/onboard` | fills in your own stubs, adopting what the repo already documented, indexing where it documents itself, and running each verification command before writing it down |
+| `/tracking-migrate` | moves an existing backlog, its drafts and its plans onto the substrate `tracking.md` names — one feature at a time, resumable, removing a file only once the issue that replaces it exists |
 
 ## What makes it different
 
@@ -103,6 +104,15 @@ place to claim a feature. A tracker sits outside every tree. Under it `roadmap.m
 does this phase stand — and `tracking.md` alone says how this project answers it. That is what keeps a
 different tracker a rewrite of one file rather than of every command.
 
+**Changing where tracking lives is two commands, not one.** `/onboard` sets the answer; `/tracking-migrate`
+carries what already exists onto it. A repository whose answer says *tracker* while its entries are still
+in `roadmap.md` reads as an empty backlog to every command — so `/onboard` refuses to write that state, and
+names the migration instead. The migration finishes one feature before starting the next and removes a
+file only after the issue replacing it exists, which makes a run that fails partway a resumable state
+rather than a repository in neither substrate. `history.md` and `archive/` are never converted in either
+direction: fabricated closed issues for work shipped months ago are an audit trail that looks real and is
+not.
+
 ## What gets installed
 
 ```
@@ -112,8 +122,8 @@ context/
   roadmap.md  history.md  findings.md                                                      yours
   drafts/  plans/  archive/                                                                yours
   .state/manifest.json
-.claude/skills/<eight>/SKILL.md   .claude/agents/*.agent.md                                tool-owned
-.agents/skills/<eight>/SKILL.md   the same eight bodies, for hosts that read that tree       tool-owned
+.claude/skills/<nine>/SKILL.md    .claude/agents/*.agent.md                                tool-owned
+.agents/skills/<nine>/SKILL.md    the same nine bodies, for hosts that read that tree       tool-owned
 AGENTS.md   a delimited block, merged into whatever is already there
 CLAUDE.md   a single @AGENTS.md line, and only when the file does not exist
 ```
@@ -188,7 +198,9 @@ npx @baldurpan/create-ai-workflow check
 
 Reports structural breakage: an illegal status word, a `Depends on` naming a phase that does not exist or
 a cycle, two entries marked `active`, a second phase table, a `**Status:**` header, a plan no entry points
-at, a dead `Doc` or history link, a closed finding still in the file.
+at, a dead `Doc` or history link, a closed finding still in the file, and a backlog left in `roadmap.md`
+after `tracking.md` was switched to the tracker — entries that are still well-formed and no longer read by
+anything.
 
 It **never writes** — there is no `--fix`, because the moment it can repair a ledger, a program's edit
 competes with a hand edit. Nothing depends on it: no skill calls it and no git hook installs it. **Delete
@@ -200,7 +212,7 @@ positive points at the document that is out of step.
 ## Scope
 
 **Both skill trees ship.** Claude Code reads `.claude/skills/`; Codex reads `.agents/skills/` and never
-looks at the other one. They get the same eight bodies — the only difference is one frontmatter line,
+looks at the other one. They get the same nine bodies — the only difference is one frontmatter line,
 `disable-model-invocation: true`, which is Claude Code's key and means nothing elsewhere. The bodies are
 written runtime-neutral, with no runtime primitive named in any of them, and a test enforces it.
 
