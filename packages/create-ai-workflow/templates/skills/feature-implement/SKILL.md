@@ -263,24 +263,27 @@ worked around once is not a stop list.
 ## Under the tracker answer
 
 Read [`context/tracking.md`](../../../context/tracking.md) first. Every step above holds — the approval
-checkpoint, both gates, the loopback cap, the refusal to mark `done` on a self-report. Only where status is
-written changes, plus two mechanisms that exist because more than one agent can be running.
+checkpoint, both gates, the loopback cap, the refusal to mark `done` on a self-report — and **the ledger is
+the same table it always was.** What changes is that the table lives in the issue body, plus two mechanisms
+that exist because more than one agent can be running.
 
 | Above | Becomes |
 |---|---|
 | the `active` marker | the issue's assignee |
-| the plan's phase list, order and `Depends on` | the issue body — unchanged, it is still the plan |
-| the ledger's Status column | its sub-issues |
-| a phase's Status | open and unassigned is `not started`, open and assigned is `in progress`, the blocked label is `blocked`, closed is `done` |
-| a phase's Note | a comment on that sub-issue |
-| step 6, open the row | assign yourself the sub-issue |
-| step 11, close the row | `Closes #<sub-issue>` in the commit, so the forge closes it when the branch lands |
+| the plan, its phase list, its `Depends on` and its ledger | the issue body — **unchanged**, it is still the plan and still the same table |
+| step 6, open the row | edit that row's Status to `in progress` in the body |
+| step 11, close the row | edit that row again, naming the commit's sha in the Note |
 
-**Step 3 reads both.** The body says which phases exist and what each depends on; the sub-issue says where
-that phase stands. Pick the same way — lowest-numbered phase not `done` whose `Depends on` are all `done` —
-and **stop if the two disagree**: a listed phase with no sub-issue, or a sub-issue naming no listed phase,
-is step 5's disagreement rule, and a half-created plan is not something to work around by picking whatever
-is there.
+**Step 3 reads one place.** The body holds the phase list, the dependencies and the status together,
+exactly as a plan document does. Pick the same way — the lowest-numbered phase that is not `done` and whose
+`Depends on` are all `done` — and step 5's disagreement rule reads unchanged.
+
+### The body is a read-modify-write
+
+**Re-read the body immediately before editing it, and change only the row.** The body is text a person may
+be editing at the same time — refining the plan while you flip a status — and a stale copy written back
+loses their edit with no trace. This hazard does not exist under the working-tree answer, where the plan
+sits in a tree only you are working in.
 
 ### Claiming, in step 2
 
@@ -290,7 +293,8 @@ issue that already has a different assignee is held; name the holder and stop, e
 one-active-feature rule does above.
 
 **The rule is per working tree and per agent, not per repository.** Several features may be assigned at
-once — that is the point of this answer. What must not happen is two agents on one feature.
+once — that is the point of this answer. What must not happen is two agents on one feature, which is also
+what makes the body safe to edit: a feature has exactly one writer, and it is whoever holds the assignee.
 
 ### The heartbeat, at every phase boundary
 
@@ -300,8 +304,7 @@ the commit. Two lines is enough.
 An assignee is a lock with no expiry: an agent that dies holding one leaves the issue assigned and nothing
 reclaims it. The comment cannot prevent that — it makes it **visible**, from a machine that is not the one
 that died. *"Phase 2 opened six hours ago and nothing since"* is a reclaimable state; an assignee alone is
-not. This is step 6's argument for the opening row write, one level up, and it is why that write is a
-comment here as well as an assignment.
+not. This is step 6's argument for the opening row write, one level up.
 
 **Reclaiming is not this command's job.** If you find a stale claim, say so and stop. Do not un-assign
 someone else's agent.
@@ -310,17 +313,26 @@ someone else's agent.
 phases deep leaves the same assignee it would have left after one, and nothing in the transcript reached
 anyone. Comment at every boundary the loop crosses, not once at the end.
 
-### Closing out, in steps 11 and 12
+### The closing write, in steps 11 and 12
 
-- **`done`** → put `Closes #<sub-issue>` in the commit message. Do not close the sub-issue by hand: the
-  point is that the closing write rides the same change as the work, which is what the ledger row did.
-  Where the user commits rather than the agent, say the trailer is needed and leave it in the message you
-  hand over.
-- **stays `in progress`** → leave it assigned and comment what remains.
-- **`blocked`** → add the blocked label and comment the blocker. Remove that label when it unblocks;
-  nothing else does.
+**The row cannot ride the commit here, and the sha is what replaces it.** Under the working-tree answer the
+row is a line in a file that travels inside the commit, so the row and the code can never disagree. A body
+edit is a remote write and cannot be part of a commit — so the evidence goes into the row instead:
 
-**Never close a sub-issue to get past a refusal**, exactly as no phase is marked `done` to get past one.
+- **`done`** → make the commit, then edit the row immediately, **with that commit's sha in the Note.** A
+  `done` row whose sha is in the branch is checkable against the repository; **a `done` row with no sha is
+  a disagreement, and step 5 stops on it.**
+- **stays `in progress`** → rewrite the Note to name exactly what remains, and leave the issue assigned.
+- **`blocked`** → write `blocked` in the Status column and the blocker in the Note. There is no label for
+  this and none is needed: the column carries all four values.
+
+**Where [`context/git.md`](../../../context/git.md) says the user commits, there is no sha to write.** Say
+so in the Note — the change is in a named working tree and uncommitted — and write the row anyway. A row
+that is never written is worse than one whose evidence is still owed, and this is the pairing
+[`context/tracking.md`](../../../context/tracking.md) says is worth avoiding: under it, a phase reads
+`done` from every machine while its code exists on exactly one.
+
+**Never edit a row to get past a refusal**, exactly as no phase is marked `done` to get past one.
 
 **`findings.md` is unchanged.** It stays a file. A finding is raised and swept inside one branch's life, so
 it is never contended — and an open `P0` or `P1` blocks the phase here the same way.

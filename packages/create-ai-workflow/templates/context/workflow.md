@@ -37,7 +37,7 @@ never a prerequisite for anything.
 | `/orchestrate` | one ad-hoc gated change | the code, and `findings.md` |
 | `/prototype` | one throwaway HTML/CSS mockup — no gates, no application code | `prototypes/<NAME>/`, and nothing else |
 | `/onboard` | the project-owned stubs | `verify.md`, `executors.md`, `git.md`, `tracking.md`, `stack.md`, and the pruning of what they replace |
-| `/tracking-migrate` | moving existing state onto the substrate `tracking.md` names | issues and sub-issues, and the tree files they replace — never `history.md` or `archive/` |
+| `/tracking-migrate` | moving existing state onto the substrate `tracking.md` names | issues, and the tree files they replace — never `history.md` or `archive/` |
 
 ## One source of truth per fact
 
@@ -118,8 +118,8 @@ phase — and nothing here merges a pull request, deletes a branch, or removes a
 
 Everything above describes the working-tree answer, which is the default and what every install does
 until someone changes it. The second answer puts the same tiers in an issue tracker — a feature is an
-issue, a phase is a sub-issue, a closed issue is the archive — because **a file cannot be the shared home
-for several agents at once.** A worktree carries only what its ref holds, so a plan on one branch is
+issue, a plan is that issue's body, a closed issue is the archive — because **a file cannot be the shared
+home for several agents at once.** A worktree carries only what its ref holds, so a plan on one branch is
 invisible to every other tree; a tracker sits outside all of them.
 
 **The tier model is identical under both.** What changes is where a fact is read, and only

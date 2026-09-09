@@ -196,9 +196,10 @@ Ask where the backlog, the plans and the phase ledgers live, and write the answe
 - **In the working tree** — the default, and what the workflow has always done. `roadmap.md` is the
   backlog, a plan is a document under `plans/` carrying its own phase ledger, retired features are indexed
   in `history.md` with their documents in `archive/`. One tree, one reader at a time.
-- **In an issue tracker** — a feature is an issue, a phase is a sub-issue of it, and the tracker is the
-  shared home every working tree can reach. This is the answer for **several agents working several
-  features at once**: the tracker is the only thing outside every worktree that all of them can write to.
+- **In an issue tracker** — a feature is an issue, its plan is that issue's body, and the phase ledger is
+  a table inside that body. The tracker is the shared home every working tree can reach. This is the answer
+  for **several agents working several features at once**: it is the only thing outside every worktree that
+  all of them can write to.
 
 **Say which answer this project got, and why, in one line — always, including when only one was
 available.** This step is silent in exactly the case it most needs to speak: a brand-new repository often
@@ -212,15 +213,15 @@ what would make it available**: *"tracking in an issue tracker needs a GitHub re
 none yet — add one and re-run `/onboard` if you want it."* Offering an answer that cannot be carried out is
 worse than not offering it; leaving unsaid that it exists is worse than both.
 
-**The dependency on Step 4 resolves forward, never backward.** The tracker answer needs *Push and pull
-request* to be *the agent pushes and opens a pull request*, because a phase closes its sub-issue through
-`Closes #N` on the commit and that only fires once the branch reaches the default branch.
+**Step 4's answer does not constrain this one, and never removes it.** The tracker answer works under
+every *Push and pull request* answer — nothing in it waits for a commit to reach the default branch. What
+the pairing buys is not mechanical: this substrate exists so several agents in several trees can share
+state, and **work that is never pushed is visible to exactly one of them.**
 
-**Step 4's answer does not silently remove this one.** If Step 4 said *neither* — which is what it ships
-saying — still offer the tracker answer, say that choosing it means changing that earlier answer, and
-**offer to change it**. A default taken three questions ago is not a decision about this question. What is
-forbidden is *writing* the pair, not offering it: if the user wants the tracker answer, Step 4's answer
-changes with it and you say so plainly in both files.
+So where Step 4 said *neither* — which is what it ships saying — offer the tracker answer anyway, say
+plainly that the pair is weaker than it looks and why, and **offer to change Step 4's answer along with
+it**. A default taken three questions ago is not a decision about this question. Either pair may be
+written; only the silent one is forbidden.
 
 ### Look at what the tree already holds before writing the answer
 
@@ -256,14 +257,20 @@ Collect these and write them into the file, then delete the answer that was not 
 subsection's heading:
 
 1. **The repository**, as `OWNER/REPO`. Confirm it against the remote rather than asking blind.
-2. **The two label names.** They ship as `workflow:feature` and `workflow:blocked`. **List the
-   repository's existing labels first** and say what you found: a project that already uses one of these
-   names for something else needs a different one, and a project with an `enhancement` or `feature` label
-   is exactly why these are namespaced. Say that `feature` here is [`workflow.md`](../../../context/workflow.md)'s
-   word — work you would want a history row for — and not a claim that the issue is not a bug.
-3. **Create the labels if they are absent**, and say so before doing it. This is the first thing this
+2. **The label name.** It ships as `workflow:feature`, and it is the only one — phase status lives in the
+   ledger's Status column, so nothing needs a label for `blocked`. **List the repository's existing labels
+   first** and say what you found: a project already using that name for something else needs a different
+   one, and a project with an `enhancement` or `feature` label is exactly why this is namespaced. Say that
+   `feature` here is [`workflow.md`](../../../context/workflow.md)'s word — work you would want a history
+   row for — and not a claim that the issue is not a bug.
+3. **Whether this project has issue types**, and their names. Look rather than asking: a project with none
+   gets no `Types:` line and the workflow simply records no kind. Where it has them, say which, and say
+   that the workflow **sets a type and never reads one** — no refusal, ranking or report branches on it.
+   Warn about the collision if the set includes `Task`: that word means work too small for this loop in
+   [`workflow.md`](../../../context/workflow.md), and an issue typed `Task` is still a workflow feature.
+4. **Create the label if it is absent**, and say so before doing it. This is the first thing this
    command does that is visible to anyone else with access to the repository — which is why the check
-   above runs first: a refusal that fires after two labels exist is a refusal that already wrote.
+   above runs first: a refusal that fires after the label exists is a refusal that already wrote.
 
 Then say plainly what the workflow will **not** touch: this project's own labels, its Projects, and its
 milestones. Nothing in the loop reads or writes any of them, so a board or a release milestone can be used

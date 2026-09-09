@@ -1,6 +1,6 @@
 ---
 name: tracking-migrate
-description: "Move this project's existing workflow state onto the substrate context/tracking.md names — every roadmap entry becomes an issue, every plan becomes that issue's body plus one sub-issue per phase — one feature at a time, resumable, and removing a tree file only once its issue exists. Explicit invocation only — run this when the user types /tracking-migrate. Do NOT match on 'switch to issues', 'move this to GitHub', or any request to change where tracking lives — that answer is /onboard's."
+description: "Move this project's existing workflow state onto the substrate context/tracking.md names — every roadmap entry becomes an issue and every plan becomes that issue's body, ledger and all — one feature at a time, resumable, and removing a tree file only once its issue exists. Explicit invocation only — run this when the user types /tracking-migrate. Do NOT match on 'switch to issues', 'move this to GitHub', or any request to change where tracking lives — that answer is /onboard's."
 ---
 
 # /tracking-migrate
@@ -49,7 +49,7 @@ list exists to prevent.
 - **[`context/tracking.md`](../../../context/tracking.md) does not name the tracker answer.** Then there is
   nothing to migrate *to*, and this command would be inventing a destination. Say which answer the file
   holds and name `/onboard`.
-- **The tracker's parameters are missing** — the repository, or either label name. Same answer: they are
+- **The tracker's parameters are missing** — the repository, or the label name. Same answer: they are
   Step 5's to collect, and a migration that guessed one would write into the wrong place.
 - **A phase is `in progress`.** An agent may be inside it right now, in this tree or another one, and
   [`context/workflow.md`](../../../context/workflow.md)'s read-fresh model assumes the substrate does not
@@ -69,9 +69,10 @@ list exists to prevent.
 | its `Size:` field | a line in the body | it is part of the entry, and nothing else records it |
 | the `active` marker | the issue's assignee | see *Who the active feature is assigned to* below |
 | a `drafts/<NAME>.md` document | that same issue's body, under a heading | the draft and the issue are one object under this answer |
-| a `plans/<NAME>-PLAN.md` document | that same issue's body, replacing the one or two lines | the full template shape, **with the ledger's Status column dropped** |
-| each ledger row | one sub-issue, titled `[<n>] <phase name>` | `not started` → open, unassigned. `done` → closed. `blocked` → open with the blocked label |
-| a phase's Note | a comment on that sub-issue | keep it; it is the record of what the phase actually did |
+| a `plans/<NAME>-PLAN.md` document | that same issue's body, replacing the one or two lines | the full template shape, **ledger included and unchanged** |
+| each ledger row | the same row, in the body's table | Status and Note carried across verbatim — nothing is re-derived |
+| nothing in the tree | a `Priority:` line in the body | ask for it; an issues list has no manual order, so `roadmap.md` position is the fact being lost |
+| nothing in the tree | the issue's type, where this project has them | a guess, best-effort, never overwriting one already set |
 
 | Never moves | Because |
 |---|---|
@@ -92,15 +93,20 @@ removed last.**
 
 For one feature, in this order:
 
-1. **Create the issue** with the backlog label, and its body.
-2. **Create its sub-issues**, one per ledger row, in phase order, one at a time.
-3. **Set each sub-issue's state** — close the `done` ones, label the `blocked` ones.
-4. **Assign the issue** if the entry was `active`.
-5. **Only now, remove that feature's tree files** — its `roadmap.md` entry, and its `drafts/` or `plans/`
+1. **Create the issue** with the backlog label and its body — the plan in full, ledger and all, or the
+   entry's one or two lines where it has no plan.
+2. **Set its `Priority:` line, and its type** where this project has types. Best-effort, and neither is a
+   gate.
+3. **Assign the issue** if the entry was `active`.
+4. **Only now, remove that feature's tree files** — its `roadmap.md` entry, and its `drafts/` or `plans/`
    document.
 
-**Fail at any point and the feature is still in exactly one substrate.** Steps 1–4 are additive: a partial
-issue is visibly partial, and re-running reconciles it. Step 5 is the commit point, and it cannot happen
+**The plan is one write.** The ledger goes into the body as the table it already is, every row's Status and
+Note carried across as they stand. There is no second object to create, so there is no window in which a
+feature arrives half-migrated with a complete plan that reads as a draft.
+
+**Fail at any point and the feature is still in exactly one substrate.** Steps 1–3 are additive: a partial
+issue is visibly partial, and re-running reconciles it. Step 4 is the commit point, and it cannot happen
 before the issue it replaces exists. **A repository is never in neither substrate**, which is the failure
 mode a bulk migration has and this one does not.
 
@@ -118,14 +124,14 @@ name. Then, per feature:
 | The tree has | The tracker has | Do |
 |---|---|---|
 | an entry | no issue with that name | migrate it — the whole sequence above |
-| an entry, and its plan lists 5 phases | an issue with 5 matching sub-issues | it already migrated; remove the tree files and move on |
-| an entry, and its plan lists 5 phases | an issue with 3, all matching listed phases | **an interrupted run** — create the two missing ones, then remove the tree files |
-| an entry | an issue with a sub-issue naming no listed phase | **stop and say so.** The two disagree and neither is obviously right |
+| an entry | an issue with that name | **finish it** — set whatever is unset, then remove the tree files |
 | no entry | an issue with that name | already done. Say so and move on |
+| an entry whose plan and issue body disagree | an issue with that name | **stop and say so.** Neither side is obviously right, and this command is not where that is decided |
 
-**State which row you matched, per feature, before you write anything for it.** This is
-`/feature-plan`'s reconciliation one level up, and it exists for the same reason: without it, a run that
-died between the issue and its sub-issues leaves a complete plan that reads as a draft for good.
+**State which row you matched, per feature, before you write anything for it.** The middle row is what
+makes a re-run safe: the issue and its whole plan arrive in one write, so everything that can be left
+half-done afterwards is additive, and finishing a partial feature is the same operation as re-doing a
+finished one.
 
 **Never create a second issue for a name that already has one.** That is the one irreversible mistake
 available here — everything else is a re-run away from correct.
@@ -151,8 +157,8 @@ Do not create anything to prove the tracker works.
 
 ## Finishing up
 
-1. **Show what changed**, as a list: every issue created with its number, every sub-issue, and every file
-   removed. The removals are the part that is a diff; show them as one.
+1. **Show what changed**, as a list: every issue created with its number, what was set on it, and every
+   file removed. The removals are the part that is a diff; show them as one.
 2. **Offer to remove what is now dead and empty** — `roadmap.md` once its last entry is gone, and `drafts/`
    and `plans/` once they hold nothing. Only where empty, only shown first, and never `history.md`,
    `archive/` or `findings.md`.

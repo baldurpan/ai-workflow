@@ -1232,6 +1232,11 @@ same-id transition possible in the first place.
 
 ### 10.4 The primitive map — two labels, and everything else observed
 
+> **Superseded in part by §10.10.** The phase-level primitives below — a sub-issue per phase, and
+> `workflow:blocked` — were replaced by the ledger's Status column in the issue body, because the closing
+> write they were chosen for cannot fire before the branch merges. The test this section applies, and
+> everything it concludes about the feature-level primitives and the ownership label, still holds.
+
 §2.1's test is the one that decides each primitive: **does it let a fact be observed, or does it require a
 stored copy someone must maintain?** *"Planned" is the observation that a document exists in `plans/`* is
 the same move, one substrate down.
@@ -1383,6 +1388,9 @@ reclaim to a person or to whatever `executors.md` names. Recording that it is un
 §4.4's lesson is that an unstated premise gets answered by whoever reads it next.
 
 ### 10.7 Rejected — Projects, milestones, and why cost decided nothing
+
+> **Superseded in part by §10.11.** Issue types have since reached user-owned repositories, and the
+> workflow now sets one and reads none. Projects and milestones are still refused, on the grounds below.
 
 Availability was checked rather than assumed, and it settles nothing: issues, labels, milestones and
 Projects are on every plan including Free, private repositories included; sub-issues are GA at 100 per
@@ -1607,3 +1615,220 @@ the block's one legitimate growth — a row per command, which is the whole reas
 indistinguishable from the failure it guards, which is the block turning into a second copy of the rules.
 It is now a budget on the prose, `lines - SKILL_NAMES.length < 32`, and the prose budget is byte-identical
 to what it was at eight commands.
+
+### 10.10 Superseded — the phase ledger comes back into the body, and the sub-issues go
+
+§10.4 decided that the ledger's Status column becomes one sub-issue per phase, on the right test:
+**does this let a fact be observed, or does it require a stored copy someone must maintain?** Sub-issue
+state is observed, a Status column is stored, and on that test the sub-issues win. **The reasoning holds.
+The mechanism it chose cannot run**, and finding that out is the risk PLAN.md §5 named and left open:
+*"nothing here has been run by a live agent, and that is now the whole of the risk."*
+
+#### The deadlock
+
+Four decisions, each defensible alone:
+
+| Where | What it says |
+|---|---|
+| `/feature-implement` step 11 | `done` → `Closes #<sub-issue>` on the commit, and **do not close the sub-issue by hand** |
+| `/onboard` Step 5 | that trailer fires **only when the commit reaches the default branch** |
+| `/feature-implement` step 12 | **a phase never pushes** — the push is once, at `/feature-close` |
+| `/feature-close` | refuses unless **every sub-issue is closed** |
+
+Inside a feature's branch, no phase can ever read `done`. Phase 2 with `Depends on: 1` is never runnable;
+step 3 re-picks phase 1, finds it assigned, and resumes it forever; `--all` stops on *nothing is runnable*.
+The merge that would close the sub-issues sits behind `/feature-close`, which those same sub-issues block.
+`/feature-status` already argues with itself about this — *"a sub-issue closed while its commit is still
+unpushed is not a discrepancy"* assumes an agent that closes the sub-issue directly, which step 11 forbids
+in the same sentence that explains why sub-issues were chosen at all.
+
+**It is not a wording slip.** Under the tree substrate the closing write is a line in a file that travels
+in the commit, so §4.4 costs nothing. The tracker substrate has no write that rides a commit except a
+trailer, and a trailer fires on merge — after the work, not with it. §10.4 reached for the one primitive
+that looked atomic and it is atomic against the wrong event.
+
+#### The repair that was available, and why taking it empties the design
+
+The deadlock is fixable in place: let the agent close the sub-issue at the end of the phase. One sentence,
+and every other part of §10.4 survives.
+
+**It survives as a mechanism with no argument under it.** *The closing write rides the same change as
+the work* — §4.4's binding, carried onto this substrate by `Closes #N` — was the whole of why a sub-issue
+beat a row. An agent closing an issue by hand after the commit is a second write after the commit, which is
+exactly what a Status column is. The two designs then differ in cost and in nothing else, and the costs are
+not close:
+
+- **N+1 remote writes per plan instead of one**, each able to fail — which is where the interrupted-run
+  window comes from in the first place.
+- **The reconciliation apparatus that window requires**: `/feature-plan`'s body-versus-sub-issues verdict
+  table, `/tracking-migrate`'s resume-by-observation table, and `/feature-status`'s stop on a phase list
+  that disagrees with its sub-issues. All of it exists to detect a plan half-written across two kinds of
+  object.
+- **A ledger with two shapes**, described twice in every skill, held in the head of every reader.
+- **Sub-issues are issues.** They are in `/issues`, `gh issue list`, notifications and search. Repository
+  saved views are in public preview and cannot be made the default view, so `no:parent-issue` is a
+  discipline reapplied per surface rather than a property of the repository.
+
+**So the Status column comes back into the body and the sub-issues go.** The ledger is one table with one
+shape under both answers — `#`, `Phase`, `Depends on`, `Status`, `Note`, and the `Files:` line beneath it.
+
+#### What that costs, stated plainly
+
+**The closing write no longer rides the commit under this answer.** It cannot: a body edit is not a commit.
+It is a second write immediately after, and the window is real. What replaces the atomicity is evidence —
+**a closing row names the commit that carried the phase.** A `done` row whose sha is in the branch is
+checkable against the repository, which is the property the atomicity was buying, and it is the move
+`Files:` already makes for §2.4. A `done` row with no sha is a disagreement to stop on.
+
+**The `2 of 5` progress view is lost.** By §10.7's own criterion that does not buy a primitive: it is a
+view, not a fact, which is the ground Projects were refused on.
+
+**A phase loses its permalink.** The heartbeat already comments each phase boundary on the parent issue, so
+the thread survives; only the anchor moves.
+
+**One risk is new.** A body edit is a read-modify-write of text a person may be editing at the same time —
+someone refining the plan while an agent flips a row. Sub-issue state touched no shared text. Re-read the
+body immediately before writing, and write only the row.
+
+#### What is untouched, and the one primitive that goes with them
+
+Claiming (§10.6), the heartbeat, the two close reasons, `/roadmap`'s adoption mode, the never-convert rule
+for `history.md` and `archive/`, and `findings.md` staying a file: all unchanged. Contention is between
+features, never inside one — *what must not happen is two agents on one feature* — so a body has exactly
+one writer at a time, the assignee, and sub-issue assignment was buying no concurrency the parent assignee
+did not already provide. **That is the sentence worth keeping: the multi-writer argument that justifies
+this entire substrate never reached below the feature, and §10.4 built phase-level machinery as though it
+did.**
+
+**`workflow:blocked` goes too.** §10.4 gave it a label because *open/closed cannot express stuck* — a fact
+about issue state, and the only stored primitive that existed for a reason other than ownership. A Status
+column expresses `blocked` the way it expresses the other three. **The primitive map is now one label**,
+`workflow:feature`, which earns its place by having no structural home at all.
+
+#### One dependency dissolves along with the trailer
+
+`tracking.md` records that the tracker answer **requires** `git.md`'s *the agent pushes and opens a pull
+request*, and `/onboard` Step 5 refuses the other pair. The stated reason was the mechanism: *"a phase
+closes its sub-issue through `Closes #N` on the commit, which only fires when the branch reaches the
+default branch — without the push, a phase would never close its own row."* That is the deadlock of the
+previous subsection, written down as a requirement.
+
+**With the row back in the body, no part of phase status needs a push**, and neither does the close: an
+agent that can edit an issue can close one. So the pairing becomes a **recommendation with a different
+reason** — this substrate exists for several agents in several trees, and work that is never pushed is
+visible to exactly one of them. Pairing the two answers is still right; *refusing* the other pair is no
+longer something the mechanism can justify, and a requirement whose stated reason has been deleted is
+precisely the inheritance §4.5 warned about when it made each of `git.md`'s answers independent.
+
+#### The draft-or-plan test, restated
+
+*An issue with sub-issues is a plan* becomes **an issue whose body holds a phase ledger is a plan.** Weaker
+as an observation — a table in text, rather than the existence of linked objects — and it does not matter,
+because the failure it was hardened against can no longer occur. §10.4's window was *body written,
+sub-issues not yet*; a single atomic body write has no such intermediate state. The reconciliation is not
+lost, it is unneeded.
+
+**That is the honest shape of this reversal.** The machinery was correct, and it was guarding a hazard that
+only existed because the design had split one fact across two objects to reach a primitive that turned out
+to be unreachable.
+
+### 10.11 Issue type — set by the workflow, read by nobody in it
+
+§10.4 refused GitHub's issue types on two grounds and one of them has expired. They were *"org-scoped,
+which is dead for a personal repository and would make the workflow depend on org configuration"* — and
+they now resolve on a user-owned repository: `repos/OWNER/REPO/issue-types` returns `Task`, `Bug` and
+`Feature`, enabled, and `type` is a documented body parameter on both create-an-issue and update-an-issue.
+The premise moved, so the conclusion is re-taken rather than inherited.
+
+**The other ground stands, and this does not cross it.** *"The workflow does not distinguish features from
+bugs, and must not start"* is a refusal about the loop **reading** kind — a taxonomy laid across §2.6's
+does-it-deserve-a-history-row partition produces a 2×2 the loop only ever reads one axis of. Setting a
+field nothing consults is a different act: it makes the user's tracker well-formed and leaves the
+workflow's own vocabulary untouched. **The test that keeps it honest is that no refusal, no ranking and no
+report may branch on the type.** The moment one does, §10.4's objection lands and this section is wrong.
+
+That is also why §2.1 does not bite. Its question is whether a stored fact needs maintaining, and this one
+does not: nothing depends on it being right, so nothing can go stale against it.
+
+**It is set twice, for a different reason than a phase row is (§2.8).** `/roadmap` sets a guess from the
+one or two lines it has when it opens the issue; `/feature-plan` corrects it once the research exists. A
+phase row is written twice so that an interruption is legible; a type is written twice because **kind
+legitimately improves with information** — the guess made from a sentence is worse than the one made from a
+plan, and both beat leaving the field empty for as long as the item sits in the backlog.
+
+**Never overwrite a type that is already there.** §10.4's adoption argument is the whole reason: an issue
+keeps everything it already carries, and a workflow that re-types someone's bug report has started
+asserting the taxonomy this section just promised not to.
+
+**It is best-effort, and one of its failures is silent by design.** A project with no types configured gets
+nothing. GitHub **drops the type without erroring** where the caller lacks push access, so the write can
+never be assumed to have landed. Neither case is worth a refusal — it is metadata, not a gate — and both
+are worth saying once.
+
+**`tracking.md` names the primitive, never a skill** (§10.8): a row in the primitive map — *the kind of
+work → the issue's type* — where a project without them says *nothing*, which keeps a different tracker a
+rewrite of that one file. It is also the only reachable place. `gh` exposes no `--type` flag on `issue
+create` or `issue edit`, so setting it is a raw API call, and a skill naming one fails the test that no
+skill names a forge command.
+
+#### The word `Task` means the opposite thing here
+
+GitHub's default set is `Task`, `Bug`, `Feature`. §2.6's vocabulary uses **task** for work too small for
+the loop — *if you would not want a `history.md` row for it, it is a task, and `/orchestrate` handles it*.
+An issue typed `Task` is still a workflow **feature**: it is in the loop and it will get a history row.
+This is §2.2 in a new place, and the stub has to say it outright, because a reader who does not know will
+see the type and reach for the wrong command.
+
+### 10.12 Priority — not a new axis, the one the tracker answer silently dropped
+
+Start with the hole, because it decides the shape.
+
+`/feature-plan` ranks the backlog on four keys: **has a draft → unblocked by what shipped → smaller first →
+backlog order.** Its *Under the tracker answer* table remaps exactly one of them, *has a draft*. The fourth
+has no analogue and nothing said so. **An issues list has no manual order** — issues cannot be dragged into
+a sequence outside a Project board, and the issue number is creation order, which is not priority. So the
+tracker answer shipped with its final tiebreak undefined.
+
+**That is what makes priority a replacement rather than a duplicate.** Under the working-tree answer,
+importance is expressed by moving a line in a file, and a Priority field there would be a second home for
+position — §2.1's drift, and it stays refused there. Under the tracker answer there is no position for it
+to be a second home for. **So priority is a tracker-only primitive**, which is exactly what `tracking.md`
+exists to hold: one substrate's answer to a question the other answers structurally.
+
+**Unlike the type (§10.11), it is read.** All four ranking keys are proxies for *cheap and ready*; none of
+them is *important*, and a stored human judgement is the one input the ranking has never had. It sits
+**above `has a draft`**: overriding the default order is the entire purpose of marking something urgent, so
+a field that only broke ties among equally-prepared entries would not do the job it was added for.
+
+**The cost of that placement is real and belongs in writing.** `has a draft` dominates today because
+half-researched is cheaper, and *"a plan that can be executed beats one that gets admired."* Putting
+priority above it means the ranking can now recommend an unresearched feature. What keeps that safe is that
+**the ranking recommends and never takes** — `/feature-plan` with no argument offers its top candidates,
+each with a one-line reason drawn from the ranking, and asks. An urgent-but-unresearched recommendation
+arrives with its reason attached, and declining it costs one word.
+
+#### Two priority vocabularies, and the gap they close
+
+`Urgent`/`High`/`Medium`/`Low` now sits beside `findings.md`'s `P0`–`P3`, and §2.2 says the two must not
+blur. They do not, because their scopes do not overlap: **a `P`-severity asks whether this blocks the
+phase**, inside one branch's life; **a priority asks what gets planned next**, across the backlog.
+
+They meet at exactly one point, and it is a gap being closed. §10.4 says a promoted finding *"loses its
+`P0`–`P3` on the way, because that severity meant does this block the phase — outside the branch that
+raised it, it blocks nothing."* True, and it left the promoted issue carrying no statement of importance at
+all. It now lands as a priority, which is the backlog-scoped claim the severity was never able to make.
+
+#### What it is written on, today
+
+Native issue fields are **org-scoped** — `orgs/{org}/issue-fields` is the only endpoint and it 404s for a
+user account, which is where issue types sat before they moved. So priority is a **`Priority:` line in the
+issue body**, exactly as `Size:` already is under `/tracking-migrate`'s mapping. A body line is this
+substrate's answer for a fact with no primitive: cheap, legible, and swapped for a native field by editing
+one row of the primitive map on the day fields reach personal repositories.
+
+**Four `workflow:priority-*` labels are refused**, for §10.4's reason unchanged: every label beyond the
+ownership bit is a second home for a fact, and four of them is a taxonomy inside a namespace kept
+deliberately small.
+
+**Size and priority are orthogonal and both stay.** Size is effort and feeds ranking key three; priority is
+importance and now leads. A field conflating them would answer neither question.

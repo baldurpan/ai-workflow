@@ -172,16 +172,44 @@ describe('one home for the tracker', () => {
     );
   });
 
-  it('the plan write order is stated where a phase cannot be lost', () => {
-    // §10.4: the body is written before the sub-issues exist, so a run that dies between them leaves a
-    // complete plan that reads as a draft. The order and the resume are the fix, and both must be written.
+  it('the plan is one write, so no run can leave half of it', () => {
+    // Replaces 0.9.0's write-order test, whose premise §10.10 removed. That test guarded the window
+    // between writing the body and creating one sub-issue per phase: a run dying in between left a
+    // complete plan that read as a draft forever, and the fix was an ordering plus a reconciliation.
+    // With the ledger back in the body there is no second object and therefore no window, so what has to
+    // be asserted now is the absence — that the ledger is unchanged and the body is a single write.
     const plan = skillBody('feature-plan');
-    assert.match(plan, /commit point/i, 'the sub-issues are named as the commit point');
-    // The body lists the phases and the sub-issues carry their status, which is what makes a half-created
-    // plan detectable instead of indistinguishable from a draft.
-    assert.match(plan, /Status column/i, 'the status column moves out of the body');
-    assert.match(plan, /interrupted run/i, 'a partial set of sub-issues has a named verdict');
-    assert.match(plan, /count and names/i, 'the reconciliation is mechanical, not a judgement call');
+    assert.match(plan, /the body is one write/i, 'the atomicity is stated, not left to be inferred');
+    assert.match(plan, /does not change shape/i, 'the ledger is the same table under both answers');
+    assert.doesNotMatch(plan, /sub-issue/i, 'no phase is a separate object any more');
+  });
+
+  it('a closing row carries the evidence a commit cannot', () => {
+    // §10.10: under the working-tree answer the row rides inside the commit, so it cannot disagree with
+    // the code. A body edit cannot, so the sha in the Note is what replaces that atomicity — and a done
+    // row with no evidence at all is a state the working-tree answer is structurally unable to produce.
+    const implement = skillBody('feature-implement');
+    assert.match(implement, /sha in the Note/i, 'the closing write names its commit');
+    assert.match(implement, /cannot ride the commit/i, 'and says plainly what it is standing in for');
+    assert.match(
+      skillBody('feature-status'),
+      /no evidence/i,
+      'the reader stops on a done row that cannot be tied to the repository',
+    );
+  });
+
+  it('no skill names an issue type, because nothing in the loop reads one', () => {
+    // §10.11 lets /roadmap and /feature-plan SET a type and forbids anything from branching on it. That
+    // property cannot be tested directly, so this is a proxy for it: the type's vocabulary lives in
+    // tracking.md, the same way no skill names a forge command. A skill that started naming Bug or Task
+    // would be one edit away from reading them.
+    // /onboard is the exception, and it is the same exception §10.8 draws everywhere else: it is the one
+    // command that COLLECTS a project-owned answer, so it has to name what it is asking about. Collecting
+    // a parameter is not reading it, and nothing /onboard writes is consulted by the loop.
+    for (const name of SKILL_NAMES.filter((n) => n !== 'onboard')) {
+      assert.doesNotMatch(skillBody(name), /issue type/i, `${name} names the type vocabulary directly`);
+    }
+    assert.match(readTemplate('stubs/tracking.md'), /the issue's type/i, 'the primitive lives in the stub');
   });
 });
 
@@ -494,9 +522,15 @@ describe('/onboard adopts an existing AGENTS.md', () => {
     assert.match(step, /name what would make it available/i, 'a failed precondition names its own fix');
     assert.match(
       step,
-      /does not silently remove this one/i,
+      /never removes it/i,
       "an earlier step's default must not delete this answer without saying so",
     );
+    // §10.10: the tracker answer stopped requiring git.md's push answer when the phase row came back into
+    // the body — no part of it waits for a commit to reach the default branch any more. The pairing is
+    // still recommended, for a reason that is about several agents seeing each other's work rather than
+    // about a mechanism, and a step that presented it as a requirement would be quoting a deleted one.
+    assert.match(step, /works under every \*Push and pull request\* answer/i, 'the pairing is not a requirement');
+    assert.match(step, /visible to exactly one of them/i, 'and the reason to pair them anyway is stated');
   });
 
   it('asks rather than guessing on the two undecidable rows', () => {

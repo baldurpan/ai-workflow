@@ -23,9 +23,20 @@ Every `§`-number below points into that document.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** v0.8.0 is published and is npm's `latest` — the tracker answer (§10), tagged at `3f614d9`.
-`package.json` now says **`0.9.0`, in the tree and unreleased**, carrying 0.8.1's fix, a ninth command
-and a flag on `/feature-implement`.
+**State:** v0.9.0 is published and is npm's `latest` — the tracker answer (§10) and its migration. The
+`--all` flag on `/feature-implement` was committed after that release and never pushed, so it ships in
+0.10.0 rather than the version this file used to claim. `package.json` now says **`0.10.0`, unreleased**,
+which rebuilds the tracker answer's phase model: **the sub-issues are gone and the ledger is back in the
+issue body** (§10.10), the issue's type is set and never read (§10.11), and `Priority:` replaces the
+backlog order an issues list cannot express (§10.12).
+
+**0.10.0 is a fix, not a refinement, and both published versions need it.** The sub-issue design could not
+run: a phase closed its sub-issue through `Closes #N`, that trailer fires only when the commit reaches the
+default branch, a phase never pushes, and `/feature-close` refuses until every sub-issue is closed. So
+inside a feature's branch no phase could ever read `done`, phase 2 was never runnable, and the merge that
+would have released it sat behind a command those same sub-issues blocked. It shipped in 0.8.0 and again in
+0.9.0 because **nothing here had ever been run by a live agent** — which is exactly what item 5 below said
+the remaining risk was.
 
 **`/onboard` Step 5 was silent in its most common case**, found on the first real install of 0.8.0. A
 brand-new repository usually has no remote yet, and Step 4 ships saying *neither* a push nor a pull
@@ -172,47 +183,55 @@ end. The path from a `FAIL` verdict through a written finding to the loopback ha
 behalf — Step 1 tests it rather than assuming it — but it does mean the branch where an executor needs
 content inline has never been taken.
 
-### 5. The tracker answer (§10) — built, and never run by an agent
+### 5. The tracker answer (§10) — rebuilt in 0.10.0, and still never run by an agent
 
 `context/tracking.md` ships as the fifth project-owned stub, with **in the working tree** as the first
 answer, so every existing install behaves exactly as before. The second answer puts the three tiers in
-GitHub issues: a feature is an issue, a phase is a sub-issue, a closed issue is the archive.
+GitHub issues: a feature is an issue, its plan is that issue's body, a closed issue is the archive.
 
-What landed:
+**0.10.0 removed the sub-issues** (§10.10). The deadlock above is the reason it had to; the rest of the
+argument is that the only repair — letting an agent close the sub-issue by hand — deletes the property
+that made a sub-issue better than a table row in the first place, since *the closing write rides the same
+change as the work* was the whole of it. What went with them: N+1 remote writes per plan, the reconciliation
+apparatus that guarded the window between the body and its sub-issues, a ledger with two shapes, and
+`workflow:blocked`, whose only job was expressing a state open-and-closed cannot. One label remains.
 
-- **The stub** — the answer and its parameters only. The primitive map (§10.4) is the single place any
-  tracker's vocabulary appears; the claim protocol, the heartbeat and the plan write order live in the
-  skills, because a project-owned file is unreachable by `update` and a mechanism has to stay repairable
-  (§10.8).
-- **`/onboard` Step 5**, which states the git-and-GitHub-remote precondition inside the question, refuses
-  the pair the tracker answer cannot hold with *Push and pull request: neither*, and offers to remove the
-  five stubs the answer makes dead — **only where they are empty**, since a non-empty one is the frozen
-  record of the era before the switch. Steps 5–8 renumbered to 6–9.
-- **`/tracking-migrate`** (0.9.0, §10.9), which carries an existing backlog onto the answer Step 5 wrote.
-  0.8.0 shipped the answer with no way to move the data and no refusal to stop it, so the second real
-  install ended with a full tree and a tracker every command read as empty.
+What landed, across 0.8.0 to 0.10.0:
+
+- **The stub** — the answer and its parameters only. The primitive map is the single place any tracker's
+  vocabulary appears; the claim protocol and the heartbeat live in the skills, because a project-owned file
+  is unreachable by `update` and a mechanism has to stay repairable (§10.8).
+- **`/onboard` Step 5**, which states the git-and-GitHub-remote precondition inside the question, collects
+  the label and the project's issue types, and offers to remove the five stubs the answer makes dead —
+  **only where they are empty**, since a non-empty one is the frozen record of the era before the switch.
+- **`/tracking-migrate`** (§10.9), which carries an existing backlog onto the answer Step 5 wrote. 0.8.0
+  shipped the answer with no way to move the data and no refusal to stop it, so the second real install
+  ended with a full tree and a tracker every command read as empty.
 - **Five skills**, each with an *Under the tracker answer* section in `git.md`'s "under the worktree
-  answer" shape, so the default answer's prose is untouched. Includes `/roadmap`'s adoption mode and
-  `/feature-plan`'s write-order contract.
+  answer" shape, so the default answer's prose is untouched. Since 0.10.0 most of those sections say
+  *unchanged*: the ledger is the same table under both answers, which was the point.
+- **The issue's type** (§10.11), set by `/roadmap` and corrected by `/feature-plan`, read by nothing. And
+  **`Priority:`** (§10.12), read by `/feature-plan`'s ranking above every other key, because an issues list
+  has no manual order and *backlog order* was the tiebreak the tracker answer had silently lost.
 - **`check` skips what is absent**, which cost one condition: every other rule already degrades to nothing
   when what it parses is missing. `trackingAnswer()` reads which answer survived in the stub — a shape
   read, not a workflow question.
-- **Nine new tests**, including the one that matters most: **no skill may name a forge command.** That is
-  what keeps a second tracker a rewrite of one file rather than of eight. Ten more in 0.9.0 guard the
-  migration: the ordering that makes a failed run resumable, resumption by observation rather than by a
-  state file, and the never-convert rule stated in all three files that could relax it.
+- **Tests**, including the one that matters most: **no skill may name a forge command**, which is what
+  keeps a second tracker a rewrite of one file rather than of eight. 0.10.0 adds its sibling — **no skill
+  may name an issue type** — as the closest mechanical proxy for §10.11's real rule, that nothing in the
+  loop may branch on one. `/onboard` is exempt from both for the same reason: it collects answers, it does
+  not read them.
 
-**Nothing here has been run by a live agent, and that is now the whole of the risk.** The file-substrate
-half of the argument rests on §4.5's documented contention; the multi-agent half rests on nothing yet.
-Three things in particular have never executed: **optimistic claiming** (assign, re-read, confirm sole
-assignee, back off), the **phase-boundary heartbeat**, and **`/tracking-migrate` itself** — whose
-interesting path is not the happy one but the interrupted one, so the run worth doing is killing it between
-an issue and its sub-issues and checking that a re-run finishes rather than duplicates. All three are small
-and additive, and all three are guesses until they have actually run.
+**Nothing here has been run by a live agent, and that is still the whole of the risk.** 0.10.0 is what one
+careful read of the prose found; it is not what running it found. Four things have never executed:
+**optimistic claiming** (assign, re-read, confirm sole assignee, back off), the **phase-boundary
+heartbeat**, **`/tracking-migrate`**, and now the **body read-modify-write** — the one genuinely new hazard
+this change introduces, where a person editing a plan and an agent flipping a row can clobber each other.
 
 Fold this into item 1's run rather than testing it separately — the worktree scenario and this one exercise
 the same surface, so it is one scratch repo instead of two. Set it to the tracker and pull-request answers,
-plan two features, and run them in parallel trees.
+plan two features, and run them in parallel trees. **The run worth doing most is the boring one**: plan a
+feature with four phases and execute all four, which is precisely what no published version could do.
 
 **The `AGENTS.md` block hit its ceiling and the ceiling turned out to be the wrong shape.** It was a flat
 `< 40` lines; a ninth command made it 40. Neither of the two options this file named was right — the
