@@ -5,7 +5,7 @@ import { describe, it } from 'node:test';
 import { claudeSkillTransform, SKILL_NAMES, agentsBlockBody, readTemplate } from '../src/layout.ts';
 import { parseFindings, parseHistory, parseRoadmap } from '../src/check/parse.ts';
 import { stripComments } from '../src/check/markdown.ts';
-import { templatesDir, walk } from '../src/paths.ts';
+import { packageRoot, templatesDir, walk } from '../src/paths.ts';
 
 const skillBody = (name: string) => readTemplate(`skills/${name}/SKILL.md`);
 
@@ -284,6 +284,75 @@ describe('the ledger row opens before the work', () => {
   it('the phase-status rules name the entry-write, not only the reads', () => {
     assert.match(readTemplate('context/workflow.md'), /written twice/);
     assert.match(readTemplate('context/plan-template.md'), /goes to `in progress` when work/);
+  });
+});
+
+describe('--all runs the phases without crossing a tier', () => {
+  // The flag is legitimate because phase to phase is not a tier boundary — this command already owns the
+  // phases within a plan. What it removes is the pause where a user reads a phase's report before the next
+  // one builds on it, so the stop list *is* the feature: without it the flag is a licence to sweep past a
+  // `blocked` phase, a capped gate and an open P0 in one unattended run. Flattened, per the note above.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const body = skillBody('feature-implement');
+  const start = body.indexOf('## 14. `--all`');
+  const all = flat(body.slice(start, body.indexOf('## Under the tracker answer')));
+
+  it('the flag is in the usage block, not only in prose', () => {
+    assert.ok(start > 0, 'the flag has a section of its own');
+    assert.match(body.slice(body.indexOf('## Usage'), body.indexOf('## 1.')), /\/feature-implement --all/);
+  });
+
+  it('it re-enters at the phase steps and never re-runs the approval checkpoint', () => {
+    assert.match(all, /go back to step 3/i, 'the loop says where it re-enters');
+    // Activation, the branch or worktree and the marker are once per feature. Re-running step 2 would put
+    // a second approval checkpoint and a second branch decision inside a loop that already has consent.
+    assert.match(all, /Step 2 does not run again/i);
+  });
+
+  it('every condition that ends a single run ends the loop', () => {
+    for (const [what, re] of [
+      ['a phase that ended blocked or part-landed', /closed `blocked`/],
+      ['a gate at its loopback cap', /two-loop cap/],
+      ['an open P0 or P1 tied to the phase', /open `P0` or `P1`/],
+      ['a ledger that disagrees with the repo', /step 5's disagreement/],
+      ['nothing runnable', /`Depends on` that is not `done`/],
+    ] as const) {
+      assert.match(all, re, `${what} must stop the loop`);
+    }
+  });
+
+  it('it stops at the tier boundary rather than crossing it', () => {
+    // A flag on this command is not the user typing the next one.
+    assert.match(all, /never crosses into `\/feature-close`/);
+  });
+
+  it('the two answers a loop cannot assume are stated before the first phase', () => {
+    // The shipped reviewer is the host reading its own diff and the shipped git answer leaves each phase in
+    // the tree. One phase of either is a considered default; four unattended phases of the first compound,
+    // and four phases of the second cannot be cut back into the four commits git.md says they are.
+    assert.match(all, /executors\.md/, 'which reviewer runs is said up front');
+    assert.match(all, /git\.md/, 'who commits is said up front');
+    assert.match(all, /decline the continuation/, 'the user-commits answer ends the loop after one phase');
+  });
+
+  it('the per-phase report is not deferred to a summary at the end', () => {
+    assert.match(all, /reports every phase, as that phase ends/);
+  });
+
+  it('the heartbeat carries the loop under the tracker answer', () => {
+    // An assignee is a lock with no expiry, and a run that dies four phases deep leaves exactly the one a
+    // run that died after one phase leaves. The boundary comments are what say so from outside it.
+    assert.match(flat(body), /Under `--all` the heartbeat is the only thing outside the run/);
+  });
+
+  it('every document that shows the command shows the flag', () => {
+    // Documentation is part of the change: the diagram and the command table are where a reader learns the
+    // command exists at all, and a flag missing from them is a flag nobody types.
+    const workflow = readTemplate('context/workflow.md');
+    assert.match(workflow, /\/feature-implement \[--all\]/, 'the tier diagram carries it');
+    assert.match(workflow, /One run is one phase, unless `--all`/, 'the phase-status rules account for it');
+    const readme = readFileSync(path.join(packageRoot, 'README.md'), 'utf8');
+    assert.match(readme, /\/feature-implement \[--all\]/, "the package README's diagram carries it");
   });
 });
 

@@ -10,7 +10,7 @@ running something else.
                         ▼
                   a plan exists                  Tier 2 — one plan, with a phase status ledger
                         │
-                  /feature-implement             activates, then runs phases: plan → code → verify → review
+                  /feature-implement [--all]     activates, then runs phases: plan → code → verify → review
                         ▼
                   /feature-close                 ──▶ context/archive/ + a context/history.md row
 ```
@@ -18,7 +18,7 @@ running something else.
 | Transition | Command |
 |---|---|
 | Tier 1 → a plan | `/feature-plan` |
-| a plan → being worked, then phase by phase | `/feature-implement` |
+| a plan → being worked, then phase by phase | `/feature-implement`, or `/feature-implement --all` |
 | Tier 2 → retired | `/feature-close` |
 | no tier crossed | `/orchestrate` — one ad-hoc gated change; `/feature-status` — read-only; `/prototype` — a throwaway mockup |
 
@@ -175,6 +175,13 @@ file, not in a TODO list, not in a commit message.
 To pick the next phase: take the **lowest-numbered phase that is not `done` and whose `Depends on` entries
 are all `done`.** State which one you picked before starting. If it is already `in progress`, read its Note
 and resume — do not restart it.
+
+**One run is one phase, unless `--all` says otherwise.** That flag repeats the pick above, and stops
+exactly where a single run would: a phase that ended `blocked` or part-landed, a gate at its loopback cap,
+an open `P0` or `P1` tied to the phase, a ledger that disagrees with the repo. Phase to phase is not a tier
+boundary, so nothing above changes — and when the last phase goes `done` it stops there and names
+`/feature-close`. **That boundary is still crossed by an explicit command**, and a flag on the command
+below it is not one.
 
 **A phase's row is written twice.** It opens to `in progress` when the work starts, before any code, and
 closes to `done`, `in progress` or `blocked` when the phase ends. The opening write is what makes an

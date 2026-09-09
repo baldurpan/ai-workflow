@@ -146,7 +146,7 @@ Three tiers. Every boundary between them is crossed by an **explicit command, ne
                         ▼
                   a plan exists                     Tier 2 — one plan, with a phase status ledger
                         │
-                  /feature-implement                activates, then runs phases: plan → code → verify → review
+                  /feature-implement [--all]        activates, then runs phases: plan → code → verify → review
                         ▼
                   /feature-close                    ──▶ context/archive/ + a context/history.md row
 ```
@@ -388,6 +388,7 @@ so plainly rather than presenting the draft as ready to execute.
 ```
 /feature-implement            # resolve or choose a feature, then run the next phase
 /feature-implement "<name>"   # a named feature
+/feature-implement --all      # keep going, phase after phase, until the stop list says otherwise
 ```
 
 Absorbs the reference's `/orchestrate` phase loop. Owns the Tier 2 → Tier 3 transition **and** the
@@ -426,6 +427,33 @@ phases within it.
     is tied to the phase.**
 11. **When every phase is `done`, say so and name `/feature-close`.** Do not move files, stamp headers
     or sweep references. That is a tier boundary and crossing it is an explicit command.
+12. **`--all` goes back to step 3 instead of stopping**, and keeps going until the stop list below
+    ends it.
+
+**`--all` is legitimate because phase to phase is not a tier boundary.** This command already owns
+"activation, and the phases within a plan", so a loop over its own steps crosses nothing §2 protects —
+and it stops dead at the last `done` phase and names `/feature-close`, which is still the user's
+explicit command. Step 2 is not re-run: the checkpoint, the branch or worktree and the marker are once
+per feature, which is what makes this a loop over steps 3–11 rather than a second invocation.
+
+What the flag actually removes is the pause where a user reads a phase's report before the next phase
+builds on it. That pause was doing real work, so it is replaced by a written stop list rather than by
+nothing: a phase that ended `blocked` or part-landed, a gate at its two-loop cap, an open P0/P1 tied to
+the phase, step 5's disagreement, and nothing runnable. A `PASS WITH NOTES` continues, and so does
+a `FAIL` that passes on its loopback — only the cap stops.
+
+**Two answers are stated before the first phase rather than assumed.** Which reviewer `executors.md`
+gives, because the shipped answer is the host reading its own diff and four unattended phases of that
+compound in a way one phase does not; and who commits, because under `git.md`'s shipped *the user
+commits* the flag **runs one phase and declines the continuation, naming that answer as the reason.**
+*One commit per phase* is that file's answer about the shape the tree is left in, and a tree carrying
+four phases at once cannot be cut back into four commits. This is `--activate`'s behaviour when the
+slot is held (§3.4): do the valuable part, skip the flagged part, say which answer stopped it.
+
+**The flag is cheap because the survivability machinery already exists.** A run that dies four phases
+deep is the same state as a run that dies one phase deep — the opening ledger row (step 6) says which
+phase was underway, and under the tracker answer the per-boundary comment says it from outside the
+process that died. Without those, `--all` would have needed them.
 
 ### 3.6 `/feature-status` — read-only
 

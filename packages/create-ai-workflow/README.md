@@ -21,7 +21,7 @@ move work between them. Your coding agent runs the commands; you read and hand-e
                         ▼
                   a plan exists                Tier 2 — one plan, with a phase status ledger
                         │
-                  /feature-implement           activates, then runs phases: code → verify → review
+                  /feature-implement [--all]   activates, then runs phases: code → verify → review
                         ▼
                   /feature-close               ──▶ context/archive/ + a context/history.md row
 ```
@@ -35,7 +35,7 @@ starting point — nothing has to be looked up first.
 |---|---|
 | `/roadmap` | prints the backlog, or appends one `pending` entry — capturing any material you supply as a draft |
 | `/feature-plan` | turns an entry into a plan document and **stops**. Planning is not activation |
-| `/feature-implement` | activates a planned feature and runs **one phase**, through both gates |
+| `/feature-implement` | activates a planned feature and runs **one phase** through both gates — or phase after phase with `--all`, which stops at a `blocked` phase, a capped gate or an open `P0`/`P1`, and never at `/feature-close` |
 | `/feature-status` | read-only. Reconciles the ledger against the repo — sweeping every worktree where the project works that way — then names **exactly one** next action |
 | `/feature-close` | retires a feature: a `history.md` row, a `git mv` into `archive/`, and a reviewed reference sweep |
 | `/orchestrate` | one ad-hoc, commit-sized change through the same gates — no entry, no ledger |

@@ -10,12 +10,13 @@ Every `§`-number below points into that document.
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 121 tests. Eighteen of them guard *content* invariants rather than code, and they are the
+2. `npm test` — 129 tests. Twenty-six of them guard *content* invariants rather than code, and they are
    fastest way to see what the design refuses to let rot: runtime neutrality, one home for commands, one
    home for dispatch, one home for git etiquette, one home for the tracker, no self-declared status, inert
    stubs, a ledger row that opens before the work, a substrate answer that never strands the data it
-   names, documentation reaching the plan, a titled §-citation resolving against the template, and every
-   relative link resolving after install — in both skill trees. `ci.yml`
+   names, a `--all` loop that stops where a single run stops, documentation reaching the plan, a titled
+   §-citation resolving against the template, and every relative link resolving after install — in both
+   skill trees. `ci.yml`
    runs them on every push and pull request against `main`, plus an `engines-floor` job that builds on
    Node 20.10.0 and runs the packed CLI there — the suite itself cannot, since it executes `.ts` directly
    and that needs type stripping.
@@ -23,7 +24,8 @@ Every `§`-number below points into that document.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
 **State:** v0.8.0 is published and is npm's `latest` — the tracker answer (§10), tagged at `3f614d9`.
-`package.json` now says **`0.9.0`, in the tree and unreleased**, carrying 0.8.1's fix and a ninth command.
+`package.json` now says **`0.9.0`, in the tree and unreleased**, carrying 0.8.1's fix, a ninth command
+and a flag on `/feature-implement`.
 
 **`/onboard` Step 5 was silent in its most common case**, found on the first real install of 0.8.0. A
 brand-new repository usually has no remote yet, and Step 4 ships saying *neither* a push nor a pull
@@ -63,6 +65,19 @@ well-formed and the file stays where it was, it is simply no longer read. **The 
 is not a configuration write.** Setting an answer and moving the work are two acts, and a command that
 does the first while silently declining the second has shipped a broken repository that reports as a
 working one.
+
+**0.9.0 also gives `/feature-implement` an `--all` flag.** One invocation was one phase, which is right
+while a user reads each report and wrong once they have decided to let the plan run. The flag loops steps
+3–13 and nothing else: step 2's approval checkpoint, branch and marker stay once per feature, and the loop
+stops at the last `done` phase and **names** `/feature-close` rather than crossing into it — phase to phase
+is not a tier boundary, so the rule the tier model exists to protect is untouched. What it does remove is
+the pause where a bad phase is caught before the next one builds on it, so that pause is replaced by
+something written down: a stop list — `blocked`, part-landed, a capped gate, an open P0/P1, a ledger that
+disagrees with the repo, nothing runnable — and two answers said out loud before the first phase. Which
+reviewer `executors.md` gives, because the shipped one is the host reading its own diff; and, under
+`git.md`'s shipped *the user commits*, that the flag **runs one phase and declines the continuation**,
+because a tree carrying four phases cannot be cut back into the four commits that file says they are.
+Eight tests guard it.
 
 **To release: commit and push to `main`** — that tags `v0.9.0` — **then publish the tag as a GitHub
 release.** An npm workspaces monorepo — the installer lives in
