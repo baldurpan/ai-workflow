@@ -1832,3 +1832,75 @@ deliberately small.
 
 **Size and priority are orthogonal and both stay.** Size is effort and feeds ranking key three; priority is
 importance and now leads. A field conflating them would answer neither question.
+
+### 10.13 The body's ceiling — a limit that turned out to be a measurement
+
+An issue body holds 65,536 characters. The obvious reading is that this is a defect of the tracker answer:
+the working-tree answer has no limit at all, so the substrate that does is the weaker one, and the skills
+should work around it. **The reading taken here is the opposite.**
+
+A filled plan is a few thousand characters. §6 of the template is a ledger and a short section per phase;
+§1–§5 are a problem, its constraints, its decisions and its risks. Reaching sixty-five thousand means the
+design, the phases and the risks of **more than one piece of work** were written into one document. That is
+already a defect under the working-tree answer — §2.6 defines a feature as work you would want one history
+row for, and a plan that size describes several — and nothing in the tree ever says so. **The tracker
+answer is the first thing that notices.** So the ceiling is not a constraint to route around; it is a
+scope check the substrate gives for free, and the design's job is to make sure the workaround is refused.
+
+#### The three workarounds, and why each is worse than the split
+
+Each one looks reasonable at the moment it is reached, which is why they are named in the skill rather than
+left to judgement:
+
+| Workaround | What it costs |
+|---|---|
+| Trim the plan until it fits | Discards exactly the research the plan exists to hold, to satisfy a limit that was telling the truth. And a trimmed plan reads identically to one that was small enough, so nothing downstream can tell them apart |
+| Continue the plan into comments | The plan stops having a single home, and a reader cannot tell which half is current — the property §10.10 spent a version restoring |
+| Link out to a gist or a file | The same, plus a second object to keep in step, which is the failure the sub-issues were removed for |
+
+**The split is the only answer that loses nothing.** The phases are already the seam: they are commit-sized
+units with real `Depends on` values, so a cut across a dependency boundary is one the research has already
+justified. The plan's own structure is the split proposal.
+
+#### It asks, and it keeps the id
+
+Two decisions inside the split, both borrowed from decisions already made elsewhere.
+
+**It proposes and asks.** §10.12's argument, applied at a larger scale: `/feature-plan` already asks which
+entry to plan, because writing a plan is a commitment. Splitting one feature into three is a bigger
+commitment than that, and a command that takes it silently is deciding the shape of the backlog.
+
+**The issue being planned keeps the first chunk, and the rest become new backlog issues.** §10.4's adoption
+argument unchanged — the thread, the reporter and everyone subscribed are why adoption does not open a
+second issue about one thing, and they are equally why a split does not abandon the first one. **No parent
+issue.** A hierarchy over the chunks would put the phase ordering back into a second home by exactly the
+route §10.10 closed.
+
+#### Room to spare, not room to fit
+
+The check is not *does the plan fit*. The body is edited for the feature's whole life: every row moves to
+`in progress` and then to `done`, gaining a commit sha and a note as it closes (§10.10). **A plan that only
+just fits has already failed** — by the last phase it would not. `/feature-plan` measures with that room
+included, and measures **before** the write, since the body is one write and a failed one is the worst
+possible moment to learn the plan was too big.
+
+#### Where overflow arrives and a split is not available
+
+Two commands can meet the ceiling somewhere a scope decision cannot be made, and each needs its own answer.
+
+**`/tracking-migrate` refuses.** It moves data and never redesigns it — the same reason it refuses a ledger
+that disagrees with the repo. A plan that will not fit is named, with the margin, alongside every other
+refusal that fired, and the split happens in the tree first. **A plan that arrives shorter than it left has
+not been migrated.**
+
+**`/feature-implement` shortens its own Note and writes the row anyway.** Here the priority order is not
+close: the Status column is the phase's only home, and a row that never lands is state that is simply gone,
+while a note is commentary that can be re-derived from the commit it names. So the row wins, the note gives
+way, and the body being at its limit is reported. It never deletes anyone else's text to make space and
+never moves a row out of the body — that would be workaround two, arriving at the other end.
+
+#### The number lives in the stub
+
+`65,536` is a GitHub fact, so it is a row in `tracking.md`'s primitive map and appears in no skill — the
+same rule as the forge command (§10.8) and the issue type (§10.11). The skills ask *how large a body may
+be*. A tracker with a different limit, or none, is a row edit.

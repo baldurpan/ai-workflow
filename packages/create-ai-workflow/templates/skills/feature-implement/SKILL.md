@@ -285,6 +285,13 @@ be editing at the same time — refining the plan while you flip a status — an
 loses their edit with no trace. This hazard does not exist under the working-tree answer, where the plan
 sits in a tree only you are working in.
 
+**The body has a size limit, and the row outranks everything else in it.**
+[`context/tracking.md`](../../../context/tracking.md) says what it is. `/feature-plan` leaves room for the
+rows this command writes, so reaching the limit here means the body grew after the plan landed. If a write
+would overflow, **shorten your own Note until the row fits and say the body is at its limit** — the Status
+column is the phase's only home and a row that never lands is state that is simply gone. Never drop a row,
+never delete someone else's text to make space, and never move a row or a note out of the body.
+
 ### Claiming, in step 2
 
 **Assignment is not compare-and-swap** — two agents can both read *unassigned* and both assign. So:

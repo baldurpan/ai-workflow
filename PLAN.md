@@ -10,25 +10,25 @@ Every `§`-number below points into that document.
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 129 tests. Twenty-six of them guard *content* invariants rather than code, and they are
-   fastest way to see what the design refuses to let rot: runtime neutrality, one home for commands, one
-   home for dispatch, one home for git etiquette, one home for the tracker, no self-declared status, inert
-   stubs, a ledger row that opens before the work, a substrate answer that never strands the data it
-   names, a `--all` loop that stops where a single run stops, documentation reaching the plan, a titled
-   §-citation resolving against the template, and every relative link resolving after install — in both
-   skill trees. `ci.yml`
+2. `npm test` — 137 tests. The sixty-two in `templates.test.ts` guard *content* invariants rather than
+   code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
+   for commands, one home for dispatch, one home for git etiquette, one home for the tracker, no
+   self-declared status, inert stubs, a ledger row that opens before the work, a substrate answer that
+   never strands the data it names, a `--all` loop that stops where a single run stops, a plan too large
+   for its home being split rather than trimmed, documentation reaching the plan, a titled §-citation
+   resolving against the template, and every relative link resolving after install — in both skill trees.
+   `ci.yml`
    runs them on every push and pull request against `main`, plus an `engines-floor` job that builds on
    Node 20.10.0 and runs the packed CLI there — the suite itself cannot, since it executes `.ts` directly
    and that needs type stripping.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** v0.9.0 is published and is npm's `latest` — the tracker answer (§10) and its migration. The
-`--all` flag on `/feature-implement` was committed after that release and never pushed, so it ships in
-0.10.0 rather than the version this file used to claim. `package.json` now says **`0.10.0`, unreleased**,
-which rebuilds the tracker answer's phase model: **the sub-issues are gone and the ledger is back in the
-issue body** (§10.10), the issue's type is set and never read (§10.11), and `Priority:` replaces the
-backlog order an issues list cannot express (§10.12).
+**State:** v0.10.0 is published and is npm's `latest` — it rebuilt the tracker answer's phase model, so
+**the sub-issues are gone and the ledger is back in the issue body** (§10.10), the issue's type is set and
+never read (§10.11), and `Priority:` replaces the backlog order an issues list cannot express (§10.12).
+`package.json` now says **`0.10.1`, unreleased**, which adds the body's ceiling (§10.13): a plan too large
+for an issue body is a feature to split, not a plan to trim.
 
 **0.10.0 is a fix, not a refinement, and both published versions need it.** The sub-issue design could not
 run: a phase closed its sub-issue through `Closes #N`, that trailer fires only when the commit reaches the
@@ -213,6 +213,14 @@ What landed, across 0.8.0 to 0.10.0:
 - **The issue's type** (§10.11), set by `/roadmap` and corrected by `/feature-plan`, read by nothing. And
   **`Priority:`** (§10.12), read by `/feature-plan`'s ranking above every other key, because an issues list
   has no manual order and *backlog order* was the tiebreak the tracker answer had silently lost.
+- **The body's ceiling** (§10.13). An issue body holds 65,536 characters and a plan document holds
+  anything, and the tempting reading is that this is the tracker answer's weakness. It is the opposite: a
+  plan that overflows a body is a feature that is several features, which is already true under the
+  working-tree answer and which nothing there ever says. `/feature-plan` measures before its one write,
+  leaving room for the rows written into the body later, and **splits the feature along its phase
+  boundaries rather than trimming, spilling into comments, or linking out.** `/tracking-migrate` refuses
+  instead of guessing at a split; `/feature-implement` shortens its own Note and lands the row regardless,
+  because the Status column is the phase's only home.
 - **`check` skips what is absent**, which cost one condition: every other rule already degrades to nothing
   when what it parses is missing. `trackingAnswer()` reads which answer survived in the stub — a shape
   read, not a workflow question.

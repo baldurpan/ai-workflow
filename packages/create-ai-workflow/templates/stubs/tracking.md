@@ -54,6 +54,7 @@ rewrite of this section rather than of the skills. A command asks for the *fact*
 | what a retired feature's outcome was | the closed issue — *completed* is shipped, *not planned* is dropped |
 | what kind of work it is | the issue's type — set by the workflow, read by nothing in it |
 | what gets planned next | the issue body's `Priority:` line |
+| how much a plan may hold | the issue body's size limit — **65,536 characters** |
 
 **The ledger is one table, and it is the same one a plan document carries** — `#`, `Phase`, `Depends on`,
 `Status`, `Note`, with a `Files:` line in each phase's own section. Nothing about its shape changes between
@@ -118,6 +119,29 @@ importance and leads. Both are body lines and neither substitutes for the other.
 **Projects and milestones are yours.** Nothing here creates, reads or writes either one. Assign a milestone
 by asking for it, group issues on a board if you want one — the workflow will not notice and will not
 interfere.
+
+### The body has a ceiling, and it measures scope
+
+**An issue body holds 65,536 characters.** That is the one hard limit in this substrate, and this is the
+only place the number belongs — a command asks whether the plan fits, and this section says what fitting
+means.
+
+**A plan that does not fit is not a formatting problem. It is a feature that is several features.** A
+filled plan is a few thousand characters; reaching sixty-five thousand means the design, the phases and the
+risks of more than one piece of work were written into one document. The working-tree answer has no such
+ceiling and that is not an advantage — a plan document that would overflow a body is over the same line,
+and nothing there says so. The limit is a check this substrate gives for free.
+
+**The plan needs room left over, because the body is written into for the feature's whole life.** Every
+phase row moves through `in progress` to `done` and gains a commit sha and a note as it closes, and those
+edits land in the same body. A plan that only just fits has already failed — by the last phase it would
+not.
+
+**Three workarounds are refused:** trimming the plan until it fits, moving sections into comments, and
+linking out to a gist or a file. The first throws away the research the plan exists to hold; the other
+two give one plan two homes, which is what putting the ledger in the body settled. **The answer is to split
+the feature into separate issues**, each with its own plan and its own ledger — `/feature-plan` proposes
+the split along phase boundaries and asks, and `/tracking-migrate` refuses rather than guessing at one.
 
 ## What this file does not decide
 

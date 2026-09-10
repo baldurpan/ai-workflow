@@ -60,6 +60,13 @@ list exists to prevent.
   `/feature-status` is where that gets resolved.
 - **A plan in `plans/` with no roadmap entry, or an entry whose **Doc** points at nothing.** The entry and
   its document travel together, and a migration is the wrong moment to decide which of the two is right.
+- **A plan too large for an issue body.** [`context/tracking.md`](../../../context/tracking.md) says how
+  large a body may be; measure every plan against it, leaving room for the ledger rows that will be written
+  into the body later. Name each feature that overflows and the margin by which it does, and stop. **A plan
+  that does not fit is a feature that is several features**, and splitting one in two is a scope decision —
+  the same reason the row above refuses. Split it in the tree first, into an entry and a plan apiece, then
+  re-run. Never trim a plan to fit, and never spill one into comments or a linked paste: this command moves
+  data, and a plan that arrives shorter than it left has not been moved.
 
 ## What moves, and what never does
 
@@ -69,7 +76,7 @@ list exists to prevent.
 | its `Size:` field | a line in the body | it is part of the entry, and nothing else records it |
 | the `active` marker | the issue's assignee | see *Who the active feature is assigned to* below |
 | a `drafts/<NAME>.md` document | that same issue's body, under a heading | the draft and the issue are one object under this answer |
-| a `plans/<NAME>-PLAN.md` document | that same issue's body, replacing the one or two lines | the full template shape, **ledger included and unchanged** |
+| a `plans/<NAME>-PLAN.md` document | that same issue's body, replacing the one or two lines | the full template shape, **ledger included and unchanged** — a plan too large for a body is a refusal, not a trim |
 | each ledger row | the same row, in the body's table | Status and Note carried across verbatim — nothing is re-derived |
 | nothing in the tree | a `Priority:` line in the body | ask for it; an issues list has no manual order, so `roadmap.md` position is the fact being lost |
 | nothing in the tree | the issue's type, where this project has them | a guess, best-effort, never overwriting one already set |
@@ -179,6 +186,8 @@ Then stop. **Do not commit** — the file removals are a working-tree change lik
 - **Never create a second issue for a name that already has one.**
 - **Never convert `history.md` or `archive/`**, in either direction.
 - **Never migrate while a phase is `in progress`.**
+- **Never shorten a plan to make it fit.** An overflowing plan is a feature to split, and this command is
+  not where a scope decision is made.
 - **Never invent the substrate.** If [`context/tracking.md`](../../../context/tracking.md) does not name the
   tracker and its parameters, this command has nothing to do — name `/onboard` and stop.
 - **Never transcribe a credential.** An entry, a draft or a plan can hold one, and an issue body is a

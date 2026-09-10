@@ -213,6 +213,73 @@ describe('one home for the tracker', () => {
   });
 });
 
+describe('a plan too large for its home is a scope signal', () => {
+  // An issue body has a hard ceiling and a plan document has none. The tempting reading is that the
+  // ceiling is a defect of the tracker answer to be worked around; the design's reading is the opposite —
+  // a plan that overflows a body is a feature that is several features, and this substrate is simply the
+  // first thing to say so. Everything here guards that the workaround is refused and the split is offered.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const plan = flat(skillBody('feature-plan'));
+  const migrate = flat(skillBody('tracking-migrate'));
+
+  it('the number is a fact of the substrate, so only tracking.md states it', () => {
+    // Same rule as the forge command and the issue type: a skill asks for the fact, `tracking.md` answers
+    // it. A limit written into a skill is one a different tracker could not change.
+    assert.match(readTemplate('stubs/tracking.md'), /65,536 characters/, 'the ceiling has one home');
+    for (const name of SKILL_NAMES) {
+      assert.doesNotMatch(skillBody(name), /65,?536/, `${name} hardcodes the tracker's ceiling`);
+    }
+    for (const name of ['feature-plan', 'feature-implement', 'tracking-migrate']) {
+      assert.match(
+        flat(skillBody(name)),
+        /how large a body may be|body has a size limit/i,
+        `${name} asks for the fact rather than knowing it`,
+      );
+    }
+  });
+
+  it('/feature-plan measures before the one write, not after one fails', () => {
+    // The body is a single write, so there is no partial state to recover from — which also means a
+    // failed write is the worst possible place to discover the plan was too big, with the research done
+    // and nowhere to put it.
+    assert.match(plan, /before writing, not after a write fails/i, 'the check precedes the write');
+    assert.match(plan, /room to spare/i, 'and it leaves room for the rows written later');
+  });
+
+  it('/feature-plan splits the feature rather than shrinking the plan', () => {
+    assert.match(plan, /the only honest response is to split the feature/i);
+    for (const escape of [/Trimming the plan until it fits/i, /Continuing the plan into comments/i, /Linking out to a document or a paste/i]) {
+      assert.match(plan, escape, `the escape ${String(escape)} is named and refused`);
+    }
+    assert.match(plan, /\*\*Propose, then ask\.\*\*/, 'a scope decision is the user\'s, not the command\'s');
+    assert.match(plan, /write nothing until the user answers/i);
+  });
+
+  it('the split keeps the issue and opens no hierarchy', () => {
+    // §10.10 removed the one-object-per-phase design. A split that produced a parent issue would put the
+    // phase ordering back into a second home by another route.
+    assert.match(plan, /keeps the first chunk/i, 'the id is reused, so the thread survives');
+    assert.match(plan, /No parent issue/i, 'and nothing hierarchical replaces it');
+    assert.doesNotMatch(skillBody('feature-plan'), /sub-issue/i);
+  });
+
+  it('/tracking-migrate refuses rather than guessing at a split', () => {
+    // A migration that split a feature would be making a scope decision on the way past, which is the
+    // same thing its ledger-disagreement refusal already declines to do.
+    assert.match(migrate, /A plan too large for an issue body/i, 'it is in the refusal list');
+    assert.match(migrate, /several features/i, 'and says what the overflow means');
+    assert.match(migrate, /Never shorten a plan to make it fit/i, 'the standing rule matches the refusal');
+  });
+
+  it('/feature-implement never drops a ledger row to make space', () => {
+    // The row is the phase's only home. Every other thing in the body can be recovered from somewhere;
+    // a status that was never written is gone.
+    const implement = flat(skillBody('feature-implement'));
+    assert.match(implement, /shorten your own Note until the row fits/i);
+    assert.match(implement, /Never drop a row/i);
+  });
+});
+
 describe('changing the answer is not moving the work', () => {
   // 0.8.0 shipped /onboard able to write the tracker answer over a repository whose backlog, plans and
   // active feature were all still files. Every command then read the tracker, found nothing, and reported

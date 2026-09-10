@@ -180,10 +180,60 @@ research, write, report — and only where the plan lands changes.
 | the phase ledger, Status column and all | **unchanged** — the same table, written into the body |
 | step 6, repoint **Doc** | nothing — a plan is the observation that the body holds a ledger |
 | step 2's *already planned* check | the body already holds a phase ledger |
+| nothing — a plan document has no size limit | **the body does**, and a plan that overflows it is split rather than trimmed |
 
 **The ledger does not change shape.** `#`, `Phase`, `Depends on`, `Status`, `Note` — the table a plan
 document carries, written into the body with every row `not started`. There is no second object to create,
 nothing to reconcile it against, and **no window in which a plan is half-written: the body is one write.**
+
+### A plan that will not fit is a plan for too much
+
+That one write has a ceiling. [`context/tracking.md`](../../../context/tracking.md) says how large a body
+may be; **measure the plan against it before writing, not after a write fails.**
+
+The plan must fit with **room to spare**, because the same body is edited for the feature's whole life:
+each phase row moves to `in progress` and then to `done`, gaining a commit sha and a note as it closes. A
+plan that only just fits has already failed — the last phase would not land.
+
+**Overflow is a scope signal, and the only honest response is to split the feature.** A filled plan is a
+few thousand characters. One that reaches the ceiling is the design, the phases and the risks of more than
+one piece of work written into a single document, and the substrate is the first thing that has said so.
+
+**Three ways out are refused, and naming them matters because each looks reasonable at the moment it is
+reached:**
+
+- **Trimming the plan until it fits.** That discards exactly the research the plan was written to hold, to
+  satisfy a limit that was telling you something true.
+- **Continuing the plan into comments.** The plan would then have no single home, and a reader could not
+  tell which half is current — the thing putting the ledger back in the body settled.
+- **Linking out to a document or a paste.** Same failure, plus a second place to keep in step.
+
+#### How to split
+
+**Propose, then ask.** The phase list is already the seam — phases are commit-sized units with real
+`Depends on` values, so a cut across a dependency boundary is a cut the research has already justified.
+Offer the split as a numbered list, each chunk with the phases it carries and what it depends on, and
+**write nothing until the user answers.** Splitting a feature in two is a scope decision, and this command
+asks before it commits far less than that.
+
+Once they agree:
+
+- **The issue being planned keeps the first chunk**, and its plan is written into the body as normal. Keep
+  the id: the thread, the reporter and everyone subscribed are the same reason adoption does not open a
+  second issue about one thing.
+- **Every other chunk becomes a new backlog issue** — carrying the backlog label, `pending`, with the one
+  or two lines of why, a `Size:`, a `Priority:`, and a line naming the chunk it depends on. No plan and no
+  ledger: they are Tier-1 entries, and each gets its own `/feature-plan` run when its turn comes.
+- **Cross-link them**, in both directions, so the split is visible from any one of them.
+- **No parent issue, and no issue whose phases are separate objects.** The ledger lives in a body; a
+  hierarchy laid over that is a second home for the same ordering.
+
+Then plan the first chunk only, and **report the split first** — what was cut where, which issues were
+opened, and which one this plan covers. That is the most consequential thing the run did.
+
+**If the user declines the split**, say plainly that the plan cannot be written into this substrate as one
+feature, and stop. Do not write a shortened version as a compromise: a plan trimmed to fit reads exactly
+like a plan that was small enough, and nothing downstream can tell the two apart.
 
 ### Priority leads the ranking
 
@@ -225,4 +275,6 @@ belongs in a plan document.
 - **Never implement anything.** Not "just the first phase", not "a quick scaffold".
 - **Never mark a phase `done`**, and never mark a phase anything other than `not started`.
 - **Never write outside `context/`.** No source files, no config.
+- **Never shrink a plan to fit where it is kept.** A plan too large for its home says the feature is too
+  large; splitting it is the answer, and trimming the research to fit hides the finding.
 - Do not fold the draft's content into `context/roadmap.md`. Tier 1 stays high-level.
