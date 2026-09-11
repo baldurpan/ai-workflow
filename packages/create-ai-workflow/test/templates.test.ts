@@ -2,9 +2,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { claudeSkillTransform, SKILL_NAMES, agentsBlockBody, readTemplate } from '../src/layout.ts';
+import { claudeSkillTransform, SKILL_NAMES, STUBS, agentsBlockBody, readTemplate } from '../src/layout.ts';
 import { parseFindings, parseHistory, parseRoadmap } from '../src/check/parse.ts';
 import { stripComments } from '../src/check/markdown.ts';
+import { sections } from '../src/stubs.ts';
 import { packageRoot, templatesDir, walk } from '../src/paths.ts';
 
 const skillBody = (name: string) => readTemplate(`skills/${name}/SKILL.md`);
@@ -620,5 +621,181 @@ describe('/onboard adopts an existing AGENTS.md', () => {
 
   it('loses nothing it could not place', () => {
     assert.match(onboard, /Never delete a claim you could not place/);
+  });
+});
+
+describe('what a change announces is an answer, not an assumption', () => {
+  // `release.md` is the sixth file in the shape of verify.md, executors.md, git.md and tracking.md, and the
+  // first whose answer can be *false*: "no lint step" is accurate in a project with no linter, but "a change
+  // is announced by writing a note" is a lie in a repository where nothing records one — the same defect as
+  // a `done` row whose Files: do not exist. Everything here guards that the answer stays true, that it is
+  // asked per path, and that the commands defer to it rather than knowing a tool.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const stub = readTemplate('stubs/release.md');
+  // The three commands that put changes into the product. /prototype is excluded on purpose: a throwaway
+  // mockup under prototypes/ ships to nobody, so there is nothing for it to announce.
+  const LANDS_SHIPPABLE = ['feature-implement', 'feature-close', 'orchestrate'] as const;
+
+  it('the stub is registered as one /onboard fills, so update reports it under Next', () => {
+    // An upgraded install cannot receive a project-owned file (§4.1), so the only path to this stub is the
+    // Next block naming /onboard. Registering it with onboard:false would make that report silent.
+    const entry = STUBS.find((s) => s.dest === 'context/release.md');
+    assert.ok(entry, 'release.md is a stub');
+    assert.equal(entry?.onboard, true, 'a person supplies its content, through /onboard');
+  });
+
+  it('no template names a release tool, the same way none names a forge command', () => {
+    // §10.8's rule, one file over. The skills ask for the *fact* — what records a note here — and the stub
+    // answers it, which is what keeps a repository with no package.json a section edit rather than a
+    // rewrite of three skills. /onboard needs no exemption: its detection step describes the shapes
+    // ("a notes directory", "an `## Unreleased` heading") instead of naming the tools that produce them.
+    const TOOLS = /\b(changesets?|towncrier|semantic-release|release-please|lerna|auto-changelog|goreleaser|standard-version|release-it)\b/i;
+    for (const { rel, text } of ourTemplates()) {
+      const hit = TOOLS.exec(text);
+      assert.equal(hit, null, `${rel} names a release tool: ${hit?.[0] ?? ''}`);
+    }
+  });
+
+  it('the shipped answer is true of every repository, so an install behaves as it did', () => {
+    assert.match(stub, /\*\*Nothing here announces a change\.\*\*/, 'the answer is written out');
+    assert.match(stub, /\*\*Nothing records a note here\.\*\*/, 'and so is the mechanism answer');
+    // The alternatives ship commented, the way git.md's and tracking.md's do — a fresh install that carried
+    // two answers would have none.
+    const live = stripComments(stub);
+    assert.doesNotMatch(live, /\*\*Per phase\.\*\*/, 'the second granularity ships commented out');
+    assert.match(live, /\*\*Once per feature\.\*\*/, 'the first one does not');
+  });
+
+  it('every command that lands shippable code defers to the file instead of knowing a tool', () => {
+    for (const name of LANDS_SHIPPABLE) {
+      const body = flat(skillBody(name));
+      assert.match(body, /release\.md/, `${name} must read the answer before closing out`);
+      assert.match(body, /what records a note/i, `${name} asks for the fact rather than naming a mechanism`);
+    }
+  });
+
+  it('the answer is per path and the granularity is per project — two axes, not one', () => {
+    // A granularity column in the table would let one repository write per-phase notes for its app and
+    // per-feature notes for its package, which makes "when does this command write" depend on what the
+    // phase happened to touch.
+    const body = flat(stub);
+    assert.match(body, /The unit is the path, not the change/i, 'one change can owe two notes');
+    assert.match(body, /what leaves this repository as a unit/i, 'granularity is a fact about the repo');
+  });
+
+  it('/orchestrate closes the cell the granularity answer leaves empty', () => {
+    // Both of its values are plan vocabulary and this command has no entry, no plan and no ledger. An agent
+    // resolving that alone either calls the change a feature (a guess) or decides the answer never fires
+    // and ships a user-visible fix unannounced — and nothing goes red either way.
+    const body = flat(skillBody('orchestrate'));
+    assert.match(body, /the change is the unit/i, 'the missing value is supplied');
+    assert.match(body, /The table still governs/i, 'and the per-path judgment still applies');
+    assert.match(flat(stub), /`\/orchestrate` has neither value/i, 'the stub says it too, for a reader');
+  });
+
+  it('re-entering the work updates the note rather than writing a second one', () => {
+    // A resumed phase and a Gate 2 loopback both come back through step 7. Mechanisms that collect notes
+    // use non-colliding filenames on purpose, so two files describing one change do not conflict — they
+    // are both counted, and the announcement says the same thing twice.
+    const body = flat(skillBody('feature-implement'));
+    assert.match(body, /does not write a second note/i);
+    assert.match(body, /both counted/i, 'and says what the duplicate actually costs');
+  });
+
+  it('a note that is owed rides the phase, so nothing new refuses `done`', () => {
+    // Putting the note's path on the Files: line is what makes step 11's existing rule cover it. A separate
+    // refusal would be a second home for the same judgment.
+    const body = flat(skillBody('feature-implement'));
+    assert.match(body, /put the note's path on the phase's `Files:` line/i);
+    assert.match(body, /doc update or note has\s*not landed has not landed/i);
+  });
+
+  it('/feature-close confirms the levels under both granularities, and writes none when dropped', () => {
+    // The bump level is a per-change judgment, so it is asked. Putting the ask inside /feature-implement
+    // would make it fire between phases, which is exactly what --all exists to avoid — so it happens where
+    // the notes leave the machine instead, whichever command wrote them.
+    const body = flat(skillBody('feature-close'));
+    assert.match(body, /last moment before the feature's notes leave this machine/i);
+    assert.match(body, /Per phase\*\* → the phases already wrote them/i, 'it reads rather than re-writes');
+    assert.match(body, /No release note is written here, and none is removed/i, '--dropped announces nothing');
+    assert.match(body, /retired with no note and why/i, 'a declined note is reported, not silent');
+  });
+
+  it('--all gains no new stop, because nothing in the loop asks', () => {
+    // The one cell that would have broken the flag: per phase + a published package + a level that has to
+    // be confirmed. Resolved by moving the confirmation to /feature-close, so the stop list is untouched.
+    const body = skillBody('feature-implement');
+    const all = flat(body.slice(body.indexOf('## 14. `--all`'), body.indexOf('## Under the tracker answer')));
+    assert.doesNotMatch(all, /release/i, 'the flag has nothing to say about notes');
+  });
+
+  it('a path the table does not cover is reported — never faked, never a refusal', () => {
+    // verify.md's "a missing entry is skipped, never faked" generalised to a file whose entries are paths.
+    // Writing a note invents policy for a path nobody answered for; refusing blocks ordinary work over a
+    // gap in a configuration file.
+    for (const name of LANDS_SHIPPABLE) {
+      assert.match(flat(skillBody(name)), /does not cover is named/i, `${name} reports the gap`);
+    }
+    assert.match(flat(stub), /named in the report, given no note, and left alone/i);
+  });
+
+  it('the tracker answer changes nothing here, and the absence is stated', () => {
+    // Every sibling stub has an "Under the tracker answer" section, so this one's missing section would
+    // otherwise read as an omission. A note is an artifact of the change, not workflow state.
+    assert.deepEqual(
+      sections(stub).filter((h) => /tracker/i.test(h)),
+      [],
+      'no tracker section exists',
+    );
+    assert.match(flat(stub), /There is no \*Under the tracker answer\* section here/i);
+    for (const name of ['feature-implement', 'feature-close']) {
+      assert.match(
+        flat(skillBody(name)),
+        /artifact of the change rather than workflow state/i,
+        `${name} says so where it describes the tracker answer`,
+      );
+    }
+  });
+
+  it('the rule has one home, and the fact has one place to be read', () => {
+    const workflow = readTemplate('context/workflow.md');
+    assert.match(workflow, /^### What a change announces is an answer, not an assumption$/m);
+    assert.match(workflow, /\| whether a change owes a release note \|/, 'the one-source-of-truth table has it');
+  });
+
+  it('a generated changelog is an output, not a documentation surface', () => {
+    // A plan that listed one in its §7 would be proposing to hand-edit something a tool rewrites.
+    assert.match(readTemplate('stubs/stack.md'), /A generated changelog is not a surface/i);
+  });
+
+  it('the reviewer points at the file and reads the granularity before judging', () => {
+    // Under *once per feature* a phase owes nothing, so a reviewer that checked for a note per phase would
+    // fail every phase of every feature in such a repository.
+    const reviewer = flat(readTemplate('claude/agents/reviewer.agent.md'));
+    assert.match(reviewer, /check whatever `context\/release\.md` requires/i);
+    assert.match(reviewer, /granularity answer before judging/i);
+    assert.match(reviewer, /Name no release tool/i);
+  });
+
+  it('/onboard writes the true answer or the true answer plus a named gap — never a false one', () => {
+    const raw = skillBody('onboard');
+    const step = flat(raw.slice(raw.indexOf('## Step 9 — Release'), raw.indexOf('## Step 10')));
+    assert.ok(step.length > 0, 'the release step exists');
+    assert.match(step, /This step installs nothing/i, 'phase A collects an answer and mutates nothing');
+    assert.match(step, /name what is missing, and stop/i, 'the refusal is written as a refusal');
+    assert.match(step, /Never leave the file saying changes are announced while nothing consumes the notes/i);
+    assert.match(step, /Say all four back in a line each, including the empty ones/i, 'it reports like Step 5');
+    assert.match(step, /do not generate one/i, 'the release job is named as a gap, not written');
+  });
+
+  it('/onboard asks it after the layout it depends on is settled', () => {
+    // Matched by name, not by number: the claim is the ordering. The step needs Stack's layout to know
+    // which paths exist, and it edits the Documentation index Stack just wrote.
+    const onboard = skillBody('onboard');
+    const stack = onboard.indexOf('## Step 8 — Stack');
+    const release = onboard.indexOf('## Step 9 — Release');
+    const prune = onboard.search(/^## Step \d+ — Prune/m);
+    assert.ok(stack > 0 && release > stack, 'release comes after stack');
+    assert.ok(prune > release, 'and pruning still comes last');
   });
 });

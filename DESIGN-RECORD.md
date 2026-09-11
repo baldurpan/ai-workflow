@@ -1904,3 +1904,265 @@ never moves a row out of the body — that would be workaround two, arriving at 
 `65,536` is a GitHub fact, so it is a row in `tracking.md`'s primitive map and appears in no skill — the
 same rule as the forge command (§10.8) and the issue type (§10.11). The skills ask *how large a body may
 be*. A tracker with a different limit, or none, is a row edit.
+
+## 11. The release answer — what a change announces, and to whom
+
+`context/release.md` is the sixth file in the shape of `verify.md`, `executors.md`, `git.md` and
+`tracking.md`: hand-written prose, project-owned, absent from the manifest, read fresh. It holds a fact the
+workflow had no home for — **what a change announces, and to whom** — and the standing rule that comes
+closest, *Documentation is part of the change* (§2.9), covers a README going stale rather than a release
+note that was never written.
+
+It ships as **nothing here announces a change**, so every existing install behaves exactly as it did until
+someone runs `/onboard` — the same shape as `tracking.md`'s first answer (§10.8).
+
+**This section is written as an enumeration rather than as prose about the design**, and the order is
+deliberate: the grid in §11.4 was run before a line of template prose existed to be defended. §11.1–§11.3
+are the three arguments that constrain it; everything after is the exercise and what it produced.
+
+### 11.1 The hole, and the one thing that makes it unlike its five siblings
+
+`verify.md` can hold a true answer with the tool absent. *No lint step* is accurate, and a project without
+a linter chose that. **`release.md` cannot.** *"A change is announced by writing a changeset"* is **false**
+in a repository with no changesets — the same defect as a `done` row whose **Files:** do not exist, which
+`/feature-implement` step 5 stops dead on.
+
+So `/onboard`'s step has exactly three moves available, and only the third and the first are not bugs:
+
+| Move | Verdict |
+|---|---|
+| write the true answer — *nothing here announces a change*, and name what is missing | correct, and it is what phase A ships |
+| write a false one — name a mechanism that is not on disk | the `done`-row-with-no-files defect, in a configuration file |
+| **make the answer true** — install the mechanism, then write it | correct, and it is the only place in this tool that mutates `package.json` |
+
+That asymmetry is also the whole of the slippery-slope answer. Offering to install a missing linter is a
+*different act*, because *no lint step* was already true; there is no false answer to escape from.
+
+**The refusal satisfies the constraint exactly as well as the install does.** A step that writes *no*,
+names what is missing and stops has left a true answer behind it — which is why the install is a
+convenience on top rather than a load-bearing part of the design, and why §11.6 splits them.
+
+### 11.2 What it refuses to install, and why that is not timidity
+
+**The release job.** This repository tags on a version change in `package.json` and publishes the tag over
+OIDC; `northguild/gmt` publishes on a merge that moves a version in a release pull request of its own. Same
+author, same month, two designs — because the right one depends on branch protections, registry auth and
+who is allowed to press the button.
+
+The half that *is* uniform — accumulate notes, version them in a release pull request, tag, publish a
+release — is uniform right up to the last step, and **the last step plus its credentials is exactly where a
+generated workflow does damage.** So `/onboard` names the gap specifically and stops.
+
+**And it must never leave the answer saying changes are announced while nothing consumes the notes.** That
+state is §10.9's tracker-says-tracker-while-entries-are-files again, wearing different clothes: it reads as
+configured, every command dutifully writes notes, and nothing ever moves a version. The guard is a section
+in the stub — *what this project does not do here*, naming bump, tag, publish and deploy — written by the
+same step that wrote the answer.
+
+### 11.3 The answers, per path rather than per repository
+
+A repository can publish one artifact, deploy another, and say nothing about a third. `gmt` is `packages/*`
+published plus a private `apps/dox`; this repository reserves `apps/` for the same shape. **A repo-wide
+yes/no cannot express it**, and in `gmt` the exception is currently prose restated in four files.
+
+| Path | Announces to | Deserves a note when | A bump means |
+|---|---|---|---|
+| `packages/widgets` | people installing it | the public surface changes | semver — major breaks their build |
+| `apps/web` | people using the app | behaviour changes in the running app | dates a deploy; no contract |
+
+Column two governs *how the text is written*; column three governs *whether a file is written at all*, and
+column three is the one that does the work — it is where "an internal refactor to `apps/web` gets no note"
+is recorded once instead of re-argued per pull request.
+
+**A single-package repository gets one row and that is fine.** Both judgments are per-project regardless of
+artifact count, exactly as `git.md`'s *the main working tree* is a trivial answer worth writing down.
+
+Two more answers sit beside the table and are **not** columns in it — see C7:
+
+- **What records a note** — a file under a notes directory, a bullet under an `## Unreleased` heading,
+  something else. This is the one that can be false, per §11.1.
+- **At what granularity** — *once per feature* or *per phase*. It ships as *once per feature*: the note's
+  audience reads releases, not phases, and a feature's phase sequence is an implementation detail that
+  means nothing to them. *Per phase* exists for the repository that ships each phase — a deployed app,
+  where the phase is what left the building.
+
+### 11.4 The enumeration — every terminal state, the sequence that reaches it, and what checks it
+
+With no repository where the workflow lives (§11.7), **this is the only verification this package can
+currently perform**, which is the argument for running it exhaustively rather than treating it as a
+footnote. It is the shape of what caught the sub-issue deadlock (§10.10): every rule correct alone, the
+cycle visible only across four files, and no lexical test able to see it.
+
+**The terminal states.** Every way a run can end with respect to `release.md`:
+
+| | Ends with | Reached by | Precondition, and the file that owns it |
+|---|---|---|---|
+| T1 | nothing announced, because nothing here announces | any command that lands code | `release.md` — the shipped answer; no table exists to consult |
+| T2 | nothing announced, because this change does not deserve it | the same three | `release.md` column three, applied to the paths this change touched |
+| T3 | one note per path that owes one, inside the change | `/feature-implement` step 7 under *per phase*; `/feature-close` under *once per feature*; `/orchestrate` always | `release.md` — the table, the mechanism and the granularity together |
+| T4 | the note that is already there is edited, not duplicated | a resumed phase, or a Gate 2 loopback re-entering the work | the ledger row reading `in progress` (`workflow.md`), plus the note's own path on the phase's **Files:** line |
+| T5 | the notes are shown and their bump levels confirmed | `/feature-close`, under **both** granularities | `git.md` *Push and pull request* — it decides where "leaves the machine" falls |
+| T6 | a path the table does not cover is named; no note is written | any of the three | `release.md` has no row for it; `verify.md`'s *a missing entry is skipped, never faked* generalised |
+| T7 | no note, because the level was declined — said, not silent | `/feature-close`, `/orchestrate` | nothing in a file. A person's answer, which is why it has to be reported |
+| T8 | no note is owed at all, because the feature was dropped | `/feature-close --dropped` | the outcome the command is writing — a `history.md` row, or the issue's close reason |
+| T9 | the answer stays *no*, and the missing mechanism is named | `/onboard` Step 9 | the repository itself — nothing on disk records a note |
+| T10 | the answer is written, and the gap it does not fill is named | `/onboard` Step 9 | the repository itself — no job consumes the notes (§11.2) |
+
+**The axes, and the finding that three of them are inert.** The grid is the three commands that land code,
+times the shapes a repository takes here, times both `tracking.md` answers, times `git.md`'s who-commits
+and push answers, times the granularity answer — 144 cells. Running it collapses them:
+
+| Axis | Values | Changes |
+|---|---|---|
+| command | `/feature-implement`, `/feature-close`, `/orchestrate` | who writes the note, and when |
+| path shape | a published package, a deployed app, neither | which rows the table has, and whether it has any |
+| granularity | once per feature, per phase | which command writes it — C1, C3, C7 |
+| `git.md` *Push and pull request* | neither, the agent pushes | where *leaves the machine* falls, and so where T5 happens |
+| `tracking.md` | the working tree, an issue tracker | **nothing** — C8 |
+| `git.md` *Who commits* | the user, the agent | **nothing** — the note is a file inside the change under either answer |
+
+**Three of six axes are inert, and saying so is the result.** 144 cells become 36 live ones, and of those
+the eleven below are the ones the grid found rather than confirmed.
+
+### 11.5 The cells
+
+**C1 — `/orchestrate` is the one cell the granularity answer leaves empty.** Both its values are plan
+vocabulary, and this command has neither: no entry, no plan, no ledger. An agent reading *once per feature*
+against an ad-hoc change either treats the change as a feature — a guess — or decides the answer never
+fires and **ships a user-visible fix with no note.** Nothing goes red either way. One sentence in the stub
+closes it: *granularity governs the plan flow, and for `/orchestrate` the change is the unit.* It still
+consults the table, so a docs typo gets nothing because column three says so. Found by hand before the
+grid; the grid is what says it is one cell of many rather than a curiosity.
+
+**C2 — a resumed phase or a Gate 2 loopback writes a second note.** Step 7 is re-entered by both, and the
+mechanisms that accumulate notes deliberately use non-colliding filenames (§11.8), so two files describing
+one change do not conflict — they are both counted, and the changelog says the same thing twice. The rule:
+**a note is part of the phase's change and shares its fate.** Re-entering step 7 updates the note that is
+already there; a phase abandoned takes its note with it. This is the only cell where doing the right thing
+twice is the failure.
+
+**C3 — `/feature-close` under *per phase* is not a no-op, and this is what keeps `--all` intact.** The bump
+level is a per-change judgment, so it is asked rather than read — but under *per phase* the write happens
+inside `/feature-implement`, and `--all` exists precisely so that nothing asks between phases. Resolving it
+by making `--all` decline the continuation (the way it does under *the user commits*) would disable the
+flag for every published package.
+
+The resolution the grid points at instead: **a note is confirmed where it leaves the machine, not where it
+is written.** A note is a tracked file that publishes nothing until a version moves, so a wrong level is
+cheap right up to the release pull request. So step 7 proposes the level and writes it, and
+`/feature-close` — which is already the only command that acts on *Push and pull request*, and already
+positioned *after the retirement is committed, never before* — shows the notes the feature carries and
+confirms their levels there. **Under *once per feature* it writes them; under *per phase* it reads them.
+One rule, both granularities, and `--all` gains no new stop.**
+
+**C4 — `--dropped` writes no note and removes none.** Mode 2 retires an idea that will not be built, so
+there is nothing to announce. But under *per phase* a partly-implemented dropped feature may have landed
+phases, and their notes describe changes that are in the tree. **A note belongs to the change that landed,
+not to the feature's outcome** — so the command neither writes one nor sweeps the existing ones. This is
+the same boundary as §10.8's *history is never converted*: the record of what happened is not edited to
+match a decision taken afterwards.
+
+**C5 — a path the table does not cover.** A new package added after `/onboard` ran, a `scripts/` directory,
+repository tooling. Three candidate behaviours, and only one survives: refusing blocks ordinary work over a
+configuration gap; writing a note invents an answer for a path whose owner never gave one. So **the path is
+named, no note is written, and `/onboard` is named** — `verify.md`'s *a missing entry is skipped, never
+faked* generalised to a file whose entries are paths. It is a report, not a refusal and not a default.
+
+**C6 — one change, two paths, two answers.** A phase touching `packages/widgets` and `apps/web` owes what
+each row says, which may be two notes, one, or none. **The unit is the path, not the change.** Stating it
+matters because the tempting shortcut — one note per change — is right in the single-package repository
+that most installs are, and silently wrong in the one the table exists for.
+
+**C7 — granularity is per project; the table is per path.** They read like one axis and are two. A
+granularity column in the table would let one repository write per-phase notes for its app and per-feature
+notes for its package, which no mechanism supports and which makes *when does this command write* depend on
+what the phase happened to touch. **Granularity answers what leaves the repository as a unit**, and that is
+a property of the repository.
+
+**C8 — `release.md` is the first file in this shape with no *Under the tracker answer* section.** A release
+note is an artifact of the change, so it is a file in the repository under both of `tracking.md`'s answers —
+the tracker moves where the *ledger* lives, not where the *code* lives. Both inert axes are worth stating
+rather than leaving to be inferred, because every sibling stub has such a section and its absence otherwise
+reads as an omission.
+
+**C9 — a declined level is a said non-write.** The user can decline the confirmation in T5, and the feature
+retires with no note. That is their call about their own release, and the only failure available is doing
+it quietly — §10.9's lesson, unchanged: **a step that can produce no output must still report.**
+
+**C10 — Gate 2 must not fail a phase for a note that granularity never owed.** The reviewer is told to
+*check whatever `release.md` requires*, and under *once per feature* a phase requires nothing. So the
+pointer names the file rather than the obligation, and the reviewer reads the granularity answer before it
+judges. Under *per phase* nothing new is needed: the note's path is on the **Files:** line, so step 11's
+existing *a phase whose documentation has not landed has not landed* covers it **for free** — which is the
+whole reason the path goes on that line.
+
+**C11 — `check` sees none of this, on purpose.** Whether a note was owed depends on a prose table and a
+path match, so a structural validator would have to re-implement the judgment and would cry wolf on every
+docs-only change. `check` validates shape and answers no workflow question (§6.4); this is a question.
+
+### 11.6 What lands where, and why it is two phases
+
+**A — the answer.** Entirely inert prose. The shipped answer is *nothing here announces a change*, so it
+introduces no state a repository did not already have.
+
+| Lands in | What |
+|---|---|
+| `templates/stubs/release.md` | the four answers, registered in `STUBS` with `onboard: true` |
+| `/onboard` Step 9 | after Stack — it needs the layout that step settles. Classifies, detects, asks per path, and **refuses** where the mechanism is absent |
+| `/feature-implement` step 7 | under *per phase*: the note is the phase's scope and its path is on the **Files:** line |
+| `/feature-close` | T5 under both granularities, and the write under *once per feature* |
+| `/orchestrate` | C1 — the change is the unit |
+| `stubs/stack.md` | a *generated* changelog is not a documentation surface, so no plan's §7 lists it |
+| `reviewer.agent.md` | *check whatever `release.md` requires* — a pointer, no tool named |
+| `workflow.md`, `context/README.md`, the `AGENTS.md` block | a standing rule, and a row wherever the five sibling answers are already listed |
+
+**B — the install.** The devDependency, the vendor's init, the private-package versioning line written
+**from the answer** rather than from the default, and the shorthand scripts. Ships after A has been
+exercised.
+
+**An upgraded install reaches neither.** A project-owned stub is unreachable by `update` (§4.1, §6.2), so
+both land on the existing **Next** path that names `/onboard`, with no new machinery.
+
+### 11.7 Vendor neutrality is the point, not a nicety
+
+A repository with no `package.json` — Go, Python, a static site — cannot use changesets at all, and answers
+with a hand-maintained `## Unreleased` section, or `towncrier`, or nothing. The skills ask *"record a note
+per `release.md`"* and **not one line of them changes.** Bake the tool in and the workflow only fits
+JavaScript repositories, which is a strange constraint for a planning workflow.
+
+So the existing test — no skill may name a forge command (§10.8) — gets its sibling: **no skill may name a
+release tool.** `/onboard` is the exception, for the same reason it is the exception to the issue-type rule
+(§10.11): it is the one command that *collects* a project-owned answer, so it has to name what it is asking
+about. Collecting a parameter is not reading one, and nothing `/onboard` writes is consulted by the loop.
+
+**The dogfood question is open, and it is item 1's question wearing different clothes.** This repository
+manages the workflow and does not use it; `northguild/gmt` has its own bespoke `context/`. There is nowhere
+the workflow actually lives, which is the real reason the live-agent run has gone unrun across three
+releases. **Phase A being inert is a mitigation, not an answer.**
+
+### 11.8 Mechanics worth not re-learning, all verified against the changesets docs
+
+Recorded here rather than in the stub, because they are facts about one vendor and the stub is per project.
+
+- **v3 disables private-package versioning by default.** v2 versioned without tagging; v3 turns both off,
+  on the reasoning that most private packages are fixtures. A deployable app therefore needs versioning
+  turned on and tagging left off, **written from the answer** rather than from the vendor's default. Left
+  alone, the app never bumps and the deploy half silently does nothing forever — the single most valuable
+  thing the detection step buys, and it is phase B's.
+- **A note for one package does not drag in its workspace dependents**, which is what makes *bump the
+  package, not the app* work: dependent ranges are only rewritten for packages already in the release. The
+  exception is the internal-dependents setting, which defaults to out-of-range — a **major** bump puts a
+  dependent's `^1.0.0` out of range, pulls it in with a patch, and that moved version fires the deploy. A
+  `workspace:*` range never goes out of range. *We published a major and it deployed production* is a
+  surprise you get once, so it is a line in the stub.
+- **Adding a note is driveable in v3** with explicit level flags and a message, but package *selection* in
+  a monorepo is not documented — so the agent writes the note file directly, in the documented format, and
+  the flags are the clean path only where there is one package. **Filenames stay random**: two
+  differently-named files never conflict on merge, which is the property `history.md` needs `merge=union`
+  to fake (§4.5) — and it is also what makes C2 possible.
+- **A status check needs a fetched remote**, and exits non-zero when packages changed without a note —
+  which is it *working*. Step 9 has to tell "the config will not parse" apart from "you have no notes yet",
+  and only the first is a failed setup. **It stays out of `verify.md`**: Gate 1 runs per phase and would
+  flag every docs-only change. The gate that wants it is CI, on the pull request.
+- **The answer names the script, never the raw command**, the same indirection `verify.md` already uses —
+  which gives a flag like `--since=origin/main` one home instead of two. The script itself is phase B's.

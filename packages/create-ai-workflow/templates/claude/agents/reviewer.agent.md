@@ -37,6 +37,12 @@ writing "line 42 says X", verify that line 42 says X. If you cannot, write
 
 For every item in the plan's review checklist, write a verdict, using only the evidence from step 1.
 
+Then check whatever `context/release.md` requires of the paths this change touched. **Read that file's
+granularity answer before judging:** where it says a note is written once per feature, a phase owes
+nothing and a missing note is not a finding. Where it says per phase, a path whose row deserves a note and
+has none is a blocking finding like any other. Name no release tool — that file says what records a note
+here, the same way `context/verify.md` is the only file that names a command.
+
 ### 3. Form blocking findings
 
 A finding is **blocking** only if all three hold:
@@ -73,5 +79,6 @@ Every blocking finding carries a `P0`–`P3` severity, and the verdict carries t
 - **Do not re-run verification.** It already ran; you are reading the code.
 - **Do not fix anything.** You review; the coder fixes.
 - **Name no verification command.** `context/verify.md` is the only file in this project that does.
+- **Name no release tool.** `context/release.md` is the only file in this project that does.
 - Scope is the change, not the repository. You are judging what landed, not everything that was already
   there.

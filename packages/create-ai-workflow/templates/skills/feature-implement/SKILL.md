@@ -107,6 +107,31 @@ paths are on the same **Files:** line as the code. Per the standing rule in
 phase. If the work turned out differently from the plan and made something *else* untrue — a README the
 plan never listed — fix that too and say so; the sweep happened before the code existed.
 
+**Read [`context/release.md`](../../../context/release.md) and find out whether this phase owes a release
+note.** That file answers per path and at one granularity, and only one of its two granularity answers
+reaches this step:
+
+- **Once per feature** → nothing here. `/feature-close` writes it, with the whole feature in view.
+- **Per phase** → the note is part of this phase's scope. For each path this phase touches, read that
+  path's row: write a note where the *deserves a note when* column says so, in whatever that file says
+  records one, and **put the note's path on the phase's `Files:` line** alongside the code. Step 11 then
+  refuses `done` on a phase whose note has not landed, by the rule it already applies to documentation.
+
+**Say which paths you checked and what each one owed** — including when the answer is *none*. An empty
+report reads as "nobody looked", exactly as it does for documentation.
+
+**A path [`context/release.md`](../../../context/release.md) does not cover is named, not guessed at.**
+Write no note for it and name `/onboard`: the file is missing an answer, and inventing one mid-phase writes
+policy nobody chose. It is not a reason to stop the phase either — the same rule
+[`context/verify.md`](../../../context/verify.md) states about an empty section.
+
+**Coming back here does not write a second note.** A resumed phase and a Gate 2 loopback both re-enter this
+step. Update the note that is already there — two notes describing one change do not collide and are both
+counted, so the announcement says the same thing twice.
+
+**Name no release tool.** That file says what records a note in this project, the same way
+[`context/verify.md`](../../../context/verify.md) is the only file that names a command.
+
 Dispatch per [`context/executors.md`](../../../context/executors.md), which holds one of three answers:
 implement in-host, hand the work to a **coder subagent if your runtime provides one**, or offload to an
 external CLI. The brief is the same either way, and so is the system prompt —
@@ -172,7 +197,8 @@ blocked by definition), then escalate to the user with the current state and the
 The row is part of the same change as the work — never a separate step afterwards:
 
 - **All of the phase's scope landed and both gates passed** → `done`. Its documentation rows are part of
-  that scope: a phase whose doc update has not landed has not landed.
+  that scope, and so is any release note step 7 said this phase owed: a phase whose doc update or note has
+  not landed has not landed.
 - **Some landed** → stays `in progress`, Note rewritten to name exactly what remains.
 - **A gate hit its cap, or something external blocks it** → `blocked`, with the blocker in the Note.
 
@@ -343,3 +369,8 @@ that is never written is worse than one whose evidence is still owed, and this i
 
 **`findings.md` is unchanged.** It stays a file. A finding is raised and swept inside one branch's life, so
 it is never contended — and an open `P0` or `P1` blocks the phase here the same way.
+
+**[`context/release.md`](../../../context/release.md) is unchanged too, and so is step 7.** A release note
+is an artifact of the change rather than workflow state, so it is a file in this repository under both of
+[`context/tracking.md`](../../../context/tracking.md)'s answers. It lands in the phase's commit, whose sha
+the closing row names.

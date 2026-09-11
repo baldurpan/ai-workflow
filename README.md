@@ -1,7 +1,7 @@
 # ai-workflow
 
-A tiered planning workflow — roadmap, plans, phase ledgers, verification gates — that coding agents
-run against a repository you already have.
+A tiered planning workflow — roadmap, plans, phase ledgers, verification gates, release notes — that
+coding agents run against a repository you already have.
 
 ```bash
 npx @baldurpan/create-ai-workflow      # or: npm create @baldurpan/ai-workflow

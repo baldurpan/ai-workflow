@@ -31,12 +31,12 @@ never a prerequisite for anything.
 |---|---|---|
 | `/roadmap` | Tier 1 contents | `roadmap.md`, and `drafts/` when material is supplied |
 | `/feature-plan` | Tier 1 → a plan document | `plans/<NAME>-PLAN.md`; the `active` marker only with `--activate` |
-| `/feature-implement` | activation, and the phases within a plan | the plan's ledger, `findings.md`, the code |
+| `/feature-implement` | activation, and the phases within a plan | the plan's ledger, `findings.md`, the code, and a release note where [`release.md`](release.md) says *per phase* |
 | `/feature-status` | nothing — read-only | — |
-| `/feature-close` | Tier 2 → retired | `history.md`, `archive/`, the reference sweep, and the push and pull request where [`git.md`](git.md) says so |
-| `/orchestrate` | one ad-hoc gated change | the code, and `findings.md` |
+| `/feature-close` | Tier 2 → retired | `history.md`, `archive/`, the reference sweep, a release note where [`release.md`](release.md) says *once per feature*, and the push and pull request where [`git.md`](git.md) says so |
+| `/orchestrate` | one ad-hoc gated change | the code, `findings.md`, and a release note where [`release.md`](release.md) says one is owed |
 | `/prototype` | one throwaway HTML/CSS mockup — no gates, no application code | `prototypes/<NAME>/`, and nothing else |
-| `/onboard` | the project-owned stubs | `verify.md`, `executors.md`, `git.md`, `tracking.md`, `stack.md`, and the pruning of what they replace |
+| `/onboard` | the project-owned stubs | `verify.md`, `executors.md`, `git.md`, `tracking.md`, `release.md`, `stack.md`, and the pruning of what they replace |
 | `/tracking-migrate` | moving existing state onto the substrate `tracking.md` names | issues, and the tree files they replace — never `history.md` or `archive/` |
 
 ## One source of truth per fact
@@ -47,6 +47,7 @@ never a prerequisite for anything.
 | whether a feature has a plan | whether its **Doc** field points into `plans/` |
 | where a phase stands | that plan's own status ledger |
 | what a retired feature's outcome was | its `history.md` row |
+| whether a change owes a release note | [`release.md`](release.md) — that path's row, and the granularity answer |
 
 **"Planned" is not a status.** It is the observation that a document exists in `plans/`. The marker answers
 *is it being worked*; the **Doc** path answers *does it have a plan*. The two are orthogonal, so neither can
@@ -146,6 +147,28 @@ phase, and that phase's **Files:** line carries the path like anything else it t
 
 *"Nothing here describes this feature"* is a legitimate answer, and it names the surfaces that were
 checked. Saying nothing is not that answer.
+
+### What a change announces is an answer, not an assumption
+
+> **Read [`release.md`](release.md) before closing out any command that lands code. If it does not exist, or
+> does not say otherwise, nothing here announces a change and no note is owed.**
+
+*Documentation is part of the change* covers a README that a rename made wrong. It does not cover the
+release note that was never written — a different surface, a different audience, and one that is not in the
+repository to go stale. [`release.md`](release.md) is where that answer lives: which paths announce
+something and to whom, what records a note, at what granularity, and what this project does **not** do
+here — nothing in this workflow bumps a version, tags, publishes or deploys.
+
+**The answer is per path, and the granularity is per project.** A repository can publish one artifact,
+deploy another and say nothing about a third, so *does this change deserve a note* is asked of each path it
+touched. *When is one written* — once per feature, or per phase — is asked once, because it is a fact about
+what leaves this repository as a unit. `/orchestrate` has neither an entry nor a ledger, so for that
+command the change is the unit.
+
+**A path that file does not cover is reported, never guessed at.** The same rule [`verify.md`](verify.md)
+states about an empty section: a missing entry is skipped and said so, never faked. Writing a note into a
+path whose owner never answered for it invents policy mid-change; refusing the work blocks it over a gap in
+a configuration file. Name the path and name `/onboard`.
 
 ### Never transcribe a credential
 

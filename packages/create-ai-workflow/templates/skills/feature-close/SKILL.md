@@ -81,6 +81,31 @@ grep -rn "<old-path>\|<OLD-FILENAME>" --include='*.md' . | grep -v node_modules
 Move every **closed** finding tied to this feature out of `context/findings.md` and into the archived plan's
 own log. `findings.md` must not grow for the life of the project.
 
+### The release note — before the commit, under both granularities
+
+Read [`context/release.md`](../../../context/release.md). **This is the last moment before the feature's
+notes leave this machine**, which is why the confirmation is here whichever command wrote them.
+
+- **Once per feature** → write the note now, before the commit, so it rides whatever this command hands
+  over. One note per path the feature touched whose row says it deserves one, in whatever that file says
+  records a note.
+- **Per phase** → the phases already wrote them. **Collect them and show them** — do not write another.
+
+Then, either way: **propose the bump level for each note and confirm it with the user.** That is a
+per-change judgment rather than policy, and it is the one thing in this file that is asked rather than
+read. Use your runtime's question mechanism if it has one.
+
+- **The user changes a level** → amend the note and say so.
+- **The user declines a note entirely** → write none, and **say in the report that the feature retired
+  with no note and why.** That is their call about their own release; doing it quietly is not.
+
+**Say which paths you checked and what each one owed**, including when the answer is *none*. **A path
+[`context/release.md`](../../../context/release.md) does not cover is named, not guessed at** — write no
+note for it and name `/onboard`, and do not hold up the retirement over a gap in a configuration file.
+Name no release tool: that file says what records a note here.
+
+**`--dropped` writes no note. See Mode 2.**
+
 Then read [`context/git.md`](../../../context/git.md) before committing anything. `git mv` stages a rename
 and writes no history, so it is safe under either answer — but the commit that carries it is the agent's to
 make only where that file says so. If it does not exist, the answer is *the user commits*: show the whole
@@ -117,6 +142,11 @@ expected.
 3. **If the entry never had a document, stop here.** If it had one — a draft in `context/drafts/` or a plan
    in `context/plans/` — `git mv` it to `context/archive/`, repoint its header at the `history.md` row (no
    stamped outcome, same rule as Mode 1), and sweep.
+
+**No release note is written here, and none is removed.** An idea that will not be built announces nothing.
+But a dropped feature may have landed phases, and under *per phase* those phases wrote notes for changes
+that are in the repository — **a note belongs to the change that landed, not to the outcome the feature was
+later given.** Leave them where they are, and say they are there.
 
 ## Under the tracker answer
 
@@ -155,6 +185,11 @@ records what `history.md`'s Outcome column used to.
 This is the only place `git.md`'s answer changes what this command does, and it is why
 [`context/tracking.md`](../../../context/tracking.md) recommends pairing this substrate with the push
 answer rather than requiring it.
+
+**The release note is unchanged.** It is an artifact of the change rather than workflow state, so it is a
+file in this repository under both of [`context/tracking.md`](../../../context/tracking.md)'s answers —
+written, confirmed and committed exactly as above, and carried by the same pull request that closes the
+issue.
 
 **Keep the label and keep the assignee.** The label is what makes retired features findable later, and the
 assignee is the record of who ran it. Neither means anything once the issue is closed, and removing either

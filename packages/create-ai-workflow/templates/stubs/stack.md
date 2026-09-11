@@ -35,6 +35,11 @@ What this project is, and what an agent has to know before touching it. Run `/on
      Say which ones are actually maintained — a directory nobody has updated in two years is worth writing
      down as that, rather than leaving the next reader to discover it.
 
+     **A generated changelog is not a surface, and does not belong here.** A file assembled from release
+     notes is an output, so a plan that listed it would be proposing to hand-edit something a tool rewrites.
+     What a change announces is `release.md`'s answer, and the note that feeds the changelog is written
+     there. A hand-maintained changelog nobody generates is an ordinary surface and does belong here.
+
      If this project documents itself nowhere, write "none". An empty section reads as "nobody checked",
      and a plan cannot tell those two apart. -->
 
@@ -45,4 +50,5 @@ What this project is, and what an agent has to know before touching it. Run `/on
      line lost. -->
 
 Verification commands are in [`verify.md`](verify.md), not here. Executor dispatch is in
-[`executors.md`](executors.md), and who commits is in [`git.md`](git.md).
+[`executors.md`](executors.md), who commits is in [`git.md`](git.md), and what a change announces is in
+[`release.md`](release.md).

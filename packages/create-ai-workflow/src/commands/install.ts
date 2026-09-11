@@ -103,11 +103,15 @@ export function install(root: string): number {
   info();
   info(bold('Next'));
   info(`  1. Review the diff. ${dim('Nothing was committed — that is deliberate.')}`);
-  info(`  2. Run ${cyan('/onboard')} in your agent to fill in verify.md, executors.md, git.md, tracking.md and stack.md.`);
+  // Derived rather than retyped, for the same reason `update`'s project-owned list is: the set of stubs
+  // /onboard fills is a property of STUBS, and a hand-written copy here goes stale the moment one is added.
+  const onboarded = STUBS.filter((s) => s.onboard).map((s) => path.posix.basename(s.dest));
+  const named = `${onboarded.slice(0, -1).join(', ')} and ${onboarded.at(-1) ?? ''}`;
+  info(`  2. Run ${cyan('/onboard')} in your agent to fill in ${named}.`);
   if (before !== null) {
     info(
       dim(
-        '     AGENTS.md already said things of its own — /onboard folds those into the four files\n' +
+        '     AGENTS.md already said things of its own — /onboard folds those into the files\n' +
           '     above and prunes what it moved, asking before anything is deleted.',
       ),
     );

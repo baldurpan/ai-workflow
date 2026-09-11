@@ -3,21 +3,21 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 1581 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 2168 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 137 tests. The sixty-two in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 154 tests. The seventy-nine in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, one home for the tracker, no
    self-declared status, inert stubs, a ledger row that opens before the work, a substrate answer that
    never strands the data it names, a `--all` loop that stops where a single run stops, a plan too large
-   for its home being split rather than trimmed, documentation reaching the plan, a titled §-citation
-   resolving against the template, and every relative link resolving after install — in both skill trees.
-   `ci.yml`
+   for its home being split rather than trimmed, documentation reaching the plan, an answer file that may
+   not hold a false answer, a titled §-citation resolving against the template, and every relative link
+   resolving after install — in both skill trees. `ci.yml`
    runs them on every push and pull request against `main`, plus an `engines-floor` job that builds on
    Node 20.10.0 and runs the packed CLI there — the suite itself cannot, since it executes `.ts` directly
    and that needs type stripping.
@@ -27,8 +27,11 @@ Every `§`-number below points into that document.
 **State:** v0.10.0 is published and is npm's `latest` — it rebuilt the tracker answer's phase model, so
 **the sub-issues are gone and the ledger is back in the issue body** (§10.10), the issue's type is set and
 never read (§10.11), and `Priority:` replaces the backlog order an issues list cannot express (§10.12).
-`package.json` now says **`0.10.1`, unreleased**, which adds the body's ceiling (§10.13): a plan too large
-for an issue body is a feature to split, not a plan to trim.
+`package.json` now says **`0.11.0`, unreleased**, and carries two things: the body's ceiling (§10.13) — a
+plan too large for an issue body is a feature to split, not a plan to trim — and **item 6 phase A, the
+release answer** (§11), a sixth project-owned stub plus an `/onboard` step that asks what a change
+announces. A minor rather than the patch 0.10.1 was going to be, because a sixth stub is a feature; 0.10.1
+never shipped, so nothing is skipped.
 
 **0.10.0 is a fix, not a refinement, and both published versions need it.** The sub-issue design could not
 run: a phase closed its sub-issue through `Closes #N`, that trailer fires only when the commit reaches the
@@ -90,12 +93,12 @@ reviewer `executors.md` gives, because the shipped one is the host reading its o
 because a tree carrying four phases cannot be cut back into the four commits that file says they are.
 Eight tests guard it.
 
-**To release: commit and push to `main`** — that tags `v0.9.0` — **then publish the tag as a GitHub
+**To release: commit and push to `main`** — that tags `v0.11.0` — **then publish the tag as a GitHub
 release.** An npm workspaces monorepo — the installer lives in
 `packages/create-ai-workflow/`, and `apps/*` is reserved for a landing site or hosted documentation.
 Installs a `context/` tree, the nine skills into **both** `.claude/skills/` and `.agents/skills/`, two
 Claude subagents, a merged `AGENTS.md` block and a manifest that draws the ownership boundary — 103
-tool-owned files, 7 project-owned stubs.
+tool-owned files, 9 project-owned stubs.
 
 ---
 
@@ -246,6 +249,60 @@ feature with four phases and execute all four, which is precisely what no publis
 ceiling is now a budget on the *prose*, `lines - SKILL_NAMES.length < 32`, which is byte-identical to what
 the prose was allowed at eight commands. A flat count made the block's one legitimate growth — a row per
 command, which is the entire reason it inlines the table — indistinguishable from the failure it guards.
+
+### 6. The release answer — phase A is built; phase B is the install
+
+`context/release.md` is the **sixth project-owned stub** and the one whose answer can be *false*:
+*no lint step* is accurate in a project with no linter, but *"a change is announced by writing a note"* is
+a lie in a repository where nothing records one — the same defect as a `done` row whose **Files:** do not
+exist. The whole design, and the enumeration that produced it, is **§11**. Read that rather than this.
+
+**Phase A landed, and it is entirely inert.** The shipped answer is *nothing here announces a change*, true
+of every repository, so no existing install behaves differently until someone runs `/onboard`:
+
+- **`templates/stubs/release.md`**, registered in `STUBS` with `onboard: true` — four answers: the per-path
+  table, what records a note, the granularity, and a *what this project does not do here* section naming
+  bump, tag, publish and deploy. `install`'s **Next** line is now derived from `STUBS` rather than retyped,
+  which is how it had already gone one stub stale.
+- **`/onboard` Step 9**, after Stack. It looks first and reports all four sweeps including the empty ones,
+  asks per path, and **refuses**: where nothing on disk records a note it writes the true answer, names
+  what is missing, and stops. It installs nothing and it will not generate a release job.
+- **`/feature-implement` step 7** under *per phase* — the note's path goes on the **Files:** line, so step
+  11 already refuses `done` on a phase whose note has not landed, for free.
+- **`/feature-close`** — writes the note under *once per feature*, **reads** the phases' notes under *per
+  phase*, and confirms the bump levels either way. `--dropped` writes none and removes none.
+- **`/orchestrate`** — the cell granularity leaves empty: the change is the unit.
+- `stack.md`, `reviewer.agent.md`, `workflow.md`, `context/README.md`, the `AGENTS.md` block's `/onboard`
+  row, and both READMEs.
+- **Seventeen tests**, including the sibling of the forge rule: **no template may name a release tool**,
+  with no `/onboard` exemption needed — its detection describes the shapes ("a notes directory", "an
+  `## Unreleased` heading") rather than the tools that produce them.
+
+**Two findings from the enumeration are worth knowing without opening §11.** The bump level is a judgment,
+so it is asked — and putting the ask in `/feature-implement` would have fired it between phases, which is
+exactly what `--all` exists to prevent. Moving it to *where the note leaves the machine* keeps `--all`'s
+stop list untouched. And three of the grid's six axes turned out **inert**: `tracking.md`'s answer and
+`git.md`'s who-commits change nothing here, because a note is an artifact of the change rather than
+workflow state. `release.md` is the first stub in this shape with no *Under the tracker answer* section,
+and it says so, since every sibling has one.
+
+**What is left — phase B, the install.** The devDependency, the vendor's init, the private-package
+versioning line written **from the answer** rather than from the vendor's default (left alone, a deployable
+app never bumps and the deploy half silently does nothing forever), and the shorthand scripts. It is the
+only thing in this tool that would mutate `package.json`. §11.8 holds the mechanics, all verified against
+the changesets docs. **Phase A being inert is what makes it safe to ship before B is exercised** — and it
+is a mitigation, not an answer to the dogfood question below.
+
+**The dogfood question is unchanged, and it is item 1's wearing different clothes.** This repository
+manages the workflow and does not use it: no `context/`, no skill trees, and `PLAN.md` is hand-maintained
+rather than a document under `plans/`. `northguild/gmt` has its own bespoke `context/` and six unrelated
+skills, so it is not an install either. **There is nowhere the workflow actually lives**, which is the real
+reason item 1 has gone unrun across three releases — the run has to begin by standing up a repository for
+the purpose. Two ways out, neither taken here: accept that this ships unrun and lean on the enumeration,
+which is what was in place when 0.8.0 and 0.9.0 shipped broken; or give the workflow a home — self-hosting
+here, which `PLAN.md` and `DESIGN-RECORD.md` doing a different job than a backlog argues against, or
+installing into gmt, where `/onboard`'s adopt path would have to reconcile an existing tree and six skills,
+which is the least-tested surface in the package.
 
 ---
 

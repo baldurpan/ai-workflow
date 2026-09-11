@@ -1,6 +1,6 @@
 ---
 name: onboard
-description: "Fill in this project's own workflow stubs — context/verify.md, context/executors.md, context/git.md, context/tracking.md and context/stack.md — by adopting what the repository already documented, asking wherever a claim's destination is unclear, and running each candidate verification command so only the ones that pass are written down. Explicit invocation only — run this when the user types /onboard. Do NOT match on 'set up the project', 'get started', or general setup requests."
+description: "Fill in this project's own workflow stubs — context/verify.md, context/executors.md, context/git.md, context/tracking.md, context/release.md and context/stack.md — by adopting what the repository already documented, asking wherever a claim's destination is unclear, and running each candidate verification command so only the ones that pass are written down. Explicit invocation only — run this when the user types /onboard. Do NOT match on 'set up the project', 'get started', or general setup requests."
 ---
 
 # /onboard
@@ -28,8 +28,9 @@ Read [`context/workflow.md`](../../../context/workflow.md) for the tier model.
 | [`context/executors.md`](../../../context/executors.md) | how this project dispatches a coder and a reviewer |
 | [`context/git.md`](../../../context/git.md) | who commits, where work lands, whether it is pushed, and at what granularity |
 | [`context/tracking.md`](../../../context/tracking.md) | where the backlog, the plans and the phase ledgers live |
+| [`context/release.md`](../../../context/release.md) | what a change here announces and to whom, what records a note, and how often |
 | [`context/stack.md`](../../../context/stack.md) | runtime, layout, conventions, and the index of where this project documents itself |
-| [`AGENTS.md`](../../../AGENTS.md) | pruned, on confirmation, of what moved into those five. The region between the `ai-workflow` markers is never touched |
+| [`AGENTS.md`](../../../AGENTS.md) | pruned, on confirmation, of what moved into those six. The region between the `ai-workflow` markers is never touched |
 
 Show every proposed edit before writing it, and **do not commit.** The user reviews and commits.
 
@@ -55,6 +56,7 @@ Break what you read into claims — a paragraph, a table row, a bullet — and p
 | a lint, typecheck, build or test command | a **candidate** for `context/verify.md` — Step 7 still has to run it |
 | how a coder or a reviewer is dispatched | `context/executors.md` |
 | a rule about who commits, or when work is committed | `context/git.md` |
+| a rule about what deserves a changelog entry or a release note, or what is published where | `context/release.md` |
 | a rule the bundled standards already state | nowhere — the standards own it. Ask before dropping |
 | planning or review process this workflow now owns | nowhere — superseded. Ask before dropping |
 | anything else — ownership, contacts, external links | stays in `AGENTS.md`, outside the block |
@@ -72,7 +74,7 @@ destination. Two kinds of row are never decided alone:
 An adopted claim is an *input* to the steps below, not a substitute for them. A command lifted out of the
 old file is a candidate like any other and still has to run.
 
-**Nothing is deleted here.** Pruning is Step 9, after the destination files exist.
+**Nothing is deleted here.** Pruning is Step 10, after the destination files exist.
 
 On a re-run, a claim its destination file already states is already adopted. Say so in a line and move on.
 
@@ -283,7 +285,7 @@ and the `drafts/`, `plans/` and `archive/` directories. The installer wrote them
 existed and could not have known.
 
 **Offer to remove them, and only where they are empty.** An empty file is a stub nobody used. Show the
-removal the way Step 9 shows its pruning — as a diff, applied on confirmation — and never remove one you
+removal the way Step 10 shows its pruning — as a diff, applied on confirmation — and never remove one you
 cannot show is empty.
 
 **A non-empty one is not this command's to touch, and the reason differs by file:**
@@ -364,9 +366,94 @@ fixed by the phase that makes it untrue.
 Point out that anything else added under `context/` should be indexed in `stack.md`, not in
 `context/README.md`, which is tool-owned and replaced on update.
 
-## Step 9 — Prune the sources
+## Step 9 — Release: what a change announces, and to whom
 
-Only now, with the four stubs written, remove from `AGENTS.md` and `CLAUDE.md` what has landed elsewhere.
+Ask what a change here announces, and write the answer to
+[`context/release.md`](../../../context/release.md). **It runs after Stack** because it needs the layout
+that step settled, and because it may send you back to the Documentation index that step just wrote.
+
+**This one answer is unlike the other five, and the difference decides the whole step.**
+[`context/verify.md`](../../../context/verify.md) can say *no lint step* and be accurate — a project with
+no linter chose that. This file cannot. *"A change is announced by writing a note"* is **false** in a
+repository where nothing records one, and a false answer here is the same defect as a `done` row whose
+**Files:** do not exist. So there are only two endings to this step: **the true answer, or the true answer
+plus a named gap.** Never a mechanism that is not on disk.
+
+**This step installs nothing.** It does not add a dependency, create a notes directory, or write a
+workflow. Where the mechanism is absent, it says exactly what is missing and stops.
+
+### Look first, and say what you found — always
+
+**A check, not a question**, and like Step 5 it reports even when there is nothing to ask:
+
+1. **The publishable and deployable paths.** Read each `package.json`, or this stack's equivalent, and
+   note which declare themselves private and which do not. Take the layout from `context/stack.md` rather
+   than re-deriving it.
+2. **Whatever already records notes** — a notes directory, an `## Unreleased` heading in a changelog, a
+   fragment directory. Name what you found, or say there is none.
+3. **Whether a changelog is generated or hand-maintained.** It matters twice: a generated one is an output
+   rather than a documentation surface, so if Step 8 listed it in `stack.md`'s Documentation index, take it
+   out and say why.
+4. **Whether anything publishes or deploys** — a workflow, a job, a hook. This is what decides whether a
+   *yes* here would be honest.
+
+Say all four back in a line each, including the empty ones.
+
+### Then ask, per path
+
+**If the sweep found nothing that records a note, skip this section** and go straight to the one below.
+Collecting a table of paths whose answer nothing can carry out spends the user's time on a file that would
+read as configured and do nothing.
+
+**The table is per path, not per repository.** A repository can publish one artifact, deploy another and
+say nothing about a third, and a repo-wide yes/no cannot express that. For each path from the sweep above,
+ask three things — *who it announces to*, *when a change to it deserves a note*, and *what a bump of it
+means*. **A single-package repository gets one row and that is a real answer**, exactly as `git.md`'s *the
+main working tree* is.
+
+The *deserves a note when* column is the one that earns its keep: it is where "an internal refactor to the
+app gets no note" is written down once instead of being re-argued on every pull request.
+
+### Then the answer that can be false — what records a note
+
+- **Something on disk already records notes** → write it down: the exact path, the format of one file, and
+  the script name for any check it offers, never the raw command. Confirm it by opening what is there
+  rather than by asking.
+- **Nothing does** → **write *nothing here announces a change*, name what is missing, and stop.** Say what
+  the user would have to put in place, and that re-running this command afterwards will pick it up. Do not
+  write a table of paths above an answer that nothing can carry out.
+  **Say plainly what that answer means where the sweep found something publishable**: it records that this
+  project has not said how a change is announced, not that it announces nothing. The two read alike in the
+  file and are not the same, and the second is the one a publishing repository will assume.
+
+**Never leave the file saying changes are announced while nothing consumes the notes.** That is the same
+failure as a `tracking.md` naming a tracker while the entries are still files: it reads as configured,
+every command dutifully writes a note, and no version ever moves. If step 4 of the sweep found nothing that
+publishes or deploys, say so plainly and write it into the *what this project does not do here* section
+rather than leaving it implied.
+
+### Then granularity, and what this project does not do here
+
+- **Granularity** — *once per feature* (the shipped answer, written by `/feature-close`) or *per phase*
+  (written by `/feature-implement`, for a repository where a phase is what actually ships). It is one
+  answer for the project, not a column in the table: it says what leaves this repository as a unit. Say
+  that `/orchestrate` has neither value and treats the change as the unit.
+- **What this project does not do here** — fill in what bumps a version, what tags, what publishes and
+  what deploys, one line each, and write "nothing yet" where that is the truth. **Nothing in this workflow
+  does any of the four**, and this section is what stops the answer being read as "releases happen
+  automatically".
+
+**Name the release job as the gap it is, and do not generate one.** Accumulating notes, versioning them,
+tagging and publishing is a uniform sequence right up to the last step — and the last step plus its
+credentials depends on branch protections, registry auth and who is allowed to press the button. A
+generated workflow there does damage. Say what is missing; let the user write it.
+
+If Step 1 turned up an existing rule about what deserves a changelog entry, quote it here and let it win
+unless the user says otherwise.
+
+## Step 10 — Prune the sources
+
+Only now, with the six stubs written, remove from `AGENTS.md` and `CLAUDE.md` what has landed elsewhere.
 Duplication left standing is the failure this step exists to prevent: two statements of one fact drift, and
 the stale copy is indistinguishable from the live one.
 

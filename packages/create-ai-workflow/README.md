@@ -37,10 +37,10 @@ starting point — nothing has to be looked up first.
 | `/feature-plan` | turns an entry into a plan document and **stops**. Planning is not activation |
 | `/feature-implement` | activates a planned feature and runs **one phase** through both gates — or phase after phase with `--all`, which stops at a `blocked` phase, a capped gate or an open `P0`/`P1`, and never at `/feature-close` |
 | `/feature-status` | read-only. Reconciles the ledger against the repo — sweeping every worktree where the project works that way — then names **exactly one** next action |
-| `/feature-close` | retires a feature: a `history.md` row, a `git mv` into `archive/`, and a reviewed reference sweep |
+| `/feature-close` | retires a feature: a `history.md` row, a `git mv` into `archive/`, a reviewed reference sweep, and the release note where `release.md` says one is owed |
 | `/orchestrate` | one ad-hoc, commit-sized change through the same gates — no entry, no ledger |
 | `/prototype` | a throwaway HTML/CSS mockup under `prototypes/`, to settle a layout question before a plan commits to it — no gates, no application code |
-| `/onboard` | fills in your own stubs, adopting what the repo already documented, indexing where it documents itself, and running each verification command before writing it down |
+| `/onboard` | fills in your own stubs, adopting what the repo already documented, indexing where it documents itself, running each verification command before writing it down, and asking per path what a change announces |
 | `/tracking-migrate` | moves an existing backlog, its drafts and its plans onto the substrate `tracking.md` names — one feature at a time, resumable, removing a file only once the issue that replaces it exists |
 
 ## What makes it different
@@ -85,6 +85,25 @@ a phase, and its path goes on that phase's `Files:` line, so the README lands wi
 after it. Docs are the one output with no gate behind them: nothing fails when a page keeps describing a
 flag that no longer exists.
 
+**What a change announces is a written answer, not an inference.** `context/release.md` holds it, and it ships saying *nothing
+here announces a change* — true of every repository, so an existing install behaves exactly as it did.
+`/onboard` asks it **per path**, because a repository can publish one artifact, deploy another and say
+nothing about a third: each path gets who it announces to, when a change to it deserves a note, and what a
+bump of it means. The *deserves a note when* column is where "an internal refactor to the app gets no note"
+is written down once instead of being re-argued on every pull request.
+
+**It is the one answer that cannot be false.** `verify.md` can say *no lint step* and be accurate — a
+project with no linter chose that. *"A change is announced by writing a note"* is a lie in a repository
+where nothing records one, which is the same defect as a `done` row whose files do not exist. So `/onboard`
+writes the true answer or the true answer plus a named gap, never a mechanism that is not on disk — and it
+**refuses to generate a release job**, because accumulating notes is uniform right up to the step that
+needs credentials and branch protections. **Nothing in this workflow bumps a version, tags, publishes or
+deploys**, and the stub has a section that says so rather than leaving it implied.
+
+**No skill names a release tool either.** A repository with no `package.json` answers with a
+hand-maintained `## Unreleased` section, or a fragment directory, or nothing — and not one line of the
+commands changes. They ask *record a note per `release.md`*; that file says what records one here.
+
 **A finding outlives the session that found it.** A reviewer `FAIL` or a capped gate is written to
 `context/findings.md` *before* the loopback, so it survives the conversation ending. An open `P0`/`P1`
 blocks its phase from being marked `done` and blocks `/feature-close`.
@@ -92,8 +111,9 @@ blocks its phase from being marked `done` and blocks `/feature-close`.
 **Where the backlog and the ledgers live is an answer too.** `context/tracking.md` holds it, and it ships
 saying *in the working tree* — `roadmap.md` for the backlog, a document under `plans/` per feature, a
 `history.md` row when one retires. The second answer puts the same three tiers in **GitHub issues**: a
-feature is an issue, a phase is a sub-issue, and a closed issue *is* the archive, with its plan, its whole
-discussion and its pull request at an id nothing had to rewrite.
+feature is an issue, its plan is that issue's body with the phase ledger as a table inside it, and a closed
+issue *is* the archive, with its plan, its whole discussion and its pull request at an id nothing had to
+rewrite.
 
 That answer exists for one reason — **several agents working several features at once.** A worktree carries
 only what its ref holds, so a plan on one branch is invisible to every other tree, and there is no shared
@@ -118,7 +138,7 @@ not.
 ```
 context/
   README.md  workflow.md  plan-template.md  plan-template.notes.md  roles/  standards/     tool-owned
-  stack.md  verify.md  executors.md  git.md  tracking.md                                   yours
+  stack.md  verify.md  executors.md  git.md  tracking.md  release.md                       yours
   roadmap.md  history.md  findings.md                                                      yours
   drafts/  plans/  archive/                                                                yours
   .state/manifest.json
@@ -132,10 +152,9 @@ Nothing is committed. Review the diff yourself.
 
 **Onto a repository that already documents itself**, the installer only appends — your existing
 `AGENTS.md` prose is left exactly where it is. `/onboard` reconciles the two afterwards: it classifies
-each existing claim into `stack.md`, `verify.md`, `git.md`, `tracking.md` or `executors.md`, asks wherever a
-destination is
-unclear or the old text contradicts the installed workflow, and prunes the source only once the
-replacement is written and shown.
+each existing claim into `stack.md`, `verify.md`, `git.md`, `tracking.md`, `release.md` or
+`executors.md`, asks wherever a destination is unclear or the old text contradicts the installed workflow,
+and prunes the source only once the replacement is written and shown.
 
 ### The ownership boundary is a data structure, not a rule
 

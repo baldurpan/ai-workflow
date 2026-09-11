@@ -50,6 +50,18 @@ there wrong — a README, a docs page, a changelog, help text in the code — th
 per the standing rule in [`context/workflow.md`](../../../context/workflow.md). A one-shot change is where
 that gets skipped most, because there is no plan holding the row.
 
+**Read [`context/release.md`](../../../context/release.md) and apply it to the paths this change touches.**
+That file's granularity answer — *once per feature*, or *per phase* — is plan vocabulary, and this command
+has neither an entry, a plan nor a ledger. **Here the change is the unit.** Do not treat the change as a
+feature to make *once per feature* readable, and do not decide the answer never fires: either reading ends
+with a user-visible fix shipping unannounced, and nothing goes red when it does.
+
+The table still governs. For each path this change touches, write a note where that path's *deserves a note
+when* column says one is deserved — so a docs typo gets nothing, because the column says so — and **propose
+the level and confirm it** before writing. **Say which paths you checked and what each one owed**, including
+when the answer is *none*. A path the table does not cover is named rather than guessed at: write no note
+for it and name `/onboard`. Name no release tool; that file says what records a note here.
+
 Delegate to a coder per [`context/executors.md`](../../../context/executors.md) if one is configured;
 otherwise implement in-host. The coder's system prompt is
 [`context/roles/coder.md`](../../../context/roles/coder.md). The brief **cites paths, it does not paste
@@ -101,11 +113,14 @@ ad-hoc change has no entry and no feature to close. It lands on whatever branch 
 ## 7. Report
 
 What changed, whether it is committed or waiting in the tree, the Gate 1 output, the Gate 2 verdict, any
-loopbacks, and any findings written, closed or swept — by id.
+loopbacks, any findings written, closed or swept — by id — and any release note written, with the paths
+that were checked and owed nothing.
 
 ## Rules
 
 - **No ledger row is touched.** This command has no phase and does not belong to a feature.
 - **No roadmap entry is created, activated or retired.** If the work turns out to be a feature, stop and
   say so; the user runs `/roadmap`.
+- **The release note is not deferred to a later command.** There is no `/feature-close` behind this one to
+  write it, which is exactly why the change is the unit.
 - **Never skip Gate 1 to save time.** The gates are the entire reason this command exists.
