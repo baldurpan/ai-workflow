@@ -26,6 +26,21 @@ function rewindToClaudeOnly(root: string): void {
   rmSync(path.join(root, '.agents'), { recursive: true, force: true });
 }
 
+const captured = (fn: () => unknown): string => {
+  const write = process.stdout.write.bind(process.stdout);
+  let out = '';
+  process.stdout.write = (chunk: string | Uint8Array) => {
+    out += typeof chunk === 'string' ? chunk : Buffer.from(chunk).toString('utf8');
+    return true;
+  };
+  try {
+    fn();
+  } finally {
+    process.stdout.write = write;
+  }
+  return out.replace(/\u001b\[[0-9;]*m/g, '');
+};
+
 const quiet = <T>(fn: () => T): T => {
   const write = process.stdout.write.bind(process.stdout);
   process.stdout.write = () => true;
@@ -55,7 +70,6 @@ describe('install', () => {
       'context/git.md',
       'context/roadmap.md',
       'context/history.md',
-      'context/findings.md',
       'CLAUDE.md',
     ]) {
       assert.ok(exists(path.join(root, owned)), `${owned} was written`);
@@ -242,6 +256,39 @@ describe('update', () => {
 
     quiet(() => update(root, { dryRun: false, force: true }));
     assert.equal(readFileSync(readme, 'utf8'), '# Ours now\n', 'even --force cannot reach it now');
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  // `findings.md` is project-owned, so it is outside the manifest and no code path here may delete it.
+  // What this version dropped is the file's *role* — nothing reads it any more — and whatever is already
+  // written in one is a person's to triage, because no release can decide that retrospectively.
+  it('says a dropped file is no longer read, and does not touch it', () => {
+    const root = scratch();
+    quiet(() => install(root));
+    const findings =
+      '# Findings\n\n## Open\n\n' +
+      '### F-001 — P2 — a defect\n\n**Tied to:** retired Phase 3\n\n' +
+      '### F-002 — P1 — another\n\n**Tied to:** live Phase 1\n\n## Closed\n';
+    writeFileSync(path.join(root, 'context/findings.md'), findings, 'utf8');
+
+    const out = captured(() => update(root, { dryRun: false, force: false }));
+    assert.match(out, /Next/, 'reported where the rest of the project-owned work is');
+    assert.match(out, /context\/findings\.md is no longer part of the workflow/);
+    assert.match(out, /2 entries are still in it/, 'it says how much triage is owed');
+    assert.match(out, /ledger row/, 'and where the rule went instead');
+    assert.equal(
+      readFileSync(path.join(root, 'context/findings.md'), 'utf8'),
+      findings,
+      'reported, never touched — it is outside the manifest by design',
+    );
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  it('says nothing about a dropped file an install never had', () => {
+    const root = scratch();
+    quiet(() => install(root));
+    const out = captured(() => update(root, { dryRun: false, force: false }));
+    assert.doesNotMatch(out, /findings/, 'a fresh install has no such file and hears nothing about one');
     rmSync(root, { recursive: true, force: true });
   });
 });

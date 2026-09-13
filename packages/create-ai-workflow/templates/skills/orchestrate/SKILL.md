@@ -8,7 +8,7 @@ description: "Run one ad-hoc, commit-sized change through the same verification 
 A gated one-shot pass over a scope you name. No roadmap entry, no ledger, **no tier boundary crossed.**
 
 It exists because the valuable part of the loop is the **gate machinery** — Gate 1 reading `verify.md`,
-Gate 2's reviewer, failures landing in `findings.md` before the loopback — and that is worth having for
+Gate 2's reviewer, a capped gate handing back rather than landing — and that is worth having for
 unplanned work too, arguably most of all, since that is where fixes get cowboyed. Without it, the only
 route to a verified, reviewed change is to file a roadmap entry, and people will route around the workflow
 for small things.
@@ -20,11 +20,6 @@ Read [`context/workflow.md`](../../../context/workflow.md) for the gate contract
 ```
 /orchestrate "<what to do>"
 ```
-
-## 0. Sweep first
-
-Move every **closed** finding tied to `ad-hoc` out of `context/findings.md`. Those belong to no feature, so
-nothing else would ever retire them and the file would grow forever. Say what you swept.
 
 ## 1. Refuse, before anything else
 
@@ -81,13 +76,16 @@ subagent if your runtime provides one**, or the host reading its own diff. The l
 weakest, so **say which one you ran.** Where the runtime has no subagent mechanism, review the diff
 yourself against the standards and say that is what happened.
 
-Require concrete evidence — file paths, command output — for every verdict, and a `P0`–`P3` severity on
-every blocking finding.
+Require concrete evidence — file paths, command output — for every verdict, and for every item in it, **one
+bit: does it block this change or not.** There is no severity scale — see *What happens to a defect the gate
+found* in [`context/workflow.md`](../../../context/workflow.md).
 
 - `PASS` or `PASS WITH NOTES` → done.
-- `FAIL` → **write it to [`context/findings.md`](../../../context/findings.md) first, then** loop back.
+- `FAIL` → loop back.
 
-Findings raised here are recorded with **`Tied to: ad-hoc`**.
+**A non-blocking observation goes in this run's report and dies with the session** — unless it needs code
+changes, in which case it is work and belongs in the backlog per
+[`context/tracking.md`](../../../context/tracking.md).
 
 ## 5. Loopback
 
@@ -95,8 +93,14 @@ Cap: **two loops per gate.** Re-brief with the prior implementation and the vali
 **verbatim**, plus the instruction to address only the failing items, refactor nothing that passes, and
 expand no scope.
 
-At the cap: write a finding (`P1` for a Gate 1 cap-out), then escalate with the current state and the last
-feedback. **Escalating is not a substitute for recording.**
+At the cap: **stop and hand back.** This command has no ledger to write a `blocked` row into, so the record
+is the working tree plus the report: leave the change exactly where it is, uncommitted, and say what failed,
+what was tried, and what the last feedback was. **If the work is still worth doing, it is an issue** — file
+it per [`context/tracking.md`](../../../context/tracking.md) and name it.
+
+**A commit-sized change that cannot pass its gates is handed back, not filed away.** Nothing here writes a
+record that outlives the session, because nothing here is half-finished in a way the next session could
+resume — the tree either carries the change or it does not.
 
 ## 6. Land it — read [`context/git.md`](../../../context/git.md)
 
@@ -113,8 +117,8 @@ ad-hoc change has no entry and no feature to close. It lands on whatever branch 
 ## 7. Report
 
 What changed, whether it is committed or waiting in the tree, the Gate 1 output, the Gate 2 verdict, any
-loopbacks, any findings written, closed or swept — by id — and any release note written, with the paths
-that were checked and owed nothing.
+loopbacks, any non-blocking observations the review raised, any issue filed for work that outlived the
+change, and any release note written, with the paths that were checked and owed nothing.
 
 ## Rules
 

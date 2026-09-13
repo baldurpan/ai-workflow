@@ -22,11 +22,12 @@ export function check(root: string): number {
   const notes = problems.filter((p) => p.level === 'note');
 
   if (problems.length === 0) {
-    // Under the tracker answer the first three do not exist, and naming them would be reporting on files
-    // this install does not have.
-    const scanned =
-      trackingAnswer(root) === 'tracker' ? 'findings' : 'roadmap, plans, history and findings';
-    info(`${green('ok')} ${scanned} ${scanned.includes(',') ? 'are' : 'is'} structurally sound`);
+    // Under the tracker answer none of these exist as files, so there is nothing local to report on.
+    if (trackingAnswer(root) === 'tracker') {
+      info(`${green('ok')} nothing structural to check — the backlog and its plans are in the tracker`);
+      return 0;
+    }
+    info(`${green('ok')} roadmap, plans and history are structurally sound`);
     return 0;
   }
 

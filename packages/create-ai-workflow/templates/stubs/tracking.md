@@ -109,10 +109,6 @@ to live.
 point of marking something urgent; a field that only broke ties between equally-prepared entries would not
 do the job it was added for.
 
-**It is not [`findings.md`](findings.md)'s `P0`–`P3`.** A `P`-severity asks whether something blocks the
-phase, inside one branch's life. A priority asks what gets planned next, across the backlog. A finding
-promoted to an issue loses its severity and arrives carrying a priority instead.
-
 **Size and priority are different questions.** Size is effort and feeds a later ranking key; priority is
 importance and leads. Both are body lines and neither substitutes for the other.
 
@@ -168,9 +164,6 @@ written down anywhere, and a file that tracked it would be a cache of something 
   it describes are one commit. A body edit cannot be, so under the tracker answer the closing row carries
   the commit's sha and is checkable against the branch instead.
 - **`done` is a verdict about the gates**, not about git and not about the tracker.
-- **A finding is not an issue.** [`findings.md`](findings.md) stays a file under both answers: a finding is
-  raised and swept within one branch's life, so it is never the thing two agents contend over. A finding
-  that outlives its branch is promoted to an ordinary issue and stops being a finding.
 - **Neither `history.md` nor `archive/` is ever converted, in either direction.** Fabricating closed
   issues for features shipped months ago produces wrong dates, empty threads and an audit trail that looks
   real and is not. Under the tracker answer they stay as the frozen record of the era before the switch —

@@ -4,7 +4,6 @@ import { exists, walk } from '../paths.ts';
 import { stripComments } from './markdown.ts';
 import {
   PHASE_STATUSES,
-  parseFindings,
   parseHistory,
   parseLedgers,
   parseRoadmap,
@@ -40,8 +39,6 @@ const RULES = {
     'context/workflow.md — "whether a feature has a plan | whether its **Doc** field points into `plans/`"',
   deadLink:
     'context/workflow.md — "Each entry\'s **Doc** field points at its document" · "a link into `context/archive/`"',
-  closedFinding:
-    'context/findings.md — "Closed findings leave this file … This file must not grow for the life of the project."',
   unmigrated:
     'context/tracking.md — "Setting the answer is not moving the work." · context/workflow.md — "Changing the answer is not moving the work."',
 } as const;
@@ -75,7 +72,7 @@ export function expectedColumns(root: string): string[] {
 }
 
 /**
- * Reads `roadmap.md`, `plans/`, `history.md` and `findings.md` — never `archive/`. A retired plan encodes
+ * Reads `roadmap.md`, `plans/` and `history.md` — never `archive/`. A retired plan encodes
  * whatever format was current when it was written, and validating historical records against current rules
  * is the false-positive machine that makes validators get ignored.
  */
@@ -168,27 +165,8 @@ export function runChecks(root: string): Problem[] {
     }
   }
 
-  // A closed finding still sitting in findings.md.
-  const findingsText = read(root, 'context/findings.md');
-  for (const finding of findingsText ? parseFindings(findingsText) : []) {
-    if (finding.section === 'Closed') {
-      problems.push({
-        level: 'note',
-        file: 'context/findings.md',
-        line: finding.line,
-        message: `${finding.id} is closed and still in the file — it belongs in the retiring plan's log`,
-        rule: RULES.closedFinding,
-      });
-    }
-  }
-
   // `**Status:**` headers, in the files this command reads.
-  const scanned = [
-    'context/roadmap.md',
-    'context/history.md',
-    'context/findings.md',
-    ...planPaths(root),
-  ];
+  const scanned = ['context/roadmap.md', 'context/history.md', ...planPaths(root)];
   for (const rel of scanned) {
     const text = read(root, rel);
     if (text === null) continue;

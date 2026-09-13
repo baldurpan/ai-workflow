@@ -62,9 +62,6 @@ the repository's `.gitattributes` settles it permanently:
 context/history.md merge=union
 ```
 
-**Do not do the same for `findings.md`.** Closed findings *leave* that file, and a union merge resurrects
-the lines one side deleted.
-
 ## Push and pull request
 
 <!-- Exactly one of the two answers below is this project's. Keep it, delete the other.

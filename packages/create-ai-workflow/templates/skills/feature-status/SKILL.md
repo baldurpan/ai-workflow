@@ -1,6 +1,6 @@
 ---
 name: feature-status
-description: "Read-only report of where the active feature stands — its plan's phase ledger, open findings, and git state, plus every other worktree in flight where the project works that way — ending with exactly one next action. Explicit invocation only — run this when the user types /feature-status. Do NOT match on 'what's the status', 'where are we', or general progress questions."
+description: "Read-only report of where the active feature stands — its plan's phase ledger and git state, plus every other worktree in flight where the project works that way — ending with exactly one next action. Explicit invocation only — run this when the user types /feature-status. Do NOT match on 'what's the status', 'where are we', or general progress questions."
 ---
 
 # /feature-status
@@ -19,7 +19,7 @@ below is written for the working-tree answer**; *Under the tracker answer* at th
 
 1. `context/roadmap.md` — which entry is `active`, and what each entry's **Doc** points at.
 2. That plan document's **status ledger**, and each phase's **Files:** line.
-3. `context/findings.md` — open findings, and which phase each is tied to.
+3. Any row reading `blocked` — and what its Note says stopped it.
 4. Git state — `git status --short` and the last few commits.
 
 **Nothing is cached and nothing is parsed by a script.** Read the ledger every time. That is the property
@@ -102,7 +102,7 @@ re-print the whole ledger.
 
 In priority order — take the **first** that applies and name only it:
 
-1. An open `P0` or `P1` → fix it. Quote the finding's id and its closing condition.
+1. A phase reading `blocked` → clear it. Quote the row's Note, which is what stopped it.
 2. A phase **`in progress`** → resume it, quoting its Note. Do not restart it.
 3. A phase **`blocked`** with every other phase `done` → report the blocker; the next action is the user's.
 4. A phase `done` with a next **unblocked** phase → `/feature-implement`, naming the phase it will pick.
@@ -133,7 +133,7 @@ still ends with exactly one next action.
 |---|---|
 | step 1's `roadmap.md` | the open issues carrying the backlog label |
 | step 1's status ledger | **unchanged** — it is the same table, in the issue body |
-| step 1's `findings.md` and git state | unchanged — both are still files in this tree |
+| step 1's git state | unchanged — it is still this tree's |
 | step 2's worktree sweep | **one query: the assigned issues** |
 
 **Step 2 gets shorter and stronger, and it is the clearest payoff of this answer.** The sweep exists

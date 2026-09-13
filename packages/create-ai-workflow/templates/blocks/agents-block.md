@@ -31,7 +31,7 @@ the row as part of the same change as the work. **If the ledger disagrees with t
 **Nothing commits, branches or pushes unless [`context/git.md`](context/git.md) says so.** Absent or silent,
 the work is left in the working tree and the user commits it.
 
-**An open `P0` or `P1` in [`context/findings.md`](context/findings.md) blocks its phase from being `done`.**
+**A phase is `done` only when its scope landed and both gates passed** — never on a self-report.
 
 **Documentation is part of the change.** Whatever a change makes untrue in this project's own docs is fixed
 by the phase that makes it untrue, not by a follow-up.

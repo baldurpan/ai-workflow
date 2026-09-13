@@ -28,12 +28,14 @@ plan is a droppable state.
 
 ### Refuse first
 
-Check both before touching anything, and refuse if either fails:
+Check this before touching anything, and refuse if it fails:
 
-1. **Every phase in the ledger is `done`.** If not, list the ones that are not, and stop. Do not offer to
-   mark them.
-2. **No open `P0` or `P1` in `context/findings.md` is tied to this feature.** If there is, quote it and
-   stop.
+**Every phase in the ledger is `done`.** If not, list the ones that are not, and stop. Do not offer to mark
+them. A phase that ended `blocked` is on that list by definition, and its Note says what stopped it.
+
+**One check, not two.** `done` already means the scope landed and both gates passed, so a defect the gates
+caught is either fixed, or it is a row that does not read `done`, or it is an issue this feature never
+owned. There is nothing left for a second refusal to catch.
 
 A refusal here is the workflow working, not a problem to route around. If the user overrides after being
 told, say plainly what is being overridden, then proceed.
@@ -75,11 +77,6 @@ grep -rn "<old-path>\|<OLD-FILENAME>" --include='*.md' . | grep -v node_modules
   into paths that will rot.
 - **Show the full list of edits before committing.** That review is why this is an explicit command rather
   than a side-effect.
-
-### Finally
-
-Move every **closed** finding tied to this feature out of `context/findings.md` and into the archived plan's
-own log. `findings.md` must not grow for the life of the project.
 
 ### The release note — before the commit, under both granularities
 
@@ -142,7 +139,6 @@ expected.
 3. **If the entry never had a document, stop here.** If it had one — a draft in `context/drafts/` or a plan
    in `context/plans/` — `git mv` it to `context/archive/`, repoint its header at the `history.md` row (no
    stamped outcome, same rule as Mode 1), and sweep.
-
 **No release note is written here, and none is removed.** An idea that will not be built announces nothing.
 But a dropped feature may have landed phases, and under *per phase* those phases wrote notes for changes
 that are in the repository — **a note belongs to the change that landed, not to the outcome the feature was
@@ -150,8 +146,8 @@ later given.** Leave them where they are, and say they are there.
 
 ## Under the tracker answer
 
-Read [`context/tracking.md`](../../../context/tracking.md) first. **Both refusals are unchanged** — every
-phase finished, no open `P0` or `P1` — and so is everything about pushing.
+Read [`context/tracking.md`](../../../context/tracking.md) first. **The refusal is unchanged** — every
+phase finished — and so is everything about pushing.
 
 | Above | Becomes |
 |---|---|
@@ -194,9 +190,6 @@ issue.
 **Keep the label and keep the assignee.** The label is what makes retired features findable later, and the
 assignee is the record of who ran it. Neither means anything once the issue is closed, and removing either
 loses a fact for no gain.
-
-**Closed findings go into the closing comment**, not into an archived document — same rule, same reason:
-`findings.md` must not grow for the life of the project.
 
 **`--dropped` closes as *not planned*, and the reason goes in the comment**, verbatim in substance. That
 comment is what stops the idea being re-proposed, so a vague one makes it worthless — exactly what the

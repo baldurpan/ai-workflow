@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { claudeSkillTransform, SKILL_NAMES, STUBS, agentsBlockBody, readTemplate } from '../src/layout.ts';
-import { parseFindings, parseHistory, parseRoadmap } from '../src/check/parse.ts';
+import { parseHistory, parseRoadmap } from '../src/check/parse.ts';
 import { stripComments } from '../src/check/markdown.ts';
 import { sections } from '../src/stubs.ts';
 import { packageRoot, templatesDir, walk } from '../src/paths.ts';
@@ -409,7 +409,6 @@ describe('--all runs the phases without crossing a tier', () => {
     for (const [what, re] of [
       ['a phase that ended blocked or part-landed', /closed `blocked`/],
       ['a gate at its loopback cap', /two-loop cap/],
-      ['an open P0 or P1 tied to the phase', /open `P0` or `P1`/],
       ['a ledger that disagrees with the repo', /step 5's disagreement/],
       ['nothing runnable', /`Depends on` that is not `done`/],
     ] as const) {
@@ -538,9 +537,6 @@ describe('the stubs are inert', () => {
     assert.deepEqual(parseRoadmap(readTemplate('stubs/roadmap.md')), []);
   });
 
-  it('the findings stub contains no parseable finding', () => {
-    assert.deepEqual(parseFindings(readTemplate('stubs/findings.md')), []);
-  });
 
   it('the history stub has a table and no rows', () => {
     assert.deepEqual(parseHistory(readTemplate('stubs/history.md')), []);
@@ -797,5 +793,101 @@ describe('what a change announces is an answer, not an assumption', () => {
     const prune = onboard.search(/^## Step \d+ — Prune/m);
     assert.ok(stack > 0 && release > stack, 'release comes after stack');
     assert.ok(prune > release, 'and pruning still comes last');
+  });
+});
+
+describe('a defect the gate found has one home, and it is the ledger', () => {
+  // `findings.md` was a parallel status system for phases wearing a second vocabulary. `P0`–`P3` sat next
+  // to `not started`/`in progress`/`blocked`/`done` and the two had to be kept in sync by discipline, which
+  // is what produced a 76 KB file of defects nothing could close — large enough to come back truncated to
+  // the very gate that was supposed to read it. The file is gone. A blocking defect is fixed, or it is the
+  // `blocked` status the ledger already has a word for, or it is an issue. Everything here guards that one
+  // vocabulary and that nothing re-grows a second place to record a defect.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const workflow = readTemplate('context/workflow.md');
+  const OWNS_A_GATE = ['feature-implement', 'orchestrate'] as const;
+
+  it('nothing the tool installs mentions the file, or ships it', () => {
+    for (const { rel, text } of ourTemplates()) {
+      assert.doesNotMatch(text, /findings\.md/, `${rel} still points at the deleted file`);
+    }
+    assert.equal(
+      STUBS.find((s) => s.dest === 'context/findings.md'),
+      undefined,
+      'an install would still write it',
+    );
+  });
+
+  it('the severity scale is gone, because it was the second vocabulary', () => {
+    // The scale's only real question was "does this block the phase", which is one bit. Four values
+    // invited a `P3` to be filed and kept, which is the drift — a note nothing acts on, read by every
+    // later phase, against code that has moved.
+    for (const { rel, text } of ourTemplates()) {
+      assert.doesNotMatch(text, /\bP0\b|\bP[1-3]\b/, `${rel} still grades severity`);
+    }
+    assert.match(flat(workflow), /blocking or it is not/i, 'the one bit replaces it');
+    assert.match(flat(workflow), /There is no severity scale/i, 'and the absence is stated');
+  });
+
+  it('one status vocabulary, and the ledger is the record', () => {
+    assert.match(workflow, /^## What happens to a defect the gate found$/m);
+    assert.match(flat(workflow), /no second status vocabulary/i);
+    assert.match(flat(workflow), /because it is already the record/i, 'the ledger was always carrying this');
+  });
+
+  it('a blocking item has three ends and the run picks one before it reports', () => {
+    for (const end of [/\*\*fixed\*\*/, /\*\*`blocked`\*\*/, /\*\*an issue\*\*/]) {
+      assert.match(workflow, end, `the contract names ${String(end)}`);
+    }
+  });
+
+  it('a non-blocking observation is work or it dies — it is never kept as a note', () => {
+    // "A note worth not losing" was the category that grew without bound, so it is deleted rather than
+    // bounded. Anything actually worth keeping is work, and work has a home already.
+    assert.match(flat(workflow), /dies with the session/i);
+    assert.match(flat(workflow), /a note nothing acts on/i, 'and the contract says why it is refused');
+    for (const name of OWNS_A_GATE) {
+      assert.match(flat(skillBody(name)), /dies with the session/i, `${name} says what happens to one`);
+    }
+  });
+
+  it('a defect against an already-done phase reopens that phase', () => {
+    // The alternative is a record elsewhere saying "this phase is done and also broken", which is the
+    // exact shape of the thing that was just deleted.
+    assert.match(flat(workflow), /sets that phase back to `blocked`/i);
+    assert.match(flat(workflow), /leave the row claiming `done`/i);
+  });
+
+  it('a capped gate writes the row before it escalates', () => {
+    // The old rule wrote the finding before the loopback for this reason; the ledger row inherits it.
+    const implement = flat(skillBody('feature-implement'));
+    assert.match(implement, /before you escalate/i);
+    assert.match(implement, /Escalating is not a substitute for recording/i, 'the principle survives');
+    assert.match(flat(workflow), /the row is written before the hand-back/i);
+  });
+
+  it('/orchestrate hands back instead, because it has no ledger to write to', () => {
+    // The one place the deleted file did something nothing else did. The honest answer is that a
+    // commit-sized change which cannot pass its gates is not a thing to file away.
+    const body = flat(skillBody('orchestrate'));
+    assert.match(body, /has no ledger/i);
+    assert.match(body, /handed back, not filed away/i);
+    assert.match(body, /still worth doing, it is an issue/i, 'and work is not lost on the way past');
+  });
+
+  it('/feature-close refuses once, because `done` already covers it', () => {
+    // Two refusals where one would do: an open blocker meant its gate had not passed, which meant the row
+    // was not `done`, which the ledger check already caught.
+    const close = flat(skillBody('feature-close'));
+    assert.match(close, /One check, not two/i);
+    assert.match(close, /nothing left for a second refusal to catch/i);
+  });
+
+  it('update tells an install the file is no longer read, and never removes it', () => {
+    // A project-owned file is outside the manifest by design, so the report is the whole of what the tool
+    // may do about one.
+    const src = readFileSync(path.join(packageRoot, 'src/stubs.ts'), 'utf8');
+    assert.match(src, /export function retiredFiles/, 'the detector exists');
+    assert.match(src, /project-owned and absent from the manifest/, 'and says why it only reports');
   });
 });

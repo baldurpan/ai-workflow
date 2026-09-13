@@ -35,7 +35,7 @@ starting point — nothing has to be looked up first.
 |---|---|
 | `/roadmap` | prints the backlog, or appends one `pending` entry — capturing any material you supply as a draft |
 | `/feature-plan` | turns an entry into a plan document and **stops**. Planning is not activation |
-| `/feature-implement` | activates a planned feature and runs **one phase** through both gates — or phase after phase with `--all`, which stops at a `blocked` phase, a capped gate or an open `P0`/`P1`, and never at `/feature-close` |
+| `/feature-implement` | activates a planned feature and runs **one phase** through both gates — or phase after phase with `--all`, which stops at a `blocked` phase, a capped gate or a ledger that disagrees with the repo, and never at `/feature-close` |
 | `/feature-status` | read-only. Reconciles the ledger against the repo — sweeping every worktree where the project works that way — then names **exactly one** next action |
 | `/feature-close` | retires a feature: a `history.md` row, a `git mv` into `archive/`, a reviewed reference sweep, and the release note where `release.md` says one is owed |
 | `/orchestrate` | one ad-hoc, commit-sized change through the same gates — no entry, no ledger |
@@ -104,9 +104,19 @@ deploys**, and the stub has a section that says so rather than leaving it implie
 hand-maintained `## Unreleased` section, or a fragment directory, or nothing — and not one line of the
 commands changes. They ask *record a note per `release.md`*; that file says what records one here.
 
-**A finding outlives the session that found it.** A reviewer `FAIL` or a capped gate is written to
-`context/findings.md` *before* the loopback, so it survives the conversation ending. An open `P0`/`P1`
-blocks its phase from being marked `done` and blocks `/feature-close`.
+**A defect the gate found has one home, and it is the ledger.** Every item a review returns is blocking or
+it is not — there is no severity scale. A blocking one is **fixed** by the loopback, or the phase closes
+`blocked` with the reason in its Note, or it is **an issue**, because it turned out to be work that
+outlives the phase. A non-blocking one goes in the run's report and dies with the session, unless it needs
+code changes — in which case it is work, and work already has a home.
+
+**Nothing accumulates, so nothing has to be swept.** Earlier versions kept a `context/findings.md`, which
+was a second status vocabulary (`P0`–`P3`) laid across the one the ledger already had, kept in sync by
+discipline. One repository reached 1097 lines of defects nothing could close — their gates belonged to
+phases that no longer existed — and the file grew past what a tool reads in one go, so the gate that asks
+*is anything blocking this phase* was answering from a file that came back truncated. **A phase has four
+states and they are the four in the Status column.** An `update` tells an install carrying the old file
+that nothing reads it any more, and leaves it alone: it is yours.
 
 **Where the backlog and the ledgers live is an answer too.** `context/tracking.md` holds it, and it ships
 saying *in the working tree* — `roadmap.md` for the backlog, a document under `plans/` per feature, a
@@ -139,7 +149,7 @@ not.
 context/
   README.md  workflow.md  plan-template.md  plan-template.notes.md  roles/  standards/     tool-owned
   stack.md  verify.md  executors.md  git.md  tracking.md  release.md                       yours
-  roadmap.md  history.md  findings.md                                                      yours
+  roadmap.md  history.md                                                                   yours
   drafts/  plans/  archive/                                                                yours
   .state/manifest.json
 .claude/skills/<nine>/SKILL.md    .claude/agents/*.agent.md                                tool-owned
@@ -217,15 +227,14 @@ npx @baldurpan/create-ai-workflow check
 
 Reports structural breakage: an illegal status word, a `Depends on` naming a phase that does not exist or
 a cycle, two entries marked `active`, a second phase table, a `**Status:**` header, a plan no entry points
-at, a dead `Doc` or history link, a closed finding still in the file, and a backlog left in `roadmap.md`
-after `tracking.md` was switched to the tracker — entries that are still well-formed and no longer read by
-anything.
+at, a dead `Doc` or history link, and a backlog left in `roadmap.md` after `tracking.md` was switched to
+the tracker — entries that are still well-formed and no longer read by anything.
 
 It **never writes** — there is no `--fix`, because the moment it can repair a ledger, a program's edit
 competes with a hand edit. Nothing depends on it: no skill calls it and no git hook installs it. **Delete
-it and every workflow answer is unchanged.** It reads `roadmap.md`, `plans/`, `history.md` and
-`findings.md` — never `archive/`, because validating retired records against current rules is how
-validators earn a reputation for crying wolf. Every message quotes the rule it enforces, so a false
+it and every workflow answer is unchanged.** It reads `roadmap.md`, `plans/` and `history.md` — never
+`archive/`, because validating retired records against current rules is how validators earn a reputation
+for crying wolf. Every message quotes the rule it enforces, so a false
 positive points at the document that is out of step.
 
 ## Scope
@@ -245,8 +254,8 @@ as `add` in the plan.
 
 **No host's review command is named anywhere in the package.** Which coder or reviewer serves Gate 2 is a
 per-machine fact that hosts change underneath you, so `/onboard` asks and writes the chosen invocation into
-`context/executors.md`. What ships is the contract — a review happens, blocking findings carry a `P0`–`P3`
-severity, a `FAIL` writes a finding before the loopback — not the command.
+`context/executors.md`. What ships is the contract — a review happens, every item in it is blocking or it
+is not, and a `FAIL` is looped back on — not the command.
 
 Each executor has **three answers**: in-host, in-host but isolated in a subagent, or offloaded to an
 external CLI. The middle one is written as *"a subagent if your runtime provides one"* — described by what

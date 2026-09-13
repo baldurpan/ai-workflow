@@ -40,7 +40,6 @@ generated "current state" file — hand-editing a ledger row changes every comma
 | [`release.md`](release.md) | what a change here announces, and to whom — the paths, what records a note, and how often | project |
 | [`roadmap.md`](roadmap.md) | Tier 1 — the backlog. `pending` and `active` entries only | project |
 | [`history.md`](history.md) | index of retired features, newest last | project |
-| [`findings.md`](findings.md) | open findings that gate a phase from being marked `done` | project |
 | [`drafts/`](drafts/) | notes and source material for ideas not yet planned — no ledger | project |
 | [`plans/`](plans/) | Tier 2 — documents with an executable phase ledger | project |
 | [`archive/`](archive/) | retired plans, moved here by `/feature-close` | project |
@@ -68,7 +67,7 @@ hash, `update` walks that manifest, and a project-owned file is not in it — so
 | Tool-owned — replaced on `update` | Project-owned — unreachable by the updater |
 |---|---|
 | `README.md`, `workflow.md`, `plan-template*.md`, `roles/` | `stack.md`, `verify.md`, `executors.md`, `git.md`, `tracking.md`, `release.md` |
-| the skill and agent trees, the `AGENTS.md` block | `roadmap.md`, `history.md`, `findings.md` |
+| the skill and agent trees, the `AGENTS.md` block | `roadmap.md`, `history.md` |
 | `standards/` while it is ours and unmodified | `drafts/`, `plans/`, `archive/`, `CLAUDE.md` |
 
 `update` prints both columns when it runs. A visible boundary beats a documented one.

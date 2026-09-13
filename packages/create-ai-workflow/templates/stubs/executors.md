@@ -29,7 +29,7 @@ Run `/onboard` to fill this in.
 **Not configured — implement in-host.**
 
 <!-- **A subagent, briefed with [`roles/coder.md`](roles/coder.md).** The phase's implementation runs in its
-     own context and returns that file's output contract; the ledger, the gates and `findings.md` stay with
+     own context and returns that file's output contract; the ledger and the gates stay with
      the caller. Same code, smaller caller — worth most on long plans, where the alternative is a context
      window carrying every file read of every phase.
 
@@ -59,8 +59,8 @@ Run `/onboard` to fill this in.
 
 ## The contract, whatever is configured
 
-A review happens, it returns a verdict with a `P0`–`P3` severity on every blocking finding, and a `FAIL`
-writes a finding to [`findings.md`](findings.md) **before** the loopback.
+A review happens, it returns a verdict, and every item in it is marked blocking or not. A `FAIL` is looped
+back on, and a gate at its cap leaves the phase `blocked` with the reason in its ledger row.
 
 ## Standing rules for any external executor
 

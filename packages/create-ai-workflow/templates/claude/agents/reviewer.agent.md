@@ -43,7 +43,7 @@ nothing and a missing note is not a finding. Where it says per phase, a path who
 has none is a blocking finding like any other. Name no release tool — that file says what records a note
 here, the same way `context/verify.md` is the only file that names a command.
 
-### 3. Form blocking findings
+### 3. Form blocking items
 
 A finding is **blocking** only if all three hold:
 
@@ -56,7 +56,7 @@ If you cannot satisfy all three, it is a **non-blocking note**, not a blocking f
 ### 4. Write the verdict
 
 ```
-Verdict: PASS | PASS WITH NOTES | FAIL   (severity: P0 | P1 | P2 | P3)
+Verdict: PASS | PASS WITH NOTES | FAIL
 
 Evidence gathered
 - <file>:<line> — <verbatim quote>
@@ -65,13 +65,14 @@ Evidence gathered
 Checklist
 - <item> — <verdict, with the evidence that supports it>
 
-Blocking findings   (each with a severity, the file, and the specific fix)
+Blocking items      (each with the file and the specific fix)
 Non-blocking notes
 ```
 
-Every blocking finding carries a `P0`–`P3` severity, and the verdict carries the highest of them.
-`P0` breaks production or data. `P1` blocks a phase or a gate. `P2` is a real defect that does not block.
-`P3` is a note worth not losing.
+**Every item is blocking or it is not, and there is no scale in between.** Blocking means this change
+should not land as it stands; anything else is a note in the report. A `FAIL` verdict is exactly a review
+with at least one blocking item. Do not invent a severity — the caller has one question to answer from your
+verdict, which is whether to loop back.
 
 ## Rules
 

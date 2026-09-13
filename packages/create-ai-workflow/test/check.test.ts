@@ -34,6 +34,7 @@ const entry = (name: string, marker: string, doc: string) =>
 
 const messages = (problems: Problem[]) => problems.map((p) => p.message);
 
+
 describe('check', () => {
   before(() => {
     root = mkdtempSync(path.join(tmpdir(), 'aiw-check-'));
@@ -146,25 +147,11 @@ describe('check', () => {
     assert.ok(messages(runChecks(root)).some((m) => m.includes('archive/GONE-PLAN.md`, which does not exist')));
   });
 
-  it('reports a closed finding as a note, not an error', () => {
-    write('context/roadmap.md', roadmapWith(entry('widgets', 'active', 'plans/WIDGETS-PLAN.md')));
-    write('context/plans/WIDGETS-PLAN.md', plan());
-    write('context/history.md', '# History\n');
-    write(
-      'context/findings.md',
-      `# Findings\n\n## Open\n\n## Closed\n\n### F-001 — P2 — something — **closed 2026-09-04**\n`,
-    );
-    const found = runChecks(root);
-    assert.equal(found.length, 1);
-    assert.equal(found[0]?.level, 'note');
-    assert.match(found[0]?.message ?? '', /F-001 is closed and still in the file/);
-  });
-
   it('never reads archive/, so a retired plan in an old shape is not a false positive', () => {
     write('context/archive/OLD-PLAN.md', `**Status:** Plan of record\n\n${plan('| # | Phase | Status |\n|---|---|---|\n| 1 | x | shipped |\n')}`);
     write('context/roadmap.md', roadmapWith(entry('widgets', 'active', 'plans/WIDGETS-PLAN.md')));
     write('context/plans/WIDGETS-PLAN.md', plan());
-    write('context/findings.md', '# Findings\n\n## Open\n\n## Closed\n');
+    write('context/history.md', '# History\n');
     assert.deepEqual(runChecks(root), []);
   });
 });

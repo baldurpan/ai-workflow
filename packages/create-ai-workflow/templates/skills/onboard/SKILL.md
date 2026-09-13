@@ -93,7 +93,7 @@ the middle answer is only real if there is a mechanism behind it.
 - **In a subagent**, briefed with [`context/roles/coder.md`](../../../context/roles/coder.md). Offer this
   only where the host has such a mechanism. It needs no invocation written down — the brief is a file that
   is already in the repository. What it buys is a caller that keeps the ledger, the gates and
-  `findings.md` while the implementation's file reads stay elsewhere; what it does not buy is better code.
+  the gates while the implementation's file reads stay elsewhere; what it does not buy is better code.
   Say both.
 - **Offloaded** — the user names the invocation. Write it into `context/executors.md` verbatim, including
   any directory or permission scoping it needs on this machine. Its system prompt is
@@ -136,8 +136,8 @@ not the command.
 weakest under, and it is the one a user gets by not answering. Where either of the other two is available,
 recommend it.
 
-Whatever is chosen, that contract stands: a review happens, every blocking finding carries a `P0`–`P3`
-severity, and a `FAIL` writes a finding before the loopback.
+Whatever is chosen, that contract stands: a review happens, every item in it is marked blocking or
+not, and a `FAIL` is looped back on.
 
 ## Step 4 — Git: who commits, where work lands, and whether it is pushed
 
@@ -181,8 +181,9 @@ and the rules that hold either way.
   under the worktree answer collect how to ask whether an agent session is live in a tree, if there is a way
   — `/feature-status` reports it when there is and says it cannot tell when there is not.
 - **`context/history.md` will conflict on every merge**, because every `/feature-close` appends to its end.
-  Offer to add `context/history.md merge=union` to the repository's `.gitattributes`. **Do not offer the
-  same for `findings.md`** — closed findings leave that file, and a union merge resurrects deleted lines.
+  Offer to add `context/history.md merge=union` to the repository's `.gitattributes`. It is the only file
+  in the tree with that shape — a plan's ledger is edited in place rather than appended to, so a union
+  merge there would resurrect rows instead of resolving them.
 
 Then **say plainly what is not being decided**: nothing in this workflow merges a pull request, deletes a
 branch, or removes a worktree, under any answer above.
@@ -295,8 +296,8 @@ cannot show is empty.
 | `roadmap.md`, `drafts/`, `plans/` | `/tracking-migrate` — the entries and documents move, then the files go |
 | `history.md`, `archive/` | nobody. They are the frozen record of the era before the switch and are never converted, in either direction — fabricating closed issues for features shipped months ago produces wrong dates, empty threads, and an audit trail that looks real and is not |
 
-**`findings.md` stays under both answers.** A finding is raised and swept inside a single branch's life, so
-it is never the thing two agents contend over.
+**Nothing else in the tree needs an answer here.** A blocking defect lives in its phase's ledger row, which
+moves with the ledger under either answer, so there is no third file to place.
 
 ## Step 6 — Standards source
 

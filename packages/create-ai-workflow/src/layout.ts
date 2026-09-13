@@ -134,7 +134,6 @@ export const STUBS: ReadonlyArray<{ source: string; dest: string; onboard: boole
   { source: 'stubs/release.md', dest: 'context/release.md', onboard: true },
   { source: 'stubs/roadmap.md', dest: 'context/roadmap.md', onboard: false },
   { source: 'stubs/history.md', dest: 'context/history.md', onboard: false },
-  { source: 'stubs/findings.md', dest: 'context/findings.md', onboard: false },
 ];
 
 export const STUB_DIRS = ['context/drafts', 'context/plans', 'context/archive'] as const;

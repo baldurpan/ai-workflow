@@ -93,13 +93,12 @@ describe('what an update cannot write', () => {
   });
 
   it('leaves the files /onboard does not fill to `check`', () => {
-    // roadmap.md, history.md and findings.md are written by the workflow as it runs, not by a person
-    // answering questions. `check` already reports a missing roadmap; naming `/onboard` for one would
-    // send someone to a command that never opens it.
+    // roadmap.md and history.md are written by the workflow as it runs, not by a person answering
+    // questions. `check` already reports a missing roadmap; naming `/onboard` for one would send someone
+    // to a command that never opens it.
     const root = scratch();
     quiet(() => install(root));
     rmSync(path.join(root, 'context/roadmap.md'));
-    drop(root, 'context/findings.md', 'Closed');
 
     assert.deepEqual(stubGaps(root), []);
     assert.deepEqual(

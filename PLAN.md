@@ -3,35 +3,57 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 2168 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 2296 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 154 tests. The seventy-nine in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 164 tests. The eighty-four in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, one home for the tracker, no
    self-declared status, inert stubs, a ledger row that opens before the work, a substrate answer that
    never strands the data it names, a `--all` loop that stops where a single run stops, a plan too large
    for its home being split rather than trimmed, documentation reaching the plan, an answer file that may
-   not hold a false answer, a titled §-citation resolving against the template, and every relative link
-   resolving after install — in both skill trees. `ci.yml`
+   not hold a false answer, one status vocabulary with no second place to record a defect, a titled
+   §-citation resolving against the template, and every relative link resolving after install — in both
+   skill trees. `ci.yml`
    runs them on every push and pull request against `main`, plus an `engines-floor` job that builds on
    Node 20.10.0 and runs the packed CLI there — the suite itself cannot, since it executes `.ts` directly
    and that needs type stripping.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** v0.10.0 is published and is npm's `latest` — it rebuilt the tracker answer's phase model, so
-**the sub-issues are gone and the ledger is back in the issue body** (§10.10), the issue's type is set and
-never read (§10.11), and `Priority:` replaces the backlog order an issues list cannot express (§10.12).
-`package.json` now says **`0.11.0`, unreleased**, and carries two things: the body's ceiling (§10.13) — a
-plan too large for an issue body is a feature to split, not a plan to trim — and **item 6 phase A, the
+**State:** v0.10.1 is npm's `latest`. `main` carries **0.11.0** — the body's ceiling (§10.13), a plan too
+large for an issue body being a feature to split rather than a plan to trim, and **item 6 phase A, the
 release answer** (§11), a sixth project-owned stub plus an `/onboard` step that asks what a change
-announces. A minor rather than the patch 0.10.1 was going to be, because a sixth stub is a feature; 0.10.1
-never shipped, so nothing is skipped.
+announces. `package.json` now says **`0.12.0`, unreleased**, and it carries one thing: **`findings.md` is
+deleted** (§12).
+
+**0.12.0 removes a file rather than fixing it, and the route there is the part worth keeping.**
+`northguild/worktree` reached 35 open findings against five shipped features — 1097 lines, 76 KB, large
+enough that the file came back **truncated** to the very gate that was supposed to read it. The first fix
+widened `/feature-close` from *sweep what is closed* to *dispose of everything tied to this feature*, with
+three dispositions and a `check` rule for orphans. It worked and it was the wrong fix: **it bounded the
+tail and left the accumulation**, since an eight-phase feature could still carry thirty `P2`s through its
+whole life, read by every phase, going stale as the code moved.
+
+The question that settled it was *what does this file do that something else does not already do* — and
+the answer was **nothing that matters**. A session that dies is already survivable because the ledger row
+opens to `in progress` before any code; `done` already means both gates passed, so an open blocker was a
+second copy of *the gate failed*. `P0`–`P3` was a **second status vocabulary laid across the ledger's
+four**, kept in sync by discipline, and `P3` — *a note worth not losing* — was the category that grew
+without bound.
+
+So: a review item is **blocking or it is not**. A blocking one is fixed, or the phase closes `blocked` with
+the reason in its Note, or it is an issue. A non-blocking one is an issue if it needs code changes and a
+line in the report otherwise. `/feature-close` refuses once instead of twice, `/orchestrate` hands a capped
+change back instead of filing it, `check` loses two rules and the `Finding` parser, and `update` tells an
+upgrading install the file is no longer read — then leaves it alone, because it is project-owned and
+outside the manifest by design. **§12.7 holds the transferable half:** a file whose invariant is maintained
+by discipline has no invariant, and the instinct to repair the sweep cost two passes before anyone asked
+whether anything should be in the store at all.
 
 **0.10.0 is a fix, not a refinement, and both published versions need it.** The sub-issue design could not
 run: a phase closed its sub-issue through `Closes #N`, that trailer fires only when the commit reaches the
@@ -86,19 +108,19 @@ while a user reads each report and wrong once they have decided to let the plan 
 stops at the last `done` phase and **names** `/feature-close` rather than crossing into it — phase to phase
 is not a tier boundary, so the rule the tier model exists to protect is untouched. What it does remove is
 the pause where a bad phase is caught before the next one builds on it, so that pause is replaced by
-something written down: a stop list — `blocked`, part-landed, a capped gate, an open P0/P1, a ledger that
+something written down: a stop list — `blocked`, part-landed, a capped gate, a ledger that
 disagrees with the repo, nothing runnable — and two answers said out loud before the first phase. Which
 reviewer `executors.md` gives, because the shipped one is the host reading its own diff; and, under
 `git.md`'s shipped *the user commits*, that the flag **runs one phase and declines the continuation**,
 because a tree carrying four phases cannot be cut back into the four commits that file says they are.
 Eight tests guard it.
 
-**To release: commit and push to `main`** — that tags `v0.11.0` — **then publish the tag as a GitHub
+**To release: commit and push to `main`** — that tags `v0.12.0` — **then publish the tag as a GitHub
 release.** An npm workspaces monorepo — the installer lives in
 `packages/create-ai-workflow/`, and `apps/*` is reserved for a landing site or hosted documentation.
 Installs a `context/` tree, the nine skills into **both** `.claude/skills/` and `.agents/skills/`, two
 Claude subagents, a merged `AGENTS.md` block and a manifest that draws the ownership boundary — 103
-tool-owned files, 9 project-owned stubs.
+tool-owned files, 8 project-owned stubs.
 
 ---
 
@@ -313,7 +335,6 @@ Five places the design left the call open and the build had to make one.
 | Decision | Why | To reverse |
 |---|---|---|
 | `update` reconciles adapters to **what the running version ships**, not to what the manifest recorded — so a v0.1 install silently gains `.agents/skills/` | It is the only way an existing install ever reaches a new tree, and the alternative is a flag nobody knows to pass. The eight files are reported as `add`, visible under `--dry-run`, and a directory the tool did not write is still a conflict rather than an adoption | `const adapters = DEFAULT_ADAPTERS` → `manifest.adapters` in `src/commands/update.ts`, plus a way to opt in |
-| A closed finding in `findings.md` is a **`note`**, not an error — printed, but it does not fail the exit code | §6.4 says `check` "reports" it, and a finding legitimately sits in *Closed* until `/feature-close` sweeps it. An error would turn `check` red during ordinary work — the crying-wolf failure §6.4 warns against | one `level: 'note'` → `'error'` in `src/check/rules.ts` |
 | An edited `context/standards/` file hands over **the whole tree**, not that file | §6.2 says a hash mismatch is a conflict; §4.1 says standards are ours only "while unmodified". The tree is an interface — the README's conditional table and the files it names have to agree, so a half-managed tree is one where an update replaces a file the user's own table no longer points at | the tree-level branch in `src/commands/update.ts` |
 | An upgraded install **never gets `context/git.md`**, and never gains a section a newer stub added — `update` reports both and writes neither | Stubs are project-owned; a pass that writes missing ones is a pass that can overwrite a file someone deleted on purpose. Instead the absence is a defined state, and `update` ends by naming each gap under **Next** and pointing at `/onboard` (§6.2) — the boundary holds, and it is no longer silent | a stub-restore pass in `src/commands/update.ts` that writes only stubs whose destination does not exist, reported as `add` |
 | Subagents use **`model: inherit`** | The package installs into other people's accounts and assumes nothing about model access. The reference pinned `opus` and `sonnet` | one line in each `templates/claude/agents/*.agent.md`. Note that pinning after install makes it a conflict on the next `update` — which is the correct signal |
@@ -331,8 +352,8 @@ Five places the design left the call open and the build had to make one.
   repo. The entry point is split: `src/cli.ts` exports, `src/bin.ts` runs. Keep that split.
 - **The stubs' commented-out examples parsed as real content.** `check` strips HTML comments so it was
   never fooled, but an agent or a one-off script would be. Examples now sit in blockquotes above the
-  `---`, outside the sections anything scans, and three tests assert the stubs parse to zero entries,
-  zero findings, zero history rows.
+  `---`, outside the sections anything scans, and tests assert the stubs parse to zero entries and zero
+  history rows.
 - **The host question dissolved instead of shipping.** §3.9 step 1 was "which host?", deferred from v1.
   Once both trees install unconditionally there is nothing to ask and nothing to branch on — a deferred
   question that turned out to have no answer worth collecting. Worth checking for on any other deferral:

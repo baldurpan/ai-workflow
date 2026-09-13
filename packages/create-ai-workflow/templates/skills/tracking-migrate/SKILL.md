@@ -85,7 +85,6 @@ list exists to prevent.
 |---|---|
 | `history.md` | fabricating closed issues for features shipped months ago produces wrong dates, empty threads, and an audit trail that looks real and is not |
 | `archive/` | the same, and the retired plan documents are the evidence behind those rows |
-| `findings.md` | it stays a file under both answers — a finding is raised and swept inside one branch's life, so it is never contended |
 
 **`history.md` and `archive/` stay exactly where they are, forever.** They are the record of the era before
 the switch, and everything under `context/` is project-owned, so keeping them costs nothing. New closures
@@ -168,7 +167,7 @@ Do not create anything to prove the tracker works.
    file removed. The removals are the part that is a diff; show them as one.
 2. **Offer to remove what is now dead and empty** — `roadmap.md` once its last entry is gone, and `drafts/`
    and `plans/` once they hold nothing. Only where empty, only shown first, and never `history.md`,
-   `archive/` or `findings.md`.
+   `archive/`.
 3. **Update [`context/tracking.md`](../../../context/tracking.md)** to say the migration ran, on what date,
    and what stayed behind. That file already holds the answer; what it gains is the fact that the answer and
    the data now agree. If anything was left un-migrated, name it there — a split that is written down is a

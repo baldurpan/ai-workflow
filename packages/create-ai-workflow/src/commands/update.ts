@@ -15,7 +15,7 @@ import {
 import { bold, cyan, dim, green, info, red, UserError, yellow } from '../log.ts';
 import { readManifest, writeManifest } from '../manifest.ts';
 import { exists, hash, packageVersion } from '../paths.ts';
-import { stubGaps, type StubGap } from '../stubs.ts';
+import { retiredFiles, stubGaps, type RetiredFile, type StubGap } from '../stubs.ts';
 
 type Action = 'replace' | 'restore' | 'add' | 'unchanged' | 'conflict' | 'remove' | 'adopt';
 
@@ -207,11 +207,12 @@ export function update(root: string, options: { dryRun: boolean; force: boolean 
   }
 
   const gaps = stubGaps(root);
+  const retired = retiredFiles(root);
 
   if (options.dryRun) {
     info();
     info(dim('--dry-run: nothing was written.'));
-    reportStubGaps(gaps);
+    reportNext(gaps, retired);
     return conflicts.length > 0 && !options.force ? 1 : 0;
   }
 
@@ -274,23 +275,24 @@ export function update(root: string, options: { dryRun: boolean; force: boolean 
 
   info();
   info(`${green('done')} ${written} file${written === 1 ? '' : 's'} written. Review the diff — nothing was committed.`);
-  reportStubGaps(gaps);
+  reportNext(gaps, retired);
   return 0;
 }
 
 /**
- * What this version's stubs expect and the install does not have. Printed last, because it is the only
- * part of an update that needs a person: everything above it has already happened, and nothing here can.
+ * What this update leaves for a person. Printed last, because everything above it has already happened and
+ * nothing here can: both halves are about project-owned files, which no code path in this tool reaches.
  *
- * This is a note, never an error — the exit code is the conflict count's to set. A tool that fails an
- * update over the shape of a file it is forbidden to touch would be reporting someone else's business as
- * its own breakage.
+ * These are notes, never errors — the exit code is the conflict count's to set. A tool that failed an
+ * update over the contents of a file it is forbidden to touch would be reporting someone else's business
+ * as its own breakage.
  */
-function reportStubGaps(gaps: StubGap[]): void {
-  if (gaps.length === 0) return;
+function reportNext(gaps: StubGap[], retired: RetiredFile[]): void {
+  if (gaps.length === 0 && retired.length === 0) return;
 
   info();
   info(bold('Next'));
+
   for (const gap of gaps) {
     info(
       gap.section === undefined
@@ -298,10 +300,37 @@ function reportStubGaps(gaps: StubGap[]): void {
         : `  ${yellow('!')} ${gap.dest} ${dim(`has no "${gap.section}" section — this version's stub has one`)}`,
     );
   }
-  info(
-    `  Run ${cyan('/onboard')} in your agent. ${dim('It is re-runnable, and it is the only thing that')}`,
-  );
-  info(`  ${dim('reaches these files — the commands above now read them.')}`);
+  if (gaps.length > 0) {
+    info(
+      `  Run ${cyan('/onboard')} in your agent. ${dim('It is re-runnable, and it is the only thing that')}`,
+    );
+    info(`  ${dim('reaches these files — the commands above now read them.')}`);
+    if (retired.length > 0) info();
+  }
+
+  reportRetired(retired);
+}
+
+/**
+ * Files this version has dropped, still sitting in the install. The rule that replaced them is in the
+ * templates this update just wrote; what is already in the file is a person's to triage, because no
+ * release can decide retrospectively what should have happened to a defect recorded a year ago.
+ *
+ * Reported, never touched. A project-owned file is outside the manifest by design, and a tool that started
+ * deleting them would be reaching across the one boundary the whole ownership model rests on.
+ */
+function reportRetired(retired: RetiredFile[]): void {
+  for (const file of retired) {
+    info(
+      `  ${yellow('!')} ${file.dest} ${dim('is no longer part of the workflow — nothing reads it any more')}`,
+    );
+    if (file.entries > 0) {
+      info(`    ${dim(`${file.entries} ${file.entries === 1 ? 'entry is' : 'entries are'} still in it`)}`);
+    }
+    info(`    ${dim('A blocking defect now lives in its phase\'s ledger row — status `blocked`, the')}`);
+    info(`    ${dim('reason in the Note — and anything that outlives its phase is an issue. Triage')}`);
+    info(`    ${dim('what is in there once, then delete the file. Nothing here will: it is yours.')}`);
+  }
 }
 
 function describeBad(state: { kind: 'duplicate'; count: number } | { kind: 'malformed'; reason: string }) {

@@ -31,10 +31,10 @@ never a prerequisite for anything.
 |---|---|---|
 | `/roadmap` | Tier 1 contents | `roadmap.md`, and `drafts/` when material is supplied |
 | `/feature-plan` | Tier 1 → a plan document | `plans/<NAME>-PLAN.md`; the `active` marker only with `--activate` |
-| `/feature-implement` | activation, and the phases within a plan | the plan's ledger, `findings.md`, the code, and a release note where [`release.md`](release.md) says *per phase* |
+| `/feature-implement` | activation, and the phases within a plan | the plan's ledger, the code, and a release note where [`release.md`](release.md) says *per phase* |
 | `/feature-status` | nothing — read-only | — |
 | `/feature-close` | Tier 2 → retired | `history.md`, `archive/`, the reference sweep, a release note where [`release.md`](release.md) says *once per feature*, and the push and pull request where [`git.md`](git.md) says so |
-| `/orchestrate` | one ad-hoc gated change | the code, `findings.md`, and a release note where [`release.md`](release.md) says one is owed |
+| `/orchestrate` | one ad-hoc gated change | the code, and a release note where [`release.md`](release.md) says one is owed |
 | `/prototype` | one throwaway HTML/CSS mockup — no gates, no application code | `prototypes/<NAME>/`, and nothing else |
 | `/onboard` | the project-owned stubs | `verify.md`, `executors.md`, `git.md`, `tracking.md`, `release.md`, `stack.md`, and the pruning of what they replace |
 | `/tracking-migrate` | moving existing state onto the substrate `tracking.md` names | issues, and the tree files they replace — never `history.md` or `archive/` |
@@ -201,7 +201,7 @@ and resume — do not restart it.
 
 **One run is one phase, unless `--all` says otherwise.** That flag repeats the pick above, and stops
 exactly where a single run would: a phase that ended `blocked` or part-landed, a gate at its loopback cap,
-an open `P0` or `P1` tied to the phase, a ledger that disagrees with the repo. Phase to phase is not a tier
+a ledger that disagrees with the repo. Phase to phase is not a tier
 boundary, so nothing above changes — and when the last phase goes `done` it stops there and names
 `/feature-close`. **That boundary is still crossed by an explicit command**, and a flag on the command
 below it is not one.
@@ -232,15 +232,42 @@ faked. Exit 0 is the verdict regardless of what any summary text claims. If `ver
 and say so.
 
 **Gate 2 — review.** Dispatch per [`executors.md`](executors.md). Every verdict needs concrete evidence —
-file paths, command output — and every blocking finding needs a `P0`–`P3` severity. A `FAIL` is written to
-[`findings.md`](findings.md) **first**, then looped back. Cap: two loops, then write a finding and escalate.
-Escalating is not a substitute for recording: the conversation ends, the file does not.
+file paths, command output — and every item in it is **blocking or it is not.** A `FAIL` is looped back on.
+Cap: two loops, then the phase goes `blocked` and the run escalates. **Escalating is not a substitute for
+recording** — the conversation ends, the ledger does not, so the row is written before the hand-back.
 
-## Findings
+## What happens to a defect the gate found
 
-[`findings.md`](findings.md) holds defects that outlive the session that found them. **An open `P0` or `P1`
-tied to a phase blocks that phase from being marked `done`**, and blocks `/feature-close` on its feature.
+A review produces two kinds of thing, and the difference is the only one that matters: **does it block this
+phase, or not.** There is no severity scale, no defect file, and no second status vocabulary — a phase has
+four states and they are the four in the ledger.
 
-A finding closes when the gate that raised it re-passes, citing that run. There is no "fixed but unverified"
-state. Closed findings leave the file entirely — at `/feature-close` for a feature's findings, and at the
-start of the next `/orchestrate` for ad-hoc ones. That file must not grow for the life of the project.
+**A blocking item has three ends, and the run that found it picks one before it reports:**
+
+| End | When | Where the record lives |
+|---|---|---|
+| **fixed** | the loopback fixes it and the gate re-passes | nowhere — there is nothing left to record |
+| **`blocked`** | the gate hit its cap, or it cannot be fixed in this phase | the phase's own ledger row: status `blocked`, the reason in its Note |
+| **an issue** | it is real work that outlives this phase | the backlog, per [`tracking.md`](tracking.md) |
+
+**A non-blocking observation goes in the run's report and dies with the session** — unless it needs code
+changes, in which case it is work, and work goes in the backlog like any other. Nothing is kept "as a note
+worth not losing": a note nothing acts on is read by every later phase, goes stale as the code under it
+moves, and is exactly the drift this workflow is trying to avoid.
+
+**The ledger is the record, because it is already the record.** A row opens to `in progress` before any
+code and closes to `done`, `in progress` or `blocked` when the phase ends — so a session that dies mid-gate
+has already written where the phase stands. A separate file saying *this phase is done and also broken*
+would be a second answer to a question the Status column already answers.
+
+> **A defect found against a phase that is already `done` sets that phase back to `blocked`**, with the
+> reason in its Note. Do not record it elsewhere and leave the row claiming `done`. If it is larger than
+> the feature, it is an issue instead, and the row stays as it is.
+
+**Nothing accumulates, so nothing has to be swept.** There is no file to bound, no disposition to decide at
+retirement, and no way for a defect to outlive the thing it was about: a `blocked` row is archived with its
+plan at `/feature-close`, and an issue was never this feature's to carry.
+
+**`/orchestrate` has no ledger**, so a capped gate there ends the only way it can: the work stays in the
+working tree, the report says what failed and why, and anything still worth doing becomes an issue. A
+commit-sized change that cannot pass its gates is not a thing to file away — it is a thing to hand back.

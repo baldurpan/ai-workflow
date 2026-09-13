@@ -72,9 +72,11 @@ entries are all `done`.**
 
 If it is already `in progress`, **read its Note and resume from there — do not restart it.**
 
-## 4. Check `context/findings.md`
+## 4. Read the row you are about to work
 
-An open `P0` or `P1` tied to this phase **is** the work. Fix it before starting anything new.
+If the phase you picked reads `blocked`, its Note says what stopped it. **That is the work** — clear it
+before starting anything new, or say plainly why it cannot be cleared and stop. A `blocked` row is the only
+durable record a previous run left, so it is read rather than overwritten.
 
 ## 5. Stop on disagreement
 
@@ -171,14 +173,17 @@ reader that never saw the implementation being written, only what it produced. W
 such mechanism, fall back to reviewing the diff yourself against the plan's review expectations and the
 standards, and say that is what happened.
 
-Require concrete evidence — file paths, command output — for every verdict, and a `P0`–`P3` severity on
-every blocking finding.
+Require concrete evidence — file paths, command output — for every verdict, and for every item in it,
+**one bit: does it block this phase or not.** There is no severity scale to assign — see *What happens to a
+defect the gate found* in [`context/workflow.md`](../../../context/workflow.md).
 
 - `PASS` or `PASS WITH NOTES` → the phase's work is done; go to step 11.
-- `FAIL` → **write it to [`context/findings.md`](../../../context/findings.md) first, then** go to step 10.
+- `FAIL` → go to step 10.
 
-**Write the finding before the loopback, not after it.** A verdict that lives only in this session's
-transcript evaporates when the conversation ends — including a `P0` the cap never got to.
+**A non-blocking observation goes in this phase's report and dies with the session** — unless it needs code
+changes, in which case it is work and belongs in the backlog per
+[`context/tracking.md`](../../../context/tracking.md). Do not carry it forward as a note: the next phase
+would read it against code that has moved.
 
 ## 10. Loopback
 
@@ -188,9 +193,12 @@ Under the cap: re-brief with the prior implementation and the validator's feedba
 summarise or paraphrase it** — plus the instruction to address only the failing items, refactor nothing
 that passes, and expand no scope. Then re-run the same gate.
 
-At the cap: **write a finding** (`P1` for a Gate 1 cap-out — a phase whose verification cannot pass is
-blocked by definition), then escalate to the user with the current state and the last feedback.
-**Escalating is not a substitute for recording.**
+At the cap: **close the row to `blocked` with the reason in its Note — before you escalate**, not after.
+A phase whose verification cannot pass is blocked by definition. Then hand back to the user with the
+current state and the last feedback verbatim.
+
+**Escalating is not a substitute for recording.** The conversation ends and the ledger does not, so a run
+that escalates without writing the row has left the next session nothing to read.
 
 ## 11. Close out the ledger row
 
@@ -202,8 +210,9 @@ The row is part of the same change as the work — never a separate step afterwa
 - **Some landed** → stays `in progress`, Note rewritten to name exactly what remains.
 - **A gate hit its cap, or something external blocks it** → `blocked`, with the blocker in the Note.
 
-**Never mark `done` on a coder's self-report** — the gate output is the evidence. **Refuse `done` while an
-open `P0` or `P1` is tied to this phase**; leave it `in progress` and name the finding.
+**Never mark `done` on a coder's self-report** — the gate output is the evidence. A blocking item that was
+not fixed means the gate did not pass, and a gate that did not pass means the phase is not `done` — there
+is no second check to run, because `done` already says both gates passed.
 
 `done` is a verdict about the gates, not about git. Whether the change is committed at all is the next step.
 
@@ -271,8 +280,7 @@ The flag is permission to continue, not an instruction to finish. **Stop after t
 report, and name the line that stopped you**, when:
 
 - it closed `blocked`, or stayed `in progress` because only part of its scope landed
-- a gate hit its two-loop cap — step 10 has already written the finding and escalated
-- an open `P0` or `P1` is tied to it, the same condition that refuses `done` in step 11
+- a gate hit its two-loop cap — step 10 has already written the `blocked` row and escalated
 - step 5's disagreement holds for the next phase: the ledger's claim contradicts the repo
 - nothing is runnable: the lowest phase that is not `done` has a `Depends on` that is not `done`
 - **every phase is `done`** → say so and name `/feature-close`, exactly as step 13 does
@@ -367,8 +375,10 @@ that is never written is worse than one whose evidence is still owed, and this i
 
 **Never edit a row to get past a refusal**, exactly as no phase is marked `done` to get past one.
 
-**`findings.md` is unchanged.** It stays a file. A finding is raised and swept inside one branch's life, so
-it is never contended — and an open `P0` or `P1` blocks the phase here the same way.
+**A blocking defect is unchanged too**, because it was never a separate object: it is fixed, or it is the
+`blocked` status in the row this section already describes, or it is an issue. Under this answer the third
+of those is an issue in the same tracker as everything else, which is the one place the file answer had to
+reach for a different substrate and no longer does.
 
 **[`context/release.md`](../../../context/release.md) is unchanged too, and so is step 7.** A release note
 is an artifact of the change rather than workflow state, so it is a file in this repository under both of

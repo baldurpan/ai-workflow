@@ -405,7 +405,8 @@ phases within it.
 3. **Pick the phase.** Read the ledger; take the lowest-numbered phase that is not `done` and whose
    `Depends on` entries are all `done`. **State which one you picked before starting.** If it is
    already `in progress`, read its Note and resume — do not restart.
-4. **Check `findings.md`.** An open P0/P1 tied to this phase *is* the work.
+4. **Check `findings.md`.** An open P0/P1 tied to this phase *is* the work. **(§12: the file is gone —
+   the step reads the phase's own row, and `blocked` is what it looks for.)**
 5. **Stop on disagreement.** If the ledger's claim contradicts the repo — a phase marked `done` whose
    files do not exist, or the reverse — say so and stop. Never silently re-do or skip a phase.
 6. **Open the row.** Set the phase to `in progress`, with a Note naming what is underway, **before any
@@ -526,7 +527,9 @@ rewritten into paths that will rot. **Show the full list of edits before committ
 why this is an explicit command rather than a side-effect.
 
 Finally, move closed findings tied to the feature out of `findings.md` into the archived plan's log.
-`findings.md` must not grow for the life of the project.
+`findings.md` must not grow for the life of the project. **Superseded by §12 — the file is deleted.** The
+sweep was not the defect; the file was. A blocking defect lives in the phase's ledger row, and this step no
+longer exists.
 
 `--dropped` has no ledger check; unfinished phases are expected. Record the user's reason verbatim in
 substance — that row is what stops the idea being re-proposed, so a vague reason makes it worthless.
@@ -556,7 +559,8 @@ file a roadmap entry, and people will route around the workflow for small things
 Runs the same Gates 1 and 2 as `/feature-implement`. Findings it raises are recorded with
 `Tied to: ad-hoc`. Because those belong to no feature, nothing would ever retire them and
 `findings.md` would grow forever — so **`/orchestrate` sweeps closed ad-hoc findings when it starts**,
-and `check` reports any closed finding still in the file.
+and `check` reports any closed finding still in the file. **Superseded by §12 — the file is deleted.** A
+capped `/orchestrate` gate now hands the change back rather than recording it.
 
 *Naming note: `/orchestrate` now sounds larger than `/feature-implement` while being the smaller of
 the two. `/task` is the rename to reach for if that grates; every other candidate was worse.*
@@ -652,7 +656,7 @@ context/
   executors.md           project   STUB — coder and reviewer dispatch
   roadmap.md             project   STUB — empty Features list
   history.md             project   STUB — header and empty table
-  findings.md            project   STUB — contract and empty Open section
+  findings.md            project   STUB — deleted in §12; an install no longer writes one
   drafts/  plans/  archive/         project   .gitkeep
   .state/manifest.json   tool      version, adapters, sha256 per managed file
 
@@ -792,7 +796,7 @@ enforces it for free — the same branch cannot be checked out twice.
 
 **One file conflicts on every merge, and it is not the one you would guess.** Parallel feature branches all
 edit `context/`. `roadmap.md` merges cleanly (each branch deletes a different entry); plans and `archive/`
-are one branch each; **`findings.md` nets to zero**, because findings are raised and swept inside a single
+are one branch each; **`findings.md` nets to zero** (§12: it no longer exists), because findings are raised and swept inside a single
 branch's life and `/feature-close` is blocked while a `P0`/`P1` is open. Only `history.md` conflicts every
 time, being pure append — `merge=union` in `.gitattributes` settles it permanently. **The same line on
 `findings.md` would be a bug**: closed findings *leave* that file, and union merge resurrects the lines one
@@ -1067,9 +1071,10 @@ quoting the rule it enforces so a false positive points at the doc that is out o
 - two phase tables in one plan
 - a document in `plans/` with no roadmap entry pointing at it
 - a `Doc` field or `history.md` link pointing at a missing file
-- a closed finding still sitting in `findings.md`
 
-**Reads `roadmap.md`, `plans/`, `history.md`, `findings.md` only — never `archive/`.** Retired plans
+The two findings rules this list used to carry went with the file (§12).
+
+**Reads `roadmap.md`, `plans/` and `history.md` only — never `archive/`.** Retired plans
 encode whatever format was current when they were written; validating historical records against current
 rules is exactly the false-positive machine that makes validators get ignored.
 
@@ -1125,7 +1130,7 @@ from judgement into a check.
   uses it for something. Say "planning artifacts live in `context/`, wherever else your docs live."
 - **Standards injection deleted entirely** (§1.1). Briefs cite paths; `references/standards-injection.md`
   does not ship.
-- **`findings.md`'s `Tied to:`** accepts a phase *or* `ad-hoc` (§3.8).
+- **`findings.md`'s `Tied to:`** accepts a phase *or* `ad-hoc` (§3.8). **(§12: deleted.)**
 
 ---
 
@@ -1353,7 +1358,7 @@ copied, the reporter stays subscribed, and the discussion that produced it stays
 and must match the commit being gated** — a `verify.md` fetched from a tracker could describe a build this
 branch does not have, which is the one way to make Gate 1 lie.
 
-`findings.md` does not move either, and the reason is different: a finding is **branch-scoped by
+`findings.md` does not move either (§12: it is deleted), and the reason is different: a finding is **branch-scoped by
 construction** and nets to zero within one branch's life (§4.5), so it is never the thing two agents
 contend over. The escape hatch is written down rather than inferred — **a finding that outlives its branch
 is promoted to its own issue**, which is also the only way a cross-cutting defect becomes visible to agents
@@ -2166,3 +2171,126 @@ Recorded here rather than in the stub, because they are facts about one vendor a
   flag every docs-only change. The gate that wants it is CI, on the pull request.
 - **The answer names the script, never the raw command**, the same indirection `verify.md` already uses —
   which gives a flag like `--since=origin/main` one home instead of two. The script itself is phase B's.
+
+## 12. `findings.md` is deleted — a second status vocabulary, and the drift it caused
+
+The file held "defects that outlive the session that found them", graded `P0`–`P3`, gated a phase from
+`done`, and was swept at `/feature-close`. **It is gone.** A blocking defect is fixed, or it is the
+`blocked` status the phase ledger already has a word for, or it is an issue. Nothing accumulates.
+
+This section records the whole argument, because the first attempt at it was a repair rather than a
+deletion and shipping that would have been the wrong call.
+
+### 12.1 What the field found
+
+`northguild/worktree` reached **35 open findings against five features whose issues were all closed and
+shipped**, in a file of 1097 lines and 76 KB. Two rules, each correct alone, composed into it:
+
+| Rule | Correct? |
+|---|---|
+| `/feature-close` refuses only on an open `P0` or `P1` | **yes** — that is what the severities meant; a `P2` was never meant to block |
+| its findings step moved out the ones that were **closed** | **yes**, as far as it went |
+| a finding closes when the gate that raised it re-passes | **yes**, and it is what kept "fixed but unverified" out of the vocabulary |
+
+An open `P2` therefore walked through the retirement untouched and could then never close — its gate
+belonged to a phase that no longer existed. No owner, no exit, nothing red.
+
+**And the clutter was not the cost.** At 76 KB the file exceeded a tool output limit and came back
+**truncated**, so the gate that asks *is an open `P0` or `P1` tied to this phase* was answering from a file
+it had not seen all of. **An unbounded file does not get untidy; it silently disables the check it exists
+for.**
+
+### 12.2 The repair that was built first, and why it was not enough
+
+The first pass widened `/feature-close` from *sweep what is closed* to *dispose of everything tied to this
+feature*, with three dispositions — **closed**, **withdrawn**, **promoted** — a `check` rule faulting an
+orphan, and a migration notice in `update`. It worked, and every acceptance test for it passed.
+
+**It bounded the tail and left the accumulation.** An eight-phase feature could still carry thirty `P2`s
+through its whole life, read by every phase, going stale as the code moved underneath them — and the fix
+only guaranteed they were cleared at the *end*. The drift complained about happens during the feature.
+
+It also cost a triage ceremony at every retirement, for objects that are mostly noise, and needed a
+vocabulary of three dispositions to describe what happens to them.
+
+### 12.3 The question that settled it
+
+**What does `findings.md` do that something else does not already do?** On paper it had two jobs:
+
+| Job | Already done by |
+|---|---|
+| survive a session that dies | the ledger row, which opens to `in progress` **before any code** precisely so an interruption is survivable, and closes to `blocked` with a Note |
+| block `done` | `done` already means *the scope landed and both gates passed*. An open blocker means the gate did not pass, which means the row is not `done` |
+
+Both are duplicates. `/feature-close`'s second refusal was a duplicate of its first for the same reason:
+every phase `done` already implies no blocker survived.
+
+Strip the duplication and three things were left over:
+
+1. a defect found in phase 5 against phase 3's already-`done` work
+2. a capped `/orchestrate` gate, where there is no ledger at all
+3. the pre-loopback write — recording a `FAIL` before attempting the fix
+
+**(1) has a better answer sitting unused in the existing vocabulary: set phase 3 back to `blocked`.** That
+is more honest than a side-file asserting *phase 3 is done and also broken*, and it puts the fact where the
+next agent is already looking. **(2) is handed back rather than filed** — a commit-sized change that cannot
+pass its gates leaves its work in the tree, its account in the report, and an issue if it is still worth
+doing. **(3) survives as the ledger row being written before the escalation**, which was always the real
+content of *escalating is not a substitute for recording*.
+
+What is genuinely lost: if a loopback succeeds on its second attempt, nothing durable records that it
+failed once. That is process telemetry, not a defect.
+
+### 12.4 The severity scale goes with it
+
+`P0`–`P3` was a **second status vocabulary laid across the ledger's four**, kept in sync by discipline —
+which §2.2 says is exactly the thing this design does not do. Its only load-bearing question was *does this
+block the phase*, which is one bit, and the other three values were the problem: **`P3` — "a note worth not
+losing" — is the category that grew without bound.** A note nothing acts on is read by every later phase,
+against code that has moved.
+
+So a review verdict now marks each item **blocking or not**, and the caller has one question to answer from
+it: loop back, or not.
+
+**The field cleanup is the evidence that severity was the wrong axis.** Triaging those 35 by severity was
+tried first and is indefensible: several `P3`s were real user-facing bugs, one of which overwrote a stored
+credential. What worked was kind — user-visible and *a regression would land green* became issues, internal
+notes were dropped. A grade assigned to answer *does this stop the phase* tells you nothing about *is this
+worth keeping*, and having it in the file invited the second question to be answered with the first
+question's answer.
+
+### 12.5 What replaces it, in one table
+
+| The thing found | Where it goes |
+|---|---|
+| blocking, and the loopback fixes it | nowhere — there is nothing left to record |
+| blocking, and the gate hits its cap | the phase's ledger row: `blocked`, reason in the Note |
+| blocking, and larger than this phase | an issue, per `tracking.md` |
+| not blocking, and it needs code changes | an issue |
+| not blocking, and it does not | the run's report, and it dies with the session |
+
+`/feature-close` keeps one refusal instead of two. `/feature-status` reports `blocked` rows instead of open
+findings. `check` loses two rules and the whole `Finding` parser. The `merge=union` question for
+`findings.md` disappears, and `tracking.md` loses *a finding is not an issue* — there is no finding to
+distinguish from one.
+
+### 12.6 Migration — reported, never removed
+
+`findings.md` is project-owned, so it is outside the manifest and **no code path in this tool may delete
+one** (§4.1). What this version dropped is the file's *role*. So `update` says exactly that — the file is
+no longer read, how many entries are still in it, where the rule went instead — and leaves it alone.
+`stubs.ts` gained `retiredFiles()` for it, which generalises to anything else this tool stops shipping.
+
+**Triage it by kind, not by severity** (§12.4): user-visible and *would land green* become issues,
+internal notes go. Then delete the file.
+
+### 12.7 The lesson, which is not about findings
+
+**A file whose invariant is maintained by discipline has no invariant.** *"This file must not grow for the
+life of the project"* was in the shipped template for every version, enforced by nothing, and false within
+five features of real use.
+
+But the more useful half is the one that took three passes to see: **the first instinct was to repair the
+sweep, and the sweep was not the problem — the second vocabulary was.** A defect the gates found always had
+a home in the ledger, and the file existed because nobody asked what it did that the ledger did not.
+Before bounding a store, ask whether anything should be in it.
