@@ -219,6 +219,37 @@ usable conditional-loading table, or you are offered a generated one (`--generat
 is project-owned from that point — it drops out of the manifest, so `update` never clobbers it. Editing
 the bundled tree in place has the same effect.
 
+## `release-init`
+
+`context/release.md` is the one stub whose answer can be **false**: *a change is announced by writing a
+note* is a lie in a repository where nothing records one, so `/onboard` Step 9 refuses to write it and names
+the gap instead. This is the command that closes the gap.
+
+```bash
+npx @baldurpan/create-ai-workflow release-init [--private-packages version|ignore] [--dry-run]
+```
+
+It sets up a note-per-change mechanism — `.changeset/`, the devDependency, and three scripts named
+`changeset:add`, `changeset:prepare-release` and `changeset:status` — then tells you to run `/onboard`,
+which records what it found. **`prepare-release` prepares one; nothing here publishes one.** **It does not write `context/release.md`.** One writer per file: the installer installs, `/onboard`
+answers, the same way `standards add` does not write `stack.md`.
+
+**It is the only command here that names a vendor, and the only one that touches `package.json`.** That is
+deliberate and it is a boundary, not an exception. The rule that no template may name a release tool is a
+rule about `templates/` — that prose is inherited by every install, including the Go and Python ones, so a
+skill named after a JavaScript tool would be nonsense in half of them. A subcommand is a program you choose
+to run, and it refuses where it does not apply. Two tests hold the line from both sides.
+
+**The answer it will not guess** is whether a private package here is deployed. The tool's default is not to
+version private packages, so a deployable app recorded as private accumulates notes, never bumps, and
+anything that deploys on a version change silently does nothing forever. It asks on a terminal and
+**refuses** without one, naming the flag — the one number in the setup that is expensive to get wrong.
+
+**It writes files and runs nothing**: no `npm install`, no `git` anything, no CI workflow. Accumulating notes
+and versioning them is uniform; the last step plus its credentials depends on branch protections, registry
+auth and who is allowed to press the button, and a generated workflow there does damage. The scripts are
+what yours would call.
+
 ## `check`
 
 ```bash

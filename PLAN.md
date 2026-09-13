@@ -272,7 +272,7 @@ ceiling is now a budget on the *prose*, `lines - SKILL_NAMES.length < 32`, which
 the prose was allowed at eight commands. A flat count made the block's one legitimate growth — a row per
 command, which is the entire reason it inlines the table — indistinguishable from the failure it guards.
 
-### 6. The release answer — phase A is built; phase B is the install
+### 6. The release answer — both phases are built
 
 `context/release.md` is the **sixth project-owned stub** and the one whose answer can be *false*:
 *no lint step* is accurate in a project with no linter, but *"a change is announced by writing a note"* is
@@ -308,12 +308,35 @@ stop list untouched. And three of the grid's six axes turned out **inert**: `tra
 workflow state. `release.md` is the first stub in this shape with no *Under the tracker answer* section,
 and it says so, since every sibling has one.
 
-**What is left — phase B, the install.** The devDependency, the vendor's init, the private-package
-versioning line written **from the answer** rather than from the vendor's default (left alone, a deployable
-app never bumps and the deploy half silently does nothing forever), and the shorthand scripts. It is the
-only thing in this tool that would mutate `package.json`. §11.8 holds the mechanics, all verified against
-the changesets docs. **Phase A being inert is what makes it safe to ship before B is exercised** — and it
-is a mitigation, not an answer to the dogfood question below.
+**Phase B landed as `release-init`, a CLI subcommand — not a skill, and not a migration.** The ask that
+produced it was *"another command for migrating? `/changeset-migrate`?"*, and both halves of that were
+wrong. `/tracking-migrate`'s shape does not transfer: it moves existing data to a substrate that already
+exists and was already chosen, and the release case has neither — a repository with no mechanism has no
+notes to move, and the destination does not exist until something installs it. That is a setup. And a skill
+named after a JavaScript tool is inherited by every install, including the Go and Python ones, where it is
+nonsense — its own `name:` line would have failed the no-release-tool test, so shipping it meant deleting
+the test to make room for the thing the test exists to prevent.
+
+So the vendor lives in `src/`, which is the boundary the rule already drew: §11.7 is a rule about
+`templates/`, because template prose is what every install inherits. A subcommand is a program someone
+chooses to run, and it refuses where it does not apply. **§11.9 holds the decision; §11.8's mechanics are
+what it implements**, and all of them are now exercised against the real tool rather than read from its
+docs — a private app bumped `0.1.0 → 0.2.0` with `version: true` and its note went unconsumed forever with
+`version: false`, which is the trap, reproduced.
+
+What it does: writes `.changeset/` (config and a README pointing at `context/release.md`), adds the
+devDependency, and adds `changeset:add`, `changeset:prepare-release` and `changeset:status` — **vendor-neutral script
+names, because the script name is the seam `release.md` records.** What it refuses: no install, no
+`package.json`, a mechanism already on disk, a script name already taken — all of them reported in one
+pass. What it will not guess: whether a private package here is deployed. It asks on a terminal and refuses
+without one, naming `--private-packages`.
+
+**It does not write `context/release.md`.** One writer per file — `/onboard` Step 9 keeps the answer, and
+now names the command in the gap it reports. Step 9 still installs nothing, and still generates no release
+job: **naming an installer is not running one.**
+
+**The dogfood question is untouched by this**, and B being exercised does not close it. What was verified
+is the vendor's behaviour on a fixture repository, not the workflow running on itself.
 
 **The dogfood question is unchanged, and it is item 1's wearing different clothes.** This repository
 manages the workflow and does not use it: no `context/`, no skill trees, and `PLAN.md` is hand-maintained

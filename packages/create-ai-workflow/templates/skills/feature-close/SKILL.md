@@ -88,6 +88,11 @@ notes leave this machine**, which is why the confirmation is here whichever comm
   records a note.
 - **Per phase** → the phases already wrote them. **Collect them and show them** — do not write another.
 
+**A note is one or two sentences.** It is read by someone deciding whether this affects them — not
+reviewing the diff. Say what changed for them and stop: no phase-by-phase account, no list of files, no
+rationale that belongs in the plan. If it needs a paragraph, the thing to link is the plan, not to inline
+it.
+
 Then, either way: **propose the bump level for each note and confirm it with the user.** That is a
 per-change judgment rather than policy, and it is the one thing in this file that is asked rather than
 read. Use your runtime's question mechanism if it has one.

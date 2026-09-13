@@ -170,6 +170,24 @@ states about an empty section: a missing entry is skipped and said so, never fak
 path whose owner never answered for it invents policy mid-change; refusing the work blocks it over a gap in
 a configuration file. Name the path and name `/onboard`.
 
+### Writing a note is the workflow's half; consuming notes is not
+
+> **Never run what bumps, tags, publishes or deploys — not as a step, not to tidy up, and not to check
+> that it works. Only when the user asks for it in that turn.**
+
+Writing a note is cheap and reversible: it is a tracked file that publishes nothing until a version moves.
+Consuming them is neither. Whatever a project uses to turn notes into versions takes *every* pending note,
+not this change's — including ones other people wrote and have not shipped yet — rewrites the changelogs,
+deletes the notes it used, and where a deploy watches versions it is the button that ships. A command that
+runs it has released a version of somebody else's work on their behalf.
+
+So it is a person's deliberate act, in a release of its own. A skill may **name** it, report that it is
+pending, and stop — the same way it names `/onboard` for a gap it will not fill itself. Asked for directly,
+in that turn, it is the user's call and theirs to give.
+
+The same applies to any script that writes rather than reports. A candidate for [`verify.md`](verify.md) is
+something Gate 1 can run on every phase; a release command is not, and `/onboard` refuses one there.
+
 ### Never transcribe a credential
 
 > **A DSN, token or key is described and pointed at the secret store, never copied into a tracked file.**

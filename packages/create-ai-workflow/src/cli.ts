@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { check } from './commands/check.ts';
 import { install } from './commands/install.ts';
+import { releaseInit, type PrivateAnswer } from './commands/release-init.ts';
 import { standardsAdd } from './commands/standards-add.ts';
 import { update } from './commands/update.ts';
 import { bold, cyan, dim, info, UserError } from './log.ts';
@@ -14,13 +15,17 @@ ${bold('Usage')}
   npx @baldurpan/create-ai-workflow update               replace the tool-owned files with this version,
                                                          and name what only ${cyan('/onboard')} can fill
   npx @baldurpan/create-ai-workflow standards add <url>  swap context/standards/ for a git repository
+  npx @baldurpan/create-ai-workflow release-init         set up a note mechanism, so ${cyan('/onboard')} Step 9
+                                                         has a true answer to record
   npx @baldurpan/create-ai-workflow check                report structural breakage; never writes
 
 ${bold('Options')}
   --dir <path>        act on this directory instead of the working directory
-  --dry-run           ${dim('update:')} print the plan and change nothing
+  --dry-run           ${dim('update, release-init:')} print the plan and change nothing
   --force             ${dim('update:')} back up edited files (.bak) and take ours
   --generate-index    ${dim('standards add:')} build a conditional-loading table without asking
+  --private-packages  ${dim('release-init:')} ${bold('version')} if a private package here is deployed,
+                      ${bold('ignore')} if they are all fixtures. Asked when stdin is a terminal.
   --version, --help
 
 ${bold('What it installs')}
@@ -41,6 +46,7 @@ interface Args {
   dryRun: boolean;
   force: boolean;
   generateIndex: boolean;
+  privatePackages: PrivateAnswer | null;
   help: boolean;
   version: boolean;
 }
@@ -53,6 +59,7 @@ export function parseArgs(argv: string[]): Args {
     dryRun: false,
     force: false,
     generateIndex: false,
+    privatePackages: null,
     help: false,
     version: false,
   };
@@ -74,6 +81,15 @@ export function parseArgs(argv: string[]): Args {
       case '--generate-index':
         args.generateIndex = true;
         break;
+      case '--private-packages': {
+        i += 1;
+        const value = argv[i];
+        if (value !== 'version' && value !== 'ignore') {
+          throw new UserError('--private-packages takes `version` or `ignore`');
+        }
+        args.privatePackages = value;
+        break;
+      }
       case '--help':
       case '-h':
         args.help = true;
@@ -112,6 +128,11 @@ export async function main(argv: string[]): Promise<number> {
       return update(args.dir, { dryRun: args.dryRun, force: args.force });
     case 'check':
       return check(args.dir);
+    case 'release-init':
+      return releaseInit(args.dir, {
+        dryRun: args.dryRun,
+        privatePackages: args.privatePackages,
+      });
     case 'standards': {
       const [sub, url] = args.rest;
       if (sub !== 'add') {
@@ -122,7 +143,7 @@ export async function main(argv: string[]): Promise<number> {
     }
     default:
       throw new UserError(
-        `unknown command \`${args.command}\`. Run with --help for the four it knows.`,
+        `unknown command \`${args.command}\`. Run with --help for the five it knows.`,
       );
   }
 }

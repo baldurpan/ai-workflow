@@ -689,6 +689,40 @@ describe('what a change announces is an answer, not an assumption', () => {
     assert.match(flat(stub), /`\/orchestrate` has neither value/i, 'the stub says it too, for a reader');
   });
 
+  it('a script that writes never becomes a Gate 1 candidate', () => {
+    // Step 7 sweeps package.json scripts and step 3 *runs* every candidate. Once `release-init` has put a
+    // versioning script in that file, an unguarded sweep bumps every package and writes changelogs during
+    // onboarding — and an interactive note-writing script hangs the agent outright. The guard names the
+    // shape, not the script, so it holds for a project that wired its own.
+    const body = flat(skillBody('onboard'));
+    assert.match(body, /A script that writes is not a candidate/i);
+    assert.match(body, /do not run one to find out what it does/i, 'because step 3 runs candidates');
+    assert.match(body, /belongs on the pull request/i, "and §11.8's note check stays out of Gate 1");
+  });
+
+  it('nothing in the workflow may run what consumes the notes', () => {
+    // The asymmetry the rule rests on: writing a note is a tracked file that publishes nothing, while
+    // consuming them takes *every* pending note — other people's included — and where a deploy watches
+    // versions it ships. A skill that ran it would release somebody else's unshipped work.
+    const rule = readTemplate('context/workflow.md').replace(/\s+/g, ' ');
+    assert.match(rule, /Never run what bumps, tags, publishes or deploys/i);
+    assert.match(rule, /Only when the user asks for it in that turn/i, 'and the one exception is explicit');
+    assert.match(rule, /every.{0,3} pending note/i, 'it says why: the blast radius is not this change');
+    // Named by shape. A skill naming the tool would fail the sibling rule two tests up.
+    assert.doesNotMatch(rule, /\b(changesets?|towncrier|semantic-release)\b/i);
+  });
+
+  it('both writers are told a note is short, because neither vendor enforces it', () => {
+    // Nothing in any mechanism caps the summary, and an agent handed "write the note" writes an essay:
+    // the phase log it just produced is right there and reads like source material. It is not — the
+    // audience is someone deciding whether this affects them.
+    for (const name of ['feature-close', 'feature-implement']) {
+      const body = flat(skillBody(name));
+      assert.match(body, /A note is one or two sentences/i, `${name} caps the note`);
+      assert.match(body, /not\s+reviewing the diff/i, `${name} says who reads it`);
+    }
+  });
+
   it('re-entering the work updates the note rather than writing a second one', () => {
     // A resumed phase and a Gate 2 loopback both come back through step 7. Mechanisms that collect notes
     // use non-colliding filenames on purpose, so two files describing one change do not conflict — they

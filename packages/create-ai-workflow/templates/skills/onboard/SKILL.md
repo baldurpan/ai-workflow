@@ -321,6 +321,12 @@ covers, this is the moment that matters: keeping both means the project has two 
    stack's equivalent — `Makefile`, `composer.json`, `pyproject.toml`, `Cargo.toml`, the CI workflow. The
    CI config is the best source available: it lists commands that demonstrably run in a clean checkout. A
    command the old file named and CI does not is worth asking about — one of the two is stale.
+   **A script that writes is not a candidate.** Anything that moves a version, records a release note,
+   tags, publishes or deploys belongs to [`context/release.md`](../../../context/release.md), and Gate 1
+   never runs it. Do not propose one, and **do not run one to find out what it does** — step 3 runs every
+   candidate, so a wrong candidate here bumps versions or publishes rather than failing politely. A
+   *check* that a release note exists is a real check and still not this file's: it belongs on the pull
+   request, because Gate 1 runs per phase and would flag every docs-only change.
 2. **Show the candidates and ask** which belong in Lint, Typecheck, Build and Test, and whether anything is
    missing. Ask about prerequisites too — a package manager version, an install step, a service that must
    be up.
@@ -381,7 +387,9 @@ repository where nothing records one, and a false answer here is the same defect
 plus a named gap.** Never a mechanism that is not on disk.
 
 **This step installs nothing.** It does not add a dependency, create a notes directory, or write a
-workflow. Where the mechanism is absent, it says exactly what is missing and stops.
+workflow. Where the mechanism is absent, it says exactly what is missing, names the command that would
+close it, and stops — naming an installer is not running one, and nothing below is conditional on the
+user taking the offer.
 
 ### Look first, and say what you found — always
 
@@ -423,6 +431,12 @@ app gets no note" is written down once instead of being re-argued on every pull 
 - **Nothing does** → **write *nothing here announces a change*, name what is missing, and stop.** Say what
   the user would have to put in place, and that re-running this command afterwards will pick it up. Do not
   write a table of paths above an answer that nothing can carry out.
+  **Where step 1 found a `package.json`, name the one command that closes this gap**:
+  `npx @baldurpan/create-ai-workflow release-init` sets up a note mechanism and writes nothing into
+  `context/release.md` — it is the installer, and you are the writer. Pass it what step 1 already
+  established: `--private-packages version` where a private package here is deployed, `ignore` where they
+  are all fixtures. **Offer it; do not run it.** It mutates `package.json`, and that is the user's call.
+  Where there is no `package.json`, name the shape instead of a tool, and leave it there.
   **Say plainly what that answer means where the sweep found something publishable**: it records that this
   project has not said how a change is announced, not that it announces nothing. The two read alike in the
   file and are not the same, and the second is the one a publishing repository will assume.

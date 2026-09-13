@@ -2160,9 +2160,12 @@ Recorded here rather than in the stub, because they are facts about one vendor a
   dependent's `^1.0.0` out of range, pulls it in with a patch, and that moved version fires the deploy. A
   `workspace:*` range never goes out of range. *We published a major and it deployed production* is a
   surprise you get once, so it is a line in the stub.
-- **Adding a note is driveable in v3** with explicit level flags and a message, but package *selection* in
-  a monorepo is not documented — so the agent writes the note file directly, in the documented format, and
-  the flags are the clean path only where there is one package. **Filenames stay random**: two
+- **Adding a note is not driveable at all, and the earlier note here was wrong.** `add` takes `--empty`,
+  `--open`, `--since` and `--message` — there is no flag for package selection *or* for the bump level, so
+  `-m` alone still drops into the picker. Verified against 3.0.2: with stdin closed it hangs on an
+  unsettled await and writes nothing. **So the agent writes the note file directly, in the documented
+  format, always** — not as a monorepo fallback but as the only path, which is also the one that works
+  where there is no script at all. **Filenames stay random**: two
   differently-named files never conflict on merge, which is the property `history.md` needs `merge=union`
   to fake (§4.5) — and it is also what makes C2 possible.
 - **A status check needs a fetched remote**, and exits non-zero when packages changed without a note —
@@ -2171,6 +2174,78 @@ Recorded here rather than in the stub, because they are facts about one vendor a
   flag every docs-only change. The gate that wants it is CI, on the pull request.
 - **The answer names the script, never the raw command**, the same indirection `verify.md` already uses —
   which gives a flag like `--since=origin/main` one home instead of two. The script itself is phase B's.
+
+### 11.9 Phase B is a subcommand, because the vendor rule is a rule about `templates/`
+
+The ask was *"another command for migrating — `/changeset-migrate`?"*, and working out why that is the
+wrong shape is what produced the right one.
+
+**It is not a migration.** `/tracking-migrate` is the obvious precedent and it does not transfer. That
+command *moves data* to a substrate that already exists and was already chosen — "It moves data. It does
+not choose the substrate." The release case has neither half: a repository with no mechanism has no notes
+to move, and the destination does not exist until something installs it. The only case with real data is a
+hand-maintained `## Unreleased` section, and the honest answer there is to **leave it** — the tool writes
+below it and that section stands as the record of how the repository worked before. Converting those
+bullets into note files is inventing history. So: no converter, and the word *migrate* does not appear.
+
+**It is not a skill.** A skill is inherited by every install, and a skill named after a JavaScript tool is
+nonsense in the Go and Python ones. It is also self-refuting: `name: changeset-migrate` would have failed
+§11.7's test itself, so shipping it meant deleting the test to make room for exactly what the test exists
+to prevent.
+
+**The boundary was already drawn, and nobody had noticed where.** §11.7's rule is about `templates/`
+because template prose is what every install carries. `src/` is not inherited — it is a program someone
+chooses to run, once, deliberately, and which refuses where it does not apply. So `release-init` may name
+the vendor, install it, and be the one thing in this tool that mutates `package.json`, with **no rule
+deleted and no `/onboard`-style exemption invented**. Two tests hold it from both sides: no template names
+a release tool, and the command does.
+
+Three consequences worth keeping:
+
+- **The scripts name the vendor: `changeset:add`, `changeset:prepare-release`, `changeset:status`.** They
+  shipped vendor-neutral first, on the reasoning that the script name is the seam `release.md` records and
+  a project that swapped tools would keep it. **That was §11.7 applied past where it earns anything.** The
+  rule protects `templates/`, because template prose is what every install inherits; a script name lands
+  in one project's `package.json`, three lines above `@changesets/cli` in its own devDependencies. Hiding
+  the tool in the name while it sits in the same file is a fig leaf, and it charges a daily cost — a
+  contributor whose command fails has no word to search — to hedge an event ("this repo moves off
+  changesets") that is close to never, costs a three-line rename when it happens, and self-heals anyway,
+  because `/onboard` re-detects and re-records on its next run. What was actually load-bearing survives
+  untouched: **no skill names a tool**, and that is still test-enforced.
+- **`prepare-release`, not `version`, for the middle one — and never a bare `release`.** It shipped as
+  `release:version`, mirroring the vendor command, which put the blandest name on the only action of the
+  three that cannot be run twice: it consumes every pending note — deleting the files — bumps the
+  versions, rewrites the changelogs, and where a deploy watches versions it is the button that ships.
+  `version` named the field it edits rather than the thing it does. A bare `release` is worse than either:
+  **as a verb it means publish**, which this does not do, and that is the one misreading in the set that
+  costs something. `prepare-release` is safe because *prepare* is the verb — a distinction narrow enough
+  that the first test written for it was wrong, and now encoded as `/(^|:)release$/`.
+- **It does not write `context/release.md`.** One writer per file: the installer installs, `/onboard`
+  answers, the same way `standards add` does not write `stack.md`. Step 9 gained a line naming the command
+  and lost nothing — it still installs nothing, still generates no release job, and **naming an installer
+  is not running one.**
+- **It writes files and runs nothing** — no `npm install`, no vendor `init`. Which is also what makes
+  `--dry-run` exact, and what lets the private-package setting be written from the answer in one pass
+  rather than initialised to the default and patched afterwards.
+
+**Adding scripts to `package.json` put a hole in Step 7, and it had to be closed in the same change.**
+That step sweeps `package.json` scripts for verification candidates and then *runs each one*. A versioning
+script swept up as a Build candidate bumps every package and writes changelogs during onboarding; an
+interactive note-writing script hangs the agent. Step 7 now refuses any script that writes — named by
+shape, not by script name, so it also covers a project that wired its own — and says why it must not run
+one to find out. The note-existence check is turned away in the same breath and sent to the pull request,
+which is §11.8's rule arriving at the place it was always going to be tested. **This is the class of thing
+that only shows up when a tool starts writing into a file another command reads.**
+
+**The one thing it refuses to guess** is §11.8's first bullet, now load-bearing rather than recorded: is a
+private package here deployed? It asks on a terminal and refuses without one, naming the flag. Guessing
+wrong in the safe-looking direction is the failure that hides for months.
+
+**§11.8 is now exercised rather than read.** Against `@changesets/cli` 3.0.2 on a fixture workspace: the
+generated config parses, a private app with `version: true` bumped `0.1.0 → 0.2.0` and wrote its changelog
+with **no tag created**, and the same note under `version: false` left the app at `0.1.0` with the note
+still sitting in `.changeset/` — the trap, reproduced. **This does not close the dogfood question.** What
+ran was the vendor on a fixture, not the workflow on itself.
 
 ## 12. `findings.md` is deleted — a second status vocabulary, and the drift it caused
 
