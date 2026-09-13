@@ -100,6 +100,16 @@ writes the true answer or the true answer plus a named gap, never a mechanism th
 needs credentials and branch protections. **Nothing in this workflow bumps a version, tags, publishes or
 deploys**, and the stub has a section that says so rather than leaving it implied.
 
+**And the last answer in that file is the event, which is one event and not one per artifact kind.** Notes
+accumulate on feature merges; the merge of the pull request that consumed them — versions moved, changelogs
+written — is what **publishes a package and deploys an app**, per path, on the condition that *that path's
+own version moved in it*. A feature's merge lands a note and ships nothing, so no command reports work as
+released, deployed or live because it landed. Two failures the file makes someone write down rather than
+discover: a deployed app that is never versioned has nothing for a deploy to key on, and a deploy wired to
+every merge of the base branch is not gated at all — it ships whatever notes happen to be pending, other
+people's unreleased work included. `/onboard` reports that second one as the defect it is and rewires
+nothing.
+
 **No skill names a release tool either.** A repository with no `package.json` answers with a
 hand-maintained `## Unreleased` section, or a fragment directory, or nothing — and not one line of the
 commands changes. They ask *record a note per `release.md`*; that file says what records one here.
@@ -234,6 +244,12 @@ It sets up a note-per-change mechanism — `.changeset/`, the devDependency, and
 which records what it found. **`prepare-release` prepares one; nothing here publishes one.** **It does not write `context/release.md`.** One writer per file: the installer installs, `/onboard`
 answers, the same way `standards add` does not write `stack.md`.
 
+**What it sets up is a gate, and the gate is not only for publishing.** The event it makes available is the
+merge of the pull request where `changeset:prepare-release` ran, and that one merge is what ships a
+published package and a deployed app alike — each on the condition that its own version moved in it. That is
+why the question below is the one thing this command will not guess, and why `.changeset/README.md` says a
+feature's merge ships nothing.
+
 **It is the only command here that names a vendor, and the only one that touches `package.json`.** That is
 deliberate and it is a boundary, not an exception. The rule that no template may name a release tool is a
 rule about `templates/` — that prose is inherited by every install, including the Go and Python ones, so a
@@ -242,13 +258,15 @@ to run, and it refuses where it does not apply. Two tests hold the line from bot
 
 **The answer it will not guess** is whether a private package here is deployed. The tool's default is not to
 version private packages, so a deployable app recorded as private accumulates notes, never bumps, and
-anything that deploys on a version change silently does nothing forever. It asks on a terminal and
-**refuses** without one, naming the flag — the one number in the setup that is expensive to get wrong.
+anything that deploys on a version change silently does nothing forever — or gets wired to every merge
+instead, which is worse. It asks on a terminal and **refuses** without one, naming the flag — the one number
+in the setup that is expensive to get wrong.
 
-**It writes files and runs nothing**: no `npm install`, no `git` anything, no CI workflow. Accumulating notes
-and versioning them is uniform; the last step plus its credentials depends on branch protections, registry
-auth and who is allowed to press the button, and a generated workflow there does damage. The scripts are
-what yours would call.
+**It writes files and runs nothing**: no `npm install`, no `git` anything, no CI workflow — neither the
+publish nor the deploy, which are one gap rather than two. Accumulating notes and versioning them is uniform;
+the last step plus its credentials depends on branch protections, registry auth and who is allowed to press
+the button, and a generated workflow there does damage. The scripts are what yours would call, and the event
+either job keys on is the merge described above.
 
 ## `check`
 

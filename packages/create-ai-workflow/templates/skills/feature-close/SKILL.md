@@ -101,6 +101,12 @@ read. Use your runtime's question mechanism if it has one.
 - **The user declines a note entirely** → write none, and **say in the report that the feature retired
   with no note and why.** That is their call about their own release; doing it quietly is not.
 
+**Retiring a feature is not shipping it.** The note rides this hand-over; the change reaches users on
+whatever event that file's *what a release ships* answer names, which is somebody's deliberate act and not
+this command's. So the report says what the feature is **waiting for** — never that it is released, deployed
+or live, and never that a deploy will follow from the merge. Where that answer is not written down, say that
+too and name `/onboard`.
+
 **Say which paths you checked and what each one owed**, including when the answer is *none*. **A path
 [`context/release.md`](../../../context/release.md) does not cover is named, not guessed at** — write no
 note for it and name `/onboard`, and do not hold up the retirement over a gap in a configuration file.

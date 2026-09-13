@@ -48,6 +48,7 @@ never a prerequisite for anything.
 | where a phase stands | that plan's own status ledger |
 | what a retired feature's outcome was | its `history.md` row |
 | whether a change owes a release note | [`release.md`](release.md) — that path's row, and the granularity answer |
+| what a merge publishes or deploys | [`release.md`](release.md) — its *what a release ships* answer, per path |
 
 **"Planned" is not a status.** It is the observation that a document exists in `plans/`. The marker answers
 *is it being worked*; the **Doc** path answers *does it have a plan*. The two are orthogonal, so neither can
@@ -156,8 +157,15 @@ checked. Saying nothing is not that answer.
 *Documentation is part of the change* covers a README that a rename made wrong. It does not cover the
 release note that was never written — a different surface, a different audience, and one that is not in the
 repository to go stale. [`release.md`](release.md) is where that answer lives: which paths announce
-something and to whom, what records a note, at what granularity, and what this project does **not** do
-here — nothing in this workflow bumps a version, tags, publishes or deploys.
+something and to whom, what records a note, at what granularity, and **what a release ships, and on what
+event** — nothing in this workflow bumps a version, tags, publishes or deploys.
+
+**Landing a change is not shipping it, and that holds for a deployed app as much as a published package.**
+Both are consequences of **one event** — the merge of the pull request where the notes were consumed and the
+versions moved — and a feature's own merge lands a note and ships nothing. So a command that finishes work
+reports what the change is waiting for; it never reports it as released, deployed or live because the work
+landed. Which paths that merge publishes, which it deploys, and what it keys on are
+[`release.md`](release.md)'s answer, per path — never inferred from the fact that a version exists.
 
 **The answer is per path, and the granularity is per project.** A repository can publish one artifact,
 deploy another and say nothing about a third, so *does this change deserve a note* is asked of each path it

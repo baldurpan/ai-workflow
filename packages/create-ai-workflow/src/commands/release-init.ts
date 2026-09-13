@@ -19,6 +19,14 @@ import { exists } from '../paths.ts';
  * It sets up the *note* half and stops. Nothing here tags, publishes or deploys — that last step plus its
  * credentials depends on branch protections and registry auth, and a generated workflow there does damage
  * (`/onboard` Step 9 says so, and still does after this command exists).
+ *
+ * **What it sets up is not a publishing mechanism, and the private-package answer is where that shows.** The
+ * event it makes available is the merge of the pull request where `changeset:prepare-release` ran: the notes
+ * are gone, the versions have moved, the changelogs are written. Publishing a package and deploying an app
+ * are two consequences of that one merge, and the condition for either is *this path's version moved in it*
+ * — which is why an app that deploys has to be versioned here, and why the question below is the one thing
+ * this command refuses to guess. `context/release.md`'s *what a release ships* answer is where the event is
+ * written down; `/onboard` writes it, and this is what makes it true.
  */
 
 const CHANGESET_DIR = '.changeset';
@@ -173,7 +181,8 @@ export function changesetConfig(baseBranch: string, privatePackages: PrivateAnsw
     baseBranch,
     updateInternalDependencies: 'patch',
     ignore: [],
-    // Tagging stays off either way: a tag on a deployed app is the deploy's business, not the note's.
+    // Tagging stays off either way: a tag on a deployed app is the deploy's business, not the note's — and
+    // the deploy has a better thing to key on, which is that app's own version moving in the release merge.
     privatePackages: { version: privatePackages === 'version', tag: false },
   };
   return `${JSON.stringify(config, null, 2)}\n`;
@@ -199,8 +208,15 @@ diff — so it says what changed for them and stops.
 **Filenames are random on purpose.** Two differently-named files never conflict when two branches merge —
 which is why a re-entered phase updates its existing note rather than writing a second one.
 
-The answers that govern what gets a note here — which paths announce, to whom, and how often — live in
-[\`../${CONTEXT_DIR}/release.md\`](../${CONTEXT_DIR}/release.md), not in this file.
+**A feature's merge ships nothing.** Its note lands here and waits. What ships is the merge of the pull
+request where \`changeset:prepare-release\` was run — the notes consumed, the versions moved, the changelogs
+written — and that one merge is the event for a published package and a deployed app alike. The condition for
+either is **that path's own version moving in it**: a release that bumped only a package must not deploy the
+app.
+
+The answers that govern what gets a note here — which paths announce, to whom, how often, and what that merge
+publishes or deploys — live in [\`../${CONTEXT_DIR}/release.md\`](../${CONTEXT_DIR}/release.md), not in
+this file.
 `;
 }
 
@@ -361,15 +377,18 @@ export async function releaseInit(
       throw new UserError(
         `this repository has ${privates.length} private package${privates.length === 1 ? '' : 's'} and nothing to ask.\n` +
           '  A private package is not versioned by default. If one of them is a deployed app, that\n' +
-          '  default means it accumulates notes, never bumps, and the deploy half silently does\n' +
-          '  nothing forever. Re-run with `--private-packages version` if any of these is deployed,\n' +
-          '  or `--private-packages ignore` if they are all fixtures:\n' +
+          '  default leaves its deploy with nothing to key on: the version never moves on the release\n' +
+          '  merge, so the deploy either never fires or gets wired to every merge instead — which ships\n' +
+          '  whatever notes happen to be pending. Re-run with `--private-packages version` if any of\n' +
+          '  these is deployed, or `--private-packages ignore` if they are all fixtures:\n' +
           privates.map((p) => `    ${p.name} ${dim(p.rel)}`).join('\n'),
       );
     }
     info();
-    info(dim('  A private package is not versioned by default — it would collect notes and never bump,'));
-    info(dim('  so anything that deploys on a version change would never fire.'));
+    info(dim('  A private package is not versioned by default — it would collect notes and never bump.'));
+    info(dim('  That version moving on the release merge is what a deploy keys on, so left off, the app'));
+    info(dim('  either never deploys or gets wired to every merge instead — which ships whatever notes'));
+    info(dim("  happen to be pending, other people's included."));
     answer = (await ask('  Is any of those private packages deployed?')) ? 'version' : 'ignore';
   }
 
@@ -405,9 +424,12 @@ export async function releaseInit(
   info(`     ${cyan(`${CONTEXT_DIR}/release.md`)} — the answer nothing could write until now.`);
   info();
   info(bold('What this did not do'));
-  info(dim('  Nothing here tags, publishes or deploys, and no CI workflow was generated. That last'));
-  info(dim('  step depends on branch protections, registry auth and who is allowed to press the'));
-  info(dim('  button — a generated one does damage. Write it yourself; the scripts above are what'));
-  info(dim('  it would call. Nothing was committed.'));
+  info(dim('  Nothing here tags, publishes or deploys, and no CI workflow was generated — neither the'));
+  info(dim('  publish nor the deploy, which are two consequences of one event and one gap rather than'));
+  info(`  ${dim('two. The event is the merge of the pull request where')} ${cyan('changeset:prepare-release')} ${dim('ran.')}`);
+  info(dim('  Write those jobs yourself: the credentials and the branch protections are yours, and the'));
+  info(dim("  condition for either half is that path's own version moving in that merge — never that a"));
+  info(dim('  release happened, which would deploy an app a package-only release never touched.'));
+  info(dim('  Nothing was committed.'));
   return 0;
 }

@@ -403,8 +403,13 @@ user taking the offer.
 3. **Whether a changelog is generated or hand-maintained.** It matters twice: a generated one is an output
    rather than a documentation surface, so if Step 8 listed it in `stack.md`'s Documentation index, take it
    out and say why.
-4. **Whether anything publishes or deploys** — a workflow, a job, a hook. This is what decides whether a
-   *yes* here would be honest.
+4. **Whether anything publishes or deploys, and on what event.** A workflow, a job or a hook, plus the line
+   that says when it runs. It decides whether a *yes* here would be honest, and it is where the one
+   contradiction worth catching shows up: **a deploy wired to every merge of the base branch, in a
+   repository that records notes, ships whatever unreleased work is in the tree at the time** — other
+   people's included — and announces itself with a changelog a release behind. Report it as the defect it
+   is, in the words above. Do not rewire it: what fires a deploy is the user's, and this step changes no
+   workflow.
 
 Say all four back in a line each, including the empty ones.
 
@@ -444,24 +449,45 @@ app gets no note" is written down once instead of being re-argued on every pull 
 **Never leave the file saying changes are announced while nothing consumes the notes.** That is the same
 failure as a `tracking.md` naming a tracker while the entries are still files: it reads as configured,
 every command dutifully writes a note, and no version ever moves. If step 4 of the sweep found nothing that
-publishes or deploys, say so plainly and write it into the *what this project does not do here* section
-rather than leaving it implied.
+publishes or deploys, say so plainly and write it into the *what a release ships* section rather than
+leaving it implied.
 
-### Then granularity, and what this project does not do here
+### Then granularity, and what a release ships
 
 - **Granularity** — *once per feature* (the shipped answer, written by `/feature-close`) or *per phase*
-  (written by `/feature-implement`, for a repository where a phase is what actually ships). It is one
-  answer for the project, not a column in the table: it says what leaves this repository as a unit. Say
-  that `/orchestrate` has neither value and treats the change as the unit.
-- **What this project does not do here** — fill in what bumps a version, what tags, what publishes and
+  (written by `/feature-implement`, for a repository that cuts a release about as often as it merges, so one
+  phase is one entry somebody reads). It is one answer for the project, not a column in the table: it says
+  what leaves this repository as a unit. Say that `/orchestrate` has neither value and treats the change as
+  the unit.
+- **What a release ships, and on what event** — fill in what bumps a version, what tags, what publishes and
   what deploys, one line each, and write "nothing yet" where that is the truth. **Nothing in this workflow
   does any of the four**, and this section is what stops the answer being read as "releases happen
   automatically".
+
+  Then, from the sweep's fourth line, **the event and what it ships per path**. There is **one event, not
+  one per artifact kind**: the merge of the pull request where the notes were consumed and the versions
+  moved. Publishing a package and deploying an app are two consequences of that same merge, so ask about
+  them together and write one answer — a row per path saying what the merge does to it: publishes it,
+  deploys it, or nothing. **A feature's merge lands a note and ships nothing**, and that sentence belongs in
+  the file rather than in this conversation.
+
+  Two things to get written down while the user is here, because both are silent when wrong:
+
+  - **The condition is that path's own version moving**, never *a release happened*. A release that bumped
+    only the package must not deploy the app.
+  - **A path that deploys has to be versioned at all.** A deployed app is usually a private package, and a
+    note mechanism commonly leaves those unversioned — so ask whether this one's version actually moves. If
+    it does not, the deploy has nothing to key on: say so in the file as the gap it is.
 
 **Name the release job as the gap it is, and do not generate one.** Accumulating notes, versioning them,
 tagging and publishing is a uniform sequence right up to the last step — and the last step plus its
 credentials depends on branch protections, registry auth and who is allowed to press the button. A
 generated workflow there does damage. Say what is missing; let the user write it.
+
+**That covers the deploy exactly as much as the publish, and they are one gap rather than two.** The event
+is uniform and belongs in the file; the credentials that put an app in front of users are no more guessable
+than a registry token. So name both halves, name the single merge they hang off, and stop — an answer that
+records the event with the job still missing is true, and it is the answer this step is for.
 
 If Step 1 turned up an existing rule about what deserves a changelog entry, quote it here and let it win
 unless the user says otherwise.

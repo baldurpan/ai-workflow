@@ -16,8 +16,9 @@ in a repository where nothing records one, and a false answer here is the same d
 **Files:** do not exist. Run `/onboard` to set it — that command either writes the true answer or makes it
 true, and it refuses to write a mechanism that is not on disk.
 
-**A note is not a release.** Nothing in this workflow bumps a version, tags, publishes or deploys. See
-*What this project does not do here*, which says what fills that gap in this repository.
+**A note is not a release, and a merge is not a deploy.** Nothing in this workflow bumps a version, tags,
+publishes or deploys. What does — and the **one event** that fires it, for a published package and a deployed
+app alike — is the last answer in this file: *What a release ships, and on what event*.
 
 ## What announces a change, and to whom
 
@@ -36,12 +37,16 @@ before anyone has looked at it.
      | Path              | Announces to             | Deserves a note when            | A bump means                       |
      |-------------------|--------------------------|---------------------------------|------------------------------------|
      | `packages/widgets`| people installing it     | the public surface changes      | semver — major breaks their build  |
-     | `apps/web`        | people using the app     | behaviour changes in the app    | dates a deploy; no contract        |
+     | `apps/web`        | people using the app     | behaviour changes in the app    | no contract — it is what the deploy keys on |
 
      Column two governs **how the text is written** — an installer and an end user do not want the same
      sentence. Column three governs **whether a file is written at all**, and it is the column that does the
      work: it is where "an internal refactor to `apps/web` gets no note" is written down once instead of
      being re-argued on every pull request.
+
+     Column four is prose for a published package and **a wire for a deployed one**: where the last answer in
+     this file says a path deploys on its own version moving, the level chosen for a note is what decides
+     whether the next release goes to production. Say which it is here, and say the rest there.
 
      A single-package repository gets one row, and that is a real answer rather than a degenerate one. -->
 
@@ -83,14 +88,14 @@ to.
      - whether **filenames must not collide**. Tools that collect note files use random names on purpose:
        two differently-named files never conflict when two branches merge.
 
-     Two traps worth writing down here if they apply to this project:
+     And two settings of the mechanism whose consequences belong to the last answer in this file. Record what
+     they are set to here; the reason they matter is written down once, there:
 
-     - **A private package usually does not get versioned by default.** A deployable app recorded as a
-       private package will accumulate notes and never bump, so the deploy half silently does nothing
-       forever. If a tool here has a private-package setting, say what it is set to and why.
-     - **A major bump can drag a dependent along.** Where one package's major puts a sibling's dependency
-       range out of range, that sibling is pulled into the same release with a patch — and if the sibling is
-       the deployed app, publishing a major deploys production. Say whether that can happen here. -->
+     - **Whether private packages get versioned.** Commonly off by default, and a deployed app is usually a
+       private package. Left off, it accumulates notes and never bumps — so anything keyed on its version
+       does nothing forever.
+     - **Whether a dependent can be dragged into a release.** Where one package's major puts a sibling's
+       range out of range, the sibling is pulled in with a patch, and its version moved too. -->
 
 ## At what granularity
 
@@ -104,7 +109,9 @@ so it rides whatever that command hands over. No phase writes one.
 
 <!-- **Per phase.** The note is part of the phase's scope, written by `/feature-implement` alongside the
      code, and its path goes on that phase's **Files:** line like anything else it touches. Choose this
-     where a phase is what actually ships — a deployed app, where each phase reaches users on its own. -->
+     where a phase is what goes out on its own — a repository that cuts a release about as often as it
+     merges, so one phase is one entry somebody reads. Note that it is a claim about the *entries*, not
+     about reaching users: under the last answer in this file a landed phase has shipped nothing either. -->
 
 **This is one answer for the project, not a column in the table above.** The table asks *does this path
 deserve a note*; this section asks *what leaves this repository as a unit*, and that is a property of the
@@ -120,18 +127,54 @@ release. `/feature-close` shows the notes a feature carries and confirms their l
 *once per feature*, reading what the phases wrote under *per phase* — and [`git.md`](git.md)'s
 *Push and pull request* answer decides whether that is the last moment before a push or before a handover.
 
-## What this project does not do here
+## What a release ships, and on what event
 
-**Nothing in this workflow bumps a version, creates a tag, publishes an artifact, or deploys anything.**
-Recording a note and cutting a release are two acts, and only the first is in scope.
+<!-- Shipped as: nothing here ships on a merge. Like the first answer in this file it is true of every
+     repository before anyone has looked — including one that deploys, where it records that the event has
+     not been written down rather than that nothing reaches users. -->
 
-<!-- Write down what does the rest, so that the answer above is not read as "releases happen automatically".
-     One line each is enough:
+**Nothing in this workflow bumps a version, creates a tag, publishes an artifact, or deploys anything, and
+nothing here ships on a merge.** Recording a note and cutting a release are two acts; only the first is in
+scope, and what performs the second is not written down here yet.
 
-     - **Bump** — what moves the version, and when.
+<!-- Replace the paragraph above once something does. There is **one event, not one per artifact kind**: the
+     merge of the release pull request — the one where the script that consumes the notes was run, so the
+     notes are gone, the versions have moved and the changelogs are written. Publishing a package and
+     deploying an app are two consequences of that single merge. **A feature's merge ships nothing**; it
+     lands a note and waits for that one.
+
+     Write down what the event is wired to, one line each:
+
+     - **Bump** — the script that consumes the notes, and who runs it. It cannot be run twice, and where a
+       deploy watches versions it is the button that ships.
      - **Tag** — what creates the tag, and from what.
      - **Publish** — what pushes the artifact to a registry, and with what credentials.
-     - **Deploy** — what puts the app in front of users.
+     - **Deploy** — what puts the app in front of users, and what it keys on.
+
+     Then one row per path, saying what that merge does to it:
+
+     | Path               | On the release merge                     |
+     |--------------------|------------------------------------------|
+     | `packages/widgets` | published to the registry by `<job>`     |
+     | `apps/web`         | deployed to production by `<job>`        |
+     | `docs/`            | nothing                                  |
+
+     **The gate is per path, and what it reads is that path's own version.** A release that bumped only the
+     package must not deploy the app, so the honest condition is *this path's version moved in this merge* —
+     never *a release happened*. Three things to write down while you are here:
+
+     - **A path that deploys has to be versioned.** Note tools commonly leave private packages unversioned
+       by default, and a deployed app is usually a private package. One whose version never moves has
+       nothing for a deploy to key on: it either never fires, or it gets wired to every merge instead, which
+       is the next bullet.
+     - **A deploy wired to every merge of the base branch is not gated at all.** It ships whatever pending
+       notes happen to be in the tree — other people's unreleased work included — and announces itself with
+       a changelog that is a release behind. If that is what this repository does today, **write that down**:
+       an answer describing the gate someone meant to have is the one kind of answer this file must never
+       carry.
+     - **A major bump can drag a sibling into the release.** Where one package's major puts a dependent's
+       range out of range, that dependent is pulled in with a patch — and if the dependent is the deployed
+       app, its version moved, so the merge deploys production. Say whether that can happen here.
 
      If any of these is "nothing yet", say so. A repository that accumulates notes with nothing to consume
      them reads as configured and is not — the notes pile up and no version ever moves. -->
@@ -145,6 +188,9 @@ Recording a note and cutting a release are two acts, and only the first is in sc
   back through the same step. Update the note that is already there — two files describing one change do
   not conflict and are both counted, which is the one case where doing the right thing twice is the
   failure.
+- **Landing a change is not shipping it.** A merged feature carries a note and nothing else; the change
+  reaches users on the event above, which is somebody's deliberate act. Never report work as released,
+  deployed or live because it landed — say what it is waiting for.
 - **A dropped feature announces nothing, and its landed phases keep their notes.** A note belongs to the
   change that landed, not to the outcome the feature was later given.
 - **Saying nothing is not the same as answering *no*.** Where a change owes no note, name the paths that

@@ -25,11 +25,13 @@ Every `§`-number below points into that document.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** v0.10.1 is npm's `latest`. `main` carries **0.11.0** — the body's ceiling (§10.13), a plan too
-large for an issue body being a feature to split rather than a plan to trim, and **item 6 phase A, the
-release answer** (§11), a sixth project-owned stub plus an `/onboard` step that asks what a change
-announces. `package.json` now says **`0.12.0`, unreleased**, and it carries one thing: **`findings.md` is
-deleted** (§12).
+**State:** `main` carries **0.13.0** — the body's ceiling (§10.13), **item 6, the release answer** (§11) in
+both its phases: the sixth project-owned stub, the `/onboard` step that asks what a change announces, and
+`release-init`, the subcommand that makes that answer available to be true. `package.json` now says
+**`0.13.1`, unreleased**, and it carries one thing: **the release answer gained its last answer — the event**
+(§11.10). What ships a change was written down only for a published package; an app that goes live got a
+config flag and a disclaimer. It is one event for both, and the four-gap section that stood in for it is
+deleted.
 
 **0.12.0 removes a file rather than fixing it, and the route there is the part worth keeping.**
 `northguild/worktree` reached 35 open findings against five shipped features — 1097 lines, 76 KB, large
@@ -115,7 +117,7 @@ reviewer `executors.md` gives, because the shipped one is the host reading its o
 because a tree carrying four phases cannot be cut back into the four commits that file says they are.
 Eight tests guard it.
 
-**To release: commit and push to `main`** — that tags `v0.12.0` — **then publish the tag as a GitHub
+**To release: commit and push to `main`** — that tags `v0.13.1` — **then publish the tag as a GitHub
 release.** An npm workspaces monorepo — the installer lives in
 `packages/create-ai-workflow/`, and `apps/*` is reserved for a landing site or hosted documentation.
 Installs a `context/` tree, the nine skills into **both** `.claude/skills/` and `.agents/skills/`, two
@@ -337,6 +339,42 @@ job: **naming an installer is not running one.**
 
 **The dogfood question is untouched by this**, and B being exercised does not close it. What was verified
 is the vendor's behaviour on a fixture repository, not the workflow running on itself.
+
+**0.13.1 is the half both phases were missing: the event.** The ask was that opting into notes must not be an
+npm-publishing feature — an app that goes live has to work the same way, and only on the merge of a pull
+request where `changeset:prepare-release` was called. **§11.2 had already written the uniform half and then
+spent it entirely on publishing**: a deploy appeared four times in §11 and never once as an event, so the
+file's last section was *what this project does not do here* — bump, tag, publish, deploy, four unwired gaps
+under a heading that was a disclaimer. Someone with a deployed app learned that the workflow would not deploy
+it, and never learned what would.
+
+**That section is deleted, not extended.** Its four lines survive as *what the event is wired to* inside
+`## What a release ships, and on what event`, which ships as *nothing here ships on a merge* — true of every
+repository, like the first answer in the file — and answers **per path** what the release merge does: publish
+it, deploy it, or nothing. **The condition is that path's own version moving in that merge**, never *a release
+happened*, because a release that bumped only the package must not deploy the app. That promotes §11.8's
+drag-along warning into the rule's own exception: where a major pulls a dependent in with a patch, the app's
+version really did move, and the deploy is right to fire.
+
+Three things fell out of writing it, and the first is the one worth keeping:
+
+- **Adding an answer re-runs the grid; it does not extend it.** *Per phase* justified itself with *"a deployed
+  app, where each phase reaches users on its own"* — which the event contradicts outright, since a landed
+  phase has shipped nothing either. The value survives, but what it claims is about **changelog entries**.
+  Nothing lexical could have found that; re-reading one answer against another did.
+- **Landing a change is not shipping it**, now a rule in the stub, in `workflow.md` and in the two commands
+  that finish work. `done` plus a closed feature reads as *live*, and nothing had said otherwise.
+- **A gate script was considered and rejected.** The obvious fourth script answers *is this a release commit*,
+  and it cannot be written without a CI fact: comparing this commit's versions against its parent's needs
+  more than the one commit a default checkout has. It would ship wrong or with a `fetch-depth` baked in — a
+  generated workflow in everything but name, at exactly the boundary §11.2 draws. **§11.2's refusal narrows
+  to the job, not the event**: the event belongs in the file, the credentials do not, and the publish and the
+  deploy are one gap rather than two.
+
+`/onboard` Step 9 collects it, reports **a deploy wired to every merge of the base branch** as the defect it
+is — it ships whatever notes are pending, other people's included — and still rewires nothing and generates
+no job. Existing installs hear about it the only way a project-owned file can be reached: the renamed section
+is a gap `update` reports under **Next**. Eleven new tests; 202 in all.
 
 **The dogfood question is unchanged, and it is item 1's wearing different clothes.** This repository
 manages the workflow and does not use it: no `context/`, no skill trees, and `PLAN.md` is hand-maintained

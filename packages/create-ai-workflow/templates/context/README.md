@@ -37,7 +37,7 @@ generated "current state" file — hand-editing a ledger row changes every comma
 | [`executors.md`](executors.md) | how this project dispatches a coder and a reviewer | project |
 | [`git.md`](git.md) | who commits the work an agent produces, where it lands, whether it is pushed, and at what granularity | project |
 | [`tracking.md`](tracking.md) | where the backlog, the plans and the phase ledgers live — the files below, or an issue tracker | project |
-| [`release.md`](release.md) | what a change here announces, and to whom — the paths, what records a note, and how often | project |
+| [`release.md`](release.md) | what a change here announces, and to whom — the paths, what records a note, how often, and what a release merge publishes or deploys | project |
 | [`roadmap.md`](roadmap.md) | Tier 1 — the backlog. `pending` and `active` entries only | project |
 | [`history.md`](history.md) | index of retired features, newest last | project |
 | [`drafts/`](drafts/) | notes and source material for ideas not yet planned — no ledger | project |

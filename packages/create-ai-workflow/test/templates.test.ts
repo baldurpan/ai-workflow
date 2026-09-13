@@ -828,6 +828,114 @@ describe('what a change announces is an answer, not an assumption', () => {
     assert.ok(stack > 0 && release > stack, 'release comes after stack');
     assert.ok(prune > release, 'and pruning still comes last');
   });
+
+  // The answer had a front half and no back half. Notes accumulated, a release consumed them — and what
+  // that release *did* was written down as four unwired gaps (bump, tag, publish, deploy) under a heading
+  // that said this project does none of them. So the mechanism read as a way to publish packages, and the
+  // repository whose artifact is a deployed app got nothing but a config flag: the section that should have
+  // said "this app goes live on that merge" said only that the workflow would not do it.
+  it('the last answer is the event, and it is one event rather than one per artifact kind', () => {
+    const headings = sections(stub);
+    assert.ok(
+      headings.includes('What a release ships, and on what event'),
+      'the file has a section for what a merge does, not just for what it will not do',
+    );
+    assert.ok(
+      !headings.some((h) => /does not do here/i.test(h)),
+      'and the list of four gaps it replaced is gone, so there is one place to read it',
+    );
+    const body = flat(stub);
+    assert.match(body, /one event, not one per artifact kind/i);
+    assert.match(body, /merge of the release pull request/i, 'the event is named');
+    assert.match(
+      body,
+      /Publishing a package and deploying an app are two consequences of that single merge/i,
+      'a deploy is the same event as a publish, not a separate design',
+    );
+    assert.match(body, /A feature's merge ships nothing/i, 'and a feature merge is not that event');
+  });
+
+  it('the shipped ship answer is true of every repository, like the first one', () => {
+    // An install that carried a live per-path ship table would be claiming an event nobody wired. The
+    // shipped answer says the event has not been written down — not that nothing reaches users.
+    const live = stripComments(stub);
+    assert.match(live, /nothing here ships on a merge/i, 'the answer is written out');
+    assert.doesNotMatch(live, /On the release merge/, 'the per-path ship table ships commented out');
+  });
+
+  it('the gate is per path, and what it reads is that path own version', () => {
+    // `a release happened` is the condition someone reaches for, and it deploys production off a release
+    // that only bumped a package. The honest condition is narrower, and it is where the bump level chosen
+    // for a note stops being prose.
+    const body = flat(stub);
+    assert.match(body, /what it reads is that path's own version/i);
+    assert.match(body, /never \*a release happened\*/i, 'the wrong condition is named as wrong');
+    assert.match(body, /A path that deploys has to be versioned/i, 'or there is nothing to key on');
+    assert.match(
+      body,
+      /wired to every merge of the base branch is not gated at all/i,
+      'and the shape it degrades into is named too',
+    );
+  });
+
+  it('landing a change is not shipping it, in every file that finishes work', () => {
+    // The failure this closes is a report, not a file: an agent that lands a phase or retires a feature
+    // says the thing is live, because nothing told it that a merge and a deploy are different events.
+    assert.match(flat(stub), /Landing a change is not shipping it/i, 'the rule is in the answer');
+    assert.match(
+      flat(readTemplate('context/workflow.md')),
+      /Landing a change is not shipping it, and that holds for a deployed app as much as a published package/i,
+      'and in the standing rules, where both halves are named',
+    );
+    assert.match(
+      flat(skillBody('feature-close')),
+      /Retiring a feature is not shipping it/i,
+      'the command that hands a feature over says what it is waiting for',
+    );
+    assert.match(
+      flat(skillBody('feature-implement')),
+      /A landed phase has shipped nothing, under either granularity/i,
+      'and so does the one that lands a phase',
+    );
+  });
+
+  it('*per phase* no longer rests on a phase reaching users, because it does not', () => {
+    // Its old justification was "a deployed app, where each phase reaches users on its own" — which the
+    // ship answer contradicts outright: under it a landed phase has shipped nothing either. The value
+    // still exists; what it claims is about entries in a changelog.
+    for (const text of [stub, skillBody('onboard')]) {
+      assert.doesNotMatch(flat(text), /each phase reaches users on its own/i);
+      assert.match(flat(text), /cuts a release about as often as it merges/i);
+    }
+  });
+
+  it('/onboard collects the event, reports the ungated deploy, and still writes no job', () => {
+    const raw = skillBody('onboard');
+    const step = flat(raw.slice(raw.indexOf('## Step 9 — Release'), raw.indexOf('## Step 10')));
+    assert.match(step, /Whether anything publishes or deploys, and on what event/i, 'the sweep asks when');
+    assert.match(
+      step,
+      /a deploy wired to every merge of the base branch, in a repository that records notes, ships whatever unreleased work is in the tree/i,
+      'the contradiction is named as the defect it is',
+    );
+    assert.match(step, /Do not rewire it/i, 'and it stays a report');
+    assert.match(step, /one event, not one per artifact kind/i, 'the ask is one answer for both halves');
+    assert.match(step, /that path's own version moving/i, 'including the condition');
+    assert.match(
+      step,
+      /covers the deploy exactly as much as the publish, and they are one gap rather than two/i,
+      'the refusal to generate one covers both, and says why that is not two decisions',
+    );
+    assert.match(step, /This step installs nothing/i, 'and it still installs nothing');
+  });
+
+  it('the fact has a row wherever a merge is what someone is asking about', () => {
+    assert.match(
+      readTemplate('context/workflow.md'),
+      /\| what a merge publishes or deploys \|/,
+      'the one-source-of-truth table answers it, so nothing infers it from a version existing',
+    );
+  });
 });
 
 describe('a defect the gate found has one home, and it is the ledger', () => {

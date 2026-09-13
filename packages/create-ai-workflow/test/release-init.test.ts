@@ -5,6 +5,7 @@ import path from 'node:path';
 import { describe, it } from 'node:test';
 import {
   changesetConfig,
+  changesetReadme,
   detectIndent,
   findPackages,
   patchPackageJson,
@@ -123,6 +124,59 @@ describe('what the tool would see', () => {
       ['real'],
     );
     rmSync(root, { recursive: true, force: true });
+  });
+});
+
+describe('what it sets up is a gate, and the gate is not only for publishing', () => {
+  // The first cut of this command read as a way to publish npm packages. A deploy was mentioned once, as
+  // the reason to answer the private-package question — and nowhere did anything say what actually puts an
+  // app in front of users. It is the same event as the publish: the merge of the pull request where
+  // `changeset:prepare-release` ran. The command cannot write that answer (that is `/onboard`'s file), so
+  // what it owes is the event named in the two places it does write — the notes README, and its own report.
+  it('the notes README names the event, and says a feature merge is not it', () => {
+    const readme = changesetReadme();
+    assert.match(readme, /A feature's merge ships nothing/i);
+    assert.match(readme, /changeset:prepare-release/, 'the script whose merge is the event');
+    assert.match(
+      readme,
+      /the event for a published package and a deployed app alike/i,
+      'one event, not one per artifact kind',
+    );
+    assert.match(readme, /that path's own version moving in it/i, 'and the per-path condition');
+  });
+
+  it('the report refuses both jobs as one gap, and names what either would key on', () => {
+    // Matched a printed line at a time, because each one is its own string literal in the report.
+    const source = readFileSync(path.join(packageRoot, 'src/commands/release-init.ts'), 'utf8');
+    assert.match(
+      source,
+      /publish nor the deploy, which are two consequences of one event and one gap/,
+      'the refusal covers both halves, and says they are not two decisions',
+    );
+    assert.match(source, /The event is the merge of the pull request where/, 'and names the event');
+    assert.match(
+      source,
+      /condition for either half is that path's own version moving in that merge/,
+      'with the condition either job would read',
+    );
+    assert.match(
+      source,
+      /release happened, which would deploy an app a package-only release never touched/,
+      'and the wrong condition named as wrong, because it is the one someone reaches for',
+    );
+  });
+
+  it('the private-package question is asked as the gate it wires, not as a preference', () => {
+    // Answering it wrong in the safe-looking direction is the failure that hides for months, and the reason
+    // it hides is that nothing said what the version was *for*.
+    const source = readFileSync(path.join(packageRoot, 'src/commands/release-init.ts'), 'utf8');
+    assert.match(source, /version moving on the release merge is what a deploy keys on/i, 'on a terminal');
+    assert.match(source, /leaves its deploy with nothing to key on/i, 'and in the refusal without one');
+    assert.match(
+      source,
+      /gets wired to every merge instead/i,
+      'including what it degrades into, which is worse than never firing',
+    );
   });
 });
 

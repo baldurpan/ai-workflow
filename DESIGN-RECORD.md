@@ -1952,7 +1952,8 @@ convenience on top rather than a load-bearing part of the design, and why §11.6
 **The release job.** This repository tags on a version change in `package.json` and publishes the tag over
 OIDC; `northguild/gmt` publishes on a merge that moves a version in a release pull request of its own. Same
 author, same month, two designs — because the right one depends on branch protections, registry auth and
-who is allowed to press the button.
+who is allowed to press the button. **§11.10 narrows this refusal to the thing it was always about — the
+job, not the event** — and the *deploy* half of what follows is where it was shown to be too wide.
 
 The half that *is* uniform — accumulate notes, version them in a release pull request, tag, publish a
 release — is uniform right up to the last step, and **the last step plus its credentials is exactly where a
@@ -2246,6 +2247,95 @@ generated config parses, a private app with `version: true` bumped `0.1.0 → 0.
 with **no tag created**, and the same note under `version: false` left the app at `0.1.0` with the note
 still sitting in `.changeset/` — the trap, reproduced. **This does not close the dogfood question.** What
 ran was the vendor on a fixture, not the workflow on itself.
+
+### 11.10 The event was missing, and everything above only fit a published package
+
+The ask: **opting into notes is not an npm-publishing feature.** It has to work the same way for an app that
+goes live, and that deploy should happen only when a pull request merges where `changeset:prepare-release`
+was called.
+
+**The uniform half was already written down here, one paragraph into §11.2** — *"accumulate notes, version
+them in a release pull request, tag, publish a release"* — and then spent entirely on publishing. Deploying
+appeared four times and never once as an **event**:
+
+| Where a deploy was named | As what |
+|---|---|
+| §11.3's table, column four | *"dates a deploy; no contract"* — a consequence, with nothing saying of what |
+| §11.8's first bullet, and `release-init`'s one question | the reason to version a private package, so *"the deploy half"* is not dead |
+| §11.8's drag-along bullet | a surprise — *we published a major and it deployed production* |
+| the stub's last section | one of four gaps the workflow does not fill |
+
+So the file's final answer was **what this project does not do here**: bump, tag, publish, deploy, one line
+each, under a heading whose whole content was a disclaimer. True, and useless to the repository the table
+exists for — someone with a deployed app learned that the workflow would not deploy it and never learned
+what would. **A note mechanism without the event is a changelog generator**, and read as one.
+
+**The correction is one sentence: there is one event, not one per artifact kind.** The merge of the pull
+request where the notes were consumed — versions moved, changelogs written — is what publishes a package and
+what deploys an app. A feature's merge lands a note and ships nothing.
+
+**The four-gap section is deleted rather than added to.** Its four lines survive as *what the event is wired
+to*, inside `## What a release ships, and on what event`, which ships as *nothing here ships on a merge* —
+true of every repository, like the first answer in the file. The replacement is not a longer disclaimer: it
+answers, per path, what that merge does to it — publishes it, deploys it, or nothing.
+
+**The condition is per path, and it is that path's own version moving in the merge.** Never *a release
+happened*: a release that bumped only `packages/widgets` must not deploy `apps/web`. This is what promotes
+§11.8's drag-along bullet from a footnote to the rule's own exception — where a major puts a dependent's
+range out of range the dependent is pulled in with a patch, its version **did** move, and the deploy is
+correct to fire. The surprise you get once is now the answer's edge rather than a warning beside it.
+
+**Two failures the file now makes someone write down instead of discover**, and the second is the one §11.2's
+guard could not see. That guard catches *the answer says changes are announced while nothing consumes the
+notes*. It says nothing about the opposite: **something ships and consumes nothing.**
+
+- **A deployed app that is never versioned has nothing for a deploy to key on.** This was known (§11.8) and
+  recorded as a config trap. It is the gate's precondition.
+- **A deploy wired to every merge of the base branch is not gated at all.** It ships whatever notes happen to
+  be pending — other people's unreleased work included, which is exactly the blast radius `workflow.md`
+  forbids an *agent* from taking — and announces itself with a changelog a release behind. `/onboard` reports
+  it as the defect it is and rewires nothing.
+
+**§11.2's refusal narrows to what it was always about: the job, not the event.** The event is uniform and
+belongs in the file; the credentials that put an app in front of users are no more guessable than a registry
+token. So the publish and the deploy are **one gap rather than two**, Step 9 names both halves and the single
+merge they hang off, and *naming an event is not generating a workflow* — the sibling of the line that
+already let it name an installer.
+
+**A gate script was considered and rejected.** The tempting fourth script is one that answers *is this a
+release commit* so a deploy job's condition is one call. It cannot be written without a CI fact: the honest
+implementation compares this commit's versions against its parent's, and a default CI checkout is one commit
+deep and cannot see the parent. So it would ship either wrong or with a `fetch-depth` baked in — a generated
+workflow in everything but name, at the exact boundary §11.2 draws. **The gate is written down as an answer
+and its condition is named; the job stays the user's.**
+
+Three cells the new answer adds, in §11.5's numbering:
+
+**C12 — *per phase* rested on a claim the event contradicts.** Its justification was *"a deployed app, where
+each phase reaches users on its own"*, and under the event a landed phase has shipped nothing either. The
+value survives; what it claims does not — it is about **what one changelog entry covers**, so it fits a
+repository that cuts a release about as often as it merges. **This is the cell worth keeping: adding an
+answer to a file re-runs the grid, it does not extend it.** The contradiction was in prose written three
+sections above, and only re-reading the granularity answer against the new one found it.
+
+**C13 — a command that lands work reports it as shipped.** Nothing told an agent that a merge and a deploy
+are different events, and `done` plus a closed feature reads as live. The rule — **landing a change is not
+shipping it** — lands in the stub, in `workflow.md`'s standing rules, and in the two commands that finish
+work: report what the change is *waiting for*.
+
+**C14 — the bump level stops being prose where a path deploys.** C3 moved the confirmation to where the notes
+leave the machine because a wrong level is cheap until the release. Still true, and now the same sentence
+says what it costs: for a deployed path, the level is what decides whether that app's version moves, which is
+what deploys it. No mechanism changes — one sentence in column four of §11.3's table.
+
+**An existing install hears about this through machinery that already exists.** Renaming the last section
+makes `stubGaps` report it, `update` names it under **Next**, and `/onboard` is still the only writer. A test
+pins that path by renaming the heading back and asserting the report.
+
+**What was verified is the prose against itself.** 202 tests, eleven of them new, pinning the event, the
+condition, the deleted section, the two failures, and the report each command owes. **The dogfood question
+(§11.7) is untouched**, as it was by phase B: nothing here has been run by a live agent against a repository
+that deploys.
 
 ## 12. `findings.md` is deleted — a second status vocabulary, and the drift it caused
 

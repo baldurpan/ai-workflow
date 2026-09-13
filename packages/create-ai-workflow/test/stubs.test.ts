@@ -81,6 +81,28 @@ describe('what an update cannot write', () => {
     rmSync(root, { recursive: true, force: true });
   });
 
+  it('tells an install written before the ship answer that it is missing one', () => {
+    // The release answer's last section used to be *what this project does not do here* — four gaps and no
+    // event. Renaming it is the only way an existing install hears about the event at all: a stub is
+    // project-owned, so nothing can rewrite it, and this report plus `/onboard` is the whole path.
+    const root = scratch();
+    quiet(() => install(root));
+    const release = path.join(root, 'context/release.md');
+    writeFileSync(
+      release,
+      readFileSync(release, 'utf8').replace(
+        '## What a release ships, and on what event',
+        '## What this project does not do here',
+      ),
+      'utf8',
+    );
+
+    assert.deepEqual(stubGaps(root), [
+      { dest: 'context/release.md', section: 'What a release ships, and on what event' },
+    ]);
+    rmSync(root, { recursive: true, force: true });
+  });
+
   it('names a stub that is not there at all', () => {
     // The shape of an install made before `git.md` shipped: `update` cannot restore it, because a pass
     // that writes missing stubs is a pass that can overwrite one someone deleted on purpose.

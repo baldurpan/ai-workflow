@@ -119,6 +119,11 @@ reaches this step:
   records one, and **put the note's path on the phase's `Files:` line** alongside the code. Step 11 then
   refuses `done` on a phase whose note has not landed, by the rule it already applies to documentation.
 
+**A landed phase has shipped nothing, under either granularity.** *Per phase* is a claim about what one
+changelog entry covers, not about reaching users: what puts this in front of anyone is the event that file's
+*what a release ships* answer names, and this command never fires it. Report the phase as landed and say
+what it is waiting for.
+
 **A note is one or two sentences.** It is read by someone deciding whether this affects them — not
 reviewing the diff. Say what changed for them and stop: no phase-by-phase account, no list of files, no
 rationale that belongs in the plan. If it needs a paragraph, the thing to link is the plan, not to inline
