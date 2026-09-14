@@ -27,6 +27,11 @@ import { exists } from '../paths.ts';
  * — which is why an app that deploys has to be versioned here, and why the question below is the one thing
  * this command refuses to guess. `context/release.md`'s *what a release ships* answer is where the event is
  * written down; `/onboard` writes it, and this is what makes it true.
+ *
+ * **The same answer also decides what that merge leaves behind.** Versioning a deployed app and tagging it
+ * are one decision, not two: the tag is the record of which commit went live, and a release page is built
+ * from it. Turning versioning on and tagging off produces a repository that deploys correctly and keeps no
+ * evidence it ever did — no tag, no release, and a changelog entry nobody is shown.
  */
 
 const CHANGESET_DIR = '.changeset';
@@ -167,6 +172,10 @@ export type PrivateAnswer = 'version' | 'ignore';
  *
  * Both answers are written out explicitly, including the one that matches the default, so that a reader
  * can tell a decision from an omission.
+ *
+ * **`tag` follows `version`.** A private package versioned here is one that gets deployed, and a deploy
+ * that leaves no tag leaves no record of what went live. The two flags have one answer because they had
+ * one question.
  */
 export function changesetConfig(baseBranch: string, privatePackages: PrivateAnswer): string {
   const config = {
@@ -181,9 +190,15 @@ export function changesetConfig(baseBranch: string, privatePackages: PrivateAnsw
     baseBranch,
     updateInternalDependencies: 'patch',
     ignore: [],
-    // Tagging stays off either way: a tag on a deployed app is the deploy's business, not the note's — and
-    // the deploy has a better thing to key on, which is that app's own version moving in the release merge.
-    privatePackages: { version: privatePackages === 'version', tag: false },
+    // `tag` follows `version`, because the question that set them is one question: *is any of those
+    // private packages deployed?* An earlier version left tagging off either way, reasoning that a tag on
+    // a deployed app is the deploy's business and that the deploy has a better thing to key on — that
+    // app's own version moving in the release merge. The second half is still true and the gate is
+    // unchanged. The first half answered a question nobody asked: **a tag was never proposed as the gate,
+    // it is the record.** Left off, the release merge deploys the app and the repository keeps nothing —
+    // no tag saying which commit is live, nothing for a release page to hang off, and a changelog entry
+    // that reaches no one. The vendor documents `{ version: true, tag: true }` for precisely this case.
+    privatePackages: { version: privatePackages === 'version', tag: privatePackages === 'version' },
   };
   return `${JSON.stringify(config, null, 2)}\n`;
 }
@@ -213,6 +228,11 @@ request where \`changeset:prepare-release\` was run — the notes consumed, the 
 written — and that one merge is the event for a published package and a deployed app alike. The condition for
 either is **that path's own version moving in it**: a release that bumped only a package must not deploy the
 app.
+
+**Every path that merge ships leaves a tag and a release behind**, whichever of the two it got. The tag says
+which commit went live; the release is where this note is finally read by the person it was written for. A
+deployed app earns both exactly as a published package does — the record belongs to the event, not to the
+kind of artifact.
 
 The answers that govern what gets a note here — which paths announce, to whom, how often, and what that merge
 publishes or deploys — live in [\`../${CONTEXT_DIR}/release.md\`](../${CONTEXT_DIR}/release.md), not in
@@ -389,6 +409,7 @@ export async function releaseInit(
     info(dim('  That version moving on the release merge is what a deploy keys on, so left off, the app'));
     info(dim('  either never deploys or gets wired to every merge instead — which ships whatever notes'));
     info(dim("  happen to be pending, other people's included."));
+    info(dim('  Answering yes also tags it, which is what leaves a record of the commit that went live.'));
     answer = (await ask('  Is any of those private packages deployed?')) ? 'version' : 'ignore';
   }
 
@@ -399,7 +420,10 @@ export async function releaseInit(
 
   info();
   info(bold(options.dryRun ? 'Would write' : 'Wrote'));
-  info(`  ${green('+')} ${CHANGESET_DIR}/config.json ${dim(`privatePackages.version: ${answer === 'version'}`)}`);
+  info(
+    `  ${green('+')} ${CHANGESET_DIR}/config.json ` +
+      dim(`privatePackages: version and tag ${answer === 'version'}`),
+  );
   info(`  ${green('+')} ${CHANGESET_DIR}/README.md ${dim('— the note format, and a pointer to context/release.md')}`);
   info(`  ${green('~')} package.json ${dim(`— ${CLI_DEP} ${CLI_RANGE}, and ${SCRIPT_NAMES.length} scripts`)}`);
   for (const [name, command] of Object.entries(scripts(baseBranch))) {
@@ -430,6 +454,20 @@ export async function releaseInit(
   info(dim('  Write those jobs yourself: the credentials and the branch protections are yours, and the'));
   info(dim("  condition for either half is that path's own version moving in that merge — never that a"));
   info(dim('  release happened, which would deploy an app a package-only release never touched.'));
+
+  if (answer === 'version') {
+    // The one thing a deploy-only repository cannot work out from `context/release.md`, because §11.7
+    // forbids that file from naming a tool. The command that creates the tags is the *publish* command,
+    // which publishes nothing when every package here is private and exists only to tag — so a repository
+    // that deploys and never publishes still has to run it, and nothing else would ever suggest that.
+    info();
+    info(`  ${dim('What creates the tags is')} ${cyan('changeset publish')}${dim(', and that is worth reading twice: where')}`);
+    info(dim('  every package is private it publishes nothing and cuts tags only. A repository that'));
+    info(dim('  deploys and never publishes still runs it — on the release merge, after the deploy.'));
+    info(dim('  It is also what a release page is built from, one per tag, carrying that CHANGELOG entry.'));
+    info();
+  }
+
   info(dim('  Nothing was committed.'));
   return 0;
 }

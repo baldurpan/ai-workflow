@@ -25,13 +25,26 @@ Every `§`-number below points into that document.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** `main` carries **0.13.0** — the body's ceiling (§10.13), **item 6, the release answer** (§11) in
-both its phases: the sixth project-owned stub, the `/onboard` step that asks what a change announces, and
-`release-init`, the subcommand that makes that answer available to be true. `package.json` now says
-**`0.13.1`, unreleased**, and it carries one thing: **the release answer gained its last answer — the event**
-(§11.10). What ships a change was written down only for a published package; an app that goes live got a
-config flag and a disclaimer. It is one event for both, and the four-gap section that stood in for it is
-deleted.
+**State:** `main` carries **0.13.1** — the body's ceiling (§10.13), **item 6, the release answer** (§11) in
+both its phases and the event that completes it (§11.10). `package.json` now says **`0.13.2`, unreleased**,
+and it carries one thing: **the event's record** (§11.11) — the first correction in this package to come
+from the field rather than from an enumeration.
+
+**0.13.2 is what `piff` found by running §11 for real.** Two pull requests, the second carrying the version
+bump, the deploy gate fired, production updated — and the tags and releases pages were both empty. The
+answer file was **not false**: it said in as many words that nothing tags, and called it deliberate. It was a
+true record of a decision this tool made and never asked about, and §11 had a name for an answer that is
+false and none for one that is true and wrong. §11.8 had picked `tag: false` from the vendor's config
+reference; the vendor also has a page named after this exact case, and it says `{ version: true, tag: true }`.
+
+**§11.10's sentence was half-applied.** *One event, not one per artifact kind* fixed the trigger and left
+the record per artifact kind — and a published package gets its tag as a **side effect of the publish
+command** while a deploy has no such command in its path. So the publish half had a record nobody chose and
+the deploy half had none, with every individual step reporting success. **The record belongs to the event,
+not to the kind of artifact:** `tag` now follows `version`, the wires gain a fifth (`Release` — across all
+of §11 *a release* had only ever meant the act, never the page someone reads), the per-path table gains
+*Leaves behind*, and Step 9 sweeps the repository's actual tags, which is the only place the defect is
+visible. Verified end to end on a repo `release-init` configured: 0 published, tag cut, release body ready.
 
 **0.12.0 removes a file rather than fixing it, and the route there is the part worth keeping.**
 `northguild/worktree` reached 35 open findings against five shipped features — 1097 lines, 76 KB, large
@@ -375,6 +388,17 @@ Three things fell out of writing it, and the first is the one worth keeping:
 is — it ships whatever notes are pending, other people's included — and still rewires nothing and generates
 no job. Existing installs hear about it the only way a project-owned file can be reached: the renamed section
 is a gap `update` reports under **Next**. Eleven new tests; 202 in all.
+
+**0.13.2 adds the record (§11.11), and it is item 1 arriving on its own.** `piff` ran the mechanism and the
+tags page stayed empty; the write-up is in §11.11 and the two cells it adds are worth more than the fix.
+**C15 — a true answer can be the wrong answer, and no gate looks at those.** Everything §11 built checks the
+file against the repository; nothing checks the repository against what the user wanted, which is why a
+default the user never sees gets laundered by the answer file into a decision they appear to have made. The
+`version` half was asked out loud for exactly this reason and `tag` rode along underneath it. **C16 — the
+sweep read the tree and never the tags**, which is a one-command answer and the only place this is visible.
+One cost taken deliberately: `stubGaps` is heading-level, so an install already on 0.13.1's shape hears
+nothing — giving the record its own heading would trip the detector and split the one answer that has to
+stay whole. Four new tests; 206 in all.
 
 **The dogfood question is unchanged, and it is item 1's wearing different clothes.** This repository
 manages the workflow and does not use it: no `context/`, no skill trees, and `PLAN.md` is hand-maintained

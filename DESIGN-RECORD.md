@@ -2337,6 +2337,104 @@ condition, the deleted section, the two failures, and the report each command ow
 (§11.7) is untouched**, as it was by phase B: nothing here has been run by a live agent against a repository
 that deploys.
 
+### 11.11 The record — everything worked and nothing was written down
+
+**The first field report of §11 running on a real repository, and it found the half §11.10 did not.**
+`baldurpan/piff` opted into notes, wired a deploy, merged two pull requests — the second carrying the
+version bump — and production updated. The tags page and the releases page were both empty.
+
+**The answer file was not false, which is why nothing caught it.** §11.2's guard exists for *the answer
+names a mechanism that is not on disk*, and this answer named everything correctly:
+
+> | **What tags** | nothing — no tag is cut by any workflow, job or hook. `create-github-releases: false`, and `privatePackages.tag` is false |
+
+and, in the same file, *"**Nothing tags or publishes**, and that remains deliberate rather than missing."*
+Every word of that was true. **It was a faithful record of a decision this tool made on the user's behalf
+and never put to them as a question** — and the word it turned on was *deliberate*. §11 had a name for an
+answer that is false and no name for an answer that is true and wrong.
+
+**The decision came from §11.8's first bullet**: *"A deployable app therefore needs versioning turned on and
+tagging left off."* That bullet is headed *verified against the changesets docs*, and it was — against the
+config reference, which describes `privatePackages.tag` neutrally. The vendor also ships a page named after
+this exact problem, and it answers it: `{ version: true, tag: true }`. **Reading the reference page instead
+of the page named after the question is how a default gets chosen by accident and then defended in prose.**
+
+**What the prose defended was a question nobody had asked.** *A tag on a deployed app is the deploy's
+business, and the deploy has a better thing to key on — that app's own version moving in the release merge.*
+The second clause is correct and the gate is unchanged by any of this. The first rejects the tag **as a
+gate**, which was never proposed. A tag is the **record**: which commit went live, and the thing a release
+page hangs off.
+
+**So §11.10's sentence was half-applied.** *There is one event, not one per artifact kind* fixed the
+**trigger** and left the **record** per artifact kind — and the asymmetry is invisible from inside either
+half:
+
+| | What creates the tag | How it gets one |
+|---|---|---|
+| a published package | the publish command, which tags as a side effect | by accident, without anyone deciding |
+| a deployed app | nothing in a deploy's path | it does not |
+
+A repository that publishes therefore has tags without ever having chosen to have them, which is why the
+gap reads as unremarkable from the publish side and is invisible from the deploy side, where **every
+individual step reports success.** The notes were consumed, the version moved, the gate fired, production
+updated. **It is the failure that looks like success**, and it surfaces the first time somebody opens a
+page expecting to find out what is live.
+
+**The correction is the other half of the same sentence: the record belongs to the event, not to the kind of
+artifact.** Every path a release merge ships leaves a tag and a release behind, whichever of the two
+consequences it got.
+
+Four things moved:
+
+- **`tag` follows `version` in `release-init`.** The command already asks the question that decides both —
+  *is any of those private packages deployed?* — and threw half the answer away. Two flags, one question.
+- **A fifth wire, `Release`.** The event's wires were Bump, Tag, Publish, Deploy: four acts and no artifact.
+  Across the whole of §11 *a release* had only ever meant the **act**; the page someone reads — which is
+  where a note finally reaches the audience column two of §11.3's table asked the user to name — appeared
+  nowhere. A note mechanism whose entries are consumed into a file nobody opens is §11.10's *changelog
+  generator* finding, one layer down.
+- **The per-path table gains *Leaves behind*.** The column exists for the deploy-only repository, because
+  that is the one which will otherwise fill in the table correctly and skip the record entirely.
+- **`Tag` says why it is the empty line.** *Do not assume the publish step owns this* — the sentence that
+  would have saved the field report.
+
+**The command that creates the tags could not be named where it was needed, and the existing boundary
+already had the place.** It is the *publish* command — which, where every package is private, publishes
+nothing and exists only to tag. Nobody deduces that from a deploy's own vocabulary, and §11.7 forbids the
+stub from saying it, since that prose is inherited by the Go and Python installs. §11.9 put the vendor in
+`src/`, so `release-init`'s output says it, to the one audience that has already chosen the tool.
+
+**Verified end to end against 3.0.2, on a repository this command configured** — not read from the docs,
+which is what produced the bug. A note, `changeset:prepare-release`, then the publish command with every
+package private: **0 published, tag `@fix/web@1.1.0` created**, and the `CHANGESETS_OUTPUT` stream carrying
+`{"type":"git-tag","tag":"@fix/web@1.1.0",…}`. The publishing action's `runPublish` maps exactly that stream
+to tag pushes and release pages, reading each package's `CHANGELOG.md` for the body, **with no filter on
+private or published** — so a deployed app that never touches a registry gets a real release page carrying
+the note that was written for it.
+
+Two cells, in §11.5's numbering:
+
+**C15 — a true answer can be the wrong answer, and no gate looks at those.** Everything §11 built checks
+whether the file matches the repository. Nothing checks whether what the repository does is what the user
+wanted, because that is not a property of the file — which is exactly why it has to be **asked** rather than
+defaulted. The generalisation is not about tags: **where this tool picks a default the user never sees, the
+answer file launders it into a decision they appear to have made.** The private-package question was already
+asked out loud for `version` for this reason; `tag` rode along underneath it and inherited the appearance of
+having been chosen.
+
+**C16 — the sweep looked at workflows and not at the repository.** Step 9's four checks all read the tree.
+Nothing looked at the **tags**, which is a one-command answer and the only place this defect is visible: a
+repository that has been deploying for months with zero tags has never recorded anything, and the tree looks
+perfect. A fifth sweep item reads them, and says in the words above that a working deploy does not answer
+this question.
+
+**One cost, taken deliberately.** `stubGaps` compares `##` headings, so an install already carrying
+0.13.1's shape hears nothing from `update` about any of this — the change lives inside a section it already
+has. Giving the record its own heading would trip the detector and is the wrong shape: the event and what it
+leaves behind are one answer, and splitting them re-creates the failure, where a reader fills in the event
+and never notices the record. **The file shape is not bent to suit the reporting instrument.** An install
+still on the pre-0.13.1 shape is unaffected — it is reported for the renamed section already.
+
 ## 12. `findings.md` is deleted — a second status vocabulary, and the drift it caused
 
 The file held "defects that outlive the session that found them", graded `P0`–`P3`, gated a phase from

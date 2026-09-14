@@ -186,7 +186,7 @@ describe('the private-package answer is written, never defaulted', () => {
   // silently does nothing forever.
   it('turns versioning on for a deployed private package', () => {
     const config = JSON.parse(changesetConfig('main', 'version')) as Record<string, unknown>;
-    assert.deepEqual(config.privatePackages, { version: true, tag: false });
+    assert.deepEqual(config.privatePackages, { version: true, tag: true });
   });
 
   it('writes the other answer out too, so a reader can tell a decision from an omission', () => {
@@ -194,12 +194,21 @@ describe('the private-package answer is written, never defaulted', () => {
     assert.deepEqual(config.privatePackages, { version: false, tag: false });
   });
 
-  it('leaves tagging off either way — a tag on a deployed app is the deploy\'s business', () => {
+  // Until 0.13.2 `tag` was pinned false either way, on the reasoning that a tag on a deployed app is the
+  // deploy's business and that the deploy keys on the version instead. The second half is still true and
+  // the gate is unchanged; the first half answered a question nobody asked. A tag is not the gate, it is
+  // the record — so an app that deploys correctly left no trace of which commit went live, and the
+  // releases page stayed empty. Found in the field, not here.
+  it('tags whatever it versions — the two flags have one question', () => {
     for (const answer of ['version', 'ignore'] as const) {
       const config = JSON.parse(changesetConfig('main', answer)) as {
-        privatePackages: { tag: boolean };
+        privatePackages: { version: boolean; tag: boolean };
       };
-      assert.equal(config.privatePackages.tag, false);
+      assert.equal(
+        config.privatePackages.tag,
+        config.privatePackages.version,
+        'versioning a private package here means it is deployed, and a deploy owes a record',
+      );
     }
   });
 

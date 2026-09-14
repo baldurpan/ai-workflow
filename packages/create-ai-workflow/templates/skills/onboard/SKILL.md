@@ -410,8 +410,16 @@ user taking the offer.
    people's included — and announces itself with a changelog a release behind. Report it as the defect it
    is, in the words above. Do not rewire it: what fires a deploy is the user's, and this step changes no
    workflow.
+5. **Whether anything tags or cuts a release, and what this repository already has.** Two different
+   questions and both are cheap: read the workflows for a step that tags, and **look at the repository's
+   existing tags**. A repository that has been deploying for a while and has no tags at all is the finding —
+   it means nothing has ever recorded what went live, and it is invisible from inside the tree because the
+   deploys all succeeded. **Do not report this as working because the deploy works.** Where the mechanism
+   from step 2 has a tagging setting, read it and say what it is set to: a deployed app is usually a private
+   package, and these settings commonly leave private packages untagged, so the answer is *off* unless
+   somebody chose otherwise.
 
-Say all four back in a line each, including the empty ones.
+Say all five back in a line each, including the empty ones.
 
 ### Then ask, per path
 
@@ -459,10 +467,10 @@ leaving it implied.
   phase is one entry somebody reads). It is one answer for the project, not a column in the table: it says
   what leaves this repository as a unit. Say that `/orchestrate` has neither value and treats the change as
   the unit.
-- **What a release ships, and on what event** — fill in what bumps a version, what tags, what publishes and
-  what deploys, one line each, and write "nothing yet" where that is the truth. **Nothing in this workflow
-  does any of the four**, and this section is what stops the answer being read as "releases happen
-  automatically".
+- **What a release ships, and on what event** — fill in what bumps a version, what tags, what cuts a
+  release, what publishes and what deploys, one line each, and write "nothing yet" where that is the truth.
+  **Nothing in this workflow does any of the five**, and this section is what stops the answer being read as
+  "releases happen automatically".
 
   Then, from the sweep's fourth line, **the event and what it ships per path**. There is **one event, not
   one per artifact kind**: the merge of the pull request where the notes were consumed and the versions
@@ -471,13 +479,26 @@ leaving it implied.
   deploys it, or nothing. **A feature's merge lands a note and ships nothing**, and that sentence belongs in
   the file rather than in this conversation.
 
-  Two things to get written down while the user is here, because both are silent when wrong:
+  Then **what that merge leaves behind**, which is the same for every path it ships: a tag and a release.
+  The tag says which commit went live; the release is where the note is finally read by whoever it was
+  written for. Ask what creates each, and write "nothing yet" where that is the truth.
+
+  **A repository that only deploys is the one that needs asking.** Where something publishes, the command
+  that publishes usually tags as a side effect, so the tags exist without anyone deciding they should. A
+  deploy has no such command in its path and therefore no such accident: nothing tags, nothing cuts a
+  release, and every individual step reports success. Do not let the working deploy answer this question.
+
+  Three things to get written down while the user is here, because all three are silent when wrong:
 
   - **The condition is that path's own version moving**, never *a release happened*. A release that bumped
     only the package must not deploy the app.
   - **A path that deploys has to be versioned at all.** A deployed app is usually a private package, and a
     note mechanism commonly leaves those unversioned — so ask whether this one's version actually moves. If
     it does not, the deploy has nothing to key on: say so in the file as the gap it is.
+  - **A path that deploys has to be tagged, too**, and that is a second setting which is off by default in
+    the same place and for the same reason. Versioning it and tagging it are one decision: the reason to
+    version a deployed app is that it ships, and a deploy with no tag leaves no record that it did. If the
+    two disagree here, say so — it is the state where everything works and nothing is written down.
 
 **Name the release job as the gap it is, and do not generate one.** Accumulating notes, versioning them,
 tagging and publishing is a uniform sequence right up to the last step — and the last step plus its
@@ -488,6 +509,12 @@ generated workflow there does damage. Say what is missing; let the user write it
 is uniform and belongs in the file; the credentials that put an app in front of users are no more guessable
 than a registry token. So name both halves, name the single merge they hang off, and stop — an answer that
 records the event with the job still missing is true, and it is the answer this step is for.
+
+**The tag and the release are part of that gap and are named with it.** They are not a third half: they are
+what the one event leaves behind, they need no registry credential, and the step that writes them is
+ordinarily the same job that publishes or deploys. **Name them even where the user is not going to write
+that job today** — this is the half that is otherwise discovered months later, by someone opening a releases
+page and finding it empty.
 
 If Step 1 turned up an existing rule about what deserves a changelog entry, quote it here and let it win
 unless the user says otherwise.

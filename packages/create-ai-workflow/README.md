@@ -97,8 +97,8 @@ project with no linter chose that. *"A change is announced by writing a note"* i
 where nothing records one, which is the same defect as a `done` row whose files do not exist. So `/onboard`
 writes the true answer or the true answer plus a named gap, never a mechanism that is not on disk — and it
 **refuses to generate a release job**, because accumulating notes is uniform right up to the step that
-needs credentials and branch protections. **Nothing in this workflow bumps a version, tags, publishes or
-deploys**, and the stub has a section that says so rather than leaving it implied.
+needs credentials and branch protections. **Nothing in this workflow bumps a version, tags, publishes,
+releases or deploys**, and the stub has a section that says so rather than leaving it implied.
 
 **And the last answer in that file is the event, which is one event and not one per artifact kind.** Notes
 accumulate on feature merges; the merge of the pull request that consumed them — versions moved, changelogs
@@ -107,7 +107,11 @@ own version moved in it*. A feature's merge lands a note and ships nothing, so n
 released, deployed or live because it landed. Two failures the file makes someone write down rather than
 discover: a deployed app that is never versioned has nothing for a deploy to key on, and a deploy wired to
 every merge of the base branch is not gated at all — it ships whatever notes happen to be pending, other
-people's unreleased work included. `/onboard` reports that second one as the defect it is and rewires
+people's unreleased work included. **And what that merge leaves behind is the same for every path it ships:
+a tag and a release.** The record belongs to the event rather than to the kind of artifact — a deployed app
+earns both exactly as a published package does, which is the half a repository that only deploys will
+otherwise never get, since the command that publishes is also the one that tags.
+`/onboard` reports that second one as the defect it is and rewires
 nothing.
 
 **No skill names a release tool either.** A repository with no `package.json` answers with a
@@ -249,6 +253,12 @@ merge of the pull request where `changeset:prepare-release` ran, and that one me
 published package and a deployed app alike — each on the condition that its own version moved in it. That is
 why the question below is the one thing this command will not guess, and why `.changeset/README.md` says a
 feature's merge ships nothing.
+
+**The same answer decides what that merge leaves behind.** Versioning a deployed app and tagging it are one
+decision: the tag is the record of which commit went live, and a release page is built from it. Answer
+`version` and both are on. A repository that only deploys still runs the publish command to get them — it
+publishes nothing where every package is private and cuts tags only, which is the one thing about this
+mechanism that nobody deduces, so the command says it on its way out.
 
 **It is the only command here that names a vendor, and the only one that touches `package.json`.** That is
 deliberate and it is a boundary, not an exception. The rule that no template may name a release tool is a

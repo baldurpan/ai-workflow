@@ -814,7 +814,7 @@ describe('what a change announces is an answer, not an assumption', () => {
     assert.match(step, /This step installs nothing/i, 'phase A collects an answer and mutates nothing');
     assert.match(step, /name what is missing, and stop/i, 'the refusal is written as a refusal');
     assert.match(step, /Never leave the file saying changes are announced while nothing consumes the notes/i);
-    assert.match(step, /Say all four back in a line each, including the empty ones/i, 'it reports like Step 5');
+    assert.match(step, /Say all five back in a line each, including the empty ones/i, 'it reports like Step 5');
     assert.match(step, /do not generate one/i, 'the release job is named as a gap, not written');
   });
 
@@ -861,6 +861,68 @@ describe('what a change announces is an answer, not an assumption', () => {
     const live = stripComments(stub);
     assert.match(live, /nothing here ships on a merge/i, 'the answer is written out');
     assert.doesNotMatch(live, /On the release merge/, 'the per-path ship table ships commented out');
+  });
+
+  // Found in the field on a repository that deploys and never publishes. Everything worked — notes
+  // consumed, version moved, gate fired, production updated — and the tags and releases pages were both
+  // empty, because nothing in a deploy's path ever creates either. The publish half hides this: the
+  // command that publishes tags as a side effect, so a repository that publishes gets a record without
+  // deciding to have one. §11.10 made the *trigger* uniform across artifact kinds and left the *record*
+  // per artifact kind; this is the other half of that sentence.
+  it('the event leaves a record, and it is the same record whichever half a path got', () => {
+    const body = flat(stub);
+    assert.match(
+      body,
+      /Every path that merge ships leaves a tag and a release behind/i,
+      'the record is stated as uniform rather than left to the artifact kind',
+    );
+    assert.match(
+      body,
+      /record belongs to the event, not to the kind of artifact/i,
+      'and it is stated as the same sentence the event itself was fixed with',
+    );
+    assert.match(
+      body,
+      /Leaves behind/,
+      'the per-path table has a column for it, so a deploy-only repo cannot skip it',
+    );
+  });
+
+  it('names the failure that looks like success, since every step of it reports green', () => {
+    const body = flat(stub);
+    assert.match(body, /A deploy that leaves no tag and no release is the failure that looks like success/i);
+    assert.match(
+      body,
+      /usually off by default for exactly the paths that deploy/i,
+      'and says the default is what produces it, so nobody has to have chosen it',
+    );
+  });
+
+  it('Release is a wire of its own, because nothing else in a deploy would produce one', () => {
+    const body = flat(stub);
+    assert.match(body, /\*\*Release\*\* — what turns a tag into the page someone reads/i);
+    assert.match(
+      body,
+      /Do not assume the publish step owns this/i,
+      'the Tag wire says why it is empty in a repository that only deploys',
+    );
+    // The skill has to collect five, or the stub has a wire nothing fills.
+    assert.match(
+      skillBody('onboard'),
+      /what bumps a version, what tags, what cuts a\s+release, what publishes and what deploys/i,
+      '/onboard Step 9 asks for all five',
+    );
+  });
+
+  it('the tagging setting is recorded next to the versioning one it is always confused with', () => {
+    const body = flat(stub);
+    assert.match(body, /\*\*Whether private packages get tagged\.\*\*/i);
+    assert.match(
+      body,
+      /separate switch from the one above and commonly off by default too/i,
+      'two switches, one question — which is the shape that produced the field failure',
+    );
+    assert.match(body, /three settings of the mechanism/i, 'and the count above them agrees');
   });
 
   it('the gate is per path, and what it reads is that path own version', () => {

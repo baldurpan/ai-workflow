@@ -17,8 +17,9 @@ in a repository where nothing records one, and a false answer here is the same d
 true, and it refuses to write a mechanism that is not on disk.
 
 **A note is not a release, and a merge is not a deploy.** Nothing in this workflow bumps a version, tags,
-publishes or deploys. What does — and the **one event** that fires it, for a published package and a deployed
-app alike — is the last answer in this file: *What a release ships, and on what event*.
+publishes, releases or deploys. What does — and the **one event** that fires it, for a published package and
+a deployed app alike — is the last answer in this file: *What a release ships, and on what event*. That
+answer also records what the event **leaves behind**, which is a tag and a release for every path it ships.
 
 ## What announces a change, and to whom
 
@@ -88,12 +89,17 @@ to.
      - whether **filenames must not collide**. Tools that collect note files use random names on purpose:
        two differently-named files never conflict when two branches merge.
 
-     And two settings of the mechanism whose consequences belong to the last answer in this file. Record what
-     they are set to here; the reason they matter is written down once, there:
+     And three settings of the mechanism whose consequences belong to the last answer in this file. Record
+     what they are set to here; the reason they matter is written down once, there:
 
      - **Whether private packages get versioned.** Commonly off by default, and a deployed app is usually a
        private package. Left off, it accumulates notes and never bumps — so anything keyed on its version
        does nothing forever.
+     - **Whether private packages get tagged.** A separate switch from the one above and commonly off by
+       default too, so a deployed app can be versioned correctly and still leave no tag. These two are one
+       decision rather than two — the reason to version a private package here is that it is deployed, and a
+       deploy with no tag leaves no record of what went live — so if they disagree, say which was chosen
+       and why.
      - **Whether a dependent can be dragged into a release.** Where one package's major puts a sibling's
        range out of range, the sibling is pulled in with a patch, and its version moved too. -->
 
@@ -147,17 +153,30 @@ scope, and what performs the second is not written down here yet.
 
      - **Bump** — the script that consumes the notes, and who runs it. It cannot be run twice, and where a
        deploy watches versions it is the button that ships.
-     - **Tag** — what creates the tag, and from what.
+     - **Tag** — what creates the tag, and from what. **Do not assume the publish step owns this.** In the
+       common shape one command both publishes and tags, so a repository that publishes gets tags without
+       ever deciding to — and a repository that only deploys runs no such command and silently gets none.
+       If nothing here publishes, this line is the one most likely to be empty and least likely to be
+       noticed.
+     - **Release** — what turns a tag into the page someone reads, and where its text comes from. That text
+       is the changelog entry the note was written for, so a release is where a note finally reaches its
+       audience; without one the notes are consumed into a file nobody opens.
      - **Publish** — what pushes the artifact to a registry, and with what credentials.
      - **Deploy** — what puts the app in front of users, and what it keys on.
 
-     Then one row per path, saying what that merge does to it:
+     Then one row per path, saying what that merge does to it and what it leaves behind:
 
-     | Path               | On the release merge                     |
-     |--------------------|------------------------------------------|
-     | `packages/widgets` | published to the registry by `<job>`     |
-     | `apps/web`         | deployed to production by `<job>`        |
-     | `docs/`            | nothing                                  |
+     | Path               | On the release merge                     | Leaves behind          |
+     |--------------------|------------------------------------------|------------------------|
+     | `packages/widgets` | published to the registry by `<job>`     | tag + release          |
+     | `apps/web`         | deployed to production by `<job>`        | tag + release          |
+     | `docs/`            | nothing                                  | nothing                |
+
+     **Every path that merge ships leaves a tag and a release behind, whichever of the two it got.** The
+     record belongs to the event, not to the kind of artifact: the tag says which commit went live and the
+     release is where the note is read. A deployed app earns both exactly as a published package does — and
+     the column exists because that is the half a repository which only deploys will otherwise skip, having
+     nothing that would have produced them by accident.
 
      **The gate is per path, and what it reads is that path's own version.** A release that bumped only the
      package must not deploy the app, so the honest condition is *this path's version moved in this merge* —
@@ -175,6 +194,13 @@ scope, and what performs the second is not written down here yet.
      - **A major bump can drag a sibling into the release.** Where one package's major puts a dependent's
        range out of range, that dependent is pulled in with a patch — and if the dependent is the deployed
        app, its version moved, so the merge deploys production. Say whether that can happen here.
+     - **A deploy that leaves no tag and no release is the failure that looks like success.** Everything
+       works — the notes are consumed, the version moves, the gate fires, production updates — and the
+       repository keeps no evidence of it: nothing says which commit is live, and the changelog entry sits
+       in a file with no reader. It surfaces the first time someone opens the tags or releases page and
+       finds it empty, long after the deploy they wanted to identify. **Where the mechanism has a setting
+       for this, it is usually off by default for exactly the paths that deploy** — see the second answer
+       in this file — so a repository that only deploys reaches this state by changing nothing.
 
      If any of these is "nothing yet", say so. A repository that accumulates notes with nothing to consume
      them reads as configured and is not — the notes pile up and no version ever moves. -->
