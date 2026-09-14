@@ -171,6 +171,13 @@ scope, and what performs the second is not written down here yet.
      - **Publish** — what pushes the artifact to a registry, and with what credentials.
      - **Deploy** — what puts the app in front of users, and what it keys on.
 
+     **A wire names something that has run, or says that it has not.** *Written, never run* is a real
+     answer and belongs here; a job named without that qualifier reads as working, and someone will plan
+     a release around it. What makes a wire true is that it produced its artifact — not that the file
+     reads correctly, which is a claim about a mechanism rather than the mechanism. A file can be entirely
+     sensible and still be inert: where one lives in a workflow, a single unresolvable reference anywhere
+     in that file takes every job in it down together.
+
      Then one row per path, saying what that merge does to it and what it leaves behind:
 
      | Path               | On the release merge                     | Leaves behind          |

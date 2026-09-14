@@ -26,10 +26,24 @@ Every `§`-number below points into that document.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
 **State:** `main` carries **0.14.0** — the body's ceiling (§10.13), **item 6, the release answer** (§11) in
-both its phases, the event that completes it (§11.10), the event's record (§11.11) and **§11.12**, the
-second correction to come from the field rather than from an enumeration and the second in a row. It is
-also the first release cut from accumulated notes in this repository, so `packages/create-ai-workflow/CHANGELOG.md`
-starts here.
+both its phases, the event that completes it (§11.10), the event's record (§11.11) and **§11.12**. It is
+also the first release cut from accumulated notes in this repository, so
+`packages/create-ai-workflow/CHANGELOG.md` starts there. `main` now carries **0.15.0**, which adds
+**§11.13**.
+
+**§11.13 is the third field report in a row, and the first where the wrong thing was something this tool
+wrote.** `piff`'s new `record` job set a variable from `${{ runner.temp }}` in a **job-level** `env:`,
+where that context does not exist — an unresolvable reference is rejected at **parse** time, so the whole
+workflow went inert: no Gate 1, no deploy, no record, on any branch. None of that is this tool's to ship
+and it cannot be: `templates/` has no YAML and §11.2 refuses to generate a release job. **What was this
+tool's is that `/onboard` then read that file and recorded the Tag wire as *cut by `ci.yml`'s `record`
+job*** — accurate prose, dead mechanism. §11.2 guards *not on disk*; this was on disk, correct, and inert.
+And it is structural: because the release job is always written by somebody else, Step 9 always reads it
+back as the source of truth, so **any install following the instructions can end with a `release.md`
+describing a pipeline that has never run once**. The sweep now asks of everything it named — has it ever
+run, and what did it leave behind — and the stub says a wire names something that has run or says that it
+has not. **C21** holds the general form: three reports, three times the file was true and the repository
+was not in the state it implied, three times the fix was to read the artifact rather than the description.
 
 **§11.12 is `piff` again, and this time the complaint was about a step somebody had already written down.**
 Closing a feature there meant: write the note, run the script that consumes it, **then write an empty note

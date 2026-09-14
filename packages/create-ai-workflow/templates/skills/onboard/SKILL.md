@@ -431,6 +431,22 @@ user taking the offer.
    Report it, and name the condition that resolves it — the one step 4 just established, *this path's own
    version moved*. **Do not rewire it**, the same as step 4: what this step changes is the answer file.
 
+**Where any of those named a workflow, a job or a hook, say whether it has ever run, and what it left
+behind.** A file that reads correctly is a **claim** about a mechanism, not the mechanism — and the worst
+answers this file has ever carried lived in that gap.
+
+- **Never run is a real answer.** Record it as *written, never run*, and say so in the file. That is honest
+  and it is what the answer should say until the day it runs.
+- **Ran is evidence only of what it produced.** The tags item above already says this in its own words: a
+  working deploy does not tell you anything was recorded.
+- **A workflow that fails to load is inert in its entirety, and reading it will not show you.** One
+  unresolvable reference anywhere in the file kills **every job in it** — including jobs that have nothing
+  to do with the change and were passing yesterday. It reports as a failed run with no job inside to open,
+  which reads as *nothing ran* rather than *something is broken*, and the file itself can be perfectly
+  sensible. **If the latest run of a workflow you are about to name failed with no job inside it, name
+  that instead**: the mechanism is not wired whatever the file says, and this project's verification gate
+  is probably down with it.
+
 Say all six back in a line each, including the empty ones.
 
 ### Then ask, per path

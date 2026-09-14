@@ -1090,6 +1090,35 @@ describe('what a change announces is an answer, not an assumption', () => {
     );
   });
 
+  it('a wire names a mechanism that ran, because a file that reads correctly is only a claim', () => {
+    // The third instance of one pattern, all three found in the field. C16: the file says tags are cut
+    // and there are none. §11.12: the check asks a question that is wrong on one commit. This: the job
+    // has never run. Here /onboard recorded a Tag wire as "cut by ci.yml's record job" while that file
+    // could not load at all — every word of the description accurate, the mechanism dead. §11.2 guards
+    // against naming a mechanism that is not on disk; this one is on disk, reads correctly, and is inert.
+    //
+    // It is structural rather than bad luck: the tool refuses to generate the release job, so that job is
+    // always written by someone else and Step 9 reads it back as the source of truth.
+    assert.match(flat(stub), /A wire names something that has run, or says that it has not/i);
+    assert.match(flat(stub), /Written, never run\*+ is a real\s*answer/i, 'and the honest answer is named');
+
+    const raw = skillBody('onboard');
+    const step = flat(raw.slice(raw.indexOf('## Step 9 — Release'), raw.indexOf('## Step 10')));
+    assert.match(step, /say whether it has ever run/i, 'asked of everything the sweep named');
+    assert.match(step, /Never run is a real answer/i, 'and never-run is recorded rather than skipped');
+    assert.match(
+      step,
+      /inert in its entirety, and reading it will not show you/i,
+      'the case that is invisible from the tree',
+    );
+    assert.match(
+      step,
+      /failed run with no job inside to open/i,
+      'named by its tell rather than by a forge, the way the tags sweep is',
+    );
+    assert.match(step, /verification gate\s*is probably down with it/i, 'and what it costs beyond this file');
+  });
+
   it('--release says the level is final, because it deletes the gap that made it cheap', () => {
     // C3 put the bump confirmation where the notes leave the machine on the reasoning that a level is
     // free to correct right up to the release. The flag puts the release in the same breath, so the

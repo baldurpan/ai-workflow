@@ -1,5 +1,14 @@
 # @baldurpan/create-ai-workflow
 
+## 0.15.0
+
+### Minor Changes
+
+- `/onboard`'s release sweep now asks, of every workflow or job it names as a wire, whether it has ever run
+  and what it left behind — because a file that reads correctly is a claim about a mechanism, not the
+  mechanism, and a workflow that fails to load is inert in its entirety while looking perfectly sensible.
+  `context/release.md` gains the matching rule: a wire names something that has run, or says that it has not.
+
 ## 0.14.0
 
 ### Minor Changes

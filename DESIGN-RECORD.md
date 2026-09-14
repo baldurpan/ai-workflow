@@ -2557,6 +2557,67 @@ better-documented defect. The rule: **when a correction comes from an existing i
 that carries it back to that install before calling it done.** Here the answer was *none*, and the sweep
 item exists because asking produced it.
 
+### 11.13 A wire that names a job which has never run — on disk, accurate, and inert
+
+**The third field report, and the first where what was wrong was something this tool had itself written
+down.** `piff` added a `record` job to `ci.yml` — the job §11.11 called for, the one that cuts the tag and
+the release page a deploy leaves behind. It set one variable:
+
+```yaml
+  record:
+    env:
+      CHANGESETS_OUTPUT: ${{ runner.temp }}/changesets-events.ndjson   # job level
+```
+
+**The `runner` context does not exist at job level.** Verified against the vendor's context-availability
+table: `jobs.<job_id>.env` allows `github, needs, strategy, matrix, vars, secrets, inputs`, while
+`jobs.<job_id>.steps.env` allows those plus `job, runner, env, steps` — `runner` and `job` are precisely
+the two that appear at step level and not above it. An unresolvable reference is rejected when the file is
+**parsed**, not when the job runs, so the entire workflow became inert: no Gate 1, no deploy, no record, on
+any branch, and every branch that merged `main` inherited it.
+
+**None of that is this tool's to ship, and it cannot be.** `templates/` contains no YAML, nothing in `src/`
+writes a workflow, and `runner.` appears nowhere in any template — §11.2's refusal to generate a release job
+is what guarantees it. That refusal is unchanged and remains right.
+
+**What is this tool's is the sentence `/onboard` wrote next.** Step 9's sweep read that file and recorded:
+
+> | **Tag** | a git tag at the merge commit … Cut by `ci.yml`'s `record` job |
+
+Accurate, complete, and describing a mechanism that could not run — written after the job was committed and
+before it was ever pushed, so nothing had yet failed to contradict it. **§11.2's guard is *never name a
+mechanism that is not on disk*. This one is on disk, reads correctly, and is dead.**
+
+**It is structural rather than unlucky, and that is the part that generalises.** Because §11.2 refuses to
+generate the release job, that job is **always** written by somebody else — and Step 9 then reads it back
+as the source of truth for the answer file. Every install that does exactly what this tool tells it to do
+passes through that gap. A new project can therefore end with a `release.md` describing a complete, correct
+pipeline that has never executed once, and nothing in §11 would have said a word.
+
+**So the sweep asks the question C16 asked about tags, about the job itself**: has it ever run, and what did
+it leave behind. Three answers are written down rather than assumed — *never run* is a real answer and is
+recorded as one; *ran* is evidence only of what it produced; and a workflow that fails to load is inert in
+its entirety, which is the case the tree cannot show. The stub gains the same rule where the wires are
+written: **a wire names something that has run, or says that it has not.** By shape, naming no forge and no
+tool, the way the tags sweep already is.
+
+**One debugging note, recorded because it was believed for twenty minutes.** *The run is listed under its
+file path instead of its `name:`, so the file must have failed to load* is *not* evidence — in that
+repository successful runs are listed by path too. What actually distinguishes a load failure is a run of
+zero seconds, `total_count: 0` for both jobs and check-runs, and **a run existing at all for an event the
+workflow's own trigger excludes** — a push to a branch that `branches: [main]` does not match, which can
+only happen when the trigger itself could not be evaluated. The third is the decisive one and the least
+obvious.
+
+**C21 — a claim about a mechanism is not the mechanism, and this is the third field report in a row that
+was exactly that.** C16: the file says tags are cut, and there are none. §11.12: the check asks for notes,
+and asks a question that is wrong on the one commit that matters. This: the wire names a job, and the job
+has never run. Each time the file was *true* and the repository was not in the state the file implied, and
+each time the fix was the same shape — **make the sweep read the artifact rather than the description**.
+The generalisation worth keeping is not about workflows: **everything §11 writes down is a description of
+something else, so every answer in that file needs a way to be checked against the thing it describes, and
+the ones that have no such check are the ones that will be wrong.**
+
 ## 12. `findings.md` is deleted — a second status vocabulary, and the drift it caused
 
 The file held "defects that outlive the session that found them", graded `P0`–`P3`, gated a phase from
