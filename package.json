@@ -15,6 +15,12 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "check": "npm run check --workspaces --if-present"
+    "check": "npm run check --workspaces --if-present",
+    "changeset:add": "changeset",
+    "changeset:prepare-release": "changeset version",
+    "changeset:status": "changeset status --since=origin/main"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^3.0.2"
   }
 }

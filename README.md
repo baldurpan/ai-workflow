@@ -35,13 +35,41 @@ npm test -w @baldurpan/create-ai-workflow
 
 ## Releasing
 
-Releases are cut by CI; nothing is published from a laptop. Change `version` in the package's own
-`package.json` and push to `main` — [`tag-on-version-change.yml`](.github/workflows/tag-on-version-change.yml)
-creates the matching `vX.Y.Z` tag. Publishing that tag as a GitHub release triggers
-[`publish.yml`](.github/workflows/publish.yml), which authenticates to npm over OIDC trusted
-publishing and attaches a provenance attestation. There is no npm token in this repository.
+Releases are cut by CI; nothing is published from a laptop, and there is no release form to fill in.
 
-Marking the GitHub release as a pre-release publishes under the `next` dist-tag instead of `latest`.
+**Every change to the package carries a release note** — one file in [`.changeset/`](.changeset), written
+with the change it describes. Merging it ships nothing; the note lands and waits.
+
+**To release**, on a `release/*` branch:
+
+```bash
+npm run changeset:prepare-release   # consumes the notes, moves the version, writes the CHANGELOG
+```
+
+Open that as a pull request and merge it. [`publish.yml`](.github/workflows/publish.yml) sees the version
+move and does the rest: test, build, publish to npm over OIDC trusted publishing with a provenance
+attestation, push the `vX.Y.Z` tag, and write the GitHub Release with the changelog entry as its body.
+There is no npm token in this repository.
+
+`npm run changeset:status` reports what is pending. [`release-note.yml`](.github/workflows/release-note.yml)
+asks the same question on every pull request, and exempts `release/*` branches — a release branch has just
+consumed its notes and legitimately has none.
+
+**A prerelease is a version with a hyphen.** `0.14.0-rc.1` publishes under the `next` dist-tag and marks the
+GitHub Release as a prerelease; nothing else has to be remembered, and there is no checkbox left to
+disagree with the version it was shipping.
+
+Two things not to break. **This workflow's filename and its `release` environment are pinned in npm's
+trusted publisher connection**, which cannot be edited — only deleted and recreated — so renaming either
+401s every publish until someone re-registers it. The connection does not pin the trigger, which is why the
+`on:` block is free to change. And **the tag and the release are cut inside the publishing job on purpose**:
+events raised with the default `GITHUB_TOKEN` do not start new workflow runs, so a release created by one
+workflow can never wake another one. Doing it in a single job is what keeps this repository free of a
+personal access token.
+
+`Run workflow` re-runs it by hand, skipping the version diff and re-attempting only what is missing — an
+already-published version, an existing tag and an existing release are each detected and stepped over. It
+is the way to finish a release that half-landed.
 
 ## Planning documents
 

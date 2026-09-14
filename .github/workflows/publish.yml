@@ -1,22 +1,154 @@
+# A release, end to end, in one workflow and on one event: a push to `main` that moves the version in
+# `packages/create-ai-workflow/package.json`. That push tests, builds, publishes to npm, cuts the tag and
+# writes the GitHub Release.
+#
+#   push moves the version -> test, build, npm publish, tag, release
+#   anything else          -> nothing
+#
+# Releasing is still a deliberate act, and it is still a human one: nothing in CI consumes a note or moves
+# a version. You run `npm run changeset:prepare-release` on a `release/*` branch when you decide to ship —
+# it eats the accumulated notes, moves the version and writes the CHANGELOG — and merging that pull request
+# is what this workflow is watching for. Merging an ordinary feature pull request ships nothing; it lands a
+# note that waits.
+#
+# The gate is the version moving, not the tool that moved it. A bump by hand reads exactly the same, which
+# is what keeps this file honest about the releases that predate the notes mechanism.
+#
+# ⚠ TWO THINGS HERE ARE LOAD-BEARING AND NEITHER IS OBVIOUS.
+#
+# 1. THIS FILE'S NAME AND ITS `environment: release` ARE PINNED ON npm, not here. A trusted publisher
+#    connection fixes the repository, the workflow *filename* and the environment, and npm's own docs say
+#    an existing connection cannot be edited — it has to be deleted and recreated. Rename this file or
+#    change that environment and every publish 401s until someone re-registers it. The connection does NOT
+#    pin the triggering event, which is the entire reason the `on:` block below could change from
+#    `release: published` to a push without touching anything on npm.
+#
+# 2. THE TAG AND THE RELEASE ARE CUT *HERE*, IN THE JOB THAT PUBLISHES, and that is not a stylistic
+#    preference. The obvious alternative — one workflow creates the release, this one keeps listening for
+#    `release: published` — cannot work: "Events triggered by the GITHUB_TOKEN will not create a new
+#    workflow run", with only `workflow_dispatch` and `repository_dispatch` exempt. So the release would be
+#    created, this workflow would never run, and nothing would reach npm, with every step green. Doing it
+#    in one job needs no second event and therefore no personal access token, no GitHub App, and no
+#    long-lived secret anywhere in this repository.
+#
+# `tag-on-version-change.yml` was deleted when this file absorbed it; its version diff is the `version` job
+# below, unchanged in substance.
+#
+# PRERELEASES ARE READ FROM THE VERSION STRING, not from a checkbox. A version containing a hyphen
+# (`0.14.0-rc.1`) publishes under the `next` dist-tag and marks the GitHub Release as a prerelease. The
+# checkbox could disagree with the version it was shipping; the string cannot.
+#
+# Re-running this by hand (`Run workflow`) skips the version diff and re-attempts whatever is still
+# missing — the npm publish, the tag, the release — which is the documented way to finish a release that
+# half-landed. Every step below is written to be safe to repeat.
+
 name: Publish
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
+    paths:
+      - packages/create-ai-workflow/package.json
+  workflow_dispatch:
 
-permissions:
-  id-token: write # Required for OIDC
-  contents: read
+# A release must never be cancelled halfway through, so this queues rather than cancelling the way ci.yml
+# does. ci.yml is free to cancel because a superseded test run is worthless; a superseded publish is a
+# half-published package.
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+permissions: {}
 
 jobs:
-  publish:
+  # Did this push actually move the version? The path filter above only says the manifest was touched, and
+  # a dependency bump touches it too. The gate is the version moving, not the file changing.
+  version:
     runs-on: ubuntu-latest
-    environment: release
-    if: github.event.release.draft == false
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
+      version: ${{ steps.diff.outputs.version }}
+      tag: ${{ steps.diff.outputs.tag }}
+      prerelease: ${{ steps.diff.outputs.prerelease }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+
+      - name: Compare the version against the previous commit
+        id: diff
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          MANIFEST=packages/create-ai-workflow/package.json
+
+          VERSION=$(node -p "require('./$MANIFEST').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+          # A version with a hyphen is a prerelease: 0.14.0-rc.1. This is the only place that is decided.
+          if [[ "$VERSION" == *-* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          # A manual dispatch is a human deciding, and the documented way to finish a half-landed release,
+          # so it skips the diff.
+          if [[ "$EVENT_NAME" != "push" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Manually dispatched — version diff skipped." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          # Re-running a failed job from the Actions UI replays the original push payload, so `before`
+          # survives and a retry still reaches the same answer.
+          BASE="$BEFORE"
+          if [[ -z "$BASE" || "$BASE" == "0000000000000000000000000000000000000000" ]] \
+            || ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
+            BASE=$(git rev-parse -q --verify "HEAD^1" || true)
+          fi
+
+          PREVIOUS=""
+          if [[ -n "$BASE" ]]; then
+            PREVIOUS=$(git show "$BASE:$MANIFEST" 2>/dev/null \
+              | node -e 'let d="";process.stdin.on("data",c=>d+=c);process.stdin.on("end",()=>{try{process.stdout.write(JSON.parse(d).version||"")}catch{}})' \
+              || true)
+          fi
+
+          if [[ "$PREVIOUS" == "$VERSION" ]]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Version stayed at \`$VERSION\` — nothing to publish." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Version moved \`${PREVIOUS:-<new>}\` → \`$VERSION\` — publishing." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  publish:
+    name: Publish, tag and release
+    needs: version
+    if: needs.version.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    # Protected environment, and half of what npm's trusted publisher connection pins. See the warning at
+    # the top of this file before changing the name.
+    environment: release
+    permissions:
+      id-token: write # OIDC -> npm trusted publishing, and the provenance attestation
+      contents: write # push the tag, create the release
+    env:
+      PKG: '@baldurpan/create-ai-workflow'
+      VERSION: ${{ needs.version.outputs.version }}
+      TAG: ${{ needs.version.outputs.tag }}
+      PRERELEASE: ${{ needs.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -24,13 +156,107 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - run: npm ci
+
+      # Last gate before the tarball becomes irreversible. ci.yml already ran on this commit; this re-runs
+      # the package's own suite against the exact tree being packed.
       - run: npm test -w @baldurpan/create-ai-workflow
       - run: npm run build -w @baldurpan/create-ai-workflow
 
+      # Skipping an already-published version is what makes `Run workflow` a repair tool rather than a
+      # second way to fail. A re-run after the tag step died should finish the release, not 409.
+      - name: Is this version already on npm?
+        id: published
+        shell: bash
+        run: |
+          set -euo pipefail
+          if npm view "$PKG@$VERSION" version >/dev/null 2>&1; then
+            echo "already=true" >> "$GITHUB_OUTPUT"
+            echo "\`$PKG@$VERSION\` is already on npm — skipping the publish." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "already=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish stable
-        if: github.event.release.prerelease == false
+        if: steps.published.outputs.already == 'false' && env.PRERELEASE == 'false'
         run: npm publish -w @baldurpan/create-ai-workflow
 
       - name: Publish prerelease
-        if: github.event.release.prerelease == true
+        if: steps.published.outputs.already == 'false' && env.PRERELEASE == 'true'
         run: npm publish -w @baldurpan/create-ai-workflow --tag next
+
+      # The record. It comes after the publish deliberately: a tag claiming a version that is not on npm is
+      # worse than a published version whose tag is one re-run away.
+      - name: Tag the release
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag \`$TAG\` already exists — leaving it alone." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+
+      # The release page is where a note finally reaches the person it was written for, so its text is the
+      # CHANGELOG entry for this version — assembled by `changeset:prepare-release` out of the notes that
+      # accumulated since the last release, which is the whole point of writing them.
+      #
+      # Two fallbacks, in order, and both are for the same situation: a version moved without the notes
+      # mechanism, by hand or from before it existed. The commit body is the old convention and the
+      # existing releases were written that way; generated notes are the last resort. Neither is reached
+      # in the ordinary flow, and a release whose body came from a fallback is worth a second look.
+      - name: Cut the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release \`$TAG\` already exists — leaving it alone." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          NOTES=$(node -e '
+            const { readFileSync } = require("node:fs");
+            const version = process.argv[1];
+            let text = "";
+            try {
+              text = readFileSync("packages/create-ai-workflow/CHANGELOG.md", "utf8");
+            } catch {
+              process.exit(0);
+            }
+            // The entry runs from its own `## <version>` heading to the next `##` heading of any version.
+            const lines = text.split("\n");
+            const start = lines.findIndex((l) => l.trim() === `## ${version}`);
+            if (start === -1) process.exit(0);
+            let end = lines.length;
+            for (let i = start + 1; i < lines.length; i += 1) {
+              if (/^## /.test(lines[i])) { end = i; break; }
+            }
+            process.stdout.write(lines.slice(start + 1, end).join("\n").trim());
+          ' "$VERSION")
+
+          SOURCE=changelog
+          if [[ -z "${NOTES//[$'\t\r\n ']/}" ]]; then
+            NOTES=$(git log -1 --format=%b)
+            SOURCE=commit-body
+          fi
+
+          ARGS=(--title "$TAG")
+          if [[ -n "${NOTES//[$'\t\r\n ']/}" ]]; then
+            ARGS+=(--notes "$NOTES")
+          else
+            ARGS+=(--generate-notes)
+            SOURCE=generated
+          fi
+          if [[ "$PRERELEASE" == "true" ]]; then
+            ARGS+=(--prerelease)
+          fi
+
+          gh release create "$TAG" "${ARGS[@]}"
+          {
+            echo "Released [\`$TAG\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/$TAG)."
+            echo "Notes came from: \`$SOURCE\`."
+          } >> "$GITHUB_STEP_SUMMARY"

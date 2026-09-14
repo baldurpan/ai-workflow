@@ -1,0 +1,70 @@
+# Asks one question on a pull request: did a change to the published package come with a release note?
+#
+# It is deliberately not a job in ci.yml. ci.yml answers "is this correct"; this answers "did you say what
+# changed", which is a different question with a different audience, and mixing them makes a red X ambiguous.
+#
+# What it runs is `changeset:status`, which REPORTS and writes nothing. It never moves a version, never
+# tags, never deletes a note. The script that consumes notes is `changeset:prepare-release`, and nothing in
+# CI calls it — releasing is a human act, and publish.yml only notices that you performed it. Do not add it
+# here.
+#
+# The check is self-scoping, which is what makes it safe to require:
+#
+#   * nothing under packages/ changed  -> passes. A pull request touching only .github/, README.md,
+#     PLAN.md or DESIGN-RECORD.md needs no note and is not asked for one.
+#   * the package changed, no note     -> FAILS, naming `changeset:add` in its output.
+#   * the package changed, note present -> passes, printing the bump it will produce.
+#
+# Two things that fall out of how `changeset status` works, both worth knowing before debugging a
+# surprising pass:
+#
+#   * It reads TRACKED changes only — `git diff` is its input — so an untracked file is invisible to it.
+#     Irrelevant in CI, where everything is committed, but it is why a local run can disagree with this job.
+#   * Its file matching does not include dotfiles, because `changedFilePatterns` defaults to `**` and `**`
+#     does not match a leading dot.
+
+name: Release note
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-note-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changeset:
+    # THE RELEASE PULL REQUEST IS EXEMPT, and it has to be. It is the one pull request that legitimately
+    # changes the package while carrying no note: `changeset:prepare-release` consumed them and deleted the
+    # files, so the branch shows a version bump and a CHANGELOG with nothing pending — exactly the state
+    # this check fails on. Without this line every release would open with a red check meaning the opposite
+    # of what it says.
+    #
+    # The convention is the branch name: put the version bump on `release/<something>`. A prefix rather
+    # than a label, because it is decided before the pull request exists, so the check never flashes red
+    # and gets explained afterwards.
+    if: ${{ !startsWith(github.head_ref, 'release/') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # fetch-depth: 0 is REQUIRED and is the one easy way to break this job. `changeset status` resolves
+      # `--since=origin/main` through `git merge-base`, so it needs history on both sides. A default
+      # depth-1 checkout does not merely miss changes — it exits 1 with "Failed to find where HEAD diverged
+      # from origin/main", which reads like a missing note and is not one.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # `--since=origin/main` lives in the script, not here, so this file cannot drift from a local run.
+      - name: A changed package needs a release note
+        run: npm run changeset:status
