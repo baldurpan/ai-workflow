@@ -15,6 +15,19 @@
 # landed. Write it and push; the next run is green. It is a standing reminder, not a gate, and it cannot be
 # a gate in a repository with nothing to gate.
 #
+# ONE COMMIT IS EXEMPT, AND IT IS THE RELEASE ITSELF. There, `changeset:prepare-release` has consumed every
+# note into the CHANGELOG and moved the version, so the question below — are there pending notes? — reads a
+# changed package with nothing pending and calls it a missing note, on the one push least likely to have
+# one. The tag that would make it green is cut by publish.yml minutes later, after the npm publish, so this
+# is not a race that usually lands the right way: unguarded, this file is red on every release until
+# something unrelated is pushed.
+#
+# The guard is the version moving, which is exactly what publish.yml gates on — the repository already
+# knows how to say "this is a release" and this was the one place asking without it. It matters more than
+# a red square: a check that cannot tell a release from a forgotten note teaches whoever hits it to write
+# an EMPTY note to get past the note check, and a mechanism whose own gate is satisfied by a lie stops
+# being worth having.
+#
 # What it runs is `changeset:status`, which REPORTS and writes nothing: it never moves a version, never
 # tags, never deletes a note. The script that consumes notes is `changeset:prepare-release`, and nothing in
 # CI calls it — releasing is a human act, and publish.yml only notices that you performed it. Do not add it
@@ -71,6 +84,18 @@ jobs:
           fi
 
           echo "Comparing \`main\` against \`$SINCE\`." >> "$GITHUB_STEP_SUMMARY"
+
+          # The release commit — see the header. The notes are gone because they became the CHANGELOG, and
+          # the version moving is what says so.
+          MANIFEST=packages/create-ai-workflow/package.json
+          AT_TAG=$(git show "$SINCE:$MANIFEST" 2>/dev/null \
+            | node -e 'let d="";process.stdin.on("data",c=>d+=c);process.stdin.on("end",()=>{try{process.stdout.write(JSON.parse(d).version||"")}catch{}})' \
+            || true)
+          NOW=$(node -p "require('./$MANIFEST').version")
+          if [[ -n "$AT_TAG" && "$AT_TAG" != "$NOW" ]]; then
+            echo "Version moved \`$AT_TAG\` → \`$NOW\` since \`$SINCE\` — this push is the release, and its notes are in the CHANGELOG." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
 
           # `--since` is passed here rather than taken from the script, because the script's own default is
           # `origin/main` — the right answer for a branch and the wrong one on main, where it compares HEAD

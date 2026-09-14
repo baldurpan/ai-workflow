@@ -2435,6 +2435,128 @@ leaves behind are one answer, and splitting them re-creates the failure, where a
 and never notices the record. **The file shape is not bent to suit the reporting instrument.** An install
 still on the pre-0.13.1 shape is unaffected — it is reported for the renamed section already.
 
+### 11.12 The gate a lie satisfies — and the flag that was missing on the other side
+
+**The second field report, from the same repository, and it arrived as a complaint about a documented
+step.** `piff`'s flow for closing a feature read:
+
+> 1. `/feature-close` — pushes, opens the PR, writes this feature's note.
+> 2. the script that consumes the notes — bumps, writes the changelog. Yours to type; nothing agentic runs it.
+> 3. **the vendor's empty-note command** — keeps the note check green, since step 2 just ate every note.
+> 4. commit and push. 5. merge; the gate sees the version move and it deploys.
+
+Steps 1, 2, 4 and 5 are §11 working exactly as designed, including the part that matters most: **step 2 is
+typed by a person.** Step 3 is a repository instructing its contributors to **write a note that describes
+nothing in order to get past the note check** — and the user's word for it was *ridiculous*, which is the
+correct reading and was not obvious from inside the design.
+
+**The check was asking a proxy question and nobody had noticed it was a proxy.** From `@changesets/cli`
+3.0.2, `dist/status.mjs`, the failure is one condition:
+
+```js
+if (versionableChangedPackages.length > 0 && releasePlan.changesets.length === 0) → exit 1
+```
+
+*Packages changed, and no notes are pending.* That is a proxy for **is this change described anywhere**, and
+the two agree on every commit but one. On the release commit the notes are gone **because they became the
+changelog** — the description exists, more permanently than before — and the check reads the same state as
+a forgotten note. So the one push that owes nothing is the one push it fails, every time, and the escape
+hatch the vendor documents for a genuinely unannounced change is right there in the error text.
+
+**The generalisation is not about one vendor's exit code.** A gate that a lie satisfies is not a gate, and
+the cost is not the red square: it is that everyone who hits the check learns that notes are **what you
+feed a gate** rather than what somebody reads. That is corrosive to the one thing §11 exists to protect,
+and it was written into a repository's own instructions as a numbered step.
+
+**The condition that fixes it already existed, one section down.** §11.10's ship gate is *this path's own
+version moved in this merge*. That is precisely *this commit is a release*, so the check needs no rule of
+its own — it needs to read the one that is already there. A check with a second, independently-maintained
+notion of what a release is will disagree with the gate eventually, and the release is where it does. The
+stub's *What records a note* section now asks for the exemption where it already asks for the check's script
+name, and the live rules gain **a note that describes nothing is never written to satisfy a check** — with
+the instruction being *fix the check*, because reaching for the placeholder is the signal that the question
+is wrong.
+
+**This repository had the identical defect, unfired.** `release-note.yml` landed in 874c2fe, after the last
+release, so it had never run on one. It resolves `SINCE` with `git describe` and the tag is cut by
+`publish.yml` **after** the npm publish, minutes later — so on a release push it compares against the
+*previous* tag, sees the changed package and zero pending notes, and goes red until something unrelated is
+pushed. Not a race that usually lands well: deterministically red on every release. Fixed with the same
+predicate, and the guard was exercised against real refs rather than reasoned about.
+
+**The other half of the ask was a flag, and the rule already permitted it.** `workflow.md` forbids running
+what bumps *"except when the user asks for it in that turn"* — and nothing said **what asking looks like**,
+which left an agent to decide whether "and ship it" three messages back counted. `/feature-close --release`
+is now that shape and the only one: a flag typed in the turn it takes effect, which lists every pending
+note it is about to consume — other people's included — before running the script the *Bump* wire names.
+No rule was deleted and no tool is named in a skill.
+
+**The flag deletes a gap C3 was resting on, and that had to be said rather than absorbed.** C3 put the bump
+confirmation in `/feature-close` because a level is free to correct right up to the release. Under
+`--release` there is no gap: the level confirmed is the version that publishes and, for a path that
+deploys, what puts the change in front of users on the merge. The reasoning survives, its conclusion does
+not, and the command says so **while asking** — the same shape as C12, where adding an answer re-ran the
+grid rather than extending it.
+
+**What the flag does not do, and the temptation to claim otherwise.** It does not remove step 3. A release
+PR has a moved version and no pending notes whoever typed the command, so only the check fix kills that
+step — and the flag would otherwise have shipped as a convenience that automated a ritual instead of
+retiring it. Worth stating because the ask arrived as *can we add a flag*, and the flag alone would have
+looked like a fix.
+
+**And then the correction did not reach the repository that reported it.** `piff` is an existing install,
+and an existing install has three channels: tool-owned files, which `update` replaces; the stub, which it
+does not; and `/onboard`, which rewrites the answer file. **The check is in a CI workflow, which is none of
+them** — this tool has never written one and §11.2 says it never will. So the stub rule reached new installs
+only; `stubGaps` compares `##` headings and this change adds none, so `update` would not even mention it;
+and Step 9 swept five things, of which the check was not one. **The net effect of updating `piff` would have
+been an agent that now refuses to write the empty note and a check that is still red** — the ritual removed
+and the red square left, which is worse to live with than either alone.
+
+**So Step 9 gains a sixth sweep item, which is C16's move applied to the check.** It finds whatever asks for
+a note, reads what that does on the commit where the notes were consumed, and reports — rewiring nothing,
+in the fourth item's words. It also looks for the tell rather than only the mechanism: **a workaround that
+has become a documented step**, in contributing notes, release docs and `CLAUDE.md`, because that is the
+form this defect took here and the form it will take again. And the *what records a note* answer now carries
+the exemption, written as a gap where the check has none, so the file says something before the next person
+decides an empty note is the way out.
+
+**One limit, accepted rather than worked around.** This tool records an answer about a check it cannot
+generate, cannot read at update time, and cannot enforce — and §11.2's refusal is what makes that permanent.
+The gap between *the answer says the check exempts the release commit* and *the check does* closes only when
+a person edits a workflow. The sweep narrows it to *somebody re-runs `/onboard`*, which is ordinarily
+setup-time, so this is a report that arrives late or never. It is still the only channel there is. Written
+down here so it is not rediscovered a third time as though it were new.
+
+Four cells, in §11.5's numbering:
+
+**C17 — a gate can be satisfied by something that is not an answer, and nothing in §11 looked at that.**
+§11.2's guard asks whether the answer file matches the repository; C15 asked whether what the repository
+does is what the user wanted. Both are about the *answer*. This is about the **check**: it was true, it was
+wired, it ran, and its green state could be bought for one command. The tell is a workaround that has become
+a documented step — **a ritual in a repository's instructions is a defect that somebody already paid for and
+wrote down instead of reporting.**
+
+**C18 — an exception with no named shape is an exception an agent will size for itself.** *Only when the
+user asks in that turn* is a rule about consent with no surface: nothing said whether a sentence counted,
+so every agent reading it drew its own line, and the safe reading (never) and the unsafe one (prose counts)
+were equally available. Naming the flag is what turns it from a judgment into a fact.
+
+**C19 — the dogfood gap is now the thing finding the defects.** §11.7 recorded that nothing here had been
+run by a live agent; 0.13.2 came from the field and so does this. Both defects were invisible to 210
+content tests because both were about a *question being asked at the wrong moment*, which no assertion over
+prose can see. The transferable half: **this repository runs the release half of its own product, so any
+defect in that half is reproducible here** — and this one was, sitting unfired in a workflow added six
+commits ago.
+
+**C20 — where a rule lands decides who ever sees it, and that is not a detail of packaging.** The same
+sentence is inherited by every install if it is in a skill, by new installs only if it is in a stub, and by
+nobody at all if the thing it governs is a CI workflow. §11 has put answers in all three without once asking
+which population each reaches — and reach is what decides whether a field report produces a fix or a
+better-documented defect. The rule: **when a correction comes from an existing install, name the channel
+that carries it back to that install before calling it done.** Here the answer was *none*, and the sweep
+item exists because asking produced it.
+
 ## 12. `findings.md` is deleted — a second status vocabulary, and the drift it caused
 
 The file held "defects that outlive the session that found them", graded `P0`–`P3`, gated a phase from

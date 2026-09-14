@@ -419,7 +419,19 @@ user taking the offer.
    package, and these settings commonly leave private packages untagged, so the answer is *off* unless
    somebody chose otherwise.
 
-Say all five back in a line each, including the empty ones.
+6. **Whatever asks for a note on a change, and what it does on the release commit.** Where step 2 found a
+   mechanism there is usually a job asking *did this change get a note* — find it, and then read what it
+   does on the commit where the notes were **consumed**. That commit has none pending, because they became
+   the changelog, so a check asking only *are there pending notes* fails on the one push that owes nothing,
+   every time. **The finding is not the red square.** These mechanisms offer a placeholder note carrying no
+   change, for the case of a change that genuinely announces nothing — so there is a one-command way out,
+   and a repository that has hit this will often have **written that command into its own instructions as a
+   step**. Look for that too, in the contributing notes, the release docs and `CLAUDE.md`: a documented
+   step that writes an empty note is this same finding, already paid for and mistaken for a procedure.
+   Report it, and name the condition that resolves it — the one step 4 just established, *this path's own
+   version moved*. **Do not rewire it**, the same as step 4: what this step changes is the answer file.
+
+Say all six back in a line each, including the empty ones.
 
 ### Then ask, per path
 
@@ -439,8 +451,10 @@ app gets no note" is written down once instead of being re-argued on every pull 
 ### Then the answer that can be false — what records a note
 
 - **Something on disk already records notes** → write it down: the exact path, the format of one file, and
-  the script name for any check it offers, never the raw command. Confirm it by opening what is there
-  rather than by asking.
+  the script name for any check it offers, never the raw command — **plus what exempts the release commit
+  from that check**, from the sweep's sixth line. Write the exemption even where the check does not have
+  one yet, as the gap it is: the answer file is what the next person reads before deciding that an empty
+  note is the way out. Confirm all of it by opening what is there rather than by asking.
 - **Nothing does** → **write *nothing here announces a change*, name what is missing, and stop.** Say what
   the user would have to put in place, and that re-running this command afterwards will pick it up. Do not
   write a table of paths above an answer that nothing can carry out.

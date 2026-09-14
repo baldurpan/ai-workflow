@@ -189,9 +189,16 @@ not this change's — including ones other people wrote and have not shipped yet
 deletes the notes it used, and where a deploy watches versions it is the button that ships. A command that
 runs it has released a version of somebody else's work on their behalf.
 
-So it is a person's deliberate act, in a release of its own. A skill may **name** it, report that it is
-pending, and stop — the same way it names `/onboard` for a gap it will not fill itself. Asked for directly,
-in that turn, it is the user's call and theirs to give.
+So it is a person's deliberate act. A skill may **name** it, report that it is pending, and stop — the same
+way it names `/onboard` for a gap it will not fill itself. Asked for directly, in that turn, it is the
+user's call and theirs to give.
+
+**`/feature-close --release` is what that asking looks like, and it is the only shape of it this workflow
+ships.** A flag typed in the turn it takes effect, which lists every pending note it is about to consume —
+other people's included — before it runs anything. Nothing else is the ask: not a sentence earlier in the
+session, not a plan that ends in a release, not the notes looking ready. **The gap between writing a note
+and consuming it is where a wrong bump level is still free**, so a command that closes that gap says so
+while it asks.
 
 The same applies to any script that writes rather than reports. A candidate for [`verify.md`](verify.md) is
 something Gate 1 can run on every phase; a release command is not, and `/onboard` refuses one there.

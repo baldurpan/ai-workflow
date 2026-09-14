@@ -85,7 +85,14 @@ to.
      - the exact path a note is written to, and the format of one file — enough that a note can be written
        by hand, because that is what an agent will do;
      - the **script name** for any check it offers, never the raw command, so that its flags have one home —
-       the same indirection [`verify.md`](verify.md) already uses;
+       the same indirection [`verify.md`](verify.md) already uses — **and what exempts the release commit
+       from it.** A check of this kind asks *are there pending notes?* as a proxy for *is this change
+       described?*, and those two come apart in exactly one place: the commit where the notes were
+       consumed, where every description is already in the changelog and nothing is pending. Left
+       unexempted the check is red on the one commit that owes nothing, every time, and the condition that
+       tells the two apart is not a new one — it is the same *this path's version moved* the last answer in
+       this file already uses to decide what ships. Say that the check reads it. A check with a second rule
+       of its own will disagree with the gate eventually, and the release is where it does;
      - whether **filenames must not collide**. Tools that collect note files use random names on purpose:
        two differently-named files never conflict when two branches merge.
 
@@ -224,6 +231,14 @@ scope, and what performs the second is not written down here yet.
   An empty report reads as "nobody looked".
 - **A missing entry is skipped, never faked** — the same rule [`verify.md`](verify.md) states about an empty
   section, applied to a path with no row.
+- **A note that describes nothing is never written to satisfy a check.** Mechanisms that gate on notes
+  commonly offer a placeholder note carrying no change, for the case of a change that genuinely announces
+  nothing — and it is the obvious way past a check that has gone red on a commit which owes nothing, a
+  release most of all. **Reaching for it is the signal that the check is asking the wrong question**, so
+  the work is to fix the check and to say in the report that it was wrong. Writing the placeholder instead
+  trains everyone who sees the commit that notes are what you feed a gate, and a gate that a lie satisfies
+  has stopped being one — which is paid for later, by whoever reads a changelog missing an entry for code
+  it shipped.
 - **This file is unaffected by [`tracking.md`](tracking.md).** A note is an artifact of the change, so it is
   a file in this repository under both of that file's answers. There is no *Under the tracker answer*
   section here, and its absence is deliberate.

@@ -18,7 +18,11 @@ is written for the working-tree answer**; *Under the tracker answer* at the end 
 /feature-close                                # retire the active feature as shipped
 /feature-close "<name>"                       # retire a named feature as shipped
 /feature-close "<name>" --dropped "<why>"     # retire one that will not be built
+/feature-close --release                      # retire it, then cut the release its note goes out in
 ```
+
+**`--release` is Mode 1 only**, and it is the one flag in this workflow that acts on the world. What it
+does and what it refuses are below, under *The release note*.
 
 **Resolving the target:** with no argument, the entry marked `active`. With a name, resolve it against
 `context/roadmap.md` — **any entry holding a plan is a valid target**, not just an active one. An abandoned
@@ -119,6 +123,51 @@ and writes no history, so it is safe under either answer — but the commit that
 make only where that file says so. If it does not exist, the answer is *the user commits*: show the whole
 retirement as one reviewable change and hand it over.
 
+### `--release` — and only with the flag
+
+**Without it, this command writes the note and stops.** That is the default and it is the right one.
+[`context/workflow.md`](../../../context/workflow.md) forbids running what bumps, tags, publishes or
+deploys, with one exception — *when the user asks for it in that turn* — and **this flag is what that
+asking looks like.** So it is never inferred: not from "and ship it" earlier in the session, not from a
+plan, not from the notes looking ready, and not from a release being obviously due. A sentence is not a
+flag.
+
+Read [`context/release.md`](../../../context/release.md) and run **the script its Bump wire names**. That
+file says what it is; naming a tool here would be wrong in half the repositories this command runs in.
+
+**Refuse, finish the retirement without it, and say so, where:**
+
+- **there is no Bump wire** — nothing in this repository is written down as consuming the notes, so there
+  is nothing to run and inventing it would be guessing at how someone releases. Name `/onboard`. The notes
+  are unharmed; they wait, which is what they are for.
+- **the user declined the note** — they said this feature announces nothing, and a release that ships an
+  unannounced change is not what they agreed to. Ask before going further.
+
+**Show what it will consume before running it, never after.** That script takes **every** pending note, not
+this feature's — including ones other people wrote for work they have not shipped yet. List all of them,
+say what version each package lands on, and confirm. Then run it exactly once: it cannot be run twice, the
+notes are deleted as it goes, and for a path that deploys this is the act that ships it.
+
+**The level confirmed a moment ago is now final, and say so while asking it.** That confirmation sits where
+it does because a note is cheap to correct right up to the release — and this flag deletes the gap it was
+relying on. Under `--release` the level chosen is the version that publishes, and for a path that deploys
+it is what puts the change in front of users on the merge.
+
+**Commit the bump separately** where [`context/git.md`](../../../context/git.md) says the agent commits.
+The retirement and the release are two acts, and somebody deciding whether to merge wants to see which
+lines are the version move. Where that file says the user commits, stop and hand over the whole tree,
+saying what is in it and which part of it is the release.
+
+**Then push as below.** Nothing else changes: this command still does not merge, and **the change still is
+not shipped** — the version moved in a branch, and what ships it is the merge. Report what it is waiting
+for, exactly as without the flag.
+
+**If a note check goes red on the pull request this opens, do not write a note to silence it.** A release
+commit has no pending notes because they became the changelog, and a check that reads that as a missing
+note is asking the wrong question — [`context/release.md`](../../../context/release.md) says what to do
+about it. Report it and leave it; a placeholder note written to get past a gate is the one thing that file
+forbids outright.
+
 ### Then push, if `git.md` says so
 
 Read *Push and pull request* in that same file — **after the retirement is committed, never before.** This
@@ -150,6 +199,9 @@ expected.
 3. **If the entry never had a document, stop here.** If it had one — a draft in `context/drafts/` or a plan
    in `context/plans/` — `git mv` it to `context/archive/`, repoint its header at the `history.md` row (no
    stamped outcome, same rule as Mode 1), and sweep.
+**`--release` is refused in this mode**, and not as a technicality: there is no note, so there is nothing
+this retirement would be releasing. If a release is due anyway, that is its own act and not this one's.
+
 **No release note is written here, and none is removed.** An idea that will not be built announces nothing.
 But a dropped feature may have landed phases, and under *per phase* those phases wrote notes for changes
 that are in the repository — **a note belongs to the change that landed, not to the outcome the feature was

@@ -25,10 +25,32 @@ Every `§`-number below points into that document.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** `main` carries **0.13.1** — the body's ceiling (§10.13), **item 6, the release answer** (§11) in
-both its phases and the event that completes it (§11.10). `package.json` now says **`0.13.2`, unreleased**,
-and it carries one thing: **the event's record** (§11.11) — the first correction in this package to come
-from the field rather than from an enumeration.
+**State:** `main` carries **0.14.0** — the body's ceiling (§10.13), **item 6, the release answer** (§11) in
+both its phases, the event that completes it (§11.10), the event's record (§11.11) and **§11.12**, the
+second correction to come from the field rather than from an enumeration and the second in a row. It is
+also the first release cut from accumulated notes in this repository, so `packages/create-ai-workflow/CHANGELOG.md`
+starts here.
+
+**§11.12 is `piff` again, and this time the complaint was about a step somebody had already written down.**
+Closing a feature there meant: write the note, run the script that consumes it, **then write an empty note
+so the note check goes green**. That third step is a repository instructing its contributors to satisfy the
+note check with a note that describes nothing. The check asks *are there pending notes?* as a proxy for *is
+this change described?*, and the two come apart on exactly one commit — the release, where the notes are
+gone **because they became the changelog**. The condition that tells them apart already existed one section
+up: §11.10's ship gate, *this path's own version moved*. **This repository had the identical defect
+unfired** — `release-note.yml` would have gone red on its own next release, deterministically, because the
+tag it compares against is cut minutes later by `publish.yml`. The other half of the ask was
+`/feature-close --release`, which is now the only shape the *asked for in that turn* exception has: a flag
+typed in the turn it acts, listing every pending note it will consume before it runs. **It does not remove
+the empty-note step** — only the check fix does that, which is why both landed together.
+
+**The fix did not reach the repository that reported it, and that is C20.** An existing install gets
+tool-owned files from `update`, keeps its own stubs, and re-derives its answer file from `/onboard` — and
+the check is a CI workflow, which is none of the three. So Step 9's sweep gains a **sixth item** that reads
+whatever asks for a note, reads what it does on the release commit, and reports; and it looks for the tell
+this was found by, **a workaround that has become a documented step**. The limit underneath it is accepted
+rather than solved: §11.2 means this tool can record an answer about a check it can never generate or
+enforce, so the last step closes only when a person edits a workflow.
 
 **0.13.2 is what `piff` found by running §11 for real.** Two pull requests, the second carrying the version
 bump, the deploy gate fired, production updated — and the tags and releases pages were both empty. The

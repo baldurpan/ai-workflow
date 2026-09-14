@@ -814,7 +814,25 @@ describe('what a change announces is an answer, not an assumption', () => {
     assert.match(step, /This step installs nothing/i, 'phase A collects an answer and mutates nothing');
     assert.match(step, /name what is missing, and stop/i, 'the refusal is written as a refusal');
     assert.match(step, /Never leave the file saying changes are announced while nothing consumes the notes/i);
-    assert.match(step, /Say all five back in a line each, including the empty ones/i, 'it reports like Step 5');
+    // The invariant is that every sweep item is said back, empty ones included — the number is how the
+    // prose states it, so the sentence and the list have to agree or the step asks for five findings out
+    // of six. Derived rather than typed: adding a seventh item fails here until the sentence moves too.
+    const sweep = step.slice(
+      step.indexOf('A check, not a question'),
+      step.indexOf('### Then ask, per path'),
+    );
+    const numbered = [...sweep.matchAll(/(?:^|\s)(\d+)\. \*\*/g)].map((m) => Number(m[1]));
+    assert.deepEqual(
+      numbered,
+      numbered.map((_, i) => i + 1),
+      'the sweep is a list numbered from one, with nothing skipped',
+    );
+    const SPELLED = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
+    assert.match(
+      step,
+      new RegExp(`Say all ${SPELLED[numbered.length]} back in a line each, including the empty ones`, 'i'),
+      'it reports like Step 5, and says back as many as it swept',
+    );
     assert.match(step, /do not generate one/i, 'the release job is named as a gap, not written');
   });
 
@@ -996,6 +1014,93 @@ describe('what a change announces is an answer, not an assumption', () => {
       readTemplate('context/workflow.md'),
       /\| what a merge publishes or deploys \|/,
       'the one-source-of-truth table answers it, so nothing infers it from a version existing',
+    );
+  });
+
+  // Found in the field, as a numbered step in a repository's own documented flow: close the feature, run
+  // the script that consumes the notes, then write an EMPTY note so the note check goes green again. The
+  // check asks *are there pending notes?* as a proxy for *is this change described?*, and those come apart
+  // on exactly one commit — the release, where every description has just become the changelog. So the one
+  // push that owes nothing is the one the check fails, and the way out it teaches is a note that describes
+  // nothing, written to satisfy a gate. This is the same class as §11.11: every step reports success.
+  it('a note check is exempted on the release commit, and reuses the ship gate rather than inventing one', () => {
+    assert.match(flat(stub), /what exempts the release commit from it/i, 'the answer records the exemption');
+    assert.match(
+      flat(stub),
+      /are there pending notes\?\* as a proxy for \*is this change described\?\*/i,
+      'and says which two questions the check confuses',
+    );
+    assert.match(
+      flat(stub),
+      /it is the same \*this path's version moved\* the last answer in this file already uses/i,
+      'the condition is the gate that already exists, not a second rule that can disagree with it',
+    );
+  });
+
+  it('a note that describes nothing is never written to satisfy a check', () => {
+    // Live prose, not a fill-in: it holds in every repository that has a check at all, and the moment it
+    // is needed is the moment somebody is staring at a red square with a one-command way to clear it.
+    const live = flat(stripComments(stub));
+    assert.match(live, /A note that describes nothing is never written to satisfy a check/i);
+    assert.match(live, /the signal that the check is asking the wrong question/i, 'it says what to fix');
+    assert.match(live, /has stopped being one/i, 'and what a gate a lie satisfies is worth');
+    // The rule reaches the command that would be the one to reach for it, at the moment it would.
+    assert.match(
+      flat(skillBody('feature-close')),
+      /do not write a note to silence it/i,
+      'and the command that opens the pull request carries it',
+    );
+  });
+
+  it('--release is the shape of the ask, and nothing else is', () => {
+    // workflow.md forbids running what bumps "except when the user asks for it in that turn", and until
+    // now nothing said what asking looked like — leaving an agent to read "and ship it" three messages
+    // back as permission to consume every pending note in the repository.
+    const rule = flat(readTemplate('context/workflow.md'));
+    assert.match(rule, /`\/feature-close --release` is what that asking looks like/i);
+    assert.match(rule, /A flag typed in the turn it takes effect/i, 'it is not inferred from prose');
+    const body = flat(skillBody('feature-close'));
+    assert.match(body, /A sentence is not a flag/i, 'and the command says the same from its own side');
+    assert.match(body, /the script its Bump wire names/i, 'it runs the answer, never a tool it knows');
+    assert.match(body, /there is no Bump wire/i, 'and refuses where the answer is not written down');
+    assert.match(body, /takes \*\*every\*\* pending note/i, 'the blast radius is shown before it runs');
+    assert.match(body, /`--release` is refused in this mode/i, '--dropped has no note to release');
+  });
+
+  it('the sweep reads the note check, because that is the only channel an existing install has', () => {
+    // The stub is project-owned and written once, and `stubGaps` reports a missing `##` heading and
+    // nothing finer — so a rule added inside a section reaches new installs only. Step 9 is the one thing
+    // that looks at a repository again after it was set up, which makes the sweep the channel for anything
+    // found in the field. Exactly the shape of C16, which added the tags sweep for the same reason.
+    const raw = skillBody('onboard');
+    const step = flat(raw.slice(raw.indexOf('## Step 9 — Release'), raw.indexOf('## Step 10')));
+    assert.match(step, /what it does on the release commit/i, 'the sweep asks the question at all');
+    assert.match(step, /The finding is not the red square/i, 'and what it is actually looking for');
+    assert.match(
+      step,
+      /a documented step that writes an empty note is this same finding, already paid for/i,
+      'the tell is a workaround that has become a procedure, which is how it was found',
+    );
+    assert.match(step, /Do not rewire it\*\*, the same as step 4/i, 'it reports and changes no workflow');
+    assert.match(step, /Say all six back in a line each/i, 'and it is counted with the others');
+    assert.match(
+      step,
+      /plus what exempts the release commit from that check/i,
+      'and the answer file carries it, which is what reaches the next reader',
+    );
+  });
+
+  it('--release says the level is final, because it deletes the gap that made it cheap', () => {
+    // C3 put the bump confirmation where the notes leave the machine on the reasoning that a level is
+    // free to correct right up to the release. The flag puts the release in the same breath, so the
+    // reasoning survives and its conclusion does not — and the user has to be told that while being asked.
+    const body = flat(skillBody('feature-close'));
+    assert.match(body, /now final, and say so while asking it/i);
+    assert.match(body, /deletes the gap it was relying on/i, 'it names what changed rather than restating');
+    assert.match(
+      body,
+      /the change still is not shipped/i,
+      'and a moved version in a branch is still not shipped — C13 is unweakened by the flag',
     );
   });
 });
