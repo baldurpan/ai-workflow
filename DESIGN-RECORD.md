@@ -2740,3 +2740,76 @@ But the more useful half is the one that took three passes to see: **the first i
 sweep, and the sweep was not the problem — the second vocabulary was.** A defect the gates found always had
 a home in the ledger, and the file existed because nobody asked what it did that the ledger did not.
 Before bounding a store, ask whether anything should be in it.
+
+---
+
+## 13. The two quality holes, which are not the same hole
+
+Asked whether the workflow was missing anything for quality — accessibility, performance and the like — the
+answer turned out to be two unrelated gaps with one symptom. **The rules were already there; nothing asked
+for them, and a project that had a real check had nowhere to write it down.** Neither is a missing standard,
+which is why nothing under `templates/standards/` changed: that tree is vendored (§6.3), and it already says
+in as many words that accessibility is part of the definition of done.
+
+### 13.1 The conditional table is keyed on a question nothing asks
+
+`standards/README.md` loads on *if the task involves…*. Most of its rows answer themselves — a file is
+TypeScript or it is not, there is a form or there is not, the task is a refactor or it is not. Three do not:
+**accessibility, performance and security are properties of the change that the reader has to have thought
+of before they open the table.** So the row saying accessibility is not optional is reached only by somebody
+who had already agreed, and a change that quietly has one of those surfaces never reaches it at all.
+
+This is §2.9 again with a worse ending. Documentation got a standing rule, a plan section and the sentence
+*"nothing here describes this feature" is an answer and silence is not* precisely because **no gate fails**
+when a README goes stale. No gate fails when a control cannot be reached by keyboard either; a linter
+catches a fraction of it and nothing catches the rest; and the person it fails is not the person who shipped
+it.
+
+So it ships the same way: a standing rule in `workflow.md`, cited by `/feature-plan` and `/orchestrate`
+rather than restated, answered out loud, with *none of these* a legitimate answer and silence not. **A
+surface that is found reaches the work exactly as a documentation row does** — the standards rows it loads
+become the review expectations on the phase that carries it, and what proves it goes in §8 Verification.
+For something a person operates that means an **end-to-end pass in a real browser**, and where the project
+has no driver for one that is an open question in §9, not an invention.
+
+**No template names the driver.** Which tool drives a browser is `verify.md`'s answer like every other
+command (§4.2), and a winner hardcoded into a template is a stack assumption baked into a tool that installs
+everywhere — the failure mode §7.1 was written about. A test now bans the eight obvious names outright,
+because a ban is only real if a test enforces it.
+
+### 13.2 Gate 1's four headings were a list that read as a schema
+
+`verify.md` shipped Lint / Typecheck / Build / Test and the workflow said *run its sections in order* naming
+those four. Nothing in the code has ever parsed that file — `check` does not read it — so the four were
+prose all along, and prose that a reader takes as the complete set.
+
+The consequence is small and bad. A project with an end-to-end suite, an accessibility pass, a size budget
+or a coverage floor has two places to put it, and **both are wrong**: stretched into a heading it does not
+belong in, or exiled to *Not run by Gate 1*, whose comment named Docker and deploy targets and so read as a
+graveyard. Either way the gate reports green for a change that broke a check the project actually owns.
+
+The fix is one sentence of definition: **Gate 1 runs every section above *Not run by Gate 1*, in order** —
+the four first, then whatever that file adds. The four stay because they are what every project has, not
+because they are the limit. What decides where a check goes is **whether the gate can afford it on every
+phase**, which is a cost question rather than a taxonomy one, and `/onboard` Step 7 now asks it: what else
+does this project run, and can a phase pay for it. A browser-driven run usually cannot — it needs a server,
+a build, minutes — so it lands under *Not run by Gate 1*, which now has to **name what does run it.** That
+last requirement is the point of the section: without the name it records a check nobody runs, which is a
+different and much worse fact than a check this gate does not run.
+
+Step 7 also gains the one targeted question, because it is the check most often configured, run in exactly
+one pipeline, and written down nowhere a per-task gate can see: **ask for the end-to-end run wherever the
+project has a user interface.**
+
+### 13.3 What was refused
+
+**A per-dimension scorecard.** Accessibility as its own status, a performance budget report, a severity per
+dimension. That is §12 arriving by a new route: a second vocabulary laid across the ledger's four states,
+kept in step by discipline. A review item is blocking or it is not, and nothing here changes that.
+
+**A seventh project-owned stub.** *Does this project care about WCAG AA* looks like an answer in the shape
+of `verify.md` and is not one: the standards tree already answers it, and the gap was never that the answer
+was missing.
+
+**Any edit to `templates/standards/`.** It is vendored verbatim from a pinned ref, and an edited file there
+hands the whole tree over to the user on the next update. New standards content belongs upstream.

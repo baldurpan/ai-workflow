@@ -163,8 +163,8 @@ Describe **what** needs to happen, never **how** to code it. Scope each delegate
 ## 8. Gate 1 — verification
 
 Per the gate contract in [`context/workflow.md`](../../../context/workflow.md): read
-[`context/verify.md`](../../../context/verify.md) and run its sections in order — Lint → Typecheck → Build →
-Test.
+[`context/verify.md`](../../../context/verify.md) and run every section above *Not run by Gate 1*, in
+order — Lint → Typecheck → Build → Test first, then anything that file adds after them.
 
 **Never carry a copy of these commands here and never invent one.** A missing section is skipped and said
 so, never faked. Exit 0 is the verdict regardless of summary text. If `verify.md` does not exist or has no

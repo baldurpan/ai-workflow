@@ -38,7 +38,12 @@ The default shape below applies only when the brief names none.
    changelog, help text in the code. Report what the change would make untrue there, per surface. An empty
    index is not evidence that there are none.
 4. **Verify externals.** Check documentation for every library and API involved. Cite what you confirmed.
-5. **Consider.** Edge cases, error states, and implicit requirements the request did not mention.
+5. **Consider.** Edge cases, error states, and implicit requirements the request did not mention —
+   including the three surfaces nothing else will ask about: **accessibility** if this puts something in
+   front of a person, **performance** if it sits in a hot path or grows a payload, **security** if it
+   crosses a trust boundary. Each is a row of the conditional table that is only reached by someone who
+   already had it in mind, so ask rather than notice. Name the rows you loaded, and say which surfaces this
+   change does not have — *none of these* is an answer and silence is not.
 6. **Draft.** Say *what* needs to happen, not *how* to code it.
 
 ## Default output shape
@@ -60,5 +65,9 @@ testable acceptance criteria, and the review checklist items (naming the specifi
   an invented decision.
 - Acceptance criteria must be **testable** — say what passes and what fails, not "should work well".
 - Review checklist items must name **specific standards**, not "follow best practices".
+- **A surface you found has to be provable.** Where the change puts something in front of a person, §8
+  Verification says how that is checked — the keyboard pass, the contrast check, an end-to-end pass in a
+  real browser. Name no driver for it: `context/verify.md` is the only file in this project that names a
+  command, and if it names nothing that drives a browser that is an open question, not an invention.
 - **Name no verification command.** `context/verify.md` is the only file in this project that does. Point
   at it.

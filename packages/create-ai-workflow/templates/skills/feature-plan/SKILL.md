@@ -101,6 +101,11 @@ planner's own default shape:
   acceptance-criteria — a per-phase artifact, not a plan — and you will throw it away.
 - Pointers to `context/stack.md`, `context/standards/README.md` (load per its conditional table) and
   `context/verify.md`. Cite the paths; do not paste the files in. Anything reading this repo can open them.
+- **The surface question, asked out loud** — per the standing rule in
+  [`context/workflow.md`](../../../context/workflow.md): does this feature put something in front of a
+  person, sit in a hot path, or cross a trust boundary? Each *yes* names the standards rows the phases will
+  be reviewed against, and each is a row nothing downstream will reach on its own. *None of these* is an
+  answer and belongs in the report.
 - **Where this project documents itself, and what this feature makes untrue there.** Start from the
   Documentation section of `context/stack.md`. **If that section is empty, missing, or names less than the
   tree plainly holds, sweep for it** — the root `README`, a `README` in each package, `docs/`, a docs site
@@ -125,6 +130,12 @@ Fill in the template's shape. Then:
   assigned to the phase that carries it, **and that phase's `Files:` line names the same path.** A
   documentation row with no phase is a follow-up nobody does. If nothing changes, say which surfaces you
   checked and why none of them describe this — that is an answer, and leaving the section blank is not.
+- **Fill in §8 Verification with what proves each surface the question found** — the keyboard and contrast
+  pass for something a person operates, the number to compare against §1's measurement for a hot path. A
+  feature with a user interface names an **end-to-end pass in a real browser** there. Which driver runs it
+  is `context/verify.md`'s answer; **if that file names nothing that drives a browser, say so in §9 rather
+  than inventing one** — a standard named in a phase's review expectations and nowhere checkable is a rule
+  nobody runs, and `/onboard` is what fills the gap.
 - Fill in **§9 Open questions** honestly. An honest gap is worth more than an invented decision.
 - Every phase is `not started`.
 

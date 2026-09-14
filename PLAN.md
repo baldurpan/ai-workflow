@@ -28,8 +28,27 @@ Every `§`-number below points into that document.
 **State:** `main` carries **0.14.0** — the body's ceiling (§10.13), **item 6, the release answer** (§11) in
 both its phases, the event that completes it (§11.10), the event's record (§11.11) and **§11.12**. It is
 also the first release cut from accumulated notes in this repository, so
-`packages/create-ai-workflow/CHANGELOG.md` starts there. `main` now carries **0.15.0**, which adds
-**§11.13**.
+`packages/create-ai-workflow/CHANGELOG.md` starts there. `main` now carries **0.16.0**, which adds
+**§13**.
+
+**§13 came from a question rather than a field report** — *are we missing things for quality assurance,
+like a11y and performance?* Two gaps with one symptom, and **neither was a missing standard**: the vendored
+tree already says accessibility is part of the definition of done. **The table that loads it is keyed on
+*if the task involves…*, and three of its rows cannot answer that themselves.** Accessibility, performance
+and security are properties of the change that the reader has to have thought of before opening the table,
+so the row is reached only by somebody who had already agreed. That is §2.9's argument with a worse ending,
+so it ships §2.9's answer: a standing rule in `workflow.md`, cited by `/feature-plan` and `/orchestrate`
+rather than restated, answered out loud with *none of these* legitimate and silence not, and what proves a
+surface recorded in the plan's §8 — an **end-to-end pass in a real browser** for anything with a user
+interface, its driver named by `verify.md` and by no template, which a test now enforces.
+
+**The second gap was that `verify.md`'s four headings read as a schema and were never anything but prose** —
+no code has ever parsed that file. A project with an end-to-end suite, an accessibility pass or a size
+budget could stretch it into a heading it did not belong in or exile it to *Not run by Gate 1*, and both end
+with the gate green for a change that broke a check the project owns. Gate 1 now runs **every section above
+*Not run by Gate 1***; `/onboard` Step 7 asks what else this project runs and sorts each one by whether a
+phase can afford it; and that section has to **name what does run each entry** — without the name it records
+a check nobody runs, which is a different and much worse fact than one this gate skips.
 
 **§11.13 is the third field report in a row, and the first where the wrong thing was something this tool
 wrote.** `piff`'s new `record` job set a variable from `${{ runner.temp }}` in a **job-level** `env:`,

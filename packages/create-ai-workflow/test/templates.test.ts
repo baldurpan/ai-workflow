@@ -1229,3 +1229,86 @@ describe('a defect the gate found has one home, and it is the ledger', () => {
     assert.match(src, /project-owned and absent from the manifest/, 'and says why it only reports');
   });
 });
+
+describe('a surface with no gate is asked for, not noticed', () => {
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const workflow = readTemplate('context/workflow.md');
+
+  // The conditional table in `standards/README.md` is keyed on *if the task involves…*. Most rows answer
+  // themselves; accessibility, performance and security do not — they are properties of the change that
+  // the reader has to have thought of first, so the row that says accessibility is part of the definition
+  // of done is reached only by somebody who had already agreed.
+  it('the rule lives in workflow.md, beside the one it is modelled on', () => {
+    assert.match(workflow, /^### The standards table is keyed on a question nothing asks$/m);
+    // `flat` keeps the blockquote markers, so assert on phrases that do not straddle a wrapped line.
+    assert.match(flat(workflow), /Write the answer down/);
+    assert.match(flat(workflow), /saying nothing is not/);
+    // Its sibling can no longer claim to be the only ungated output, now that there is a second rule.
+    assert.doesNotMatch(flat(workflow), /Documentation is the one output with no gate behind it/);
+  });
+
+  it('the planning and ad-hoc paths cite it rather than restating it', () => {
+    // Two independently-worded copies of one rule is the drift the standing-rules section exists to stop.
+    for (const name of ['feature-plan', 'orchestrate']) {
+      const body = flat(skillBody(name));
+      assert.match(body, /surface question/i, `${name} asks it`);
+      assert.match(body, /hot path/i, `${name} names the middle one`);
+      assert.match(body, /trust boundary/i, `${name} names the last one`);
+      assert.match(body, /standing rule in \[`context\/workflow\.md`\]/, `${name} cites the rule`);
+    }
+  });
+
+  it('a surface that was found is proved somewhere, or it is an open question', () => {
+    // A standard named in a phase's review expectations and nowhere checkable is a rule nobody runs.
+    const plan = flat(skillBody('feature-plan'));
+    assert.match(plan, /§8 Verification with what proves each surface/);
+    assert.match(plan, /end-to-end pass in a real browser/);
+    assert.match(plan, /say so in §9 rather\s*than inventing one/);
+    assert.match(flat(readTemplate('context/plan-template.notes.md')), /end-to-end pass in a real browser/);
+  });
+
+  it('nothing shipped names a browser driver', () => {
+    // §4.2 generalised: which tool drives a browser is `verify.md`'s answer, and a winner hardcoded into a
+    // template is one more stack assumption baked into a tool that installs everywhere.
+    const DRIVERS = /\b(playwright|cypress|puppeteer|selenium|webdriver|lighthouse|percy|chromatic)\b/i;
+    for (const { rel, text } of ourTemplates()) {
+      const hit = DRIVERS.exec(text);
+      assert.equal(hit, null, `${rel} names a browser driver: ${hit?.[0] ?? ''}`);
+    }
+  });
+});
+
+describe('Gate 1 reads a list, not four headings', () => {
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+
+  // The four are what every project has, not the whole of what one checks. A project with a fast
+  // accessibility suite and nowhere to record it is a project where the gate reports green for a change
+  // that broke it — and exiling it to *Not run by Gate 1* is the same outcome with a heading on it.
+  it('every place that names the order says where the list ends', () => {
+    const named = [
+      ['context/workflow.md', readTemplate('context/workflow.md')],
+      ['feature-implement', skillBody('feature-implement')],
+      ['orchestrate', skillBody('orchestrate')],
+    ] as const;
+    for (const [rel, text] of named) {
+      assert.match(flat(text), /every section above \*?Not run by Gate\s*1\*?/i, `${rel} bounds the list`);
+      assert.match(flat(text), /Lint → Typecheck → Build → Test/, `${rel} still leads with the four`);
+    }
+  });
+
+  it('the stub says a heading of your own is run like any other', () => {
+    const verify = flat(readTemplate('stubs/verify.md'));
+    assert.match(verify, /The four headings are not a limit/);
+    assert.match(verify, /whether this gate can afford it on every phase/);
+  });
+
+  it('/onboard asks for what the four do not cover, and sorts by cost', () => {
+    const onboard = flat(skillBody('onboard'));
+    assert.match(onboard, /Ask what else this project runs to prove a change is good/);
+    assert.match(onboard, /Ask specifically about the end-to-end one wherever this project has a user interface/);
+    assert.match(onboard, /sort each one by whether Gate 1 can afford it/i);
+    // The section is a record of a check that exists and runs elsewhere — without the name it reads as a
+    // check nobody runs, which is a different and much worse fact.
+    assert.match(onboard, /\*\*Name what does run each one\*\*/);
+  });
+});

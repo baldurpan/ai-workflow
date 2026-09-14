@@ -24,7 +24,7 @@ Read [`context/workflow.md`](../../../context/workflow.md) for the tier model.
 
 | File | Gets |
 |---|---|
-| [`context/verify.md`](../../../context/verify.md) | the real Lint / Typecheck / Build / Test commands — **only ones that exited 0** |
+| [`context/verify.md`](../../../context/verify.md) | the real Lint / Typecheck / Build / Test commands, plus whatever else a phase should pass — **only ones that exited 0** |
 | [`context/executors.md`](../../../context/executors.md) | how this project dispatches a coder and a reviewer |
 | [`context/git.md`](../../../context/git.md) | who commits, where work lands, whether it is pushed, and at what granularity |
 | [`context/tracking.md`](../../../context/tracking.md) | where the backlog, the plans and the phase ledgers live |
@@ -323,20 +323,36 @@ covers, this is the moment that matters: keeping both means the project has two 
    command the old file named and CI does not is worth asking about — one of the two is stale.
    **A script that writes is not a candidate.** Anything that moves a version, records a release note,
    tags, publishes or deploys belongs to [`context/release.md`](../../../context/release.md), and Gate 1
-   never runs it. Do not propose one, and **do not run one to find out what it does** — step 3 runs every
+   never runs it. Do not propose one, and **do not run one to find out what it does** — step 4 runs every
    candidate, so a wrong candidate here bumps versions or publishes rather than failing politely. A
    *check* that a release note exists is a real check and still not this file's: it belongs on the pull
    request, because Gate 1 runs per phase and would flag every docs-only change.
 2. **Show the candidates and ask** which belong in Lint, Typecheck, Build and Test, and whether anything is
    missing. Ask about prerequisites too — a package manager version, an install step, a service that must
    be up.
-3. **Run each one.** Actually run it, from the repo root.
-4. **Write only the commands that exited 0.** For each one that failed, show the output and ask: fix it,
+3. **Ask what else this project runs to prove a change is good.** The four headings are the ones every
+   project has, not the whole of what one checks — an end-to-end run, an accessibility suite, a size
+   budget, a coverage floor, a visual snapshot. **Ask specifically about the end-to-end one wherever this
+   project has a user interface**, because it is the check most often configured, run in one pipeline, and
+   never written down anywhere a per-task gate can see it. A project with such a check and nowhere to
+   record it is a project where Gate 1 reports green for a change that broke it.
+   **Then sort each one by whether Gate 1 can afford it.** Gate 1 runs on every phase, so anything measured
+   in minutes, or needing a browser, a running server, a built artifact or a deploy, goes under **Not run
+   by Gate 1**. Anything faster goes in whichever of the four it belongs to — a lint rule that reads markup
+   is Lint, an assertion inside the test run is Test — or under **a heading of its own**, above *Not run by
+   Gate 1*, where it fits none of them. Gate 1 runs every section above that one.
+4. **Run every candidate bound for a gate section.** Actually run it, from the repo root. One sorted
+   under *Not run by Gate 1* is not run here — this command has no Docker, no deploy target and no
+   reason to spend minutes driving a browser — and step 6 says what is recorded in its place.
+5. **Write only the commands that exited 0.** For each one that failed, show the output and ask: fix it,
    replace it, or leave that section empty. **Never write a command that has not passed** — an inherited
    one least of all, since it is the likeliest to have rotted. An empty section is skipped by Gate 1 and
    says so; a wrong command fails a gate on every task until someone notices.
-5. Put anything that needs Docker, a cloud account or a deploy target under **Not run by Gate 1**, so
-   nobody promotes it into a gate section by mistake.
+6. Put anything that needs Docker, a cloud account or a deploy target under **Not run by Gate 1**, along
+   with whatever step 3 sorted there, so nobody promotes it into a gate section by mistake. **Name what
+   does run each one** — the pipeline, the deploy, a person before a release. That section is the record of
+   a check this project has and this gate does not run; without the name it reads as a check nobody runs,
+   which is a different and much worse fact.
 
 Explain what you are doing: this turns `verify.md` from someone's guess into something verified at install
 time, which is the one moment it is cheap to catch.

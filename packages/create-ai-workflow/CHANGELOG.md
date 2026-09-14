@@ -1,5 +1,15 @@
 # @baldurpan/create-ai-workflow
 
+## 0.16.0
+
+### Minor Changes
+
+- Planning now asks whether a change has an accessibility, performance or security surface instead of waiting
+  to notice one, and records what proves it — an end-to-end pass in a real browser for anything with a user
+  interface. Gate 1 also runs every section of `verify.md` above *Not run by Gate 1*, so a project whose real
+  checks do not fit Lint / Typecheck / Build / Test has somewhere to put them, and `/onboard` now asks for
+  them.
+
 ## 0.15.0
 
 ### Minor Changes

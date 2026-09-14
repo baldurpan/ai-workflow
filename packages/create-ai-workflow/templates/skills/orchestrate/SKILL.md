@@ -40,6 +40,12 @@ A refusal here is the workflow working.
 
 Read `context/stack.md` and load `context/standards/README.md` per its conditional table.
 
+**Ask the surface question first**, per the standing rule in
+[`context/workflow.md`](../../../context/workflow.md): does this change put something in front of a person,
+sit in a hot path, or cross a trust boundary? Each *yes* is a row of that table nothing else will reach, and
+*none of these* goes in the report like any other answer. A one-shot change is where this gets skipped most,
+for the same reason the documentation sweep does — there is no plan holding the row.
+
 **Check that file's Documentation section, and the tree if it is empty.** If this change makes something
 there wrong — a README, a docs page, a changelog, help text in the code — the fix is part of this change,
 per the standing rule in [`context/workflow.md`](../../../context/workflow.md). A one-shot change is where
@@ -64,8 +70,9 @@ files.** Describe what needs to happen, never how to code it.
 
 ## 3. Gate 1 — verification
 
-Read [`context/verify.md`](../../../context/verify.md) and run its sections in order: Lint → Typecheck →
-Build → Test. **Never carry a copy of these commands here and never invent one.** A missing section is
+Read [`context/verify.md`](../../../context/verify.md) and run every section above *Not run by Gate 1*, in
+order — Lint → Typecheck → Build → Test first, then anything that file adds after them. **Never carry a copy
+of these commands here and never invent one.** A missing section is
 skipped and said so, never faked. Exit 0 is the verdict regardless of summary text. If `verify.md` does not
 exist or has no filled-in section, stop and say so. Docs-only changes run Lint plus a read of the diff.
 

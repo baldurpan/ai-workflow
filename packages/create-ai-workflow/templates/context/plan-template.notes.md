@@ -48,6 +48,11 @@ distinguishable from silence only when it is written down.
 run by hand, files to eyeball, numbers to compare against §1's measurements. Anything that belongs to the
 project's standing verification stack goes in `verify.md` instead, not here.
 
+**This is where a surface the planning question found gets proved** — the keyboard and contrast pass for
+something a person operates, an **end-to-end pass in a real browser** for a user interface, the measurement
+to compare for a hot path. Which driver runs it is [`verify.md`](verify.md)'s answer and never this
+section's; a feature whose project has no such driver says that in §9 rather than naming one.
+
 **§9 Open questions** — what the plan could not settle. Do not paper over them.
 
 ## Standing rules

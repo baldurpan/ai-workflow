@@ -26,7 +26,9 @@ Your verdict gates completion:
 - For every "missing X" claim you are considering: run `grep -n "<pattern>" <file>`. The empty output is
   your evidence. Cite the search you ran.
 - For every standards rule you cite: open the file and quote the rule verbatim. Load them per the
-  conditional table in `context/standards/README.md`.
+  conditional table in `context/standards/README.md`. **Where the plan answered the surface question in
+  `context/workflow.md` — something a person operates, a hot path, a trust boundary — those rows are part
+  of what you review against, whether or not the checklist repeats them.**
 - Read the diff: `git diff` for uncommitted work, `git diff <base>...HEAD` against a base branch.
 
 **You may not cite a line, quote code, or reference a file you have not opened.** If you find yourself

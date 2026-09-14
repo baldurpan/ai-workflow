@@ -33,10 +33,17 @@ ones that exit 0.** Filling them in by hand is fine too; running them first is n
 ```bash
 ```
 
+<!-- Add a heading of your own above this line for anything the four do not cover and Gate 1 can still
+     afford on every phase — an accessibility suite, a size budget, a coverage floor. Gate 1 runs every
+     section above "Not run by Gate 1", in order. -->
+
 ## Not run by Gate 1
 
-<!-- Commands that need Docker, a cloud account, or a deploy target. CI and deploy concerns, not
-     per-task verification. List them here so nobody adds them above by mistake. -->
+<!-- Two kinds of command: ones that need Docker, a cloud account or a deploy target, and ones Gate 1
+     cannot afford on every phase — an end-to-end run against a browser, a full performance pass, a visual
+     snapshot. Name what does run each one: the pipeline, the deploy, a person before a release. Without
+     that name this section reads as a check nobody runs rather than one this gate does not. List them here
+     so nobody promotes one into a gate section by mistake. -->
 
 ## Rules
 
@@ -46,3 +53,6 @@ ones that exit 0.** Filling them in by hand is fine too; running them first is n
   no application code.
 - **Exit 0 is the verdict.** A non-zero exit is a Gate 1 failure regardless of what the summary text says.
 - **If this file has no filled-in section at all, Gate 1 stops and says so.** It does not guess.
+- **The four headings are not a limit.** They are what every project has; a section added above *Not run by
+  Gate 1* is run like any other, in the order it appears. What decides where a check goes is whether this
+  gate can afford it on every phase — not which of the four it sounds most like.

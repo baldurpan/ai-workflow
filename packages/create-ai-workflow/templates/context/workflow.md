@@ -141,13 +141,34 @@ write that state and names the migration instead.
 > [`stack.md`](stack.md), and the repository itself when that index is missing or empty. Whatever a change
 > makes untrue there is fixed by the phase that makes it untrue, not by a follow-up.**
 
-Documentation is the one output with no gate behind it. Nothing fails when a README goes on describing a
-flag that was renamed, so the drift is invisible until someone follows the old instructions and it is not
-invisible to them. `/feature-plan` writes the affected surfaces into the plan's §7, each assigned to a
+Documentation is an output with no gate behind it, and the rule below is about the others. Nothing fails
+when a README goes on describing a flag that was renamed, so the drift is invisible until someone follows
+the old instructions and it is not invisible to them. `/feature-plan` writes the affected surfaces into the plan's §7, each assigned to a
 phase, and that phase's **Files:** line carries the path like anything else it touches.
 
 *"Nothing here describes this feature"* is a legitimate answer, and it names the surfaces that were
 checked. Saying nothing is not that answer.
+
+### The standards table is keyed on a question nothing asks
+
+> **Before loading standards, ask what surfaces this change has: something a person operates
+> (accessibility), a hot path or a payload that grows (performance), a trust boundary — input,
+> authentication, a secret, a public endpoint (security). Write the answer down. *None of these* is an
+> answer; saying nothing is not.**
+
+`standards/README.md` loads conditionally, on *if the task involves…*. Most of its rows answer themselves —
+a file is TypeScript or it is not, there is a form or there is not — and these three do not. They are
+properties of the change that the reader has to have thought of already, so the row saying *accessibility is
+part of the definition of done* is reached only by somebody who had agreed before they opened the table.
+
+The kinship is with the rule above, and so is the reason: **no gate fails** when a control cannot be reached
+by keyboard, any more than one fails when a README describes a flag that was renamed. A linter catches a
+fraction of the first and none of the rest.
+
+**A surface reaches the work the way a documentation row does.** The standards rows it loads become the
+review expectations on the phase that carries it, and whatever proves it goes in that plan's §8
+Verification — for something a person operates, an **end-to-end pass in a real browser**. Which browser
+driver is [`verify.md`](verify.md)'s answer like every other command, and nothing here names one.
 
 ### What a change announces is an answer, not an assumption
 
@@ -259,8 +280,12 @@ end state.
 
 Any command that lands code runs two gates, in order.
 
-**Gate 1 — verification.** Read [`verify.md`](verify.md) and run its sections in order: Lint → Typecheck →
-Build → Test. Never carry a copy of those commands and never invent one. A missing section is skipped, never
+**Gate 1 — verification.** Read [`verify.md`](verify.md) and run **every section above *Not run by Gate
+1*, in order** — Lint → Typecheck → Build → Test first, then anything that file adds after them. Those four
+are the headings every project has, not the whole of what one checks: an end-to-end run, an accessibility
+suite or a size budget that is cheap enough to run on every phase is a section like any other, and a
+project that has one with nowhere to write it down is a project where this gate reports green for a change
+that broke it. Never carry a copy of those commands and never invent one. A missing section is skipped, never
 faked. Exit 0 is the verdict regardless of what any summary text claims. If `verify.md` does not exist, stop
 and say so.
 
