@@ -17,11 +17,14 @@ diff — so it says what changed for them and stops.
 **Filenames are random on purpose.** Two differently-named files never conflict when two branches merge —
 which is why a re-entered phase updates its existing note rather than writing a second one.
 
-**A feature's merge ships nothing.** Its note lands here and waits. What ships is the merge of the pull
-request where `changeset:prepare-release` was run — the notes consumed, the versions moved, the changelogs
-written — and that one merge is the event for a published package and a deployed app alike. The condition for
-either is **that path's own version moving in it**: a release that bumped only a package must not deploy the
-app.
+**Landing a change ships nothing.** Its note lands here and waits. What ships is the commit where
+`changeset:prepare-release` was run — the notes consumed, the version moved, the changelog written — and
+that one commit is the event for a published package and a deployed app alike. The condition for either is
+**that path's own version moving in it**: a release that bumped only a package must not deploy the app.
+
+*(Everywhere this tool installs, that event is the merge of a release pull request. This repository does
+not use pull requests, so it is a push to `main`. The event is the version moving; the ceremony around it
+is per repository.)*
 
 **Every path that merge ships leaves a tag and a release behind**, whichever of the two it got. The tag says
 which commit went live; the release is where this note is finally read by the person it was written for. A

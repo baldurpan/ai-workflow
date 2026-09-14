@@ -456,6 +456,14 @@ which is the least-tested surface in the package.
 
 ### 7. Release notes here, and the two halves of §11 this repository does not run
 
+**A gap in the template found by installing half of it here: the event assumes a pull request.**
+`templates/stubs/release.md` and `/onboard` Step 9 both write the event as *the merge of the release pull
+request*, and this repository does not use pull requests — work lands directly on `main`. The event is
+unchanged in substance (the version moved) but the prose names a ceremony that is per repository, and
+`git.md` already holds the answer about whether work is pushed or goes through a pull request. The release
+answer does not consult it. Small, and not fixed: the wording here was adjusted by hand, which is exactly
+the sort of local patch the stub exists to prevent.
+
 `.changeset/` landed on 2026-09-14 (see item 3). What is worth checking after a few releases, because
 neither is knowable yet:
 
@@ -463,9 +471,10 @@ neither is knowable yet:
   notes written at the time beats a release page quoting one commit. If the notes turn out to be thin
   restatements of the subject line, the mechanism is costing a step and buying nothing — reverse it, and
   say so here.
-- **Whether the release branch survives contact.** `release/*` is a convention held by one line in
-  `release-note.yml` and nothing enforces it. A bump on a differently-named branch fails the note check
-  with a message that reads like a missing note. If that happens twice, the exemption is the wrong shape.
+- **Whether a standing red run gets ignored.** `release-note.yml` compares `main` against the last release
+  tag, so a package change landed without a note leaves it red until somebody writes one. That is the
+  honest signal and it is also the shape people learn to tune out. If it sits red for a week, it is not
+  doing its job and should go.
 
 ## Decisions that are cheap to reverse now
 

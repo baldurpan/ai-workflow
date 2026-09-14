@@ -6,10 +6,12 @@
 #   anything else          -> nothing
 #
 # Releasing is still a deliberate act, and it is still a human one: nothing in CI consumes a note or moves
-# a version. You run `npm run changeset:prepare-release` on a `release/*` branch when you decide to ship —
-# it eats the accumulated notes, moves the version and writes the CHANGELOG — and merging that pull request
-# is what this workflow is watching for. Merging an ordinary feature pull request ships nothing; it lands a
-# note that waits.
+# a version. You run `npm run changeset:prepare-release` when you decide to ship — it eats the accumulated
+# notes, moves the version and writes the CHANGELOG — and pushing that commit is what this workflow is
+# watching for. Landing an ordinary change ships nothing; it lands a note that waits.
+#
+# This repository does not use pull requests, so the release is a commit on `main` like any other. What
+# separates it from the rest is the only thing this workflow reads: the version moved.
 #
 # The gate is the version moving, not the tool that moved it. A bump by hand reads exactly the same, which
 # is what keeps this file honest about the releases that predate the notes mechanism.

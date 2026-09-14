@@ -38,22 +38,23 @@ npm test -w @baldurpan/create-ai-workflow
 Releases are cut by CI; nothing is published from a laptop, and there is no release form to fill in.
 
 **Every change to the package carries a release note** — one file in [`.changeset/`](.changeset), written
-with the change it describes. Merging it ships nothing; the note lands and waits.
+with the change it describes. Landing it ships nothing; the note waits.
 
-**To release**, on a `release/*` branch:
+**To release:**
 
 ```bash
 npm run changeset:prepare-release   # consumes the notes, moves the version, writes the CHANGELOG
+git push                            # publishes
 ```
 
-Open that as a pull request and merge it. [`publish.yml`](.github/workflows/publish.yml) sees the version
-move and does the rest: test, build, publish to npm over OIDC trusted publishing with a provenance
-attestation, push the `vX.Y.Z` tag, and write the GitHub Release with the changelog entry as its body.
-There is no npm token in this repository.
+[`publish.yml`](.github/workflows/publish.yml) sees the version move and does the rest: test, build,
+publish to npm over OIDC trusted publishing with a provenance attestation, push the `vX.Y.Z` tag, and write
+the GitHub Release with the changelog entry as its body. There is no npm token in this repository.
 
-`npm run changeset:status` reports what is pending. [`release-note.yml`](.github/workflows/release-note.yml)
-asks the same question on every pull request, and exempts `release/*` branches — a release branch has just
-consumed its notes and legitimately has none.
+`npm run changeset:status` reports what is pending.
+[`release-note.yml`](.github/workflows/release-note.yml) asks the same thing on every push to `main`,
+comparing against the last release tag — a red run means a note is owed for something already landed,
+not that anything is broken.
 
 **A prerelease is a version with a hyphen.** `0.14.0-rc.1` publishes under the `next` dist-tag and marks the
 GitHub Release as a prerelease; nothing else has to be remembered, and there is no checkbox left to

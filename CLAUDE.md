@@ -35,25 +35,35 @@ The reasoning goes in `DESIGN-RECORD.md` and the commit body, which is where thi
 and `DESIGN-RECORD.md` are not the package. Say that you checked and that none was owed, rather than
 staying silent about it.
 
+**`release-note.yml` asks the same question on every push to `main`**, comparing against the last release
+tag. A red run there means a note is owed for something already landed — nothing is broken and nothing is
+blocked. Write the note and push.
+
 **Re-entering work does not write a second note.** If a note for this change is already in `.changeset/`,
 update it. Two files describing one change do not conflict and are both counted, which is the one case
 where doing the right thing twice is the failure.
 
 ## Releasing — read this before touching a version
 
-**Merging a feature ships nothing.** Its note lands in `.changeset/` and waits. Notes accumulate on `main`
-until somebody decides to release.
+**Landing a change ships nothing.** Its note lands in `.changeset/` and waits there. Notes accumulate on
+`main` until somebody decides to release.
+
+**This repository does not use pull requests.** Work goes straight to `main`, so there is no branch, no
+review step and no merge — which means the note you write is the only description of the change that ever
+reaches a reader, and nobody is going to ask you for it.
 
 **When asked to cut a release**, and only then:
 
-1. Branch as `release/<version>`. The prefix is load-bearing — `release-note.yml` exempts it, because a
-   release branch legitimately changes the package while carrying no notes, having just consumed them.
-2. `npm run changeset:prepare-release`. It eats every pending note, moves the version and writes
+1. `npm run changeset:prepare-release`, on `main`. It eats every pending note, moves the version and writes
    `packages/create-ai-workflow/CHANGELOG.md`. **It cannot be run twice** — the notes are gone afterwards.
-3. Open that as a pull request. Its diff is the version bump and the changelog text, reviewed like any
-   other.
-4. Merging it publishes. `publish.yml` sees the version move and tests, builds, publishes to npm over OIDC,
-   pushes the `vX.Y.Z` tag and writes the GitHub Release with the changelog entry as its body.
+2. Read the diff. The version bump and the changelog text are the whole of it, and the changelog text is
+   what the release page will say.
+3. Commit and push. **That publishes** — `publish.yml` sees the version move and tests, builds, publishes
+   to npm over OIDC, pushes the `vX.Y.Z` tag and writes the GitHub Release with the changelog entry as its
+   body.
+
+Cutting a release in the same commit as the change it ships is fine and is the old habit here; the notes
+change what the changelog says, not how many commits you make.
 
 **Never hand-edit `version` in a package manifest.** `changeset:prepare-release` owns it, and a hand-typed
 bump pushed to `main` publishes to npm with no second confirmation — there is no release form and no draft

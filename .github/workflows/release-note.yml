@@ -1,59 +1,51 @@
-# Asks one question on a pull request: did a change to the published package come with a release note?
+# Asks one question, on every push to `main`: is there a package change sitting on `main` that nobody
+# wrote a note for?
 #
-# It is deliberately not a job in ci.yml. ci.yml answers "is this correct"; this answers "did you say what
-# changed", which is a different question with a different audience, and mixing them makes a red X ambiguous.
+# It compares against the LAST RELEASE TAG, not against a branch point, because this repository does not
+# use pull requests — work lands directly on `main`, so there is no branch for a note check to stand on and
+# no pre-merge moment to run it in. The question that survives without branches is the one that actually
+# matters at release time: since the last release, does everything that changed the package have a note?
 #
-# What it runs is `changeset:status`, which REPORTS and writes nothing. It never moves a version, never
+# The failure it exists to catch is quiet and gets quieter the longer it sits. Land a package change with
+# no note; land two more with notes; release. `changeset:prepare-release` bumps the version and writes a
+# CHANGELOG that describes the two and not the first. The code ships either way. Nothing is red, and the
+# missing entry is discoverable only by someone reading the changelog against the diff.
+#
+# So a red run here does not mean anything is broken — it means a note is owed for something already
+# landed. Write it and push; the next run is green. It is a standing reminder, not a gate, and it cannot be
+# a gate in a repository with nothing to gate.
+#
+# What it runs is `changeset:status`, which REPORTS and writes nothing: it never moves a version, never
 # tags, never deletes a note. The script that consumes notes is `changeset:prepare-release`, and nothing in
 # CI calls it — releasing is a human act, and publish.yml only notices that you performed it. Do not add it
 # here.
 #
-# The check is self-scoping, which is what makes it safe to require:
-#
-#   * nothing under packages/ changed  -> passes. A pull request touching only .github/, README.md,
-#     PLAN.md or DESIGN-RECORD.md needs no note and is not asked for one.
-#   * the package changed, no note     -> FAILS, naming `changeset:add` in its output.
-#   * the package changed, note present -> passes, printing the bump it will produce.
-#
-# Two things that fall out of how `changeset status` works, both worth knowing before debugging a
-# surprising pass:
-#
-#   * It reads TRACKED changes only — `git diff` is its input — so an untracked file is invisible to it.
-#     Irrelevant in CI, where everything is committed, but it is why a local run can disagree with this job.
-#   * Its file matching does not include dotfiles, because `changedFilePatterns` defaults to `**` and `**`
-#     does not match a leading dot.
+# Two things worth knowing before debugging a surprising pass. It reads TRACKED changes only, `git diff`
+# being its input, which is why a local run against an uncommitted tree reports nothing and means nothing.
+# And its file matching does not include dotfiles, because `changedFilePatterns` defaults to `**` and `**`
+# does not match a leading dot.
 
 name: Release note
 
 on:
-  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: release-note-${{ github.ref }}
+  group: release-note
   cancel-in-progress: true
 
 jobs:
   changeset:
-    # THE RELEASE PULL REQUEST IS EXEMPT, and it has to be. It is the one pull request that legitimately
-    # changes the package while carrying no note: `changeset:prepare-release` consumed them and deleted the
-    # files, so the branch shows a version bump and a CHANGELOG with nothing pending — exactly the state
-    # this check fails on. Without this line every release would open with a red check meaning the opposite
-    # of what it says.
-    #
-    # The convention is the branch name: put the version bump on `release/<something>`. A prefix rather
-    # than a label, because it is decided before the pull request exists, so the check never flashes red
-    # and gets explained afterwards.
-    if: ${{ !startsWith(github.head_ref, 'release/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      # fetch-depth: 0 is REQUIRED and is the one easy way to break this job. `changeset status` resolves
-      # `--since=origin/main` through `git merge-base`, so it needs history on both sides. A default
-      # depth-1 checkout does not merely miss changes — it exits 1 with "Failed to find where HEAD diverged
-      # from origin/main", which reads like a missing note and is not one.
+      # fetch-depth: 0 AND the tags: the whole point is to resolve the last release tag and diff against
+      # it, and a default depth-1 checkout has neither the tag nor the history to reach it.
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -65,6 +57,34 @@ jobs:
 
       - run: npm ci
 
-      # `--since=origin/main` lives in the script, not here, so this file cannot drift from a local run.
-      - name: A changed package needs a release note
-        run: npm run changeset:status
+      - name: Is anything on main missing its note?
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # The release that is already out. Without one — a fresh repository, or tags not fetched — there
+          # is no meaningful "since", and reporting against the root commit would flag the entire history.
+          SINCE=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || true)
+          if [[ -z "$SINCE" ]]; then
+            echo "No release tag to compare against — nothing to ask." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          echo "Comparing \`main\` against \`$SINCE\`." >> "$GITHUB_STEP_SUMMARY"
+
+          # `--since` is passed here rather than taken from the script, because the script's own default is
+          # `origin/main` — the right answer for a branch and the wrong one on main, where it compares HEAD
+          # against itself and always passes.
+          if npx changeset status --since="$SINCE"; then
+            echo "Every package change since \`$SINCE\` has a note." >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo
+              echo "**A package changed since \`$SINCE\` with no release note.**"
+              echo
+              echo "Write one file in \`.changeset/\` describing it — see \`CLAUDE.md\`. Nothing is broken"
+              echo "and nothing is blocked; the cost of leaving it is a release whose changelog is missing"
+              echo "an entry for code it ships."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
