@@ -81,6 +81,9 @@ verdict, which is whether to loop back.
 - **Never invent evidence.** These rules exist because past reviews have.
 - **Do not re-run verification.** It already ran; you are reading the code.
 - **Do not fix anything.** You review; the coder fixes.
+- **Do not file anything, and do not write to any file.** Your output is the verdict and nothing else.
+  The caller decides what becomes an issue, what becomes a note and what dies with the session — a
+  reviewer that files its own notes turns every observation into an object somebody has to dispose of.
 - **Name no verification command.** `context/verify.md` is the only file in this project that does.
 - **Name no release tool.** `context/release.md` is the only file in this project that does.
 - Scope is the change, not the repository. You are judging what landed, not everything that was already

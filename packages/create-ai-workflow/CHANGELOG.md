@@ -1,5 +1,13 @@
 # @baldurpan/create-ai-workflow
 
+## 0.18.1
+
+### Patch Changes
+
+- A non-blocking review finding no longer always becomes a backlog issue. Gate 2 files one only when it is
+  user-visible or a regression would land green; everything else goes in `context/notes.md`, a branch-local
+  file that nothing reads and `/feature-close` deletes whole.
+
 ## 0.18.0
 
 ### Minor Changes

@@ -316,8 +316,9 @@ recording** — the conversation ends, the ledger does not, so the row is writte
 ## What happens to a defect the gate found
 
 A review produces two kinds of thing, and the difference is the only one that matters: **does it block this
-phase, or not.** There is no severity scale, no defect file, and no second status vocabulary — a phase has
-four states and they are the four in the ledger.
+phase, or not.** There is no severity scale and no second status vocabulary — a phase has four states, they
+are the four in the ledger, and **nothing below adds to them**: the file this section ends up describing
+holds no status, gates nothing, and is read by no command.
 
 **A blocking item has three ends, and the run that found it picks one before it reports:**
 
@@ -327,10 +328,33 @@ four states and they are the four in the ledger.
 | **`blocked`** | the gate hit its cap, or it cannot be fixed in this phase | the phase's own ledger row: status `blocked`, the reason in its Note |
 | **an issue** | it is real work that outlives this phase | the backlog, per [`tracking.md`](tracking.md) |
 
-**A non-blocking observation goes in the run's report and dies with the session** — unless it needs code
-changes, in which case it is work, and work goes in the backlog like any other. Nothing is kept "as a note
-worth not losing": a note nothing acts on is read by every later phase, goes stale as the code under it
-moves, and is exactly the drift this workflow is trying to avoid.
+**A non-blocking observation has two ends, and kind decides which** — not size, and not how interesting it
+was to find:
+
+| End | When | Where the record lives |
+|---|---|---|
+| **an issue** | it is user-visible, or a regression would land green — the gates pass and the defect ships anyway | the backlog, per [`tracking.md`](tracking.md) |
+| **a note** | anything else | `notes.md` in this branch's working tree, until the branch ends |
+
+**Kind is the test because severity was tried and failed.** A grade assigned to answer *does this stop the
+phase* tells you nothing about *is this worth keeping*, and having one on hand invited the second question
+to be answered with the first question's answer.
+
+**`notes.md` is branch-local, advisory and disposable.** The first note that needs it creates it; it is
+never installed and there is no stub. **Nothing reads it** — no gate consults it, no command parses it, no
+refusal turns on it, and `check` has no rule about it. It carries no severities, no ids and no statuses,
+because nothing tracks the state of something nothing acts on.
+
+> **`/feature-close` deletes it whole** — no triage, no dispositions, no sweep. Anything that should
+> outlive the branch was promoted to an issue while the branch was alive. **This is the entire bound:** the
+> file cannot accumulate across features because it does not survive one, which is a property of the
+> lifecycle rather than a rule somebody has to keep.
+
+**Why a file rather than an issue, when an issue is also somewhere to put it.** A note in the backlog is an
+object with a number, a title and a rank, competing with real features for the next plan — and the backlog
+is a list of **features**, which a note about internals is not. A line in a branch-local file costs nothing
+to write, nothing to ignore and nothing to delete. Keeping the cheap disposition cheap is what stops the
+expensive one from being used for everything.
 
 **The ledger is the record, because it is already the record.** A row opens to `in progress` before any
 code and closes to `done`, `in progress` or `blocked` when the phase ends — so a session that dies mid-gate
@@ -341,10 +365,12 @@ would be a second answer to a question the Status column already answers.
 > reason in its Note. Do not record it elsewhere and leave the row claiming `done`. If it is larger than
 > the feature, it is an issue instead, and the row stays as it is.
 
-**Nothing accumulates, so nothing has to be swept.** There is no file to bound, no disposition to decide at
-retirement, and no way for a defect to outlive the thing it was about: a `blocked` row is archived with its
-plan at `/feature-close`, and an issue was never this feature's to carry.
+**Nothing accumulates across features.** There is no disposition to decide at retirement and no way for a
+defect to outlive the thing it was about: a `blocked` row is archived with its plan at `/feature-close`,
+`notes.md` is deleted there, and an issue was never this feature's to carry.
 
 **`/orchestrate` has no ledger**, so a capped gate there ends the only way it can: the work stays in the
-working tree, the report says what failed and why, and anything still worth doing becomes an issue. A
-commit-sized change that cannot pass its gates is not a thing to file away — it is a thing to hand back.
+working tree, the report says what failed and why, and anything still worth doing becomes an issue. **It
+writes no `notes.md`** — it has no branch of its own and no close, so nothing would ever delete one, and a
+file only that command wrote is the one that would outlive every branch. A commit-sized change that cannot
+pass its gates is not a thing to file away — it is a thing to hand back.

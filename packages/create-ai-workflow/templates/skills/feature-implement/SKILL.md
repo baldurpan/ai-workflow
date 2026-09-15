@@ -193,10 +193,19 @@ defect the gate found* in [`context/workflow.md`](../../../context/workflow.md).
 - `PASS` or `PASS WITH NOTES` → the phase's work is done; go to step 11.
 - `FAIL` → go to step 10.
 
-**A non-blocking observation goes in this phase's report and dies with the session** — unless it needs code
-changes, in which case it is work and belongs in the backlog per
-[`context/tracking.md`](../../../context/tracking.md). Do not carry it forward as a note: the next phase
-would read it against code that has moved.
+**Every non-blocking observation gets one of two ends, and kind decides which** — not size. The full
+argument is *What happens to a defect the gate found* in
+[`context/workflow.md`](../../../context/workflow.md):
+
+- **User-visible, or a regression would land green** → it is work. File it in the backlog per
+  [`context/tracking.md`](../../../context/tracking.md), and say in the report that you did.
+- **Anything else** → one short entry in `context/notes.md`, naming the phase it came from. Create the file
+  if it is not there. It is branch-local, it rides this phase's commit the way the ledger row does, and
+  `/feature-close` deletes it whole.
+
+**Do not brief the next phase on either one.** `notes.md` is written for a person and read by nothing — a
+phase that took it as input would be reading it against code that has moved, which is the drift the split
+above exists to avoid.
 
 ## 10. Loopback
 
@@ -251,7 +260,7 @@ feature and turns every phase after it into a force-push.
 - What changed, and which files — and whether it is committed or waiting in the tree.
 - Gate 1 output, and Gate 2's verdict.
 - Loopback counts, if any.
-- Any non-blocking observation the review raised, and any issue filed for one.
+- Any non-blocking observation the review raised, and where each one went — an issue, or `notes.md`.
 - The phase's new ledger status, and which phase is next.
 
 **When every phase is `done`, say so and name `/feature-close`.** Do not move files, stamp headers or sweep

@@ -197,6 +197,9 @@ written down anywhere, and a file that tracked it would be a cache of something 
   it describes are one commit. A body edit cannot be, so under the tracker answer the closing row carries
   the commit's sha and is checkable against the branch instead.
 - **`done` is a verdict about the gates**, not about git and not about the tracker.
+- **`notes.md` is a file in the working tree under both answers**, written by a phase's review and deleted
+  whole by `/feature-close`. Nothing reads it, so there is no fact in it for a substrate to hold, and it is
+  not a thing this file has an answer about.
 - **Neither `history.md` nor `archive/` is ever converted, in either direction.** Fabricating closed
   issues for features shipped months ago produces wrong dates, empty threads and an audit trail that looks
   real and is not. Under the tracker answer they stay as the frozen record of the era before the switch —

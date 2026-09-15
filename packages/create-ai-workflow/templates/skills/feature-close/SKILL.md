@@ -82,6 +82,21 @@ grep -rn "<old-path>\|<OLD-FILENAME>" --include='*.md' . | grep -v node_modules
 - **Show the full list of edits before committing.** That review is why this is an explicit command rather
   than a side-effect.
 
+### Delete `context/notes.md`
+
+**If the file is there, delete it — whole, as part of this same change.** Both modes, both tracking
+answers.
+
+Do not read it for things to keep, do not assign each line a disposition, and do not fold any of it into
+the history row or the closing comment. Anything that should have outlived this feature was promoted to an
+issue while the branch was alive, which is the only moment that call can be made against code that still
+exists. What is left is what the branch was for.
+
+**Glancing at it on the way past is fine; triaging it is not.** If something jumps out, file that one as an
+issue and then delete the file — one judgement, not a ceremony repeated per entry. **The unconditional
+delete is the whole bound on that file**, and a retirement that spends ten minutes disposing of notes has
+bought back the cost this arrangement exists to avoid.
+
 ### The release note — before the commit, under both granularities
 
 Read [`context/release.md`](../../../context/release.md). **This is the last moment before the feature's
@@ -204,6 +219,8 @@ expected.
 3. **If the entry never had a document, stop here.** If it had one — a draft in `context/drafts/` or a plan
    in `context/plans/` — `git mv` it to `context/archive/`, repoint its header at the `history.md` row (no
    stamped outcome, same rule as Mode 1), and sweep.
+4. **Delete `context/notes.md`** if it exists, per *Delete `context/notes.md`* above. A feature that will
+   not be built has nothing its notes should outlive.
 **`--release` is refused in this mode**, and not as a technicality: there is no note, so there is nothing
 this retirement would be releasing. If a release is due anyway, that is its own act and not this one's.
 
@@ -226,6 +243,7 @@ phase finished — and so is everything about pushing.
 | `git mv` the plan to `archive/` | nothing moves; the issue keeps its body and its whole thread |
 | rewrite the document header | nothing — a closed issue does not claim to be open |
 | the reference sweep | **nothing to sweep.** No path changed, so no link broke |
+| delete `context/notes.md` | **unchanged** — it is a file in a working tree under either answer, and it is deleted the same way |
 
 **The archive is the closed issue**, and it is more than the file it replaces: the plan, the discussion
 that shaped it, the finished ledger with every phase's Note, and the pull request, all at one id that

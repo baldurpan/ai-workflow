@@ -48,6 +48,11 @@ generated "current state" file — hand-editing a ledger row changes every comma
 `standards add <git-url>`, or edit it, and it becomes yours — it drops out of the manifest and updates
 stop reaching it.
 
+**One more file exists and is not in that table, because the tool never writes it.** `notes.md` is created
+by `/feature-implement` when the review raises something real that is not worth an issue, and deleted whole
+by `/feature-close`. It is branch-local, no command reads it, and there is no stub — the argument is *What
+happens to a defect the gate found* in [`workflow.md`](workflow.md).
+
 A document moves once per tier transition, and **which directory it sits in tells you what it is**:
 
 ```
@@ -68,7 +73,7 @@ hash, `update` walks that manifest, and a project-owned file is not in it — so
 |---|---|
 | `README.md`, `workflow.md`, `plan-template*.md`, `roles/` | `stack.md`, `verify.md`, `executors.md`, `git.md`, `tracking.md`, `release.md` |
 | the skill and agent trees, the `AGENTS.md` block | `roadmap.md`, `history.md` |
-| `standards/` while it is ours and unmodified | `drafts/`, `plans/`, `archive/`, `CLAUDE.md` |
+| `standards/` while it is ours and unmodified | `drafts/`, `plans/`, `archive/`, `notes.md`, `CLAUDE.md` |
 
 `update` prints both columns when it runs. A visible boundary beats a documented one.
 

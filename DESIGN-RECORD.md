@@ -2793,6 +2793,10 @@ the ones that have no such check are the ones that will be wrong.**
 
 ## 12. `findings.md` is deleted — a second status vocabulary, and the drift it caused
 
+> **Partly superseded by §14.** The severity scale and the gating stay deleted. The *destination* this
+> section chose for a non-blocking note — the backlog, always — was one step too far, and §14 records the
+> field report that showed it and brings back a file that gates nothing.
+
 The file held "defects that outlive the session that found them", graded `P0`–`P3`, gated a phase from
 `done`, and was swept at `/feature-close`. **It is gone.** A blocking defect is fixed, or it is the
 `blocked` status the phase ledger already has a word for, or it is an issue. Nothing accumulates.
@@ -2993,3 +2997,118 @@ was missing.
 
 **Any edit to `templates/standards/`.** It is vendored verbatim from a pinned ref, and an edited file there
 hands the whole tree over to the user on the next update. New standards content belongs upstream.
+
+
+---
+
+## 14. The cheap end comes back as a file — `notes.md`, and what §12 removed one step too much of
+
+§12 deleted `findings.md` and sent everything that survived into the backlog. The deletion was right; the
+destination was not. It took five versions and two repositories for the difference to become visible.
+
+### 14.1 The field report — one install, two outcomes
+
+`dynjandi-dev/dynjandi-core` and `baldurpan/piff` both run this workflow, both on the tracker answer, both
+dispatching Gate 2 to the `reviewer` subagent. Their backlogs on 2026-09-15:
+
+| | Feature issues | Finding issues |
+|---|---|---|
+| `piff` | 25, every one a kebab-case feature name | **0** |
+| `dynjandi-core` | 8 | **20** — 9 from one feature's gates in a single day, 11 from the `findings.md` migration |
+
+Same install, same substrate, same executors, opposite behaviour. **The rule was enforced by nothing but
+the reading of whichever session ran it**, and had been shipping as though it were a mechanism.
+
+Nine of the twenty carry the backlog label, so `/feature-plan` ranks them as features — each due a plan
+document and a phase ledger for what `workflow.md` itself calls a task. The other eleven carry `bug` only,
+which puts them outside the backlog by `tracking.md`'s own definition, so nothing in the workflow will read
+them again. **That second batch has no owner in this tool at all:** no skill handles `findings.md`, so
+§12.6's migration instruction was carried out by hand and nothing told it to apply the label.
+
+### 14.2 §10.5 had already decided this, the other way
+
+§12's argument is about the **severity scale** and the **gating**, and both halves hold: `P0`–`P3` was a
+second status vocabulary, and an unbounded file that a gate reads silently disables the gate.
+
+Neither is an argument about file versus tracker — and §10.5 had settled that one:
+
+> `findings.md` does not move either… a finding is **branch-scoped by construction** and nets to zero
+> within one branch's life, so it is never the thing two agents contend over. The escape hatch is written
+> down rather than inferred — **a finding that outlives its branch is promoted to its own issue**.
+
+Delete the file and promotion is the only remaining path. **The exception became the rule**, and no diff
+said so, because the sentence that would have said it was the one being deleted.
+
+### 14.3 What the valve actually admitted
+
+`workflow.md` said a non-blocking observation dies with the session *"unless it needs code changes, in
+which case it is work."* **Every true observation about code needs code changes.** The condition admitted
+essentially everything, which is not a bar.
+
+The incentive ran one way too. Filing costs the writer one `gh issue create`; reading costs the user.
+`/feature-implement` §13 then asked the run to report *any issue filed for one* — so filing read as
+diligence and restraint was invisible. **A filing rule with no bar transfers cost from writer to reader**,
+and this one had a reporting line rewarding the transfer.
+
+### 14.4 The bar was already written down, in §12.4
+
+§12.4 recorded what worked when the 35 field findings were triaged by hand:
+
+> What worked was kind — user-visible and *a regression would land green* became issues, internal notes
+> were dropped.
+
+Validated against 35 real defects, and **never written into a template** — it survived only as a
+description of a cleanup. It is now the Gate 2 rule, and it decides **promotion**, not whether a thing gets
+written down at all. That is a far easier judgement: a line in a branch-local file is cheap and reversible,
+and a backlog issue is neither.
+
+### 14.5 The file, and which objection each property kills
+
+`context/notes.md`, with three properties, each aimed at something that actually went wrong:
+
+| Property | What it kills |
+|---|---|
+| **Nothing reads it** — no gate, no command, no `check` rule | §12.1's real disaster, which was never clutter: at 76 KB the file came back **truncated** and the gate reading it was answering from a file it had not seen. A check that does not exist cannot fail silently |
+| **No severities, ids or statuses** | §12.4's second vocabulary. The blocking bit is decided upstream at Gate 2, and only non-blocking notes reach the file |
+| **`/feature-close` deletes it whole** — no triage, no dispositions, no sweep | §12.2's ceremony and §12.7's discipline. *Nets to zero within one branch's life* becomes a property of the lifecycle instead of a rule somebody has to keep |
+
+**No stub; it is never installed.** The first note creates it. A file the installer puts on the default
+branch is a file every branch edits in common — the merge surface the old one had. A file that exists only
+inside a branch which then deletes it has no merge surface at all.
+
+**It rides the phase's commit**, like the ledger row. Leaving it untracked buys a guarantee it does not
+need and costs the note its visibility in the diff, which is the one place a person was going to see it —
+and `git add -A` would sweep it in regardless.
+
+**`/orchestrate` writes none.** It has no branch and no close, so nothing would ever delete one: a file
+only that command wrote is exactly the file that outlives every branch.
+
+### 14.6 Rejected
+
+**One file per note in a `notes/` directory.** Proposed against merge conflicts, and the premise does not
+survive the lifecycle — §4.5 had already predicted `findings.md` would net to zero for precisely this
+reason, and the old one failed that prediction only because its sweep did not work. What the directory buys
+is insurance against `/feature-close` not running, paid for in the thing this whole section is about: **a
+note in a folder is an object with a name; a note in a list is a line among others.** Nine files read as
+nine obligations for the same reason nine issues did.
+
+**A `check` rule faulting the file on the default branch.** Offered as cheaper insurance than the
+directory, withdrawn on inspection. `runChecks` is pure-filesystem and fixture-testable by design; the rule
+needs git to know which branch it is on; and under the tracker answer — where both field repositories are —
+`check` has no local state to hang it on. The variant that parses the file to find orphaned notes re-adds
+the `Finding` parser §12.5 was glad to be rid of. **A store should be unable to accumulate, rather than
+watched while it does.**
+
+**Purging on a schedule.** *Every now and then* is §12.7's discipline under another name, and §12.2 already
+built the scheduled version — a sweep at retirement, three dispositions, a `check` rule for orphans, every
+acceptance test passing — and rejected it for bounding the tail while leaving the accumulation. A purge
+needs a trigger, and `/feature-close` is one that already exists and cannot be forgotten without the
+feature staying open.
+
+### 14.7 The lesson
+
+§12.7 said: *before bounding a store, ask whether anything should be in it.* The half it did not say is
+this one. **When a store is deleted its contents go somewhere, and that somewhere is a design decision even
+when nobody makes it.** §12 made the deletion and left the destination to a clause that already existed for
+the rare case. The rare case was then asked to carry everything — into the list the user actually reads —
+and it did what any unbounded destination does.

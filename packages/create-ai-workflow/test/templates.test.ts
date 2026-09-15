@@ -1228,6 +1228,10 @@ describe('a defect the gate found has one home, and it is the ledger', () => {
   // the very gate that was supposed to read it. The file is gone. A blocking defect is fixed, or it is the
   // `blocked` status the ledger already has a word for, or it is an issue. Everything here guards that one
   // vocabulary and that nothing re-grows a second place to record a defect.
+  //
+  // §14 qualifies the last clause and nothing above it: a *non-blocking* note has a file again, and what
+  // makes it not the deleted one is that no gate reads it and no branch outlives it. The tests marked §14
+  // below are that boundary.
   const flat = (text: string) => text.replace(/\s+/g, ' ');
   const workflow = readTemplate('context/workflow.md');
   const OWNS_A_GATE = ['feature-implement', 'orchestrate'] as const;
@@ -1278,14 +1282,58 @@ describe('a defect the gate found has one home, and it is the ledger', () => {
     }
   });
 
-  it('a non-blocking observation is work or it dies — it is never kept as a note', () => {
-    // "A note worth not losing" was the category that grew without bound, so it is deleted rather than
-    // bounded. Anything actually worth keeping is work, and work has a home already.
-    assert.match(flat(workflow), /dies with the session/i);
-    assert.match(flat(workflow), /a note nothing acts on/i, 'and the contract says why it is refused');
-    for (const name of OWNS_A_GATE) {
-      assert.match(flat(skillBody(name)), /dies with the session/i, `${name} says what happens to one`);
-    }
+  // §14 supersedes the shape these four guarded, not the reason for them. The old rule sent every
+  // non-blocking observation that "needs code changes" to the backlog — a condition every true observation
+  // about code meets — and the field ran it into 20 finding-issues in one repository against 0 in another
+  // on the same install. The cheap end is a branch-local file again. What keeps it from being `findings.md`
+  // is that it gates nothing and does not survive the branch, and that is what these assert.
+  // `plan-template.notes.md` and a project's own `ops-notes.md` are different files; the lookbehind is what
+  // keeps this keyed on the one that matters.
+  const NOTES = /(?<![\w.-])notes\.md/;
+
+  it('a non-blocking observation is split by kind, and both ends are named', () => {
+    // §14.3: "unless it needs code changes" was not a bar. §12.4's test is — it is the one the hand triage
+    // of 35 real defects actually used, and it had never been written into a template.
+    const w = flat(workflow);
+    assert.match(w, /kind decides which/i, 'the axis is named');
+    assert.match(w, /user-visible, or a regression would land green/i, 'and the promotion test is stated');
+    const implement = flat(skillBody('feature-implement'));
+    assert.match(implement, /user-visible, or a regression would land green/i, 'the gate applies it');
+    assert.match(implement, NOTES, 'and the other end has somewhere to go');
+  });
+
+  it('nothing reads the file, which is what keeps §12.1 from recurring', () => {
+    // The 76 KB file's real failure was never clutter: it came back truncated to the very gate that read
+    // it, so the check was answering from a file it had not seen. A file nothing reads cannot fail so
+    // quietly — and a `check` rule about it would be exactly that reader.
+    assert.match(flat(workflow), /\*\*Nothing reads it\*\*/, 'the contract says so outright');
+    const rules = readFileSync(path.join(packageRoot, 'src/check/rules.ts'), 'utf8');
+    assert.doesNotMatch(rules, NOTES, 'check grew a rule that reads it');
+    assert.equal(
+      STUBS.find((s) => s.dest === 'context/notes.md'),
+      undefined,
+      'an install ships one, so every branch would edit a file held in common',
+    );
+  });
+
+  it('the branch it belongs to is the whole of its bound', () => {
+    // §12.2 built the scheduled sweep — three dispositions, a `check` rule for orphans, every acceptance
+    // test passing — and it still bounded the tail while leaving the accumulation. The delete is
+    // unconditional for that reason, and a triage at retirement is the cost being refused.
+    const close = flat(skillBody('feature-close'));
+    assert.match(close, /delete it — whole/i, 'the delete is whole');
+    assert.match(close, /do not assign each line a disposition/i, 'and it is not a per-entry ceremony');
+    assert.match(flat(workflow), /no triage, no dispositions, no sweep/i, 'the contract says the same');
+    assert.match(close, /Glancing at it on the way past is fine; triaging it is not/i);
+    assert.match(flat(workflow), /it does not survive one/i, 'and the contract names the bound');
+  });
+
+  it('a non-blocking observation still dies where there is no branch to bound it', () => {
+    // `/orchestrate` has no branch and no close, so a file only it wrote is the one that outlives every
+    // branch. It keeps the old rule exactly, and says why it departs from the new one.
+    const body = flat(skillBody('orchestrate'));
+    assert.match(body, /writes no `context\/notes\.md`/i, 'it names the departure');
+    assert.match(body, /dies with the session/i, 'and keeps the end that needs no bound');
   });
 
   it('a defect against an already-done phase reopens that phase', () => {

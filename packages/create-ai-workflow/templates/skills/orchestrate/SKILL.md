@@ -109,6 +109,12 @@ it per [`context/tracking.md`](../../../context/tracking.md) and name it.
 record that outlives the session, because nothing here is half-finished in a way the next session could
 resume — the tree either carries the change or it does not.
 
+**This command writes no `context/notes.md`**, and that is the one place it departs from *What happens to a
+defect the gate found* in [`context/workflow.md`](../../../context/workflow.md). That file's cheap end is
+bounded by `/feature-close` deleting it, and an ad-hoc change has no close — so a note written here is the
+one that would outlive every branch. **An observation that is work becomes an issue; every other one goes
+in the report and dies with the session.**
+
 ## 6. Land it — read [`context/git.md`](../../../context/git.md)
 
 **Do not commit unless that file says the agent does.** If it does not exist, the answer is *the user
@@ -127,8 +133,8 @@ own**; that is the commonest way this rule gets read backwards.
 ## 7. Report
 
 What changed, whether it is committed or waiting in the tree, the Gate 1 output, the Gate 2 verdict, any
-loopbacks, any non-blocking observations the review raised, any issue filed for work that outlived the
-change, and any release note written, with the paths that were checked and owed nothing.
+loopbacks, any non-blocking observations the review raised — which die here — any issue filed for work that
+outlived the change, and any release note written, with the paths that were checked and owed nothing.
 
 ## Rules
 
