@@ -97,10 +97,11 @@ else there is one tree, and the rule reads as it always did.
 `/orchestrate` is the ad-hoc escape hatch, not the way to skip planning. It refuses anything larger than a
 commit-sized unit and anything an existing roadmap entry already covers.
 
-### Nothing commits, branches or pushes unless `git.md` says so
+### Nothing stages, commits, branches or pushes on your own initiative
 
-> **Read [`git.md`](git.md) before closing out any command that lands code. If it does not exist, or does
-> not say the agent commits, the work is left in the working tree and the user commits it.**
+> **Read [`git.md`](git.md) before any `git` or `gh` command that changes something — staging included.
+> If it does not exist, or does not say the agent commits, the work is left *unstaged* in the working tree
+> and the user commits it.**
 
 This workflow has always described phases as commit-sized and `done` as landed — which an agent, given no
 policy, resolves by committing on its own every phase. That is a call about someone else's repository, so
@@ -111,6 +112,24 @@ as the most conservative option: **where work lands** (the main working tree, a 
 worktree per feature), **whether the agent pushes and opens a pull request** (it does not), and at what
 **granularity** it commits. A push happens once per feature, at `/feature-close` — never at the end of a
 phase — and nothing here merges a pull request, deletes a branch, or removes a worktree under any answer.
+
+**Those answers authorise the commands in this workflow, at the point each one names, and nothing else.**
+*The agent commits* is permission for `/feature-implement` to close a phase it just ran, not standing leave
+to commit whatever is in the tree; *a worktree per feature* is permission for a **planned feature's** first
+phase to make one, not for an ad-hoc request to be moved into a tree of its own. Outside those points, an
+operation needs the user to ask for it in this session.
+
+**Permission is not inferred.** Choosing between approaches does not authorise any of this, even where the
+option text mentions it — and *especially* where you wrote that option text yourself. Neither does "ship
+it", nor an approved plan, nor a production incident. Wanting the work finished is not the same as wanting
+it in someone's history.
+
+**Some operations are never standing policy**, whatever `git.md` says: force-pushing, pushing to the
+default branch, and rewriting published history. Each has to be asked for by name, each time.
+
+**A worktree is created only by what [`executors.md`](executors.md) names.** If that file names no
+invocation, there is no fallback — a bare `git worktree add` is the failure this rule exists to stop, not
+the default. The same goes for removing one.
 
 ### Where this state lives is an answer, not an assumption
 

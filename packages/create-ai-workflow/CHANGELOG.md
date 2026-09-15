@@ -1,5 +1,15 @@
 # @baldurpan/create-ai-workflow
 
+## 0.18.0
+
+### Minor Changes
+
+- Git now happens on instruction and never on initiative — staging counts, permission is never inferred from
+  an approved plan or a chosen option, and force-pushing, pushing to the default branch and rewriting
+  published history are asked for by name each time. `executors.md` gains a **Branch and worktree** section
+  holding the command that makes one, so a bare `git worktree add` is no longer the fallback; run `/onboard`
+  after updating to fill in the two new stub sections.
+
 ## 0.17.0
 
 ### Minor Changes

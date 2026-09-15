@@ -114,11 +114,14 @@ resume — the tree either carries the change or it does not.
 **Do not commit unless that file says the agent does.** If it does not exist, the answer is *the user
 commits*: say so once, and name `/onboard`.
 
-**Nothing here branches or pushes**, whatever *Where work lands* and *Push and pull request* say. Both of
-those answers are about a feature — one branch or tree per entry, one push at `/feature-close` — and an
-ad-hoc change has no entry and no feature to close. It lands on whatever branch is already checked out.
+**Nothing here branches, worktrees or pushes**, whatever *Where work lands* and *Push and pull request*
+say. Both of those answers are about a feature — one branch or tree per entry, one push at
+`/feature-close` — and an ad-hoc change has no entry and no feature to close. It lands on whatever branch
+is already checked out. **A worktree answer is not permission to move an ad-hoc change into a tree of its
+own**; that is the commonest way this rule gets read backwards.
 
-- **The user commits** → leave the change in the working tree and hand it over.
+- **The user commits** → leave the change **unstaged** in the working tree and hand it over. Staging it is
+  not a head start; it is half a commit.
 - **The agent commits** → one commit, at the granularity that file names.
 
 ## 7. Report

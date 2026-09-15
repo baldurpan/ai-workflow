@@ -52,13 +52,16 @@ explicit here now, or it is lost.
 4. **Be where the work lands.** Read *Where work lands* in [`context/git.md`](../../../context/git.md).
    Only the first phase checks it — a feature's branch or tree is made once, before any of its work.
    - *The main working tree* → nothing to do.
-   - *A branch per feature* → if you are on the default branch, create this feature's branch per
-     [`context/executors.md`](../../../context/executors.md) and say so; if it already exists, switch to
-     it. Never start a phase on the default branch under this answer.
+   - *A branch per feature* → if you are on the default branch, create this feature's branch with the
+     invocation [`context/executors.md`](../../../context/executors.md) names under *Branch and worktree*,
+     and say so; if it already exists, switch to it. Never start a phase on the default branch under this
+     answer. **If that section names nothing, stop and ask** — do not fall back to `git checkout -b`.
    - *A worktree per feature* → if this working tree's branch is not this feature's, **stop.** Name the
-     tree the work belongs in, and how `executors.md` says to create one if it does not exist. Do not
-     create it from here and do not carry on in the wrong tree: under this answer the working directory
-     *is* the feature, and a session cannot relocate itself into a tree it has just made.
+     tree the work belongs in, and the invocation `executors.md` names for creating one if it does not
+     exist. Do not create it from here and do not carry on in the wrong tree: under this answer the working
+     directory *is* the feature, and a session cannot relocate itself into a tree it has just made.
+     **Never improvise the command** — a bare `git worktree add` skips whatever the recorded one does
+     around it, and `executors.md` says why.
 5. Set the marker to `active`, in this working tree. One token, one place — do not move the entry, add a
    section, or write a summary line anywhere. Under the worktree answer that marker never leaves the tree,
    and that is what lets several features hold one at once.
@@ -233,8 +236,9 @@ It is the only place this project's answer lives, the same way `verify.md` is th
 live. If it does not exist — an install from before it shipped — the answer is *the user commits*: say so
 once, and name `/onboard`.
 
-- **The user commits** → leave the change in the working tree, ledger row and all. Report it, hand it over,
-  and stop. Do not stage-and-commit "to be helpful".
+- **The user commits** → leave the change **unstaged** in the working tree, ledger row and all. Report it,
+  hand it over, and stop. Do not stage-and-commit "to be helpful", and do not stage without committing
+  either — `git add` is the first half of a commit, and it edits what the user's own commit would capture.
 - **The agent commits** → the code and the ledger row in one commit, at the granularity that file names, on
   the branch step 2 put you on.
 

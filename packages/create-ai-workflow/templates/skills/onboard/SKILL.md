@@ -25,7 +25,7 @@ Read [`context/workflow.md`](../../../context/workflow.md) for the tier model.
 | File | Gets |
 |---|---|
 | [`context/verify.md`](../../../context/verify.md) | the real Lint / Typecheck / Build / Test commands, plus whatever else a phase should pass — **only ones that exited 0** |
-| [`context/executors.md`](../../../context/executors.md) | how this project dispatches a coder and a reviewer |
+| [`context/executors.md`](../../../context/executors.md) | how this project dispatches a coder and a reviewer, and the exact command that makes a branch or a worktree |
 | [`context/git.md`](../../../context/git.md) | who commits, where work lands, whether it is pushed, and at what granularity |
 | [`context/tracking.md`](../../../context/tracking.md) | where the backlog, the plans and the phase ledgers live |
 | [`context/release.md`](../../../context/release.md) | what a change here announces and to whom, what records a note, and how often |
@@ -55,7 +55,8 @@ Break what you read into claims — a paragraph, a table row, a bullet — and p
 | where the project's own documentation lives, or how it is published | `context/stack.md`, its Documentation section |
 | a lint, typecheck, build or test command | a **candidate** for `context/verify.md` — Step 7 still has to run it |
 | how a coder or a reviewer is dispatched | `context/executors.md` |
-| a rule about who commits, or when work is committed | `context/git.md` |
+| a rule about who commits, when work is committed, or what may be pushed | `context/git.md` |
+| the command this project uses to make a branch or a worktree | `context/executors.md` |
 | a rule about what deserves a changelog entry or a release note, or what is published where | `context/release.md` |
 | a rule the bundled standards already state | nowhere — the standards own it. Ask before dropping |
 | planning or review process this workflow now owns | nowhere — superseded. Ask before dropping |
@@ -171,15 +172,33 @@ If the answers collide, say so and ask again rather than writing a pair that can
 
 Write the surviving line in each of the four sections and delete the others, including the commented-out
 alternatives. Keep the **Under the worktree answer** subsection only under that answer; delete it otherwise.
-If `context/git.md` does not exist — an install from before it shipped — create it with all four sections
-and the rules that hold either way.
+If `context/git.md` does not exist — an install from before it shipped — create it with all four sections,
+**What no answer here authorises**, and the rules that hold either way.
+
+**Never negotiate away *What no answer here authorises*.** It is not one of the questions. Whatever is
+chosen above, that section is written out as shipped: the answers cover the workflow's own commands at the
+point each one names, permission is never inferred from an approved plan or a chosen option or an urgent
+incident, and force-pushing, pushing to the default branch, rewriting published history and discarding
+uncommitted work are asked for by name every time. **Say in one line that it was written and what it
+means** — a user who just chose *the agent commits* has every reason to think they authorised more than
+they did, and this is the one moment to correct that.
 
 **Two things to settle out loud under the branch and worktree answers:**
 
-- **How a branch or a worktree is created is not this file's answer** — it is `executors.md`'s, for the same
-  reason the reviewer's invocation is. Collect the invocation and record it there alongside Step 3's, and
-  under the worktree answer collect how to ask whether an agent session is live in a tree, if there is a way
-  — `/feature-status` reports it when there is and says it cannot tell when there is not.
+- **How a branch or a worktree is created is not `git.md`'s answer** — it is `executors.md`'s *Branch and
+  worktree* section, for the same reason the reviewer's invocation is. **Collect the exact invocation and
+  write it there**, alongside Step 3's. Under the worktree answer also collect how the tree is *removed*,
+  and how to ask whether an agent session is live in one — `/feature-status` reports that where there is a
+  way and says it cannot tell where there is not.
+
+  **Do not let this be answered with "`git worktree add`".** A worktree CLI copies the gitignored env
+  files, enforces the naming, puts the directory somewhere predictable and hands the tree to an editor or
+  an agent; the bare git command does none of it, and a tree made that way is missing the half that made
+  the answer worth choosing. If the user has no such command, say so plainly — a shipped **Not
+  configured** here means the workflow makes no worktree at all, which is a real answer and a safe one.
+  One that exists is [`@northguild/worktree`](https://github.com/northguild/worktree) —
+  `npx @northguild/worktree branch <name>` to create, `remove` to delete, `list --agents` for the
+  live-session probe. Offer it as a known option, not as the answer; any command the user names wins.
 - **`context/history.md` will conflict on every merge**, because every `/feature-close` appends to its end.
   Offer to add `context/history.md merge=union` to the repository's `.gitattributes`. It is the only file
   in the tree with that shape — a plan's ledger is edited in place rather than appended to, so a union

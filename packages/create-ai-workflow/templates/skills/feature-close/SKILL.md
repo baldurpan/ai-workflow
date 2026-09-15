@@ -178,6 +178,11 @@ is the only command in the workflow that acts on that answer.
   body is the plan's summary and the phases it landed; link the archived plan at its **new** path, the one
   the sweep just rewrote everything else to.
 
+**A plain push of this feature's branch, and nothing else.** If it will not fast-forward, **stop and say
+so** — force-pushing, pushing to the default branch and rewriting published history are asked for by name
+each time, under every answer, and this command has not been given that. That the push is the last step of
+a finished feature does not change it.
+
 **Both gates have already passed on every phase** — that is what the ledger check at the top of this mode
 enforced. A pull request is where finished work goes to be read by a person, not where unfinished work goes
 to be verified.

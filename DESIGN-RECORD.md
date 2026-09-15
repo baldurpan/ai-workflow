@@ -864,6 +864,84 @@ independent reader sat three directories away.
   expects more of is a gap that machinery cannot see, and widening it to notice would mean recording stub
   state in the manifest — the one thing §6.2 refused.
 
+### 4.7 The answers were not permission — and the worktree command had nowhere to live
+
+§4.4 and §4.5 settled *what the workflow's commands do about git*. The field report behind this section is
+a different failure and the four answers do not touch it: **agents creating worktrees and branching without
+being asked, and committing.** Not while closing out a phase — while doing anything.
+
+**The scope was implicit, and an implicit scope reads as a grant.** Every answer in `git.md` is written from
+inside a command: *the agent commits* means `/feature-implement` closes a phase it just ran; *a worktree per
+feature* means a **planned feature's** first phase gets a tree. Nothing said so. A file headed "who commits"
+that answers "the agent" reads, to a reader looking for permission, as *the agent may commit* — and §4.4's
+own lesson applies to itself here. An unstated premise is not neutral, and *these answers cover this command
+at this point, and nothing else* was exactly as unstated as *who commits* had been.
+
+**Staging was absent from every list for four versions.** "Nothing commits, branches or pushes", "leave the
+change in the working tree" — all satisfiable by an agent that runs `git add -A` first. `git add` is the
+first half of a commit and it edits what the user's own `git commit` would capture, so the handover is now
+specified as *unstaged*, in the stub, in `workflow.md`, and in both commands that hand a tree over.
+
+**Permission is not inferred, and the sharpest case is self-granted.** The rule enumerates what does not
+authorise: an approved plan, "ship it", a production incident, and — the one worth naming explicitly — a
+user choosing between approaches whose option text mentioned committing. That last one is the agent writing
+the consent it then reads back. A user picking an option for its other merits has not agreed to the verbs
+buried in its description, and an agent that wrote those verbs is not entitled to treat them as a request.
+
+**Three operations are never standing policy**, whatever the four answers say: force-pushing, pushing to the
+default branch, and rewriting published history. They join `git reset --hard`, `git clean` and stashing
+someone else's changes, which are not pushes at all but share the property that matters — uncommitted work
+has no second copy. `/feature-close` is the only command that pushes, and it now stops rather than force-push
+a branch that will not fast-forward.
+
+**Where it lives is decided by which files `update` can reach.** The rule is invariant — it is not a
+per-project answer, so it does not belong in a stub the way *who commits* does. It went into `workflow.md`
+and the `AGENTS.md` block, both tool-owned, so an existing install gets it on `update` with no `/onboard`.
+`git.md` keeps only the half that is genuinely about its own answers — **What no answer here authorises** —
+as a new `##` heading, because a heading is what §6.2's gap report can see and the same words inside an
+existing section would reach nobody. Verified against a published 0.17.0 install: `update --dry-run` names
+both new sections unprompted and points at `/onboard`. That is the third consumer of that machinery.
+
+**`/onboard` writes that section instead of asking about it.** Every other thing Step 4 touches is a
+question, and making this one a question would let it be negotiated away in exactly the sessions that most
+need it. It is written as shipped and *reported* in a line — because a user who has just chosen *the agent
+commits* has every reason to think they authorised more than they did, and that is the moment to say
+otherwise.
+
+#### The worktree command had no home, which is why one got invented
+
+`git.md` said how a worktree is created "is `executors.md`'s business." `/onboard` Step 4 said to "collect
+the invocation and record it there." **`executors.md` had a Coder section and a Reviewer section and
+nothing else.** Two files pointed at a destination that did not exist, so nothing on disk ever named a
+worktree command — and an agent told to make a worktree with no command recorded reaches for
+`git worktree add`, which is the observed behaviour and is not really the agent's mistake.
+
+So `executors.md` gains **Branch and worktree**, the third thing this project dispatches. It ships **Not
+configured — the workflow creates no branch and no worktree**, and that is a real answer rather than a gap:
+under the main-working-tree answer it is correct, and everywhere else an empty section means *stop and ask*,
+never *improvise*. The refusal is written at the point the temptation occurs — in the stub, and again in
+`/feature-implement` step 4, which is the one place a command would reach for it.
+
+**Why a bare `git worktree add` is wrong even though it works.** It produces a directory that is a worktree
+and is missing everything around it: the gitignored env files a real setup copies, the naming convention,
+the predictable parent directory, the editor or agent the tree is handed to. The result looks right and
+fails later, which is the worst shape of wrong. That reasoning is portable; the command that embodies it is
+not, which is why only the reasoning ships.
+
+**Rejected — naming the CLI in the templates.** `@northguild/worktree` is what these repositories actually
+use, and hardcoding `worktree branch <name>` into `git.md` would be the most direct enforcement available.
+It was refused for §4.3's reason, which is the reason `executors.md` exists at all: a skill that names a
+command bakes one machine's setup into a tool that installs everywhere, and this is the same shape as the
+`--add-dir "$HOME/Library/pnpm"` the reference baked into its skill. What ships is the *rule* — a worktree
+is made by the recorded command or not at all — and `/onboard` names `@northguild/worktree` as a known
+option while accepting anything. A recommendation inside a question is not an execution path: the user
+overrides it by answering, and nothing runs it unless they wrote it down. A test enforces the boundary —
+the invocation may appear in `/onboard` and nowhere else in `templates/`.
+
+**The one thing this bought beyond the rule.** `worktree list --agents` answers "is an agent session live in
+this tree", which §4.5 left as a question `/onboard` asks and `/feature-status` reports when it can. The new
+section is where that probe is recorded, so a gap named a version ago now has a slot rather than a mention.
+
 ---
 
 ## 5. Agent-agnostic distribution

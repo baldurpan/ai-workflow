@@ -142,6 +142,93 @@ describe('one home for git etiquette', () => {
   });
 });
 
+describe('git happens on instruction, never on initiative', () => {
+  // The field report behind this: agents creating worktrees and branches nobody asked for, and committing.
+  // §4.4 named the unstated-premise failure and §4.5 added the answers; both are about what the *workflow's
+  // commands* do. What was missing is the rule one level up — that those answers are not standing leave to
+  // use git, and that nothing else grants it. The rule is invariant, so it lives in tool-owned files that
+  // `update` actually reaches; git.md carries the half that is about what its own answers do not cover.
+
+  it('the standing rule names staging, which is half a commit', () => {
+    // `git add` was absent from every list for four versions, so "leave it in the working tree" was
+    // satisfiable by an agent that staged everything first — editing what the user's own commit captures.
+    const workflow = readTemplate('context/workflow.md');
+    assert.match(workflow, /\bstages?\b/i, 'workflow.md names staging');
+    assert.match(workflow, /\bunstaged\b/i, 'and says what the handover looks like');
+    assert.match(agentsBlockBody(), /\bstage\b/i, 'the always-loaded block names it too');
+    for (const name of ['feature-implement', 'orchestrate']) {
+      assert.match(skillBody(name), /\bunstaged\b/i, `${name} hands over an unstaged tree`);
+    }
+  });
+
+  it('permission is never inferred, and the option-text case is named', () => {
+    // The sharpest failure is self-granted: the agent writes an option whose text mentions committing, the
+    // user picks that option for its other merits, and the agent reads its own words back as consent.
+    const homes = [readTemplate('context/workflow.md'), readTemplate('stubs/git.md')];
+    for (const text of homes) {
+      assert.match(text, /not inferred/i, 'the rule is stated as such');
+      assert.match(text, /option text/i, 'and the option-text case is named explicitly');
+    }
+  });
+
+  it('the operations that are never standing policy are listed by name', () => {
+    // These are the ones no `git.md` answer may authorise, however the four questions were answered.
+    const git = readTemplate('stubs/git.md');
+    for (const op of [/force-push/i, /default branch/i, /rewriting published history/i]) {
+      assert.match(git, op, `git.md names ${op}`);
+    }
+    assert.match(readTemplate('context/workflow.md'), /never standing policy/i, 'workflow.md says it too');
+  });
+
+  it('git.md carries the section as a heading, so `update` reports it to old installs', () => {
+    // A stub is project-owned and `update` cannot write one. A new `##` is what stubGaps reports and what
+    // sends an existing install to /onboard; the same words inside an existing section reach nobody.
+    const heading = sections(readTemplate('stubs/git.md')).find((s) => /authorise/i.test(s));
+    assert.ok(heading, 'the rule is its own ## section');
+  });
+
+  it('/onboard writes that section rather than asking about it', () => {
+    // Every other thing Step 4 touches is a question. This one is not, and an /onboard that offered it as
+    // a choice would let the answer be negotiated away in exactly the sessions that most need it.
+    const onboard = skillBody('onboard');
+    assert.match(onboard, /Never negotiate away/i, 'it is written, not asked');
+    assert.match(onboard, /What no answer here authorises/, 'and it names the section it writes');
+  });
+});
+
+describe('a worktree is made by the recorded command or not at all', () => {
+  // git.md said "how one is created belongs in executors.md" and /onboard said to record it there — but
+  // executors.md had only Coder and Reviewer, so there was nowhere to put it. Nothing on disk named a
+  // worktree command, which is how an agent arrives at `git worktree add` and a tree with no env files.
+
+  it('executors.md has a section to hold the invocation', () => {
+    const heading = sections(readTemplate('stubs/executors.md')).find((s) => /Branch and worktree/i.test(s));
+    assert.ok(heading, 'the third dispatch answer has a home');
+  });
+
+  it('an empty section means no worktree, not an improvised one', () => {
+    const executors = readTemplate('stubs/executors.md');
+    assert.match(executors, /git worktree add/, 'the tempting fallback is named');
+    assert.match(executors, /Never run a bare/i, 'and refused');
+    assert.match(
+      skillBody('feature-implement'),
+      /Never improvise the command/i,
+      'the command that would make one says so at the point it would',
+    );
+  });
+
+  it('no template hardcodes a worktree invocation outside the step that asks for one', () => {
+    // §4.3: a skill that names a command bakes one machine's setup into a tool that ships everywhere.
+    // /onboard is the exception by design — it *asks*, and a named example there is a suggestion the user
+    // overrides. Anywhere else it would be an execution path nobody chose.
+    for (const { rel, text } of ourTemplates()) {
+      if (rel === path.join('skills', 'onboard', 'SKILL.md')) continue;
+      const hit = /@northguild\/worktree|\bworktree (branch|checkout|cleanup)\b/.exec(text);
+      assert.equal(hit, null, `${rel} hardcodes a worktree invocation: ${hit?.[0] ?? ''}`);
+    }
+  });
+});
+
 describe('one home for the tracker', () => {
   // §10.8: the skills describe the *fact* they need and `tracking.md` says how this project answers it.
   // A forge command in a skill is the same failure as a verification command in one — it hardcodes a

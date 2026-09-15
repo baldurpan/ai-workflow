@@ -1,12 +1,14 @@
 # Executors
 
-How this project dispatches a **coder** and a **reviewer**. Hand-written prose, read fresh at dispatch
-time — the exact parallel to [`verify.md`](verify.md), and for the same reason: a skill that hardcodes an
-invocation bakes one machine's setup into a tool that ships everywhere.
+How this project dispatches a **coder** and a **reviewer**, and how it creates a **branch or worktree**.
+Hand-written prose, read fresh at dispatch time — the exact parallel to [`verify.md`](verify.md), and for
+the same reason: a skill that hardcodes an invocation bakes one machine's setup into a tool that ships
+everywhere.
 
-Each has three answers: **in-host** directly, **in-host but isolated** in a subagent, or **offloaded** to
-an external CLI. The middle one is described in terms of what it does, never by naming a runtime's
-primitive — a host that has no subagent mechanism reads it and falls back to the first.
+The coder and the reviewer each have three answers: **in-host** directly, **in-host but isolated** in a
+subagent, or **offloaded** to an external CLI. The middle one is described in terms of what it does, never
+by naming a runtime's primitive — a host that has no subagent mechanism reads it and falls back to the
+first. *Branch and worktree* is not one of those three: it is a command or it is nothing.
 
 Run `/onboard` to fill this in.
 
@@ -56,6 +58,36 @@ Run `/onboard` to fill this in.
      answer means.
 
      **Offloaded to `<the exact invocation>`.** -->
+
+## Branch and worktree
+
+<!-- Fill this in only where [`git.md`](git.md)'s *Where work lands* is a branch or a worktree per feature.
+     Under the main-working-tree answer the workflow creates neither, and this section stays as shipped.
+
+     Write the exact invocation, the way the coder's is written. A worktree CLI usually also handles the
+     env-file copying, the editor, and the removal — record those too, and anything it needs configured
+     on this machine before it works. /onboard asks for all of it.
+
+     If there is a way to ask whether an agent session is live in a tree, record that command as well:
+     /feature-status reports it where there is one and says it cannot tell where there is not. -->
+
+**Not configured — the workflow creates no branch and no worktree.**
+
+<!-- **A branch is created by `<the exact invocation>`.**
+
+     **A worktree is created by `<the exact invocation>`**, removed by `<the exact invocation>`, and the
+     live-session probe is `<the exact invocation, or none>`. -->
+
+### This section is the only way one gets made
+
+**Never run a bare `git worktree add`, `git branch` or `git checkout -b` because this section is empty.**
+An empty section means the workflow makes neither — not that it should improvise one. A worktree made by
+hand skips whatever the recorded command does around it: the env files it copies, the naming it enforces,
+the place it puts the directory, the editor or agent it hands the tree to. The result looks like a worktree
+and is missing the half that made the answer worth choosing.
+
+The same holds for removing one. Nothing in this workflow removes a worktree at all — but where a person
+asks for it, the command here is what runs.
 
 ## The contract, whatever is configured
 

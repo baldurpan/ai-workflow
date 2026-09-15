@@ -3,16 +3,17 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 2296 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 2995 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 225 tests. The 121 in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 234 tests. The 130 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
-   for commands, one home for dispatch, one home for git etiquette, one home for the tracker, no
+   for commands, one home for dispatch, one home for git etiquette, git on instruction rather than on
+   initiative, a worktree made by the recorded command or not at all, one home for the tracker, no
    self-declared status, inert stubs, a ledger row that opens before the work, a substrate answer that
    never strands the data it names, a `--all` loop that stops where a single run stops, a plan too large
    for its home being split rather than trimmed, documentation reaching the plan, an answer file that may
@@ -31,6 +32,20 @@ also the first release cut from accumulated notes in this repository, so
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**, and `main` now carries
 **0.17.0** — **§10.14**, `blocked by` between features, which is the first thing a live agent running the
 tracker answer has asked for.
+
+**Pending release: §4.7**, the fourth field report in a row and the second about git. §4.4 asked *who
+commits* and §4.5 asked *where work lands*; both answer what the **workflow's commands** do, and the
+observed failure was outside all of them — worktrees and branches created unasked, and commits, while doing
+anything at all. The scope of those answers was implicit and an implicit scope reads as a grant, which is
+§4.4's own lesson turned on §4.4. Staging had also been absent from every list for four versions, so *leave
+it in the working tree* was satisfiable by an agent that ran `git add -A` first. The rule — **never on your
+own initiative, permission never inferred, and force-push / default-branch / rewriting published history
+asked for by name** — is invariant rather than per-project, so it lives in `workflow.md` and the `AGENTS.md`
+block where `update` reaches it; only **What no answer here authorises** is a new `git.md` section.
+**`executors.md` gains *Branch and worktree*** — two files had been pointing at a destination that did not
+exist, which is why nothing on disk ever named a worktree command and why an agent reached for
+`git worktree add`. The CLI those repositories use is named in `/onboard`'s question and nowhere else in
+`templates/`, per §4.3, and a test holds that line.
 
 **§13 came from a question rather than a field report** — *are we missing things for quality assurance,
 like a11y and performance?* Two gaps with one symptom, and **neither was a missing standard**: the vendored
