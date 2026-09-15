@@ -3203,3 +3203,63 @@ different name.
 **The project's own bug label already is the answer.** `tracking.md` has always said the workflow leaves a
 project's labels alone and reads exactly one bit. What was missing was never a label — it was the sentence
 saying a bug is outside that bit, and a command that could act on one.
+
+## 16. The audit question — two homes that existed, and one axis that did not
+
+Asked whether the workflow needs an auditing skill, or an agent that runs a dependency audit and files what
+it finds into the roadmap. **Both halves were refused by rules already on the books, and the residue was
+two sentences.** The section is worth keeping for the refusals rather than for what shipped.
+
+### 16.1 Rejected — a skill
+
+A dependency audit is named after one ecosystem's tool, and this package installs into repositories that
+have no such tool. That is **§11.9's argument verbatim**: a skill named after a JavaScript command is
+inherited by every Go and Python install, where it is nonsense, and its own `name:` line is what the
+neutrality tests exist to catch.
+
+Written neutrally instead, the skill's entire body becomes *run this project's audit command* — and **§4.2
+already owns that string**. `verify.md` is the one home for a command, the test enforces it, and a skill
+whose whole content is a pointer at a file the gates already read has nothing left in it.
+
+### 16.2 Rejected — an agent that files advisories into the backlog
+
+**§15 is the commit before this one, and this is the same defect arriving from outside.** A gate was applying the
+backlog label to real defects, one repository reached fourteen of them ranking against its actual roadmap,
+and the invariant that came out of it is *nothing enters the backlog except through `/roadmap`*.
+
+An auditor filing advisories is that shape at machine speed: one run against a mid-sized lockfile emits
+dozens of entries, most of them transitive and many unreachable, none carrying the `Size:` or `Priority:`
+the ranking reads, none having met the worth-adopting test. **§15.3's fourth writer, wearing a schedule.**
+An advisory is a bug, and §15 routed bugs already — the project's own bug label, and
+`/orchestrate #<issue>` to act on one.
+
+### 16.3 The two questions the word was hiding
+
+*Does this change introduce a vulnerability* is change-triggered, and §13 built the home for it two versions
+ago: a heading of one's own in `verify.md`, or a line under *Not run by Gate 1* naming what runs it. Nothing
+new was needed. **What was missing is that `/onboard` Step 7 never mentions the category** — its examples
+are an end-to-end run, an accessibility suite, a size budget, a coverage floor, a visual snapshot. A project
+never asked never answers, which is §13's own complaint one row down.
+
+*Did the world change under a dependency nobody touched* is time-triggered, and the loop has no such shape:
+every command here is keyed to a change. **That stays out, and §11.2 is why** — this tool ships no YAML and
+generates no job. The ecosystem's watchers run on a clock, file natively, and usually arrive as a lockfile
+change that never enters the loop at all.
+
+### 16.4 Cost was the wrong axis, and it took this case to show it
+
+Step 7 sorts a check by **whether Gate 1 can afford it**, and `verify.md`'s rule says the same. A dependency
+audit is cheap — seconds — so both files sort it into a gate section, and both are wrong. **It turns red
+when an advisory is published against a lockfile nobody touched**, so a gate that runs it blocks the next
+phase for a condition that phase did not cause, and the phase's only way out is a fix nobody planned.
+
+So the sort is two questions and had one: **cost first, attribution second.** The general form is worth
+more than the case — *a check that can fail with nothing in the diff is not a phase gate, however fast it
+runs* — and it is the first entry in `verify.md` whose section is decided by something other than the
+clock. The exception is stated rather than assumed: a project that holds the check clean as a standing
+invariant has decided that a red one **is** this change's problem, and there it belongs in a gate like
+anything else.
+
+**The four gate headings never needed this rule** because none of them can fail without a diff. That is why
+the axis was missing rather than wrong: §13 opened the file to checks the four do not cover, and this is the
+first one that fails on the calendar.

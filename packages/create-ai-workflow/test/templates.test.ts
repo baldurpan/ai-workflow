@@ -1543,6 +1543,23 @@ describe('Gate 1 reads a list, not four headings', () => {
     // check nobody runs, which is a different and much worse fact.
     assert.match(onboard, /\*\*Name what does run each one\*\*/);
   });
+
+  // Cost was the only axis the sort had, and it cannot place a check the calendar fails. A dependency
+  // audit is cheap enough for any gate and turns red when an advisory is published against a lockfile
+  // nobody touched — so a gate that runs it blocks the next phase for a condition that phase did not
+  // cause. The sorting question is therefore two questions, and both files ask the second one.
+  it('a check a change does not cause is sorted out of the gate, however cheap it is', () => {
+    const verify = flat(readTemplate('stubs/verify.md'));
+    assert.match(verify, /attribution is the second/);
+    assert.match(verify, /holds the check clean as a standing invariant/, 'the exception is stated');
+    assert.match(verify, /a dependency audit/, 'the case that produced the rule is named');
+
+    const onboard = flat(skillBody('onboard'));
+    assert.match(onboard, /whether a change is what makes it fail/);
+    assert.match(onboard, /holds the check clean as a standing invariant/);
+    // Asked nowhere is answered nowhere: the example list is the only place the category comes up at all.
+    assert.match(onboard, /a visual snapshot, a dependency audit/);
+  });
 });
 
 describe('what a feature waits on is a relationship, not a sentence', () => {

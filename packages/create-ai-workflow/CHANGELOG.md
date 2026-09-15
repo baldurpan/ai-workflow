@@ -1,5 +1,13 @@
 # @baldurpan/create-ai-workflow
 
+## 0.20.0
+
+### Minor Changes
+
+- `/onboard` now asks about a dependency audit along with the other checks the four gate headings miss, and
+  `context/verify.md` says where one belongs: a check that can turn red with nothing in the diff is not a
+  phase gate however cheap it is, unless the project holds it clean as a standing invariant.
+
 ## 0.19.0
 
 ### Minor Changes

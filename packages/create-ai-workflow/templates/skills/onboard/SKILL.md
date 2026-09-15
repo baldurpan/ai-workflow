@@ -351,15 +351,20 @@ covers, this is the moment that matters: keeping both means the project has two 
    be up.
 3. **Ask what else this project runs to prove a change is good.** The four headings are the ones every
    project has, not the whole of what one checks — an end-to-end run, an accessibility suite, a size
-   budget, a coverage floor, a visual snapshot. **Ask specifically about the end-to-end one wherever this
-   project has a user interface**, because it is the check most often configured, run in one pipeline, and
-   never written down anywhere a per-task gate can see it. A project with such a check and nowhere to
-   record it is a project where Gate 1 reports green for a change that broke it.
+   budget, a coverage floor, a visual snapshot, a dependency audit. **Ask specifically about the end-to-end
+   one wherever this project has a user interface**, because it is the check most often configured, run in
+   one pipeline, and never written down anywhere a per-task gate can see it. A project with such a check
+   and nowhere to record it is a project where Gate 1 reports green for a change that broke it.
    **Then sort each one by whether Gate 1 can afford it.** Gate 1 runs on every phase, so anything measured
    in minutes, or needing a browser, a running server, a built artifact or a deploy, goes under **Not run
    by Gate 1**. Anything faster goes in whichever of the four it belongs to — a lint rule that reads markup
    is Lint, an assertion inside the test run is Test — or under **a heading of its own**, above *Not run by
    Gate 1*, where it fits none of them. Gate 1 runs every section above that one.
+   **Then ask of everything still bound for a gate section whether a change is what makes it fail.** A
+   dependency audit is cheap enough for any gate and still belongs under *Not run by Gate 1*: it turns red
+   when an advisory is published against a lockfile nobody touched, and a phase gate cannot tell that from
+   a defect the phase introduced. Ask before sorting one there — a project that holds the check clean as a
+   standing invariant has decided the opposite, and for that project a red one is this change's problem.
 4. **Run every candidate bound for a gate section.** Actually run it, from the repo root. One sorted
    under *Not run by Gate 1* is not run here — this command has no Docker, no deploy target and no
    reason to spend minutes driving a browser — and step 6 says what is recorded in its place.
