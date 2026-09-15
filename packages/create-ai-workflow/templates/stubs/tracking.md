@@ -56,6 +56,7 @@ rewrite of this section rather than of the skills. A command asks for the *fact*
 | what gets planned next | the issue body's `Priority:` line |
 | which features have to land before this one | the issue's **blocked by** relationships |
 | how much a plan may hold | the issue body's size limit — **65,536 characters** |
+| how a change closes one | `Closes #<n>`, in the pull request body where there is one and in the commit message otherwise |
 
 **The ledger is one table, and it is the same one a plan document carries** — `#`, `Phase`, `Depends on`,
 `Status`, `Note`, with a `Files:` line in each phase's own section. Nothing about its shape changes between
@@ -200,6 +201,11 @@ written down anywhere, and a file that tracked it would be a cache of something 
 - **`notes.md` is a file in the working tree under both answers**, written by a phase's review and deleted
   whole by `/feature-close`. Nothing reads it, so there is no fact in it for a substrate to hold, and it is
   not a thing this file has an answer about.
+- **A bug is not a backlog entry**, under either answer. The backlog holds **features** — work you would
+  want a `history.md` row for. A defect goes wherever this project already files bugs, keeping this
+  project's own labels, and nothing in the workflow reads it, ranks it or carries it. The label above is
+  the one bit this workflow adds to an issue, and a bug is outside it — which is also why the label is
+  `/roadmap`'s to apply and no gate's.
 - **Neither `history.md` nor `archive/` is ever converted, in either direction.** Fabricating closed
   issues for features shipped months ago produces wrong dates, empty threads and an audit trail that looks
   real and is not. Under the tracker answer they stay as the frozen record of the era before the switch —

@@ -3112,3 +3112,94 @@ this one. **When a store is deleted its contents go somewhere, and that somewher
 when nobody makes it.** §12 made the deletion and left the destination to a clause that already existed for
 the rare case. The rare case was then asked to carry everything — into the list the user actually reads —
 and it did what any unbounded destination does.
+
+
+---
+
+## 15. A bug is the third category — and why `findings.md` could never close one
+
+§14 fixed how much Gate 2 files. This fixes **where it files it**, which is the half that produced the
+complaint in the first place: a list of features with fourteen defects ranking inside it.
+
+### 15.1 `findings.md` was gate state, not a bug list
+
+Asked whether holding real bugs was ever the point of that file, the answer is in its own shipped contract:
+
+> **Tied to.** Either a phase — `<feature-name> Phase <n>` — or `ad-hoc`.
+> **Gating.** An open `P0` or `P1` tied to a phase blocks that phase from being marked `done`.
+> **Closing.** A finding closes when **the gate that raised it re-passes**, citing that run.
+> **Bound.** This file must not grow for the life of the project.
+
+Phase-scoped, gating, closed by a gate re-running, and required not to grow. **A bug tracker is the
+opposite on all four** — repository-scoped, gating nothing, closed when a fix ships, and growing as long as
+there are bugs.
+
+### 15.2 And that is why it failed, more precisely than §12 said
+
+`P2` was defined as *"a real defect that does not block."* Apply the closing rule to it. Non-blocking means
+its phase's gate **already passed** — so there is no gate left to re-pass. **A real bug could never close.**
+
+§12.1's 35 open findings against five shipped features were not neglect, and not really a severity problem
+either: **two of the four severities named things the machinery could not dispose of.** `P2` was a bug and
+`P3` was a note, sitting in a mechanism built for the two values a gate could re-check. §12 read the
+symptom — an unbounded file and a second vocabulary — and deleted the file, which was right. §14 gave `P3`
+a home that expires. This section gives `P2` the one it always needed, which was never this workflow's to
+provide.
+
+### 15.3 The line that routed defects into the feature backlog
+
+`/feature-implement` §9 said a qualifying finding *"belongs in the backlog per `tracking.md`"*, and
+`tracking.md` says the backlog is the issues carrying the label. A gate reading both together does the only
+thing it can: **applies the label itself.**
+
+That skips `/roadmap` entirely — and `/roadmap` is where the worth-adopting test lives (*adopt it only if
+you would want a history row for it; an issue smaller than that is `/orchestrate` work — never labelled,
+never in the backlog*) along with the `Priority:` line the ranking reads. The shapes are visible in the
+field:
+
+| Origin | Title | `Priority:` | `Size:` |
+|---|---|---|---|
+| `/tracking-migrate` | kebab-case name | yes | yes |
+| Gate 2 | a prose sentence | **no** | **no** |
+
+So the gate was appending to the backlog while skipping the one test that decides whether something belongs
+there, and producing entries missing what ranks them. **The rule is now that a gate never applies the
+label.** Where a finding really is a feature, the gate names `/roadmap` and stops.
+
+**Stated as an invariant rather than a prohibition: nothing enters the backlog except through `/roadmap`.**
+Three commands write the label and a flat *only `/roadmap` may* would break two of them for no gain —
+`/tracking-migrate` carries an existing backlog out of the working tree onto the tracker, and
+`/feature-plan` splits one entry already in it into several, writing the `Size:` and `Priority:` an entry
+needs. **Neither admits new work**, so the worth-adopting test is still applied exactly once per entry, at
+the only moment anyone is deciding whether to have it at all. A fourth writer would be a way in that skips
+that decision, which is precisely what the gate had become.
+
+The guard is a test rather than prose, and it distinguishes reading from writing: *"the open issues
+carrying the backlog label"* is how half these commands find the backlog, so only a sentence that both
+names the label and applies one is a violation — and only if it is not a refusal.
+
+### 15.4 `/orchestrate #<issue>` — the route a bug had no way to take
+
+Naming the category is not enough on its own, because a task-sized defect had nowhere to go *through*. The
+loop had two shapes: a feature, which is planned, and a task, which `/orchestrate` runs and which is not
+written down at all. A bug is recorded and not planned, and `/orchestrate` only took prose — so the tracker
+and the work never touched, and closing the issue was a separate act somebody had to remember.
+
+The second usage form reads the issue as the brief and puts `Closes #<issue>` in the commit, so the close
+rides the change the way `/feature-close` already makes it ride a pull request. It refuses an issue
+carrying the backlog label, since that one is a feature whatever its size looks like from here. **It adds
+no vocabulary** — it works on `bug`, on `enhancement`, on an unlabelled issue, on whatever the project
+already uses.
+
+### 15.5 Rejected — a `workflow:task` or `workflow:bug` label
+
+Proposed as the obvious home for the category. §10.4's test refuses it: **does the primitive let a fact be
+observed, or does it require a stored copy someone maintains?** It admitted two stored labels and §10.10
+has since killed one. A second ownership label fails twice — **nothing would read it**, and the only
+candidate reader is `/orchestrate`, which would then have a queue. `workflow.md` calls that command the
+ad-hoc escape hatch; an escape hatch with a queue needs ranking, then priority, and is Tier 1 with a
+different name.
+
+**The project's own bug label already is the answer.** `tracking.md` has always said the workflow leaves a
+project's labels alone and reads exactly one bit. What was missing was never a label — it was the sentence
+saying a bug is outside that bit, and a command that could act on one.

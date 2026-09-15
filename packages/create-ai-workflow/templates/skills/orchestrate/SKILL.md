@@ -19,7 +19,15 @@ Read [`context/workflow.md`](../../../context/workflow.md) for the gate contract
 
 ```
 /orchestrate "<what to do>"
+/orchestrate #<issue>              # the issue is the brief
 ```
+
+**The second form is how a bug reaches this loop.** A defect too small to plan has no backlog entry and
+never will — *A bug is not a backlog entry* in [`context/workflow.md`](../../../context/workflow.md) says
+why — so without it the tracker and the work never touch, and closing the issue is a separate thing
+somebody remembers. Read the issue per [`context/tracking.md`](../../../context/tracking.md)'s repository
+answer and use its title and body as the brief; **quote nothing back into a new description.** Where that
+file names no tracker, this form has nothing to read: say so and ask for the work as a sentence.
 
 ## 1. Refuse, before anything else
 
@@ -30,6 +38,9 @@ Two guards, or this becomes the way to skip planning:
    scope would need to be split into, and name `/roadmap`.
 2. **Refuse anything an existing roadmap entry already covers.** Read `context/roadmap.md` and check. If
    one covers it, say which, and name `/feature-plan` and `/feature-implement`.
+3. **Refuse an issue that carries the backlog label.** That label says the backlog owns it, and a labelled
+   issue is a feature whether or not it looks small from here. Name `/feature-plan`. This guard replaces
+   guard 2 under the tracker answer, where the backlog is not a file.
 
 Apply the standing test from [`context/workflow.md`](../../../context/workflow.md): *if you would want a
 `history.md` row for it, it is a feature.* Ask that question out loud and answer it before proceeding.
@@ -102,8 +113,10 @@ expand no scope.
 
 At the cap: **stop and hand back.** This command has no ledger to write a `blocked` row into, so the record
 is the working tree plus the report: leave the change exactly where it is, uncommitted, and say what failed,
-what was tried, and what the last feedback was. **If the work is still worth doing, it is an issue** — file
-it per [`context/tracking.md`](../../../context/tracking.md) and name it.
+what was tried, and what the last feedback was. **If the work is still worth doing, it is a bug** — file it
+wherever this project files bugs and name it. **Never the backlog label**, for the reason in
+[`context/workflow.md`](../../../context/workflow.md). Run from `#<issue>`, the issue is already that
+record: say what is left in it rather than opening a second one.
 
 **A commit-sized change that cannot pass its gates is handed back, not filed away.** Nothing here writes a
 record that outlives the session, because nothing here is half-finished in a way the next session could
@@ -130,11 +143,19 @@ own**; that is the commonest way this rule gets read backwards.
   not a head start; it is half a commit.
 - **The agent commits** → one commit, at the granularity that file names.
 
+**Run from `#<issue>`, the commit is what closes it.** Put `Closes #<issue>` in the commit message, the
+same way `/feature-close` puts it in a pull request body — the close then rides the change instead of being
+a step somebody has to remember, which is the whole reason this command takes an issue at all. **Where the
+user commits, say the line rather than writing it**: it is their commit, and a close is not yours to make
+on their behalf. Never close the issue by hand as a separate act — a closed issue whose fix is sitting
+unstaged in somebody's tree is worse than an open one.
+
 ## 7. Report
 
 What changed, whether it is committed or waiting in the tree, the Gate 1 output, the Gate 2 verdict, any
-loopbacks, any non-blocking observations the review raised — which die here — any issue filed for work that
-outlived the change, and any release note written, with the paths that were checked and owed nothing.
+loopbacks, any non-blocking observations the review raised — which die here — any bug filed for work that
+outlived the change, whether the commit closes the issue it ran from, and any release note written, with
+the paths that were checked and owed nothing.
 
 ## Rules
 

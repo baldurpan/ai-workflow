@@ -197,8 +197,15 @@ defect the gate found* in [`context/workflow.md`](../../../context/workflow.md).
 argument is *What happens to a defect the gate found* in
 [`context/workflow.md`](../../../context/workflow.md):
 
-- **User-visible, or a regression would land green** → it is work. File it in the backlog per
-  [`context/tracking.md`](../../../context/tracking.md), and say in the report that you did.
+- **A real defect, and it is user-visible or a regression would land green** → it is a **bug**. File it
+  wherever this project already files bugs, with this project's own labels, and say in the report that you
+  did. **Do not apply the backlog label** — see *A bug is not a backlog entry* in
+  [`context/workflow.md`](../../../context/workflow.md). The backlog is a list of features and this is not
+  one.
+- **Not a defect, but work you would want a `history.md` row for** → that is a backlog entry, and adding
+  one is `/roadmap`'s. **Name it and say what you would add**; do not append to the backlog from here. That
+  command applies the worth-adopting test and writes what the ranking reads, and a gate doing it by hand
+  produces neither.
 - **Anything else** → one short entry in `context/notes.md`, naming the phase it came from. Create the file
   if it is not there. It is branch-local, it rides this phase's commit the way the ledger row does, and
   `/feature-close` deletes it whole.
@@ -260,7 +267,8 @@ feature and turns every phase after it into a force-push.
 - What changed, and which files — and whether it is committed or waiting in the tree.
 - Gate 1 output, and Gate 2's verdict.
 - Loopback counts, if any.
-- Any non-blocking observation the review raised, and where each one went — an issue, or `notes.md`.
+- Any non-blocking observation the review raised, and where each one went — a bug, a `/roadmap` you
+  named, or `notes.md`.
 - The phase's new ledger status, and which phase is next.
 
 **When every phase is `done`, say so and name `/feature-close`.** Do not move files, stamp headers or sweep

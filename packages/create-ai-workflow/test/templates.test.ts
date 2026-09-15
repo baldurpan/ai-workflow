@@ -1277,7 +1277,9 @@ describe('a defect the gate found has one home, and it is the ledger', () => {
   });
 
   it('a blocking item has three ends and the run picks one before it reports', () => {
-    for (const end of [/\*\*fixed\*\*/, /\*\*`blocked`\*\*/, /\*\*an issue\*\*/]) {
+    // The third end was called "an issue" until §15, which is the ambiguity that let a defect and a
+    // feature share a destination. It is `filed` now, and *A bug is not a backlog entry* says which.
+    for (const end of [/\*\*fixed\*\*/, /\*\*`blocked`\*\*/, /\*\*filed\*\*/]) {
       assert.match(workflow, end, `the contract names ${String(end)}`);
     }
   });
@@ -1296,9 +1298,9 @@ describe('a defect the gate found has one home, and it is the ledger', () => {
     // of 35 real defects actually used, and it had never been written into a template.
     const w = flat(workflow);
     assert.match(w, /kind decides which/i, 'the axis is named');
-    assert.match(w, /user-visible, or a regression would land green/i, 'and the promotion test is stated');
+    assert.match(w, /user-visible,? or a regression would land green/i, 'and the promotion test is stated');
     const implement = flat(skillBody('feature-implement'));
-    assert.match(implement, /user-visible, or a regression would land green/i, 'the gate applies it');
+    assert.match(implement, /user-visible,? or a regression would land green/i, 'the gate applies it');
     assert.match(implement, NOTES, 'and the other end has somewhere to go');
   });
 
@@ -1357,7 +1359,7 @@ describe('a defect the gate found has one home, and it is the ledger', () => {
     const body = flat(skillBody('orchestrate'));
     assert.match(body, /has no ledger/i);
     assert.match(body, /handed back, not filed away/i);
-    assert.match(body, /still worth doing, it is an issue/i, 'and work is not lost on the way past');
+    assert.match(body, /still worth doing, it is a bug/i, 'and work is not lost on the way past');
   });
 
   it('/feature-close refuses once, because `done` already covers it', () => {
@@ -1374,6 +1376,89 @@ describe('a defect the gate found has one home, and it is the ledger', () => {
     const src = readFileSync(path.join(packageRoot, 'src/stubs.ts'), 'utf8');
     assert.match(src, /export function retiredFiles/, 'the detector exists');
     assert.match(src, /project-owned and absent from the manifest/, 'and says why it only reports');
+  });
+});
+
+describe('a bug is not a backlog entry', () => {
+  // The backlog is a list of features. `/feature-implement` used to send every qualifying finding to it
+  // "per tracking.md", and tracking.md says the backlog is the labelled issues — so a gate read the two
+  // together and labelled real defects into the list you pick features from. One repository reached 14 of
+  // them ranking against its actual roadmap. A defect is a third category the loop had no word for:
+  // recorded, unlike a task, and not planned, unlike a feature.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const workflow = readTemplate('context/workflow.md');
+  const GATES = ['feature-implement', 'orchestrate'] as const;
+
+  it('the contract names the category and says where it goes', () => {
+    assert.match(workflow, /^### A bug is not a backlog entry$/m);
+    assert.match(flat(workflow), /wherever this project already files bugs/i);
+    assert.match(flat(workflow), /third category the loop had no word for/i);
+  });
+
+  it('a gate never applies the backlog label', () => {
+    // The label is what /roadmap writes, and that command applies the worth-adopting test first. A gate
+    // that labels an issue itself appends to the backlog while skipping the only test that decides whether
+    // it belongs there — and writes an entry missing the Priority the ranking reads.
+    assert.match(flat(workflow), /\*\*A gate never applies the backlog label\.\*\*/);
+    for (const name of GATES) {
+      assert.match(
+        flat(skillBody(name)),
+        /not apply the backlog label|Never the backlog label/i,
+        `${name} must refuse to label`,
+      );
+    }
+  });
+
+  it('a finding that really is a feature is handed to /roadmap, not appended', () => {
+    const implement = flat(skillBody('feature-implement'));
+    assert.match(implement, /adding\s+one is `\/roadmap`'s/i, 'it names the owner of the backlog');
+    assert.match(implement, /do not append to the backlog from here/i);
+  });
+
+  it('/orchestrate takes an issue, so a bug has a route through the gates', () => {
+    // Without it the tracker and the work never touch: you retype the issue as a sentence and close it by
+    // hand afterwards. A task-sized defect has no backlog entry and never will, so this is its only path.
+    const body = skillBody('orchestrate');
+    assert.match(body, /\/orchestrate #<issue>/, 'the form is in the usage block');
+    assert.match(flat(body), /Refuse an issue that carries the backlog label/i, 'a feature is not its work');
+    assert.match(flat(body), /Closes #<issue>/, 'and the commit is what closes it');
+    assert.match(
+      flat(body),
+      /Never close the issue by hand as a separate act/i,
+      'a close that does not ride the change can outrun it',
+    );
+  });
+
+  it('nothing enters the backlog except through /roadmap', () => {
+    // Three commands write the label and only one of them admits new work. /tracking-migrate relocates a
+    // backlog that already exists and /feature-plan subdivides one entry already in it — so the
+    // worth-adopting test is still applied exactly once per entry, by /roadmap, at the only moment anyone
+    // is deciding whether to have it. Any fourth writer would be a way in that skips that decision.
+    const MAY_WRITE_THE_LABEL = new Set(['roadmap', 'tracking-migrate', 'feature-plan']);
+    assert.match(flat(workflow), /Nothing enters the backlog except through `\/roadmap`/);
+
+    // Reading the label is every command's business — "the open issues carrying the backlog label" is how
+    // half of them find the backlog at all. Only writing it is restricted, so this looks for a sentence
+    // that both names the label and applies one, and lets it stand only if it is a refusal.
+    const APPLIES = /\b(apply|applies|applying|add|adds|adding)\b/i;
+    const REFUSES = /\b(never|not|no|refuse|refuses)\b/i;
+    for (const name of SKILL_NAMES) {
+      if (MAY_WRITE_THE_LABEL.has(name)) continue;
+      for (const sentence of flat(skillBody(name)).split(/(?<=[.:])\s+/)) {
+        if (!/backlog label/i.test(sentence) || !APPLIES.test(sentence)) continue;
+        assert.match(
+          sentence,
+          REFUSES,
+          `${name} applies the backlog label, and only /roadmap admits new work: "${sentence}"`,
+        );
+      }
+    }
+  });
+
+  it('the tracker answer says how a change closes an issue, and the skills do not', () => {
+    // Same rule as every other forge detail: tracking.md is the only file that spells one.
+    assert.match(readTemplate('stubs/tracking.md'), /how a change closes one/i);
+    assert.match(flat(readTemplate('stubs/tracking.md')), /A bug is not a backlog entry/i);
   });
 });
 

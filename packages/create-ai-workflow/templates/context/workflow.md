@@ -326,19 +326,47 @@ holds no status, gates nothing, and is read by no command.
 |---|---|---|
 | **fixed** | the loopback fixes it and the gate re-passes | nowhere — there is nothing left to record |
 | **`blocked`** | the gate hit its cap, or it cannot be fixed in this phase | the phase's own ledger row: status `blocked`, the reason in its Note |
-| **an issue** | it is real work that outlives this phase | the backlog, per [`tracking.md`](tracking.md) |
+| **filed** | it is real work that outlives this phase | a bug, or a backlog entry — see *A bug is not a backlog entry* |
 
 **A non-blocking observation has two ends, and kind decides which** — not size, and not how interesting it
 was to find:
 
 | End | When | Where the record lives |
 |---|---|---|
-| **an issue** | it is user-visible, or a regression would land green — the gates pass and the defect ships anyway | the backlog, per [`tracking.md`](tracking.md) |
+| **a bug** | it is a real defect, and it is user-visible or a regression would land green — the gates pass and the defect ships anyway | wherever this project already files bugs |
+| **a backlog entry** | it is not a defect, and it is work you would want a `history.md` row for | the backlog, added by `/roadmap` |
 | **a note** | anything else | `notes.md` in this branch's working tree, until the branch ends |
 
 **Kind is the test because severity was tried and failed.** A grade assigned to answer *does this stop the
 phase* tells you nothing about *is this worth keeping*, and having one on hand invited the second question
 to be answered with the first question's answer.
+
+### A bug is not a backlog entry
+
+**The backlog is a list of features** — work you would want a `history.md` row for. A defect is not one,
+however real it is, and filing one there makes it compete for the next plan against work of a different
+kind and a different size.
+
+**A bug goes wherever this project already files bugs**, carrying this project's own labels. The workflow
+does not read it, rank it or carry it: [`tracking.md`](tracking.md) adds one bit to an issue and reads
+nothing else, and a bug is outside that bit. **Do not apply the backlog label to it.**
+
+> **A gate never applies the backlog label.** That label is what `/roadmap` writes, and that command
+> applies the worth-adopting test first — *would you want a history row for it* — then writes what an entry
+> needs to be ranked. A gate that labels an issue itself has appended to the backlog while skipping the one
+> test that decides whether it belongs there, and produced an entry missing what the ranking reads. Where a
+> finding really is a feature, **name `/roadmap` and let it decide.**
+
+**Nothing enters the backlog except through `/roadmap`.** Two other commands write the label, and neither
+is an exception: `/tracking-migrate` carries an existing backlog out of the working tree onto the tracker,
+and `/feature-plan` splits one entry already in it into several. **Both move or divide what `/roadmap` has
+already admitted, and no new work enters at either** — which is what keeps the worth-adopting test applied
+exactly once per entry, at the only moment anyone is deciding whether to have it at all.
+
+**This is the third category the loop had no word for.** A feature is planned and gets a history row; a
+task is `/orchestrate`'s and is not written down at all; a bug is recorded and is neither. With nowhere of
+its own it went into the backlog, because that was the only *record* this workflow knew about — which is
+how a list of features fills up with defects.
 
 **`notes.md` is branch-local, advisory and disposable.** The first note that needs it creates it; it is
 never installed and there is no stub. **Nothing reads it** — no gate consults it, no command parses it, no

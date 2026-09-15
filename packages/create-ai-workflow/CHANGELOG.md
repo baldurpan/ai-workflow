@@ -1,5 +1,14 @@
 # @baldurpan/create-ai-workflow
 
+## 0.19.0
+
+### Minor Changes
+
+- A bug is now its own category: Gate 2 files a defect wherever the project already files bugs, and nothing
+  enters the backlog except through `/roadmap`, which applies the worth-adopting test first.
+  `/orchestrate #<issue>` takes an issue as its brief and closes it from the commit, so a task-sized bug has
+  a route through the gates.
+
 ## 0.18.1
 
 ### Patch Changes
