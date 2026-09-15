@@ -85,6 +85,7 @@ list exists to prevent.
 |---|---|
 | `history.md` | fabricating closed issues for features shipped months ago produces wrong dates, empty threads, and an audit trail that looks real and is not |
 | `archive/` | the same, and the retired plan documents are the evidence behind those rows |
+| an order between two features | nothing in the tree records one, so there is nothing to carry. `/roadmap` and `/feature-plan` record what somebody actually says has to land first, and a graph guessed from titles would look exactly like one somebody asserted |
 
 **`history.md` and `archive/` stay exactly where they are, forever.** They are the record of the era before
 the switch, and everything under `context/` is project-owned, so keeping them costs nothing. New closures

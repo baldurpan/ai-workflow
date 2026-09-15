@@ -10,15 +10,15 @@ Every `§`-number below points into that document.
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 164 tests. The eighty-four in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 225 tests. The 121 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, one home for the tracker, no
    self-declared status, inert stubs, a ledger row that opens before the work, a substrate answer that
    never strands the data it names, a `--all` loop that stops where a single run stops, a plan too large
    for its home being split rather than trimmed, documentation reaching the plan, an answer file that may
-   not hold a false answer, one status vocabulary with no second place to record a defect, a titled
-   §-citation resolving against the template, and every relative link resolving after install — in both
-   skill trees. `ci.yml`
+   not hold a false answer, one status vocabulary with no second place to record a defect, an order
+   between features that is a relationship rather than a sentence, a titled §-citation resolving against
+   the template, and every relative link resolving after install — in both skill trees. `ci.yml`
    runs them on every push and pull request against `main`, plus an `engines-floor` job that builds on
    Node 20.10.0 and runs the packed CLI there — the suite itself cannot, since it executes `.ts` directly
    and that needs type stripping.
@@ -28,8 +28,9 @@ Every `§`-number below points into that document.
 **State:** `main` carries **0.14.0** — the body's ceiling (§10.13), **item 6, the release answer** (§11) in
 both its phases, the event that completes it (§11.10), the event's record (§11.11) and **§11.12**. It is
 also the first release cut from accumulated notes in this repository, so
-`packages/create-ai-workflow/CHANGELOG.md` starts there. `main` now carries **0.16.0**, which adds
-**§13**.
+`packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**, and `main` now carries
+**0.17.0** — **§10.14**, `blocked by` between features, which is the first thing a live agent running the
+tracker answer has asked for.
 
 **§13 came from a question rather than a field report** — *are we missing things for quality assurance,
 like a11y and performance?* Two gaps with one symptom, and **neither was a missing standard**: the vendored
@@ -366,10 +367,18 @@ What landed, across 0.8.0 to 0.10.0:
   loop may branch on one. `/onboard` is exempt from both for the same reason: it collects answers, it does
   not read them.
 
-**Nothing here has been run by a live agent, and that is still the whole of the risk.** 0.10.0 is what one
-careful read of the prose found; it is not what running it found. Four things have never executed:
+**The first live report arrived, and it was not about a mechanism.** Somebody running `/roadmap` and
+`/feature-plan` against real issues asked for the one thing §10 never gave them — **`blocked by` between
+features** (§10.14) — and had been supplying it by hand every time. Nothing here was broken; order between
+features simply had no home, under either answer, and the tracker had the primitive sitting unused. That
+is now built: `/roadmap` records the order the user's own wording names, `/feature-plan` corrects it with
+research and records its split's own edges, and `/feature-implement` and `/feature-status` read it and
+never write it.
+
+**The mechanisms are still unrun, and that is still the whole of the risk.** 0.10.0 is what one
+careful read of the prose found; it is not what running it found. Four things are not known to have executed:
 **optimistic claiming** (assign, re-read, confirm sole assignee, back off), the **phase-boundary
-heartbeat**, **`/tracking-migrate`**, and now the **body read-modify-write** — the one genuinely new hazard
+heartbeat**, **`/tracking-migrate`**, and the **body read-modify-write** — the one genuinely new hazard
 this change introduces, where a person editing a plan and an agent flipping a row can clobber each other.
 
 Fold this into item 1's run rather than testing it separately — the worktree scenario and this one exercise

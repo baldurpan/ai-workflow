@@ -258,6 +258,13 @@ loses a fact for no gain.
 comment is what stops the idea being re-proposed, so a vague one makes it worthless — exactly what the
 `history.md` row was for.
 
+**Say what this feature was blocking, before closing it.** A closed issue stops blocking whatever was
+waiting on it — see [`context/tracking.md`](../../../context/tracking.md) — and for a shipped feature that
+is the point: the wait is over and nothing has to be cleared. **For `--dropped` it is not.** Those issues
+have just been freed by work nobody is going to do, and their entries may have been written expecting it.
+Name them in the closing comment and in the report, and **leave the relationship alone** — the closed issue
+and its reason are the only explanation a person will find when they open one of those issues next month.
+
 **Then push, if `git.md` says so.** Unchanged, except that the pull request body links the issue rather
 than an archived path, and carries the trailer described above.
 

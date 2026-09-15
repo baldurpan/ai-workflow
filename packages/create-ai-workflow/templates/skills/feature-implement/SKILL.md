@@ -247,7 +247,7 @@ feature and turns every phase after it into a force-push.
 - What changed, and which files — and whether it is committed or waiting in the tree.
 - Gate 1 output, and Gate 2's verdict.
 - Loopback counts, if any.
-- Findings written or closed, by id.
+- Any non-blocking observation the review raised, and any issue filed for one.
 - The phase's new ledger status, and which phase is next.
 
 **When every phase is `done`, say so and name `/feature-close`.** Do not move files, stamp headers or sweep
@@ -315,12 +315,36 @@ that exist because more than one agent can be running.
 |---|---|
 | the `active` marker | the issue's assignee |
 | the plan, its phase list, its `Depends on` and its ledger | the issue body — **unchanged**, it is still the plan and still the same table |
+| step 1's *dependencies shipped* | **the issue's blocked by relationships** — readable before anything ships, and in step 2 a stop rather than a ranking key |
 | step 6, open the row | edit that row's Status to `in progress` in the body |
 | step 11, close the row | edit that row again, naming the commit's sha in the Note |
 
 **Step 3 reads one place.** The body holds the phase list, the dependencies and the status together,
 exactly as a plan document does. Pick the same way — the lowest-numbered phase that is not `done` and whose
 `Depends on` are all `done` — and step 5's disagreement rule reads unchanged.
+
+### An open blocker, in steps 1 and 2
+
+[`context/tracking.md`](../../../context/tracking.md) says how this tracker records that one feature waits
+on another, and under this answer step 1 can read it rather than inferring it. *Dependencies shipped* is a
+`history.md` row under the other answer — knowable only afterwards. Here the same fact is on the issue
+before either feature starts.
+
+- **Step 1 does not offer a blocked issue.** Rank what is runnable; name what was left out and what each is
+  waiting on, in one line each. An issue whose blockers are all closed is ordinary — nothing has to clear
+  them, because a closed issue does not block.
+- **Step 2 stops on one.** The checkpoint already refuses to start work the ground has moved under; an open
+  blocker is that, stated by the backlog rather than discovered in the tree. Name the blocker and stop. If
+  the user overrides after being told, say plainly what is being overridden, then proceed — the plan is
+  theirs and the relationship is a claim about order, not a lock.
+- **A blocker closed as *not planned* is satisfied and should still be said out loud.** The tracker's rule
+  is that a closed issue does not block, and a dropped feature is closed — so the plan in front of you may
+  be built on work that is never going to exist. This is the one place where *unblocked* and *ready* come
+  apart, and nothing else in the loop looks at it.
+
+**This command writes no relationship.** `/roadmap` records the order the user named and `/feature-plan`
+corrects it with research behind it; discovering one here means the plan was wrong about its own ground,
+which is a fact for the report and for the user, not a quiet edit at the moment work starts.
 
 ### The body is a read-modify-write
 

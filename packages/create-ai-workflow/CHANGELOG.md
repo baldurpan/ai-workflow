@@ -1,5 +1,19 @@
 # @baldurpan/create-ai-workflow
 
+## 0.17.0
+
+### Minor Changes
+
+- Under the issue-tracker answer, the workflow now records what a feature is waiting on as the tracker's own
+  `blocked by` relationship: `/roadmap` sets the order the user's wording names, `/feature-plan` corrects it
+  with research and links the chunks of a split, and `/feature-implement` and `/feature-status` read it — a
+  blocked entry is no longer offered as the next thing to pick up.
+
+### Patch Changes
+
+- `/feature-status`'s report block and `/feature-implement`'s report list no longer ask for findings and
+  severities, which 0.12.0 deleted along with `context/findings.md`.
+
 ## 0.16.0
 
 ### Minor Changes

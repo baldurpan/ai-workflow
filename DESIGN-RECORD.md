@@ -1910,6 +1910,101 @@ never moves a row out of the body — that would be workaround two, arriving at 
 same rule as the forge command (§10.8) and the issue type (§10.11). The skills ask *how large a body may
 be*. A tracker with a different limit, or none, is a row edit.
 
+### 10.14 `blocked by` — the fourth field report, and the fact this substrate had no reader for
+
+**The report:** *"Neither roadmap or feature-plan guys make use of the github issues relationship feature
+to add blocked by. I always have to tell them to do this manually. It helps so much in my human overview
+so I can see clearly what to tackle next."*
+
+This is the first report from the tracker answer itself, which PLAN.md item 5 has called unrun since
+0.8.0 — and what it found is not a defect in anything §10 built. It is a fact §10 never had a place for.
+
+#### The hole
+
+**Order between features is written down nowhere, under either answer.** A phase has `Depends on` and it
+resolves inside one plan. A feature has `Size:`, `Priority:` and a type, and none of them says *this one
+cannot start until that one lands*. The closest thing in the workflow is `/feature-plan`'s second ranking
+key — *unblocked by what just shipped*, which reads `history.md` — and that is a different fact wearing
+the same word: it can only be true **after** the blocker ships. A backlog of eight pending entries where
+three are waiting on the other five looks, to every command and every reader, like eight equal candidates.
+
+Under the working-tree answer that is a limitation with nowhere to go. Under the tracker answer it is a
+primitive that was sitting there unused.
+
+#### Why it passes §10.4's test where sub-issues failed
+
+The test that chose and then unchose sub-issues is *does this let a fact be observed, or does it require a
+stored copy someone must maintain?* A `blocked by` relationship is observed: `gh issue list --json
+blockedBy` returns every backlog entry's blockers in **one query**, so nothing caches it, nothing
+regenerates it, and hand-editing it in the UI changes what the next command does, immediately.
+
+**The four costs that killed the sub-issues (§10.10) are all absent:**
+
+| §10.10's cost | Here |
+|---|---|
+| N+1 remote writes per plan | one write per **edge**, and only where somebody asserts one |
+| reconciliation between body and objects | nothing in the body restates it, so there is nothing to reconcile |
+| a ledger with two shapes | the ledger is untouched — this is not phase state |
+| sub-issues are issues, in every list and every search | a relationship is not an object; no new row appears anywhere |
+
+And the property whose loss forced the reversal — *the closing write rides the same change as the work* —
+is not being reached for. Nothing here rides a commit, because nothing here is phase state. A relationship
+is set once, when a person says one feature waits on another, and cleared by the blocker closing.
+
+#### The hard part is not the write, it is who may assert one
+
+A wrong relationship is not cosmetic: a blocked entry drops out of what `/feature-plan` offers and what
+`/feature-implement` ranks, so **a guess hides work and tells nobody why.** That fixes who writes one:
+
+- **`/roadmap` records only what the user's own wording names** — *after the export API*, *once auth
+  lands* — matched against the backlog it has already read for the duplicate check, plus the order between
+  entries when one invocation becomes several. It may not infer a dependency from the domain. This is the
+  same line §10.11 draws around the type, held one notch tighter, because the type is read by nothing and
+  this is read by two commands.
+- **`/feature-plan` corrects it with research behind it**, exactly as it corrects the type — and it is also
+  the command that *removes* one the research disproves. Its split now records its own edges: a cut along
+  a dependency boundary has just established which chunk waits on which, which is the strongest dependency
+  this workflow ever knows about.
+- **`/feature-implement` and `/feature-status` only read.** Discovering a dependency at the moment work
+  starts means the plan was wrong about its own ground; that is a report, not a quiet edit.
+
+#### What reading it buys, which is the half the report was actually about
+
+*What do I tackle next* has two halves, and the workflow only ever answered one. Ranking says what is
+**best**; nothing said what is **unavailable**. So `/feature-plan` no longer offers a blocked entry and
+lists what it left out and why; `/feature-implement` stops at its step-2 checkpoint rather than starting
+work on ground that has not landed; and `/feature-status` gains a `Waiting:` block — the line the question
+is usually about, and one the working-tree answer cannot produce at all.
+
+**Two states become visible that nothing could see before**, and both are stops rather than rankings: an
+*assigned* issue with an open blocker, which is work under way on ground that has not landed, and a
+**cycle**, where no ranking will ever explain why nothing is runnable.
+
+#### Two refusals
+
+**No `Depends on:` field is added to `roadmap.md`.** The symmetry is tempting and it is exactly the
+stored copy §10.4's test rejects: a line in a file that no structure backs, that nothing observes, and that
+goes stale the moment a feature is closed. The working-tree answer keeps `history.md` and the honest
+statement that it can only know afterwards. **`Priority:` is the precedent** (§10.12) — a field that exists
+under one answer only, because the substrate is what made it necessary.
+
+**A dropped blocker is named, and its relationship is left alone.** Closing an issue satisfies whatever it
+was blocking, whatever the close reason — so `--dropped` frees work that was waiting on something nobody
+is going to build, and the dependents' plans may assume it. `/feature-close` says which issues those are;
+it does not edit them, and it does not remove the edge, because the closed issue and its reason are the
+only explanation a person opening one of them next month will find.
+
+#### Verified, not read
+
+Against **`gh` 2.100.0** and the live API on **2026-09-15**: `gh issue edit --add-blocked-by` /
+`--remove-blocked-by` / `--add-blocking`, `gh issue create --blocked-by`, and `blockedBy` as a JSON field
+on both `gh issue view` and `gh issue list` — the last is what makes the whole-backlog read one call.
+`GET /repos/{owner}/{repo}/issues/{n}/dependencies/blocked_by` returns `200` with `[]` on a repository
+with no dependencies while a bogus sibling route under the same path returns `404`, which is the existence
+test that matters. GitHub's documentation supplies the rest: available on Free, Pro, Team and Enterprise
+Cloud, and **triage permission** is the bar to create one — so it is best-effort in the same way the type
+is, and never a gate.
+
 ## 11. The release answer — what a change announces, and to whom
 
 `context/release.md` is the sixth file in the shape of `verify.md`, `executors.md`, `git.md` and
@@ -2719,6 +2814,13 @@ question's answer.
 findings. `check` loses two rules and the whole `Finding` parser. The `merge=union` question for
 `findings.md` disappears, and `tracking.md` loses *a finding is not an issue* — there is no finding to
 distinguish from one.
+
+**Two lines outlived the deletion by four versions**, found while §10.14 was being written: `/feature-status`
+still printed a `Findings: <n> open (<severities>)` row in its report block, and `/feature-implement` still
+listed *findings written or closed, by id* in its own report — both asking for counts out of a file nothing
+writes, in a severity vocabulary §12.4 removed. The test that guards this searched for the string
+`findings.md`, which neither line contains. **A deletion test that matches the path misses every reference
+that never needed the path**, which is the general form worth keeping.
 
 ### 12.6 Migration — reported, never removed
 

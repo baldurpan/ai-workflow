@@ -126,6 +126,31 @@ recorded for the tracker's readers, and a command that started reading them woul
 Everything the *Capturing reference material* section says still holds, including the credential rule:
 **an issue body is a tracked file for that purpose and probably a more public one.**
 
+### The order between entries, where the idea names one
+
+**A backlog that says which entries are waiting on which is the one this command can produce and the file
+answer cannot.** [`context/tracking.md`](../../../context/tracking.md) says how this tracker records it —
+a relationship on the issue that has to wait, not a line in anybody's body. Set it while you are opening
+the issue, because nothing later in the loop goes looking for what an entry was always waiting on.
+
+Two cases, and no third:
+
+- **The idea's own wording names a prerequisite** — *after the export API*, *once auth lands*, *needs the
+  new schema*. Match it against the backlog you have already read for the duplicate check. If it names an
+  open issue there, record the dependency.
+- **One invocation became several entries.** The *several ideas* rule at the bottom of this file splits
+  them; if they have an order, record it between them as you open them. This is where an order is most
+  obvious to the person describing it and most reliably lost — they said it once, in a sentence that became
+  three issues.
+
+**Do not go looking for one.** A dependency you inferred from what you know about the domain, rather than
+from what the user said, is a guess with consequences: a blocked entry drops out of *what to pick up next*,
+so a wrong one hides work and nobody is told why. Where the wording is ambiguous, ask, or leave it — the
+same call `/feature-plan` makes with the research to back it.
+
+**Say what you set, next to the entry you set it on.** One line naming both issues. A wrong relationship
+costs one edit to remove, and only if the user can see it.
+
 ### Adoption — a second way to append
 
 Someone else's issue can enter the backlog without being retyped:
@@ -148,6 +173,9 @@ thing. Add a comment saying it has entered the backlog, and leave the body alone
   field is empty.
 - **Ask for a priority rather than inventing one.** An adopted issue arrives with no view on where it sits
   against the rest of the backlog, and guessing puts a stranger's work in your ranking's top slot.
+- **Leave its relationships exactly as they are**, for the reason that keeps its wording and its type:
+  whoever filed it may have recorded what it waits on, and adopting an issue is not a licence to re-say
+  what it already says. Add one only where the user names it.
 - **The title may not be a kebab-case name**, and other people's issue titles are not yours to rewrite. Say
   what name the workflow will use for it and put that name in your comment.
 

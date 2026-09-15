@@ -54,6 +54,7 @@ rewrite of this section rather than of the skills. A command asks for the *fact*
 | what a retired feature's outcome was | the closed issue — *completed* is shipped, *not planned* is dropped |
 | what kind of work it is | the issue's type — set by the workflow, read by nothing in it |
 | what gets planned next | the issue body's `Priority:` line |
+| which features have to land before this one | the issue's **blocked by** relationships |
 | how much a plan may hold | the issue body's size limit — **65,536 characters** |
 
 **The ledger is one table, and it is the same one a plan document carries** — `#`, `Phase`, `Depends on`,
@@ -115,6 +116,38 @@ importance and leads. Both are body lines and neither substitutes for the other.
 **Projects and milestones are yours.** Nothing here creates, reads or writes either one. Assign a milestone
 by asking for it, group issues on a board if you want one — the workflow will not notice and will not
 interfere.
+
+### Blocked by — the order between features
+
+**A dependency between two features is the tracker's own `blocked by` relationship**, set on the issue that
+has to wait and naming the issue it waits for. One write, and it is visible from both ends — the waiting
+issue reads *blocked by*, the one it waits for reads *blocking* — so nothing has to record the other
+direction and nothing can record it differently. On GitHub that is `gh issue edit --add-blocked-by` and
+`--remove-blocked-by`, `gh issue create --blocked-by`, and `blockedBy` as a JSON field on both `gh issue
+view` and `gh issue list` — **the whole backlog's order in one query.**
+
+**This is the one fact the working-tree answer has nowhere to keep.** There, order between features is read
+out of [`history.md`](history.md): a feature is unblocked once the thing beneath it has shipped, which is
+only ever knowable after the fact. A relationship states it while both are still pending, which is what
+turns *what should I pick up next* into something the backlog answers rather than something a person
+reconstructs from titles.
+
+**Never a body line and never a comment.** A sentence saying *needs the export API first* is a second home
+for a fact the tracker already holds, and the two go out of step the moment one issue closes. The
+relationship is the record; prose about it is not.
+
+**Between features only.** Phases are rows in the ledger, in one body — they are not issues and they have
+no relationships. A phase's `Depends on` column and a feature's `blocked by` answer the same question at
+two scopes that never meet, and joining them would put the ledger back into separate objects.
+
+**Closing the blocker is the whole of clearing it.** A closed issue no longer blocks, so nothing in this
+workflow removes a relationship on the way out. The exception is a feature closed as *not planned*:
+whatever it was blocking has just been unblocked by something nobody is going to build, and the only thing
+that says so is the close reason.
+
+**Best-effort, like the type.** Creating one needs triage permission on the repository, and it is available
+on GitHub Free, Pro, Team and Enterprise Cloud. Where the write is refused or the feature is absent, say so
+once and carry on — the relationship is how the backlog is read, not a gate anything passes.
 
 ### The body has a ceiling, and it measures scope
 

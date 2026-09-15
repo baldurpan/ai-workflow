@@ -82,7 +82,6 @@ Keep it short. The user is asking a question, not reading a document.
 Feature:  <name> — <marker>        (or: none active)
 Plan:     <path>
 Phases:   <n> done · <n> in progress · <n> blocked · <n> not started
-Findings: <n> open (<severities>)  (or: none open)
 
 Next: <exactly one action>
 ```
@@ -135,6 +134,7 @@ still ends with exactly one next action.
 | step 1's status ledger | **unchanged** — it is the same table, in the issue body |
 | step 1's git state | unchanged — it is still this tree's |
 | step 2's worktree sweep | **one query: the assigned issues** |
+| nothing — the tree cannot say what a feature is waiting on | **the backlog's blocked by relationships**, which the same listing already carries |
 
 **Step 2 gets shorter and stronger, and it is the clearest payoff of this answer.** The sweep exists
 because `roadmap.md` on the default branch cannot see what is in flight, so it walks every tree and reads
@@ -149,6 +149,33 @@ disagree:
 - **Assigned with no local tree** — normal. Someone else's agent has it.
 - **A local tree whose feature is unassigned** — a claim that was dropped, or a tree left behind after a
   close. Report it; do not assign anything.
+
+### What the backlog is waiting on
+
+[`context/tracking.md`](../../../context/tracking.md) says how this tracker records that one feature waits
+on another, and the listing that answers *what is the backlog* carries it already. So add one line above
+**Next**, and nothing for a repository whose backlog has no relationships in it:
+
+```
+Waiting: <n> of <n> pending
+  <issue>  <name>  on <issue> <name>
+```
+
+**This is the line the question is usually about.** *What should I pick up next* has two halves — what is
+ranked highest, and what is not available at all — and under the working-tree answer the second half is
+unanswerable, so it is simply missing. Nothing else in this report changes: the next action is still
+exactly one, and it is still named by the same order.
+
+**Waiting is not a discrepancy.** An entry with an open blocker is the ordinary state of a backlog that has
+been read honestly, and a blocker that is closed has been satisfied — nothing clears a relationship on the
+way out.
+
+**Two states here are worth stopping on**, and both are invisible under the other answer:
+
+- **An assigned issue with an open blocker.** Work is under way on ground that has not landed. Say which
+  blocker, and leave it; deciding is the user's.
+- **A cycle** — two issues waiting on each other, directly or around a loop. Nothing in the backlog is
+  runnable and no ranking will say why. Name the loop.
 
 ### Two reconciliations that only exist here
 

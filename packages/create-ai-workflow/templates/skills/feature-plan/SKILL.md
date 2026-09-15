@@ -185,6 +185,7 @@ research, write, report — and only where the plan lands changes.
 | pick from `context/roadmap.md` | pick from the open issues carrying the backlog label |
 | the ranking's first key | **the issue's `Priority:` line**, above everything below it |
 | ranking's *has a draft* | the issue body already holds researched material rather than one or two lines |
+| ranking's *unblocked by what just shipped* | **the issue's blocked by relationships** — and an issue with an open blocker is not offered at all |
 | ranking's *backlog order* | nothing — an issues list has no manual order, which is what `Priority:` replaces |
 | `git mv` a draft into `plans/` | nothing moves — **the plan replaces the body of the same issue** |
 | copy `plan-template.md` to a new path | write the template's sections into that issue's body |
@@ -233,9 +234,16 @@ Once they agree:
   the id: the thread, the reporter and everyone subscribed are the same reason adoption does not open a
   second issue about one thing.
 - **Every other chunk becomes a new backlog issue** — carrying the backlog label, `pending`, with the one
-  or two lines of why, a `Size:`, a `Priority:`, and a line naming the chunk it depends on. No plan and no
-  ledger: they are Tier-1 entries, and each gets its own `/feature-plan` run when its turn comes.
-- **Cross-link them**, in both directions, so the split is visible from any one of them.
+  or two lines of why, a `Size:` and a `Priority:`. No plan and no ledger: they are Tier-1 entries, and each
+  gets its own `/feature-plan` run when its turn comes.
+- **The order between the chunks is a relationship, not a sentence.** A cut along a dependency boundary has
+  just established which chunk waits on which, so record it the way
+  [`context/tracking.md`](../../../context/tracking.md) says — one write per edge, visible from both ends.
+  This is the strongest dependency the workflow ever knows about, and writing it into a body instead would
+  leave the backlog's next reader to notice it by eye.
+- **Cross-link anything the relationship does not carry**, so the split is visible from any one of them.
+  Two chunks that share a subject without either waiting on the other get a mention in each body and **no
+  relationship** — recording one there would hide runnable work behind nothing.
 - **No parent issue, and no issue whose phases are separate objects.** The ledger lives in a body; a
   hierarchy laid over that is a second home for the same ordering.
 
@@ -245,6 +253,40 @@ opened, and which one this plan covers. That is the most consequential thing the
 **If the user declines the split**, say plainly that the plan cannot be written into this substrate as one
 feature, and stop. Do not write a shortened version as a compromise: a plan trimmed to fit reads exactly
 like a plan that was small enough, and nothing downstream can tell the two apart.
+
+### What it waits on — read before the ranking, set after the research
+
+[`context/tracking.md`](../../../context/tracking.md) says how this tracker records that one feature waits
+on another. This command is both the main reader of that and the best-placed writer of it, at two different
+moments.
+
+**Read it before ranking.** One listing carries every open backlog issue's blockers, so this costs nothing
+and changes what gets offered. **It is a filter and not a key** — it runs first, and `Priority:` then orders
+what is left. An `Urgent` issue waiting on an open blocker is still waiting, and saying so is more useful
+than ranking it first:
+
+- **An issue with an open blocker is not a candidate.** Leave it out of the four, and list what was left
+  out under them — one line each, naming the issue it waits on. A backlog where three of eight entries are
+  waiting is a fact the user wants to see, not one to silently filter.
+- **A blocker that is closed has been satisfied**, and the issue is an ordinary candidate. Nothing is
+  removed on the way out; a closed issue does not block.
+- **Every pending issue blocked** is a real state and the answer is not to pick one anyway. Say so, name
+  what each is waiting on, and stop — where the blockers are themselves in the backlog something has been
+  recorded in a circle, and where they are not, the next move is outside this workflow.
+- **A named entry is planned even when it is blocked.** Planning is not activation, and planning ahead is
+  what the split between them is for — say it is blocked and by what, and write the plan.
+
+**Set it after the research.** Step 4 goes looking for what this feature is built on, so its brief gains one
+question: **which open issues have to land before this one?** That is the moment the dependency is known
+with evidence behind it rather than guessed from a sentence, which is why this command corrects what
+`/roadmap` recorded rather than the other way round.
+
+- **Record what the research found**, on the issue being planned.
+- **Remove one the research disproves** — an entry `/roadmap` marked as waiting on something it turns out
+  not to need. Say that you removed it and why; it is the same correction the type gets, on a field that
+  actually changes what gets picked up.
+- **Name both in the report.** What this feature waits on is as much a part of the plan as its phases, and
+  it is the part nothing downstream re-derives.
 
 ### Priority leads the ranking
 

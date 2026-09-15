@@ -1156,6 +1156,18 @@ describe('a defect the gate found has one home, and it is the ledger', () => {
     );
   });
 
+  it('nor asks a report for a count out of it', () => {
+    // §12.5: this matched `findings.md` only, and two references survived four versions because neither
+    // needed the path — `/feature-status` printed a `Findings:` row in its report block and
+    // `/feature-implement` listed findings by id. A deletion test keyed on a path misses every reference
+    // that never spelled one, so what has to be absent is a report asking for findings as a countable
+    // store. A reviewer's *finding* is ordinary English and stays — it is the thing the ledger records.
+    for (const { rel, text } of ourTemplates()) {
+      assert.doesNotMatch(text, /^\s*Findings:/m, `${rel} still prints a findings count`);
+      assert.doesNotMatch(text, /findings? (written|closed|open)/i, `${rel} still tracks findings`);
+    }
+  });
+
   it('the severity scale is gone, because it was the second vocabulary', () => {
     // The scale's only real question was "does this block the phase", which is one bit. Four values
     // invited a `P3` to be filed and kept, which is the drift — a note nothing acts on, read by every
@@ -1310,5 +1322,66 @@ describe('Gate 1 reads a list, not four headings', () => {
     // The section is a record of a check that exists and runs elsewhere — without the name it reads as a
     // check nobody runs, which is a different and much worse fact.
     assert.match(onboard, /\*\*Name what does run each one\*\*/);
+  });
+});
+
+describe('what a feature waits on is a relationship, not a sentence', () => {
+  // §10.14: the order between two features is the one fact the working-tree answer has nowhere to keep —
+  // there it is read out of `history.md` after the blocker ships. The tracker has a native relationship
+  // for it, so under that answer the backlog can say what is unavailable and why before either feature
+  // starts. Two properties keep it from becoming §10.10's sub-issues all over again: it is set between
+  // features and never phases, and it has exactly one home, so no body line or comment restates it.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const tracking = flat(readTemplate('stubs/tracking.md'));
+
+  it('the primitive and its vocabulary live in tracking.md, like the label and the type', () => {
+    assert.match(tracking, /which features have to land before this one \| the issue's \*\*blocked by\*\*/);
+    assert.match(tracking, /\*\*Never a body line and never a comment\.\*\*/);
+    assert.match(tracking, /\*\*Between features only\.\*\*/, 'a phase is a row, never an object with edges');
+    // The skills say what they need in the tracker's words; the forge test above keeps the how in here.
+    assert.match(tracking, /gh issue edit --add-blocked-by/, 'the one file that may name the forge, does');
+  });
+
+  it('/roadmap records the order the user named, and invents none', () => {
+    const roadmap = flat(skillBody('roadmap'));
+    assert.match(roadmap, /The order between entries, where the idea names one/);
+    assert.match(roadmap, /\*\*Do not go looking for one\.\*\*/);
+    // A wrong relationship is not a cosmetic error: a blocked entry drops out of what gets offered next.
+    assert.match(roadmap, /hides work and nobody is told why/);
+    assert.match(roadmap, /\*\*Leave its relationships exactly as they are\*\*/, 'adoption rewrites nothing');
+  });
+
+  it('/feature-plan reads it before the ranking and writes it after the research', () => {
+    const plan = flat(skillBody('feature-plan'));
+    assert.match(plan, /\*\*An issue with an open blocker is not a candidate\.\*\*/);
+    assert.match(plan, /which open issues have to land before this one\?/);
+    // Planning is not activation, so a blocked entry is still plannable when the user names it.
+    assert.match(plan, /A named entry is planned even when it is blocked/);
+  });
+
+  it('the split records its own dependency edges rather than describing them', () => {
+    const plan = flat(skillBody('feature-plan'));
+    assert.match(plan, /The order between the chunks is a relationship, not a sentence/);
+    // 0.16.0's split wrote "a line naming the chunk it depends on" into each new body, which is the
+    // second home tracking.md now refuses. The line is gone; the relationship replaces it.
+    assert.doesNotMatch(plan, /a line naming the chunk it depends on/);
+  });
+
+  it('a blocker is a stop where work starts, and nothing clears one on the way out', () => {
+    assert.match(flat(skillBody('feature-implement')), /\*\*Step 2 stops on one\.\*\*/);
+    // A dropped blocker satisfies the relationship without doing the work, and only the close says so.
+    assert.match(flat(skillBody('feature-close')), /\*\*For `--dropped` it is not\.\*\*/);
+    assert.match(flat(skillBody('feature-close')), /\*\*leave the relationship alone\*\*/);
+    // The migration has nothing to carry: no tree file records an order between two features.
+    assert.match(flat(skillBody('tracking-migrate')), /an order between two features \| nothing in the tree/);
+  });
+
+  it('/feature-status reports what is waiting and writes nothing', () => {
+    const status = flat(skillBody('feature-status'));
+    assert.match(status, /What the backlog is waiting on/);
+    assert.match(status, /\*\*Waiting is not a discrepancy\.\*\*/);
+    // The two states that are: work under way on ground that has not landed, and a backlog that cannot move.
+    assert.match(status, /\*\*An assigned issue with an open blocker\.\*\*/);
+    assert.match(status, /\*\*A cycle\*\*/);
   });
 });
