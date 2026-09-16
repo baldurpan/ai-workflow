@@ -483,7 +483,7 @@ Guidance:
 
 When using PR workflows:
 
-- Investigate @burglekitt/worktree
+- Investigate @northguild/worktree
 
 ---
 

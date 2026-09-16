@@ -1,5 +1,14 @@
 # @baldurpan/create-ai-workflow
 
+## 0.20.1
+
+### Patch Changes
+
+- Point the standards tree at `@northguild/worktree` and `@northguild/gmt`; both were still written under the
+  old `@burglekitt` scope in `tooling/ci.md`, `tooling/dates.md` and `docs/SPEC.md`. The standards are
+  tool-owned, so `update` carries the corrected names into an existing install unless you have edited those
+  files yourself.
+
 ## 0.20.0
 
 ### Minor Changes

@@ -10,28 +10,29 @@
 
 ## Preferred Library
 
-Use [`@burglekitt/gmt`](https://github.com/burglekitt/gmt) — a thin layer over the modern [Temporal API](https://tc39.es/proposal-temporal/docs/) for handling date/time, timezones, and arithmetic. Includes a polyfill for environments without native Temporal yet.
+Use [`@northguild/gmt`](https://github.com/northguild/gmt) — a thin layer over the modern [Temporal API](https://tc39.es/proposal-temporal/docs/) for handling date/time, timezones, and arithmetic. Includes a polyfill for environments without native Temporal yet.
 
 Temporal replaces the legacy `Date` object and provides:
+
 - Immutable types with explicit timezone handling
 - Calendar-aware arithmetic that doesn't break on DST or leap seconds
 - Clear separation between instants, zoned datetimes, plain dates, and durations
 
 ## Choosing the Right Temporal Type
 
-| Concept | Type | Use for |
-|---|---|---|
-| A specific moment globally | `Temporal.Instant` | Server timestamps, event times, audit logs |
-| A moment in a specific timezone | `Temporal.ZonedDateTime` | Scheduled local meetings, recurring events |
-| A calendar date with no time | `Temporal.PlainDate` | Birthdays, holidays, due dates |
-| Wall-clock time with no date | `Temporal.PlainTime` | Daily schedules, opening hours |
-| Date + time without timezone | `Temporal.PlainDateTime` | Floating events ("3pm on the 19th, wherever") |
-| A time span | `Temporal.Duration` | TTLs, intervals, elapsed time |
+| Concept                         | Type                     | Use for                                       |
+| ------------------------------- | ------------------------ | --------------------------------------------- |
+| A specific moment globally      | `Temporal.Instant`       | Server timestamps, event times, audit logs    |
+| A moment in a specific timezone | `Temporal.ZonedDateTime` | Scheduled local meetings, recurring events    |
+| A calendar date with no time    | `Temporal.PlainDate`     | Birthdays, holidays, due dates                |
+| Wall-clock time with no date    | `Temporal.PlainTime`     | Daily schedules, opening hours                |
+| Date + time without timezone    | `Temporal.PlainDateTime` | Floating events ("3pm on the 19th, wherever") |
+| A time span                     | `Temporal.Duration`      | TTLs, intervals, elapsed time                 |
 
 Choosing the right type prevents whole categories of bugs:
 
 ```ts
-import { Temporal } from "@burglekitt/gmt";
+import { Temporal } from "@northguild/gmt";
 
 // Birthday — calendar date, no timezone (avoids "birthday shows wrong day in Pacific time")
 const birthday = Temporal.PlainDate.from("1990-04-12");
@@ -40,7 +41,9 @@ const birthday = Temporal.PlainDate.from("1990-04-12");
 const eventAt = Temporal.Instant.from("2026-05-19T15:00:00Z");
 
 // Recurring meeting — wall-clock time bound to a zone
-const meeting = Temporal.ZonedDateTime.from("2026-05-19T10:00-04:00[America/New_York]");
+const meeting = Temporal.ZonedDateTime.from(
+  "2026-05-19T10:00-04:00[America/New_York]",
+);
 
 // Duration — for arithmetic
 const ttl = Temporal.Duration.from({ hours: 24 });
@@ -49,6 +52,7 @@ const ttl = Temporal.Duration.from({ hours: 24 });
 ## Storage
 
 Store in UTC. The database column should be:
+
 - PostgreSQL: `TIMESTAMP WITH TIME ZONE` (`timestamptz`)
 - MySQL: `DATETIME` stored in UTC by convention
 - Prisma: `DateTime` (maps to `timestamptz` on Postgres)
@@ -80,7 +84,7 @@ model User {
 Serialize as ISO 8601 strings. Parse and validate with Zod, then convert to Temporal types:
 
 ```ts
-import { Temporal } from "@burglekitt/gmt";
+import { Temporal } from "@northguild/gmt";
 import { z } from "zod";
 
 const invoiceSchema = z.object({
@@ -115,7 +119,7 @@ Store the user's preferred timezone on their profile if they may travel; fall ba
 Convert to the user's timezone at the edge — in the component, not in storage or transport:
 
 ```tsx
-import { Temporal } from "@burglekitt/gmt";
+import { Temporal } from "@northguild/gmt";
 
 interface InvoiceDateProps {
   instant: Temporal.Instant;
@@ -128,11 +132,7 @@ export function InvoiceDate({ instant, timezone }: InvoiceDateProps) {
     dateStyle: "medium",
     timeStyle: "short",
   });
-  return (
-    <time dateTime={instant.toString()}>
-      {formatted}
-    </time>
-  );
+  return <time dateTime={instant.toString()}>{formatted}</time>;
 }
 ```
 
@@ -141,7 +141,7 @@ export function InvoiceDate({ instant, timezone }: InvoiceDateProps) {
 Temporal types are immutable — every operation returns a new value:
 
 ```ts
-import { Temporal } from "@burglekitt/gmt";
+import { Temporal } from "@northguild/gmt";
 
 const created = Temporal.Instant.from("2026-05-19T15:00:00Z");
 const dueIn30 = created.add({ days: 30 });
@@ -159,7 +159,7 @@ DST and timezone offsets are handled correctly because Temporal knows about cale
 For "2 hours ago" style display:
 
 ```ts
-import { Temporal } from "@burglekitt/gmt";
+import { Temporal } from "@northguild/gmt";
 
 const elapsed = Temporal.Now.instant().since(invoice.createdAt);
 // elapsed is a Temporal.Duration — format with Intl.RelativeTimeFormat

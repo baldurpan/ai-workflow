@@ -78,6 +78,7 @@ For monorepos with Nx, use `nx affected` to skip unchanged projects:
 ### Description
 
 Always include:
+
 - **Summary** — what changed and why, 1–3 bullets
 - **Test plan** — how it was verified
 - **Screenshots** — for UI changes
@@ -93,6 +94,7 @@ Use [`templates/pull-request-template.md`](../templates/pull-request-template.md
 - Branch commits are preserved in the PR itself for archeology
 
 Avoid:
+
 - Merge commits on `main` (history becomes a tangle)
 - Rebase-and-merge without squashing (every WIP commit ends up on `main`)
 
@@ -105,11 +107,12 @@ Avoid:
 
 ## Worktree-Based Workflows
 
-For AI-assisted PR workflows, use [`@burglekitt/worktree`](https://github.com/burglekitt/worktree) — a CLI utility for managing git worktree branches. Multiple agents (or a human plus an agent) can work on parallel branches in isolated worktrees without stomping on each other.
+For AI-assisted PR workflows, use [`@northguild/worktree`](https://github.com/northguild/worktree) — a CLI utility for managing git worktree branches. Multiple agents (or a human plus an agent) can work on parallel branches in isolated worktrees without stomping on each other.
 
 ## CI for Dependency Changes
 
 When dependencies change, CI should:
+
 - Run a full install (no partial cache)
 - Run security audit (`pnpm audit --audit-level=high`)
 - Re-run all gates
