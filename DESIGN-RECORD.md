@@ -1701,6 +1701,13 @@ to what it was at eight commands.
 
 ### 10.10 Superseded — the phase ledger comes back into the body, and the sub-issues go
 
+> **Qualified by §10.15.** The reversal below is sound and stands. Two of the costs it states — the lost
+> progress view, and *"weaker as an observation"* — were priced at zero against the agent as reader, and
+> are not zero against a person scanning the issues list. **The `2 of 5` view was also not where this
+> section placed it**: sub-issue progress renders on an issue's own page, in `gh issue view` and in an
+> opt-in Projects field, and never on the issues list. So the backlog was never legible there under either
+> design, and §10.15 adds the label that makes it so.
+
 §10.4 decided that the ledger's Status column becomes one sub-issue per phase, on the right test:
 **does this let a fact be observed, or does it require a stored copy someone must maintain?** Sub-issue
 state is observed, a Status column is stored, and on that test the sub-issues win. **The reasoning holds.
@@ -2082,6 +2089,243 @@ with no dependencies while a bogus sibling route under the same path returns `40
 test that matters. GitHub's documentation supplies the rest: available on Free, Pro, Team and Enterprise
 Cloud, and **triage permission** is the bar to create one — so it is best-effort in the same way the type
 is, and never a gate.
+
+### 10.15 The backlog is observable and not legible — the reader §10.10 did not have in frame
+
+> **Decided and built.** One label, `workflow:planned`, written by `/feature-plan` and `/tracking-migrate`,
+> created by `/onboard`, reconciled by `/feature-status`, and **read by nothing**. *Verified, not read* at
+> the end carries the checks that gated it — including the one that corrected this section's own first
+> draft, which had the refusal below going stale in 0.10.0 when it had never rested on that ground at all.
+
+**A second field report, and like §10.14's it is not about a mechanism.** Somebody with the tracker answer
+installed opened `github.com/OWNER/REPO/issues?q=label:workflow:feature` and could not tell which entries
+had plans and which were still ideas. Nothing was broken. Every fact the tier model defines was precisely
+where this document says it is — and **the one distinction the model turns on was the only one the page
+could not show.**
+
+| Fact | Where it lives under the tracker answer | On the issues list |
+|---|---|---|
+| in the backlog at all | the `workflow:feature` label | **shown** |
+| being worked | the assignee | **shown** |
+| **has a plan** | **a phase ledger inside the issue body** | **nothing** |
+| where its phases stand | that ledger's Status column | nothing |
+| what matters more | a `Priority:` line in the body | nothing |
+| how big it is | a `Size:` line in the body | nothing |
+
+The tier boundary this entire workflow is built around — Tier 1 is an idea, Tier 2 is an idea with a plan —
+is invisible from the one surface a person actually looks at, and is recoverable only by opening each issue
+and scrolling past the description to see whether a table is there.
+
+#### Observability and legibility came apart, and no rule here distinguishes them
+
+Under the working-tree answer the two are the same property and there was never a reason to separate them.
+`roadmap.md` is one document; `**Doc:** plans/<NAME>-PLAN.md` sits on the line under the entry's heading,
+next to its marker and its size. *Planned* is observed — it is the existence of a file, stored nowhere — and
+it is **legible in the same act that observes it**, because observing it means reading the backlog, and
+reading the backlog is one `cat`.
+
+The tracker answer kept the first property exactly and dropped the second without anyone pricing it. A
+ledger in a body is every bit as observable as a file in `plans/`. It is not remotely as legible, because
+the act that reads the backlog — loading the issues list — is no longer the act that reads the entry.
+
+#### §10.10 priced the loss, and applied a sound test to the wrong reader
+
+It is written down, in the costs §10.10 stated plainly:
+
+> **The `2 of 5` progress view is lost.** By §10.7's own criterion that does not buy a primitive: it is a
+> view, not a fact, which is the ground Projects were refused on.
+
+**The criterion is right and the reader is wrong.** §10.7 refused Projects partly because a board *"buys a
+view, not a fact"* — an argument about what the **workflow** should depend on, and correct there: a board
+is derivable from the issues, so making the loop read one adds a dependency and buys no new truth.
+
+§10.10 reused that sentence to price the *loss* of a view. Those are different questions. That a view is
+derivable is a reason not to make the workflow depend on it; it is not a reason the view is worthless,
+because **someone still has to do the deriving**, and the sentence quietly assumes that someone is the
+agent. For the agent the loss genuinely is zero — it reads the body on every command, so a ledger and a
+badge are equally visible to it. The person reading the list derives nothing, sees seven identical rows,
+and is the reader who was never in the frame.
+
+§10.10 said the same thing one line further on and drew no conclusion from it:
+
+> **Weaker as an observation** — a table in text, rather than the existence of linked objects — **and it
+> does not matter**, because the failure it was hardened against can no longer occur.
+
+The failure it was hardened against was an interrupted write. That reasoning holds completely. *Weaker as
+an observation* was true about something else as well, and the sentence closed over it.
+
+#### The refusal rested on drift, and the legibility question was never asked
+
+§10.4 refused a `workflow:planned` label, in one clause:
+
+> `workflow:planned` is refused for the usual reason: a label shadowing an observable fact, wrong the first
+> time someone adds phases without relabelling.
+
+**The first draft of this section had that refusal going stale in 0.10.0** — sound while *has a plan* was
+the existence of sub-issues, which GitHub was taken to render on the parent's row, and orphaned when
+§10.10 removed them. **That reading is wrong, and checking it is what found it.** GitHub does not render
+sub-issue progress on the issues list, and nothing sourceable says it ever did: it appears on the issue's
+own page, in `gh issue view`, and in a Projects field somebody has to switch on. The list's row fragment
+carries no sub-issue field at all — *Verified, not read* below has the method.
+
+**So the premise was never there to outlive.** The backlog has not been legible on the issues list at any
+point in this design's life — not under sub-issues and not under the ledger — and §10.10's own cost note,
+*"the `2 of 5` progress view is lost"*, was describing a view on the detail page and in the CLI. Neither is
+the surface the question gets asked on.
+
+**What the refusal actually rested on is the other half of its own clause: drift.** *Wrong the first time
+someone adds phases without relabelling* is a complete argument standing alone, and it says nothing about
+rendering. The shadowing half was doing no work, because there was no rendered signal for a label to shadow
+under either design.
+
+**That makes this a narrower correction than a reversal, and a worse finding about the design.** The label
+was refused on a drift risk — answerable, and answered below. What was never asked, by anyone, is what the
+issues list actually shows. Three sections then ran on the unasked answer: §10.4 choosing sub-issues partly
+for their visibility, §10.7 refusing Projects for buying *a view, not a fact*, and §10.10 pricing the loss
+of a view that was not where it was thought to be.
+
+#### The whole of the objection, and the answer §10.10 already supplies
+
+*Wrong the first time someone adds phases without relabelling* is now the entire case against the label,
+and it is a real hazard that does not evaporate. But it is the identical hazard §10.10 took on knowingly,
+one paragraph after removing the sub-issues:
+
+> **The closing write no longer rides the commit under this answer.** It cannot: a body edit is not a
+> commit. It is a second write immediately after, and the window is real. What replaces the atomicity is
+> evidence — **a closing row names the commit that carried the phase.** […] A `done` row with no sha is a
+> disagreement to stop on.
+
+**The answer to a write that might not land was never "do not make the write."** It was: make the
+disagreement checkable, and stop on it. That answer is available here unchanged, and it is cheaper, because
+the label and the body write are adjacent lines in one command — `/feature-plan` writes the plan and
+applies the label in the same run, the way it already corrects the issue's type there.
+
+| Observed | Means |
+|---|---|
+| label, and the body holds a ledger | a planned feature |
+| no label, and the body holds one or two lines | an idea |
+| the body holds a ledger, no label | an interrupted `/feature-plan`, or a plan written by hand — **stop and say so** |
+| label, and the body holds no ledger | a label applied by hand — **stop and say so** |
+
+**The body wins both disagreements**, and that is not a tiebreak, it is the whole design: the ledger is the
+fact and the label is a rendering of it. `/feature-status` gains two rows in the reconciliation it already
+performs — no new apparatus, just §2.4's existing instruction to stop rather than resolve, pointed at one
+more pair.
+
+**`check` cannot carry them, and that is a boundary rather than a gap.** It reads files under `context/`
+and makes no network call — `trackingAnswer()` is a shape read of a local stub, which is the whole of its
+involvement with this substrate — so a label on a remote issue is outside everything it can see. The
+reconciliation has exactly one home, the command that already queries the tracker, which is also the only
+place it could ever have had two.
+
+#### A label nothing reads is a rendering, not a second source of truth
+
+This is the clause the whole argument rests on, and it has to be written as a rule rather than a habit:
+
+> **No ranking, refusal, selection, gate or report may branch on the label.** `/feature-plan`'s ranking
+> reads the body. `/feature-implement`'s phase selection reads the ledger. `/feature-status` reads the
+> ledger. The label is applied, and reconciled, and never consulted for a decision.
+
+With that clause, §2.1 survives **literally**, not by charity. *"Planned is not a status"* is a claim about
+what the workflow consults in order to act, and it stays exactly true: the workflow still observes a plan by
+finding a ledger, and would behave identically if every label in the repository were deleted tonight.
+
+**The precedent is in this same section, already built and already shipped.** §10.11:
+
+> **The workflow sets it and never reads it.** […] **no refusal, no ranking and no report may branch on
+> it.** The moment one does, this stops being metadata for your tracker and becomes a second vocabulary
+> laid across the one in `workflow.md`.
+
+There is already a category here for **tracker metadata written for the tracker's readers and inert inside
+the loop**, and the issue type is in it. `Priority:` is the near miss that proves the line is real rather
+than convenient: it *is* read, by exactly one ranking, and §10.12 had to argue for that separately and
+specifically. A label that no command reads is on the safe side of a boundary this design has already drawn
+twice.
+
+#### What one label buys, and why it is not a board
+
+Three searches, typed into the box that is already on the page:
+
+```
+label:workflow:feature -label:workflow:planned                    the ideas
+label:workflow:feature  label:workflow:planned                    planned, not being worked
+label:workflow:feature  label:workflow:planned assignee:*         in flight
+```
+
+No Project, no board membership to maintain, no GraphQL, no node ids, nothing in `executors.md`, and
+nothing new for `/onboard` to collect beyond the label name it already asks for. **It is the same argument
+§10 used to choose this substrate at all** — one thing outside every working tree that every reader can
+reach, including readers this checkout has never heard of. §10 made that argument about agents on other
+machines. It is the same argument for a person with a browser, and that reader was in scope the entire time.
+
+#### Rejected
+
+| Candidate | Why not |
+|---|---|
+| **the issue's type** | It is rendered, it is already set, and it is the worst available answer. Type is a *kind* taxonomy — `Bug`, `Feature`, `Task` — and overloading it with a tier would lay a second vocabulary across `workflow.md`'s, which is the precise thing §10.11 and §2.2 forbid. The tier and the kind are orthogonal: a planned bug exists. |
+| **a milestone** | §10.7, unchanged. An issue belongs to at most one, and spending the user's only slot on a bit the workflow could carry in a label is what that section refused. |
+| **a Project with a Status field** | §10.7, unchanged and still the strongest of the four grounds: a `Status` field is stored state duplicating the assignee and open/closed, membership is a second thing to maintain with no structural answer to *is it on the board*, and it is GraphQL. A user pointing a Project at the repository themselves stays exactly as available as it is now. |
+| **a title prefix** — `[plan] export-api` | Rendered, and refused where it matters most. §10.4 keeps an adopted issue's title because it is the reporter's and the discussion is attached to it; a scheme that works only on issues the workflow opened is not a scheme. |
+| **a pinned dashboard issue** holding a rendered table | A cache of the backlog, in the tracker, with no reader that can tell when it went stale — and it is read most eagerly by exactly the person least able to check it. Every objection §2.1 makes, with a timestamp on it. |
+| **bringing the sub-issues back** | §10.10's deadlock is untouched by anything here, and its four costs — N+1 remote writes, the reconciliation apparatus, a ledger with two shapes, and sub-issues appearing in every issue surface — are unchanged. **And it would not even answer this question**: sub-issue progress does not render on the issues list, which is the finding that corrected this section's own first draft. |
+| **a saved repository view** | Named in §10.10: in public preview and **cannot be made the default view**, so it is a discipline each reader reapplies per surface rather than a property of the repository. Worth recommending in the stub; not worth depending on. |
+| **doing nothing, and improving `/roadmap`'s printed report** | The right fix for a different question, and it is owed anyway — see the defect in PLAN.md item 8. It does not touch this one: a report helps the person who is talking to an agent, and this reader is looking at a web page with no agent in the room. |
+
+#### Verified, not read
+
+**This section's first draft was wrong on the one fact it did not check, and it is the reason the check
+happened at all.** Against the live github.com HTML and `github/docs` `main` on **2026-09-22**, with **`gh`
+2.100.0**:
+
+- **Every label on an issue renders as its own chip in the list view.** Server-rendered HTML was compared
+  against the Relay payload on three repositories — `cli/cli` (24 labels across 12 rows), a
+  `kubernetes/kubernetes` query returning heavily-labelled rows (70), and one row carrying 12 — and the
+  chip count matched the payload count exactly in all three. The row's `labels` field is a paginated
+  connection reporting `hasNextPage: false` at 12, and there is no `truncated`, `overflow` or `maxLabels`
+  key anywhere in the payload. **Two chips will render.** What was *not* checked is whether CSS clips or
+  wraps them at a narrow viewport, which needs a real browser; there is no truncation in the data or the
+  markup.
+- **Negation is documented, with labels as the worked example** — `-label:bug label:priority`, "matches
+  issues … that lack the label 'bug', but *do* have the label 'priority'". `assignee:*` for any assignee is
+  documented alongside `no:assignee`.
+- **Applying an existing label is triage. Creating one is write.** *"Anyone with triage access to a
+  repository can apply and dismiss labels"*; creating, editing and deleting are write. **Applying a label
+  and creating a `blocked by` sit at exactly the same bar**, which is why the stub's best-effort wording is
+  the type's and the relationship's, word for word, rather than a new hedge.
+- **A missing label is an error, not an implicit create.** `gh issue edit --add-label` resolves names to
+  ids client-side before any mutation and returns `'<name>' not found` without touching the issue; matching
+  is case-insensitive. There is no create-on-the-fly flag — `gh label create` is a separate command, and it
+  needs write where applying needed only triage. **That asymmetry is why `/onboard` creates both labels and
+  no other command does**: the one command that runs before any work is the one place a write-level
+  operation belongs, and a triage-only agent can then apply what it finds.
+- **Sub-issue progress is not on the issues list.** Checked against `dotnet/runtime` filtered to
+  `has:sub-issue`, where every row is a parent and `gh api graphql` confirms real progress behind them
+  (`#132812 → 4 of 5`, `#132860 → 0 of 3`): the list's row fragment carries no `subIssuesSummary` and no
+  `parent`, and the fragment's keys are identical across all four repositories sampled, so the query is
+  fixed rather than flagged per repository. It renders on the issue's own page, in `gh issue view` as
+  `Sub-issues · 1/3 (33%)`, and in a Projects field that must be enabled. `has:sub-issue` exists as a
+  **filter**, which is not display.
+
+**On whether it ever rendered there: unknown, and left unknown.** The public-preview and GA changelogs do
+not mention the issues index either way, and absence from a changelog proves nothing. This section does not
+need the historical claim — it needs the current one, which is checked.
+
+**One method note worth keeping.** The permission sentence for issue dependencies is not in the rendered
+documentation page; it is front matter that renders as a callout, and a summarising fetch misses it. Read
+the raw `.md` in `github/docs` when a documentation page appears not to state something it ought to.
+
+#### The lesson, which is not about the label
+
+**Observability and legibility are different properties, and every rule in this document treats them as
+one.** §2.1's test asks whether a fact must be maintained by hand. It does not ask *who can see it, and from
+where* — and it never had to, because under the file answer the two questions had one answer: a fact
+observable from the tree is legible to anyone who opens the tree.
+
+Moving a substrate is the move that separates them, and §10 separated them without noticing. That is worth
+more than this one label: **a fact can be perfectly observable, perfectly non-duplicated, perfectly
+incapable of drift, and still be invisible to the person the workflow is for.** The test that catches it
+is not *does this require a stored copy* but *what does the reader see, on the surface they are actually
+looking at* — and this document has never asked it.
 
 ## 11. The release answer — what a change announces, and to whom
 

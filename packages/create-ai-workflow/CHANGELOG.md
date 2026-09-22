@@ -1,5 +1,15 @@
 # @baldurpan/create-ai-workflow
 
+## 0.21.0
+
+### Minor Changes
+
+- Under the issue-tracker answer, the backlog can now be read without opening anything: a second label
+  `workflow:planned` marks a feature that has a plan, so one chip on the issues list is an idea, two is
+  planned, and two with an assignee is being worked. `/roadmap` with no argument also gains a real output
+  shape under that answer — grouped by tier, with size, priority and what each entry waits on — replacing
+  steps that named the working tree's marker and `Doc` field, neither of which exists there.
+
 ## 0.20.1
 
 ### Patch Changes

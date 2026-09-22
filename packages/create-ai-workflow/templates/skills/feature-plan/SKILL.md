@@ -190,7 +190,7 @@ research, write, report — and only where the plan lands changes.
 | `git mv` a draft into `plans/` | nothing moves — **the plan replaces the body of the same issue** |
 | copy `plan-template.md` to a new path | write the template's sections into that issue's body |
 | the phase ledger, Status column and all | **unchanged** — the same table, written into the body |
-| step 6, repoint **Doc** | nothing — a plan is the observation that the body holds a ledger |
+| step 6, repoint **Doc** | nothing — a plan is the observation that the body holds a ledger, plus the planned label, which is a rendering of it and is read by nothing |
 | step 2's *already planned* check | the body already holds a phase ledger |
 | nothing — a plan document has no size limit | **the body does**, and a plan that overflows it is split rather than trimmed |
 
@@ -298,6 +298,24 @@ ties between equally-prepared entries would not do the job it was added for. An 
 **Name the priority in the entry's one-line reason**, alongside whatever else put it where it is. The cost
 of this placement is that the top candidate can now be unresearched — acceptable only because this command
 still **asks**, and it would not be if it silently took the top entry.
+
+### The planned label, applied here
+
+[`context/tracking.md`](../../../context/tracking.md) names the label that says a feature has a plan.
+**Apply it in this same run, immediately after the body write**, and say that you did.
+
+**It is a rendering and never an answer.** *Whether this feature has a plan* is the ledger in the body,
+which is what this command checks in step 2 and what every other command reads. The label exists so that a
+person scanning the issues list can see the tier boundary without opening anything, and **nothing in this
+workflow may start reading it** — not this command's ranking, not a refusal, not a report.
+
+- **After the body, not before it.** The plan is the fact; a label on an issue whose body is still one or
+  two lines is a sticker with nothing behind it. Where the body write fails, no label.
+- **Best-effort, like the type.** Applying a label needs triage on the repository, and where the write is
+  refused say so once and carry on. The plan landed; the plan is what matters.
+- **Never apply it to anything else.** Not to the chunks a split opens — those are Tier-1 entries with no
+  plan — and not to an issue this run did not plan.
+- **Never remove one.** Nothing in this workflow takes it off, including a close.
 
 ### The type, corrected here
 

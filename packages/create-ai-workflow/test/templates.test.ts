@@ -1622,3 +1622,147 @@ describe('what a feature waits on is a relationship, not a sentence', () => {
     assert.match(status, /\*\*A cycle\*\*/);
   });
 });
+
+describe('the planned label is a rendering, and nothing reads it', () => {
+  // §10.15: the backlog is observable and was not legible. *Has a plan* is a ledger in an issue body,
+  // which renders as nothing on the issues list, so a person scanning it cannot tell an idea from a
+  // planned feature. One label fixes that — and it is only safe because no command consults it. The
+  // moment a ranking or a refusal branches on it, the body stops being the single answer and the label
+  // becomes a second one that can disagree.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const tracking = readTemplate('stubs/tracking.md');
+
+  it('both labels are parameters of the stub, and the stub is the only place they are named', () => {
+    assert.match(tracking, /\*\*Backlog label:\*\* `workflow:feature`/);
+    assert.match(tracking, /\*\*Planned label:\*\* `workflow:planned`/);
+    // The literal name is the tracker's vocabulary, which §10.8 keeps in one file so a different tracker
+    // is a rewrite of this section rather than of the skills. They say "the planned label" and nothing more.
+    // /onboard is exempt for the reason it is exempt from naming an issue type: it collects the answer
+    // that goes into the stub, so it has to be able to say what ships as the default.
+    for (const name of SKILL_NAMES) {
+      if (name === 'onboard') continue;
+      assert.doesNotMatch(
+        skillBody(name),
+        /workflow:planned/,
+        `${name} spells the planned label's literal name; tracking.md is where it is named`,
+      );
+    }
+  });
+
+  it('the body stays the answer, and the clause that says so is written down', () => {
+    // The whole of why this is not a second source of truth. §10.11 gives the issue's type the same
+    // standing, and Priority: is the near miss — it IS read, by one ranking, and had to be argued for.
+    assert.match(
+      flat(tracking),
+      /No ranking, refusal, selection, gate or report may branch on the planned label/,
+    );
+    assert.match(flat(tracking), /whether the issue body holds a phase ledger/i);
+  });
+
+  it('only /feature-plan and /tracking-migrate apply it, and /roadmap refuses', () => {
+    // The mirror of 'nothing enters the backlog except through /roadmap'. A plan is what earns the label,
+    // so the two commands that write a plan into a body are the two that may apply it. /roadmap opens
+    // ideas and adopts other people's issues — both Tier 1 by definition.
+    const MAY_APPLY = new Set(['feature-plan', 'tracking-migrate']);
+    const APPLIES = /\b(apply|applies|applying|add|adds|adding|set|sets|setting)\b/i;
+    const REFUSES = /\b(never|not|no|refuse|refuses|cannot)\b/i;
+    for (const name of SKILL_NAMES) {
+      if (MAY_APPLY.has(name) || name === 'onboard') continue;
+      for (const sentence of flat(skillBody(name)).split(/(?<=[.:])\s+/)) {
+        if (!/planned label/i.test(sentence) || !APPLIES.test(sentence)) continue;
+        assert.match(
+          sentence,
+          REFUSES,
+          `${name} applies the planned label, and only a command that writes a plan may: "${sentence}"`,
+        );
+      }
+    }
+    assert.match(flat(skillBody('roadmap')), /\*\*Never apply the planned label\.\*\*/);
+    assert.match(flat(skillBody('feature-plan')), /### The planned label, applied here/);
+  });
+
+  it('/feature-status is the only command that looks at it, and it only reports', () => {
+    // Looking is not reading: the disagreement is named, never resolved, and never turned into a next
+    // action. This command writes nothing at all, which is what makes it the only safe place for it.
+    const status = flat(skillBody('feature-status'));
+    assert.match(status, /A planned label that disagrees with the body/);
+    assert.match(status, /the body wins, always/i);
+    assert.match(status, /This is the only place the label is looked at at all/);
+    // Every other skill may say it does NOT read the label — /roadmap's print has to say so outright,
+    // since it holds the body open and the label is right there. A sentence that reads it is the failure;
+    // a sentence that refuses to is the invariant being stated.
+    const REFUSES = /\b(never|not|no|refuse|refuses|cannot|without)\b/i;
+    for (const name of SKILL_NAMES) {
+      if (name === 'feature-status') continue;
+      for (const sentence of flat(skillBody(name)).split(/(?<=[.:])\s+/)) {
+        if (!/\breads?\b[^.]*\bplanned label\b/i.test(sentence)) continue;
+        assert.match(sentence, REFUSES, `${name} must not read the planned label: "${sentence}"`);
+      }
+    }
+  });
+
+  it('/onboard creates both labels, because creating one outranks applying one', () => {
+    // Verified 2026-09-22: applying an existing label needs triage, creating one needs write, and
+    // applying a name that does not exist fails rather than creating it. So the labels are made once by
+    // the command that runs before any work, and everything after it only applies what it finds.
+    const onboard = flat(skillBody('onboard'));
+    assert.match(onboard, /\*\*Two label names\.\*\*/);
+    assert.match(onboard, /\*\*Create either label if it is absent\*\*/);
+    assert.match(onboard, /only one that creates a label/i);
+    assert.match(flat(tracking), /Creating the label needs more than applying it/);
+  });
+
+  it('nothing removes it, including a close', () => {
+    // A closed issue has left the list the label is read from, so there is nothing to clean up — the same
+    // shape as `blocked by`, which nothing clears on the way out either.
+    assert.match(flat(tracking), /It is not removed on the way out/);
+    assert.match(flat(skillBody('feature-plan')), /\*\*Never remove one\.\*\*/);
+  });
+});
+
+describe("/roadmap's print has a shape under the tracker answer", () => {
+  // PLAN.md item 8: the no-argument print was written for the working tree and three of its four steps
+  // name things the tracker answer does not have — the pending/active marker, the Doc field, and `active`
+  // itself. The translation table remapped step 1 and repaired none of the rest, so "say which entries
+  // have a plan and which do not" survived as an instruction with no mechanism under the answer where
+  // satisfying it is hardest. That is the surface the legibility report (§10.15) landed on.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const roadmap = skillBody('roadmap');
+
+  it('the three steps that name tree-only things are remapped, not left dangling', () => {
+    const table = flat(roadmap);
+    assert.match(table, /the print's `pending` \/ `active` \*\*marker\*\* \| the assignee/);
+    assert.match(table, /the print's \*\*Doc\*\* field \| nothing to print/);
+    assert.match(table, /the print's \*nothing is `active`\* \| no issue carrying the backlog label is assigned/);
+    assert.match(table, /\*\*The print has its own shape under this answer\*\*/);
+  });
+
+  it('it groups by tier, which is the question the report was asked', () => {
+    assert.match(roadmap, /^### The backlog, printed$/m);
+    assert.match(flat(roadmap), /Group by tier, because that is the question this command answers/);
+    // An empty group is an answer somebody came for; a heading that vanishes reads as a backlog nobody read.
+    assert.match(flat(roadmap), /An empty group still prints, with `\(0\)`/);
+  });
+
+  it('a plan is the ledger\'s presence, and the print stops there', () => {
+    // The body is already in hand, so the Status column is one glance away — which is exactly why this
+    // line has to be written down. /feature-status answers where a feature stands; this answers what is
+    // on the list, and the existing rule against reporting phase status has to survive the substrate move.
+    assert.match(flat(roadmap), /\*\*Look for the phase ledger\. Do not read it\.\*\*/);
+    // The rule the working-tree answer already carried, which the substrate move must not drop.
+    assert.match(flat(roadmap), /read a plan.s ledger or report phase status/);
+  });
+
+  it('it derives the tier from the body and never from the label', () => {
+    // The label is a rendering for the issues list. A report that consulted it would derive a fact from a
+    // copy with the original already open, and would go wrong exactly when the copy is stale.
+    assert.match(flat(roadmap), /\*\*Do not read the planned label, and do not print it\.\*\*/);
+    assert.match(flat(roadmap), /The body decides, every time/);
+  });
+
+  it('it still refuses to pick a candidate', () => {
+    // Unchanged under both answers, and the reason is unchanged: /feature-plan ranks and asks, so a name
+    // suggested here either duplicates that ranking or contradicts it.
+    assert.match(flat(roadmap), /If nothing is assigned, name `\/feature-plan`\*\* — and \*\*do not pick a candidate/i);
+  });
+});

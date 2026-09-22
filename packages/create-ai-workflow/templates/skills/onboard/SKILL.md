@@ -279,20 +279,34 @@ Collect these and write them into the file, then delete the answer that was not 
 subsection's heading:
 
 1. **The repository**, as `OWNER/REPO`. Confirm it against the remote rather than asking blind.
-2. **The label name.** It ships as `workflow:feature`, and it is the only one — phase status lives in the
-   ledger's Status column, so nothing needs a label for `blocked`. **List the repository's existing labels
-   first** and say what you found: a project already using that name for something else needs a different
-   one, and a project with an `enhancement` or `feature` label is exactly why this is namespaced. Say that
-   `feature` here is [`workflow.md`](../../../context/workflow.md)'s word — work you would want a history
-   row for — and not a claim that the issue is not a bug.
+2. **Two label names.** They ship as `workflow:feature` for the backlog and `workflow:planned` for a
+   feature that has a plan, and there is no third — phase status lives in the ledger's Status column, so
+   nothing needs a label for `blocked`. **List the repository's existing labels first** and say what you
+   found: a project already using either name for something else needs a different one, and a project with
+   an `enhancement` or `feature` label is exactly why these are namespaced. Say that `feature` here is
+   [`workflow.md`](../../../context/workflow.md)'s word — work you would want a history row for — and not
+   a claim that the issue is not a bug.
+
+   Say what the second one is **for**, because it is the only part of this answer aimed at a person rather
+   than an agent: both labels render on the issues list, so the backlog can be read at a glance — one chip
+   is an idea, two is planned, two and an assignee is being worked. **Nothing in the workflow reads it.**
+   *Whether a feature has a plan* is the ledger in its body, under every command, every time.
 3. **Whether this project has issue types**, and their names. Look rather than asking: a project with none
    gets no `Types:` line and the workflow simply records no kind. Where it has them, say which, and say
    that the workflow **sets a type and never reads one** — no refusal, ranking or report branches on it.
    Warn about the collision if the set includes `Task`: that word means work too small for this loop in
    [`workflow.md`](../../../context/workflow.md), and an issue typed `Task` is still a workflow feature.
-4. **Create the label if it is absent**, and say so before doing it. This is the first thing this
+4. **Create either label if it is absent**, and say so before doing it. This is the first thing this
    command does that is visible to anyone else with access to the repository — which is why the check
    above runs first: a refusal that fires after the label exists is a refusal that already wrote.
+
+   **This command is the only one that creates a label, and that is a permission fact rather than a
+   convention.** [`context/tracking.md`](../../../context/tracking.md) records the split: creating a label
+   needs write access while applying an existing one needs only triage, and applying a name that does not
+   exist fails rather than creating it. So both labels are made once, here, before any work — after which
+   every other command only ever applies what it finds, and an agent with triage alone can run the loop.
+   Where creating is refused for want of access, say which label is missing and that `/feature-plan` will
+   not be able to apply it until somebody with write access creates it. It is not a gate on this step.
 
 Then say plainly what the workflow will **not** touch: this project's own labels, its Projects, and its
 milestones. Nothing in the loop reads or writes any of them, so a board or a release milestone can be used

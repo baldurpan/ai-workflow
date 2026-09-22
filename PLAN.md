@@ -390,6 +390,12 @@ is now built: `/roadmap` records the order the user's own wording names, `/featu
 research and records its split's own edges, and `/feature-implement` and `/feature-status` read it and
 never write it.
 
+**A second report has since arrived, and it is the same shape** — see item 8 and §10.15. *Has a plan* is
+observable, stored nowhere and incapable of drift, and it is invisible to a person scanning the issues
+list, because §10.10 removed the one primitive GitHub rendered and priced the loss against the agent as
+reader. Diagnosed and written up; nothing built, because what that page actually renders has not been
+checked.
+
 **The mechanisms are still unrun, and that is still the whole of the risk.** 0.10.0 is what one
 careful read of the prose found; it is not what running it found. Four things are not known to have executed:
 **optimistic claiming** (assign, re-read, confirm sole assignee, back off), the **phase-boundary
@@ -554,6 +560,58 @@ neither is knowable yet:
   tag, so a package change landed without a note leaves it red until somebody writes one. That is the
   honest signal and it is also the shape people learn to tune out. If it sits red for a week, it is not
   doing its job and should go.
+
+---
+
+### 8. The backlog is legible from the issues list — built, and unrun like the rest of §10
+
+**Reported from a real install, and nothing was broken.** Scanning
+`github.com/OWNER/REPO/issues?q=label:workflow:feature`, a person could not tell which entries had plans
+and which were still ideas. *Has a plan* is *the issue body holds a phase ledger* — observable, stored
+nowhere, incapable of drift, and rendered by nothing on the page.
+
+**Shipped: one label, `workflow:planned`.** `/onboard` creates it, `/feature-plan` applies it beside the
+body write, `/tracking-migrate` applies it to a feature that arrives already planned, `/roadmap` refuses it
+under both its modes, `/feature-status` reports a disagreement and never resolves one, and **nothing reads
+it.** That last clause is the whole of why it is a second view rather than a second answer, and it is the
+standing §10.11 already gives the issue's type. Three states now read off the row: one chip is an idea, two
+is planned, two and an assignee is being worked. Six new invariants in `templates.test.ts` hold the line,
+including that no skill may spell the label's literal name — `/onboard` excepted, since it collects it.
+
+**`check` does not reconcile the label, and cannot.** It reads files under `context/` and makes no network
+call, so a label on a remote issue is outside everything it can see. `/feature-status` is the only home.
+
+**The write-up was wrong first time, and checking is what caught it** (§10.15's *Verified, not read*). It
+had §10.4's refusal of this label going stale in 0.10.0 — sound while *has a plan* meant sub-issues, which
+GitHub was taken to render on the parent row. **It does not, and nothing sourceable says it ever did:**
+sub-issue progress is on the issue's own page, in `gh issue view`, and in an opt-in Projects field. The
+list's row fragment carries no sub-issue field at all. So the backlog was never legible there under either
+design, the refusal never rested on that ground, and what it actually rested on was drift alone — which is
+answered the way §10.10 answered the same hazard for the ledger's closing row: make the disagreement
+checkable and stop on it.
+
+**Also shipped: `/roadmap`'s no-argument print, which was broken under the tracker answer.** Three of its
+four steps named the working tree's `pending`/`active` marker, its **Doc** field and `active` itself, and
+the translation table remapped step 1 and repaired none of the rest — so step 3, *"say which entries have a
+plan and which do not"*, survived as an instruction with no stated mechanism under the answer where
+satisfying it is hardest. It now has its own shape: **grouped by tier**, one line an entry with `Size:`,
+`Priority:` and `waits on #N`, empty groups printed with `(0)`, and the whole thing derived from one
+listing per run. Two lines hold it in place and both were easy to cross. **A plan is the ledger's
+presence and nothing past it** — the body is already open, so the Status column is one glance away, and
+*where does it stand* stays `/feature-status`'s question. **And the tier comes off the body, never off the
+label** — a report that read the rendering while holding the original would go wrong precisely when the
+two had drifted, which is the case the label was allowed to exist on condition of nobody depending on.
+
+**Neither half has been run by a live agent**, which puts this in exactly the state item 5 describes for
+everything else under §10: it is what a careful read found, not what running it found. The label's one new
+hazard is the window between the body write and the label write, and the print's is the pull towards
+reporting phase status from a body it already holds. **Fold both into item 1's run** — the same scratch
+repo, the same two features, and the check is whether the issues list reads correctly at a glance
+afterwards.
+
+**Worth saying plainly: two field reports about the tracker answer, and neither was a bug.** §10.14's was a
+fact with no home; this one was a fact with a home nobody could see. Both are what running the thing finds
+and reading it does not, which is item 1's whole argument.
 
 ## Decisions that are cheap to reverse now
 

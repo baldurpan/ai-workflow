@@ -68,7 +68,8 @@ replaces that atomicity: a `done` row whose sha is in the branch is checkable, a
 is a disagreement to stop on.
 
 **Repository:** `OWNER/REPO`
-**Label:** `workflow:feature`
+**Backlog label:** `workflow:feature`
+**Planned label:** `workflow:planned`
 
 **`feature` is this workflow's word, not a claim about kind.** [`workflow.md`](workflow.md) defines a
 feature as work you would want a history row for — so a bug large enough to plan is a feature, and the
@@ -76,7 +77,57 @@ label says nothing about whether it is one. It is namespaced for exactly this re
 collide with an `enhancement` or `feature` label this repository already uses.
 
 **This project's own labels are untouched.** An issue keeps everything it already carries; the workflow
-adds one bit and reads nothing else.
+adds two bits and reads one of them.
+
+### The planned label — the backlog, legible from the list
+
+**The backlog label says an issue is in the loop. The planned label says it has a plan**, and it exists
+for one reader: a person scanning the issues list, who cannot open every issue to find out which bodies
+hold a ledger. Both chips render on the row, so three states are readable without a click — the backlog
+label alone is an idea, both labels is planned and unstarted, and both plus an assignee is being worked.
+
+**The ledger in the body is still the fact. The label is a rendering of it, and nothing reads it.**
+
+> **No ranking, refusal, selection, gate or report may branch on the planned label.** *Whether a feature
+> has a plan* is answered by the body, in the table above, by every command, every time. The workflow
+> would behave identically if every planned label in this repository were deleted tonight.
+
+That clause is what keeps this a second *view* rather than a second *answer*, and it is the same standing
+this file already gives the issue's type — set by the workflow, read by nothing in it. `Priority:` is the
+near miss that shows the line is real: it **is** read, by one ranking, and it had to be argued for
+separately.
+
+**Who writes it, and when:**
+
+| Command | Does |
+|---|---|
+| `/feature-plan` | **applies it**, in the same run that writes the plan into the body |
+| `/tracking-migrate` | applies it to a migrated feature that arrives with a plan already written |
+| `/roadmap` | **never** — an entry it opens is an idea, and an issue it adopts is somebody's report |
+| `/feature-implement`, `/feature-close`, `/feature-status`, `/orchestrate` | nothing. It is not removed on the way out, because a closed issue has left the list the label is read from |
+
+**A label that disagrees with the body is a stop, and the body wins.** The write lands immediately after
+the body write rather than inside it, so the window is real and is the same one the ledger's own closing
+row lives with. Two disagreements, both for `/feature-status` to report and neither for it to resolve:
+
+- **A ledger in the body with no planned label** — an interrupted `/feature-plan`, or a plan somebody wrote
+  by hand. The feature is planned; the sticker is missing.
+- **A planned label on a body with no ledger** — a label applied by hand. The feature is not planned,
+  whatever the row says.
+
+**Applying it is best-effort, exactly as the type and `blocked by` are**, and for once that is the same
+sentence rather than a similar one: applying an existing label needs **triage** on the repository, which is
+the identical bar `blocked by` names above. Where the write is refused, say so once and carry on.
+
+**Creating the label needs more than applying it, which is why only `/onboard` creates one.** Creating,
+editing and deleting labels need **write** access, and applying one to an issue does not create it — the
+write is refused outright when the name does not exist. So both labels are created once, by the command
+that runs before any work, and every command after it only ever applies what it finds.
+
+On GitHub that is `gh issue edit --add-label` and `--remove-label` to apply, `gh label create` to make one
+and `gh label list` to see what this repository already uses. **A name that does not exist fails before the
+issue is touched** — `'<name>' not found`, resolved client-side ahead of the mutation — so a failed apply
+never leaves a half-labelled issue. Matching is case-insensitive.
 
 ### The issue's type
 
@@ -203,9 +254,10 @@ written down anywhere, and a file that tracked it would be a cache of something 
   not a thing this file has an answer about.
 - **A bug is not a backlog entry**, under either answer. The backlog holds **features** — work you would
   want a `history.md` row for. A defect goes wherever this project already files bugs, keeping this
-  project's own labels, and nothing in the workflow reads it, ranks it or carries it. The label above is
-  the one bit this workflow adds to an issue, and a bug is outside it — which is also why the label is
-  `/roadmap`'s to apply and no gate's.
+  project's own labels, and nothing in the workflow reads it, ranks it or carries it. The **backlog**
+  label above is the bit that puts an issue in the loop, and a bug is outside it — which is also why that
+  label is `/roadmap`'s to apply and no gate's. The planned label follows it and never leads: an issue that
+  is not in the backlog cannot be planned, so nothing applies the second without the first.
 - **Neither `history.md` nor `archive/` is ever converted, in either direction.** Fabricating closed
   issues for features shipped months ago produces wrong dates, empty threads and an audit trail that looks
   real and is not. Under the tracker answer they stay as the frozen record of the era before the switch —

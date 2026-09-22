@@ -177,10 +177,19 @@ way out.
 - **A cycle** — two issues waiting on each other, directly or around a loop. Nothing in the backlog is
   runnable and no ranking will say why. Name the loop.
 
-### Two reconciliations that only exist here
+### The reconciliations that only exist here
 
 Add these to step 3, and stop on them the same way:
 
+- **A planned label that disagrees with the body.**
+  [`context/tracking.md`](../../../context/tracking.md) names the label that says a feature has a plan, and
+  it is a rendering of the ledger rather than a second answer — so **the body wins, always**, and this
+  command reports the disagreement rather than resolving it. Two shapes: a body holding a ledger with no
+  label, which is an interrupted `/feature-plan` or a plan written by hand; and a label on a body with no
+  ledger, which is a label applied by hand. Say which issue and which way round. **This command writes
+  nothing, so it does not fix either one** — naming it is the whole of the job, and the fix is a person's.
+  **This is the only place the label is looked at at all**, and looking is not reading: no next action, no
+  ranking and no report line anywhere else may be derived from it.
 - **A stale claim.** An issue assigned whose last comment is old — the phase opened and nothing since. The
   heartbeat is what makes this visible; say how long, and that reclaiming is a person's decision. **Never
   un-assign someone else's agent.**

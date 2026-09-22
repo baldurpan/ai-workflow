@@ -49,7 +49,7 @@ list exists to prevent.
 - **[`context/tracking.md`](../../../context/tracking.md) does not name the tracker answer.** Then there is
   nothing to migrate *to*, and this command would be inventing a destination. Say which answer the file
   holds and name `/onboard`.
-- **The tracker's parameters are missing** — the repository, or the label name. Same answer: they are
+- **The tracker's parameters are missing** — the repository, or either label name. Same answer: they are
   Step 5's to collect, and a migration that guessed one would write into the wrong place.
 - **A phase is `in progress`.** An agent may be inside it right now, in this tree or another one, and
   [`context/workflow.md`](../../../context/workflow.md)'s read-fresh model assumes the substrate does not
@@ -104,16 +104,20 @@ For one feature, in this order:
    entry's one or two lines where it has no plan.
 2. **Set its `Priority:` line, and its type** where this project has types. Best-effort, and neither is a
    gate.
-3. **Assign the issue** if the entry was `active`.
-4. **Only now, remove that feature's tree files** — its `roadmap.md` entry, and its `drafts/` or `plans/`
+3. **Apply the planned label if the body arrived with a ledger in it** — that is, if the entry had a plan
+   in the tree. [`context/tracking.md`](../../../context/tracking.md) names it. An entry that was only ever
+   one or two lines gets the backlog label and nothing more; the tier it was in is the tier it arrives in,
+   and this command has never invented one. Best-effort, and not a gate.
+4. **Assign the issue** if the entry was `active`.
+5. **Only now, remove that feature's tree files** — its `roadmap.md` entry, and its `drafts/` or `plans/`
    document.
 
 **The plan is one write.** The ledger goes into the body as the table it already is, every row's Status and
 Note carried across as they stand. There is no second object to create, so there is no window in which a
 feature arrives half-migrated with a complete plan that reads as a draft.
 
-**Fail at any point and the feature is still in exactly one substrate.** Steps 1–3 are additive: a partial
-issue is visibly partial, and re-running reconciles it. Step 4 is the commit point, and it cannot happen
+**Fail at any point and the feature is still in exactly one substrate.** Steps 1–4 are additive: a partial
+issue is visibly partial, and re-running reconciles it. Step 5 is the commit point, and it cannot happen
 before the issue it replaces exists. **A repository is never in neither substrate**, which is the failure
 mode a bulk migration has and this one does not.
 
