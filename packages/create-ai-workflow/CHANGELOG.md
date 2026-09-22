@@ -1,5 +1,13 @@
 # @baldurpan/create-ai-workflow
 
+## 0.21.1
+
+### Patch Changes
+
+- `/prototype` no longer leaves the invented half of a mockup unguided: where there is genuinely nothing to
+  borrow it says to reach for a design-guidance skill if your runtime offers one, and where there is, the
+  project's own values still win over whatever opinion that skill has.
+
 ## 0.21.0
 
 ### Minor Changes

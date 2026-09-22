@@ -608,6 +608,20 @@ scaffolded app's `@theme` as its durable output. This tool overlays repositories
 so the deliverable is inverted: **borrow before inventing**, mark every invented value, and the durable
 part is `NOTES.md` — what the sketch settled — not the tokens.
 
+**A design-guidance skill is reached for on the invent side only, and it is not named.** The borrow/invent
+split is what decides when one applies. Anthropic's `frontend-design` plugin skill — read on 2026-09-22 at
+commit `c447c3207a4`, not from documentation — opens by asking for "deliberate, opinionated choices about
+palette, typography, and layout" specific to the brief, and lists warm-cream-and-serif and the SaaS-card kit
+among the tells to design away from. That is right for a blank page and wrong for a repository whose
+stylesheet is already the answer: on the borrow side it would have an agent improve on the tokens it was
+sent to copy, which is why the line says the project's real values win. On the invent side the command
+previously said nothing beyond "mark it," and that is the gap the guidance fills. **Rejected: naming the
+plugin, and having the skill look for it on disk.** §3.2 forbids the first — the body ships verbatim to a
+host with no plugins — and the second reimplements a discovery the host already performs, against a path
+that carries the plugin's commit sha and a marketplace name (`claude-plugins-official`) that is not the
+repository it is distributed from. A capability named the way §3.2 names subagents costs nothing when it
+is absent.
+
 **It is the one stack-shaped skill, and that is defensible only because of what it is not.** It crosses no
 tier, has no ledger, runs no gates, writes no application code, and nothing in the loop requires it. A Rust
 CLI or a headless API never invokes it and loses nothing; the other seven stay stack-agnostic, and the
