@@ -74,24 +74,27 @@ the level and confirm it** before writing. **Say which paths you checked and wha
 when the answer is *none*. A path the table does not cover is named rather than guessed at: write no note
 for it and name `/onboard`. Name no release tool; that file says what records a note here.
 
-Delegate to a coder per [`context/executors.md`](../../../context/executors.md) if one is configured;
-otherwise implement in-host. The coder's system prompt is
-[`context/roles/coder.md`](../../../context/roles/coder.md). The brief **cites paths, it does not paste
-files.** Describe what needs to happen, never how to code it.
+Dispatch per [`context/executors.md`](../../../context/executors.md): a **coder subagent if your runtime
+provides one**, on the model tier that file names where your runtime lets you choose one; an external
+executor, a CLI or a tool, where it names one; otherwise implement in-host, and say which one you ran. The
+coder's system prompt is [`context/roles/coder.md`](../../../context/roles/coder.md) either way. The brief
+**cites paths, it does not paste files** — this command has no plan and so no `Standards:` line, so it
+points at `context/standards/README.md` and says to load per its conditional table. Describe what needs to
+happen, never how to code it.
 
 ## 3. Gate 1 — verification
 
-Read [`context/verify.md`](../../../context/verify.md) and run every section above *Not run by Gate 1*, in
-order — Lint → Typecheck → Build → Test first, then anything that file adds after them. **Never carry a copy
-of these commands here and never invent one.** A missing section is
-skipped and said so, never faked. Exit 0 is the verdict regardless of summary text. If `verify.md` does not
-exist or has no filled-in section, stop and say so. Docs-only changes run Lint plus a read of the diff.
+Per the gate contract in [`context/workflow.md`](../../../context/workflow.md): read
+[`context/verify.md`](../../../context/verify.md) and run every section above *Not run by Gate 1*, in
+order — Lint → Typecheck → Build → Test first, then anything that file adds after them. What a missing
+section, a non-zero exit or an empty file means is in that contract and in `verify.md`'s own rules, not
+here; docs-only changes run Lint plus a read of the diff.
 
 ## 4. Gate 2 — review
 
-Dispatch per [`context/executors.md`](../../../context/executors.md) — an external reviewer, a **reviewer
-subagent if your runtime provides one**, or the host reading its own diff. The last is the default and the
-weakest, so **say which one you ran.** Where the runtime has no subagent mechanism, review the diff
+Dispatch per [`context/executors.md`](../../../context/executors.md) — a **reviewer subagent if your
+runtime provides one**, an external reviewer, or the host reading its own diff. The last is the fallback
+and the weakest, so **say which one you ran.** Where the runtime has no subagent mechanism, review the diff
 yourself against the standards and say that is what happened.
 
 Require concrete evidence — file paths, command output — for every verdict, and for every item in it, **one

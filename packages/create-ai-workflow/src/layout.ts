@@ -41,6 +41,40 @@ export const SKILL_NAMES = [
   'tracking-migrate',
 ] as const;
 
+export type SkillName = (typeof SKILL_NAMES)[number];
+
+/**
+ * The model and effort each command's own orchestration runs on, in the Claude Code copy only.
+ *
+ * The fixed reading a command does before it touches code — the skill, `workflow.md`, the answer files,
+ * the plan — lands in the session that invoked it, and picking a ledger row, writing a brief, running Gate
+ * 1 and writing the row back is bookkeeping a mid-tier model does as well as a frontier one. So every
+ * command's shell runs on `sonnet` and the two that need judgment do not: `/onboard` runs once and a wrong
+ * answer file costs every later run, and the planner and reviewer subagents are pinned up in their own
+ * definitions. Aliases rather than dated ids, so they resolve to whatever the account has.
+ *
+ * One limit, verified against the host's documentation on 2026-09-30: a skill's `model:` holds for the
+ * rest of the turn it was invoked in, and the session model resumes on the next prompt. A command that
+ * stops to ask — `/feature-implement`'s approval checkpoint, `/feature-close`'s bump confirmation — runs
+ * its remainder on the session model. The lines still cover every one-turn run outright and the first
+ * turn of the rest, and they put the intended tier where a reader looks for it. Running the session on
+ * `sonnet` is what makes the tier hold across the ask.
+ */
+export const CLAUDE_SKILL_SETTINGS: Record<SkillName, { model: string; effort: string }> = {
+  roadmap: { model: 'sonnet', effort: 'low' },
+  'feature-plan': { model: 'sonnet', effort: 'medium' },
+  'feature-implement': { model: 'sonnet', effort: 'medium' },
+  'feature-status': { model: 'sonnet', effort: 'low' },
+  'feature-close': { model: 'sonnet', effort: 'medium' },
+  orchestrate: { model: 'sonnet', effort: 'medium' },
+  prototype: { model: 'sonnet', effort: 'medium' },
+  onboard: { model: 'opus', effort: 'high' },
+  'tracking-migrate': { model: 'sonnet', effort: 'medium' },
+};
+
+/** The frontmatter keys the Claude copy adds. The shared body must carry none of them. */
+export const CLAUDE_ONLY_KEYS = ['disable-model-invocation', 'model', 'effort'] as const;
+
 export interface ManagedFile {
   /** Path inside the package's `templates/` directory. */
   source: string;
@@ -51,16 +85,25 @@ export interface ManagedFile {
 }
 
 /**
- * A skill body is shared verbatim between adapter trees. `disable-model-invocation: true` is the only
- * difference the Claude Code copy carries, and it is injected here rather than written into the template,
- * so a second tree can reuse the same body untouched.
+ * A skill body is shared verbatim between adapter trees. The Claude Code copy differs by frontmatter only:
+ * `disable-model-invocation: true`, and the `model` and `effort` from `CLAUDE_SKILL_SETTINGS`. All three
+ * are injected here rather than written into the template, so a second tree can reuse the same body
+ * untouched. The skill is identified by its own `name:` line, so a caller needs nothing but the text.
  */
 export function claudeSkillTransform(text: string): string {
   const match = /^---\n([\s\S]*?)\n---\n/.exec(text);
   if (!match) throw new Error('skill template has no frontmatter block');
   const frontmatter = match[1] as string;
-  if (/^disable-model-invocation:/m.test(frontmatter)) return text;
-  const patched = `---\n${frontmatter}\ndisable-model-invocation: true\n---\n`;
+  const name = /^name: (.+)$/m.exec(frontmatter)?.[1]?.trim();
+  const settings = name && name in CLAUDE_SKILL_SETTINGS ? CLAUDE_SKILL_SETTINGS[name as SkillName] : null;
+
+  const lines = [
+    'disable-model-invocation: true',
+    ...(settings ? [`model: ${settings.model}`, `effort: ${settings.effort}`] : []),
+  ].filter((line) => !new RegExp(`^${line.split(':')[0]}:`, 'm').test(frontmatter));
+  if (lines.length === 0) return text;
+
+  const patched = `---\n${frontmatter}\n${lines.join('\n')}\n---\n`;
   return patched + text.slice(match[0].length);
 }
 
@@ -73,15 +116,25 @@ export function undotted(posix: string): string {
   return posix.replace(/(^|\/)_dot_/, '$1.');
 }
 
+/**
+ * Every file a skill directory ships, as paths relative to it. `SKILL.md` is the body; anything beside it
+ * is a supporting file the body tells the agent when to read — `tracker.md` holds the tracker answer's
+ * half of five commands, read only where `tracking.md` names the tracker, so a repository on the
+ * working-tree answer never loads it.
+ */
+function skillFiles(name: SkillName): string[] {
+  return walk(path.join(templatesDir, 'skills', name)).map(toPosix);
+}
+
 /** Every tool-owned file, in the order it should be written and reported. */
 export function managedFiles(adapters: readonly Adapter[]): ManagedFile[] {
-  const files: ManagedFile[] = [
-    { source: 'context/README.md', dest: 'context/README.md' },
-    { source: 'context/workflow.md', dest: 'context/workflow.md' },
-    { source: 'context/plan-template.md', dest: 'context/plan-template.md' },
-    { source: 'context/plan-template.notes.md', dest: 'context/plan-template.notes.md' },
-    { source: 'context/roles/coder.md', dest: 'context/roles/coder.md' },
-  ];
+  // `context/` is walked rather than listed: the notes beside `workflow.md` and each stub are tool-owned
+  // for the same reason `plan-template.notes.md` is, and a list here went one file stale each time one
+  // was added.
+  const files: ManagedFile[] = walk(path.join(templatesDir, 'context')).map((rel) => {
+    const posix = toPosix(rel);
+    return { source: `context/${posix}`, dest: `context/${posix}` };
+  });
 
   for (const rel of walk(path.join(templatesDir, 'standards'))) {
     const posix = toPosix(rel);
@@ -90,11 +143,14 @@ export function managedFiles(adapters: readonly Adapter[]): ManagedFile[] {
 
   if (adapters.includes('claude')) {
     for (const name of SKILL_NAMES) {
-      files.push({
-        source: `skills/${name}/SKILL.md`,
-        dest: `${ADAPTER_SKILL_DIRS.claude}/${name}/SKILL.md`,
-        transform: claudeSkillTransform,
-      });
+      for (const rel of skillFiles(name)) {
+        const file: ManagedFile = {
+          source: `skills/${name}/${rel}`,
+          dest: `${ADAPTER_SKILL_DIRS.claude}/${name}/${rel}`,
+        };
+        if (rel === 'SKILL.md') file.transform = claudeSkillTransform;
+        files.push(file);
+      }
     }
     for (const rel of walk(path.join(templatesDir, 'claude', 'agents'))) {
       const posix = toPosix(rel);
@@ -102,15 +158,17 @@ export function managedFiles(adapters: readonly Adapter[]): ManagedFile[] {
     }
   }
 
-  // The same bodies, verbatim. No transform: `disable-model-invocation` is Claude Code's key and
-  // means nothing here, and there is no subagent tree to go with it — the skills already write
+  // The same bodies, verbatim. No transform: the three keys the Claude copy adds are Claude Code's and
+  // mean nothing here, and there is no subagent tree to go with them — the skills already write
   // delegation as optional.
   if (adapters.includes('agents')) {
     for (const name of SKILL_NAMES) {
-      files.push({
-        source: `skills/${name}/SKILL.md`,
-        dest: `${ADAPTER_SKILL_DIRS.agents}/${name}/SKILL.md`,
-      });
+      for (const rel of skillFiles(name)) {
+        files.push({
+          source: `skills/${name}/${rel}`,
+          dest: `${ADAPTER_SKILL_DIRS.agents}/${name}/${rel}`,
+        });
+      }
     }
   }
 

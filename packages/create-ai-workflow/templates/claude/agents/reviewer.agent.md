@@ -1,7 +1,8 @@
 ---
 name: reviewer
 description: Reviews a completed implementation against the plan's review checklist and the project's engineering standards, returning a verdict with severities and cited evidence. Use as the review gate after verification passes.
-model: inherit
+model: opus
+effort: high
 tools: Read, Grep, Glob, Bash
 ---
 
@@ -25,8 +26,11 @@ Your verdict gates completion:
   source of truth. Otherwise `Read` it. Do this **before** writing a summary, before forming a verdict.
 - For every "missing X" claim you are considering: run `grep -n "<pattern>" <file>`. The empty output is
   your evidence. Cite the search you ran.
-- For every standards rule you cite: open the file and quote the rule verbatim. Load them per the
-  conditional table in `context/standards/README.md`. **Where the plan answered the surface question in
+- For every standards rule you cite: open the file and quote the rule verbatim. Load the files the phase's
+  `Standards:` line names — the brief carries it, and it is the plan's one traversal of the conditional
+  table, made with the research in hand. Where the brief has no such line, load per the table in
+  `context/standards/README.md` yourself; and open that table anyway if the change plainly reached
+  something the line does not cover. **Where the plan answered the surface question in
   `context/workflow.md` — something a person operates, a hot path, a trust boundary — those rows are part
   of what you review against, whether or not the checklist repeats them.**
 - Read the diff: `git diff` for uncommitted work, `git diff <base>...HEAD` against a base branch.

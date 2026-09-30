@@ -10,40 +10,20 @@ Four answers, and each one is independent of the rest. A worktree per feature do
 request, and a pull request does not imply a worktree — pick each on its own terms. Run `/onboard` to set
 them, or edit them here.
 
+What each section takes, and the alternative answers written out, are in [`git.notes.md`](git.notes.md).
+`/onboard` reads that file when it fills this one.
+
 ## Who commits
-
-<!-- Exactly one of the two answers below is this project's. Keep it, delete the other.
-
-     Shipped as: the user commits. A tool installed into a repository it knows nothing about does not get
-     to write that repository's history unasked. -->
 
 **The user commits.** A phase ends with the work verified and its ledger row updated, left **unstaged** in
 the working tree. The agent reports what changed and stops there — no `git add`, no `git commit`, no
 `git push`, nothing that rewrites history. Staging is not a helpful head start: it is the first half of a
 commit, and it edits what the user's own `git commit` would capture.
 
-<!-- **The agent commits.** A phase ends committed: the code and its ledger row in one commit, so the two
-     cannot disagree. -->
-
 ## Where work lands
-
-<!-- Exactly one of the three answers below is this project's. Keep it, delete the other two.
-
-     Shipped as: the main working tree. It is what this workflow did before this section existed, and a
-     tool installed into someone else's repository does not start creating branches unasked. -->
 
 **The main working tree.** The agent works on whatever branch is already checked out and creates none.
 Enough for a repository you push to `main`, and for one where you make the branch yourself before starting.
-
-<!-- **A branch per feature.** One branch, created from the default branch before the feature's first phase
-     and reused by every phase after it. It lives in the main working tree, so one feature is in flight at
-     a time.
-
-     **A worktree per feature.** Each feature gets its own branch in its own working tree, so several are
-     in flight at once. The tree is created before the first phase and removed after its branch merges,
-     **only by the invocation `executors.md` names under *Branch and worktree*** — a bare `git worktree
-     add` is not a fallback when that section is empty. *Which* invocation is not this file's business —
-     that is `executors.md`, for the same reason the reviewer's invocation is. -->
 
 ### Under the worktree answer
 
@@ -67,17 +47,8 @@ context/history.md merge=union
 
 ## Push and pull request
 
-<!-- Exactly one of the two answers below is this project's. Keep it, delete the other.
-
-     Shipped as: neither. Pushing is the first thing an agent does that other people can see. -->
-
 **Neither.** Nothing here pushes a branch or opens a pull request. Work reaches the remote when you send
 it.
-
-<!-- **The agent pushes and opens a pull request.** Once, at `/feature-close` — never per phase. By then
-     the branch carries the whole feature: every phase's code, the documentation each one made true again,
-     the finished ledger, the `archive/` move and the `history.md` row. The pull request's body is the
-     plan's summary and the phases it landed. -->
 
 ## Granularity
 

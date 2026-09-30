@@ -18,6 +18,14 @@ a command can be pointed at a section of a file that does not have it.
 exactly how a file ends up naming a command that has never run. This command asks, and where it can, it
 *checks*.
 
+**An answer already written is not re-asked.** On a re-run, a section that holds something other than its
+shipped answer — an executor somebody wired, a git policy somebody chose — is reported in a line and left
+alone unless the user asks to change it. This command fills gaps; it does not re-open decisions.
+
+Each stub has a `<stub>.notes.md` beside it — what each section takes, and the alternative answers written
+out so the chosen one can be pasted in. Those notes are tool-owned and read here; nothing in the loop reads
+them.
+
 Read [`context/workflow.md`](../../../context/workflow.md) for the tier model.
 
 ## What it writes
@@ -87,21 +95,28 @@ not the prose someone wrote about their own project.
 ## Step 2 — Coder dispatch
 
 Ask which of three ways implementation runs. **Find out what this host actually offers before asking** —
-the middle answer is only real if there is a mechanism behind it.
+the subagent answer is only real if there is a mechanism behind it. The answers are written out in
+[`context/executors.notes.md`](../../../context/executors.notes.md); paste the chosen one.
 
-- **In-host** is the default, and a valid configuration rather than a gap. Leave the Coder section of
-  `context/executors.md` saying so.
-- **In a subagent**, briefed with [`context/roles/coder.md`](../../../context/roles/coder.md). Offer this
-  only where the host has such a mechanism. It needs no invocation written down — the brief is a file that
-  is already in the repository. What it buys is a caller that keeps the ledger, the gates and
-  the gates while the implementation's file reads stay elsewhere; what it does not buy is better code.
-  Say both.
-- **Offloaded** — the user names the invocation. Write it into `context/executors.md` verbatim, including
-  any directory or permission scoping it needs on this machine. Its system prompt is
+**If the Coder section already names something other than the shipped answer, say what it names and move
+on** unless the user asks to change it. An executor somebody wired into this project — a CLI, a tool, a
+tier they chose — is not this command's to re-ask, and a re-run that did would undo that decision every
+time the stack changed.
+
+- **In a subagent**, briefed with [`context/roles/coder.md`](../../../context/roles/coder.md), on the tier
+  the section names — `sonnet` as shipped. This is what ships, and it is the answer wherever the host has
+  such a mechanism. It needs no invocation written down — the brief is a file that is already in the
+  repository. What it buys is a caller that keeps the ledger and the gates while the implementation's file
+  reads stay elsewhere; what it does not buy is better code. Say both. Confirm the tier, and write it as an
+  alias the runtime resolves, never a dated model id.
+- **In-host** — what a host without a subagent mechanism falls back to, and a valid answer to choose
+  outright rather than a gap. Write it in if it is chosen.
+- **Offloaded** — the user names the invocation, a CLI or a tool. Write it into `context/executors.md`
+  verbatim, including any directory or permission scoping it needs on this machine. Its system prompt is
   [`context/roles/coder.md`](../../../context/roles/coder.md) as well: one prompt, three ways to dispatch
   it.
 
-If an external coder is named, **test one assumption before writing it down**: that it can read this
+If an external executor is named, **test one assumption before writing it down**: that it can read this
 repository unaided. Briefs cite paths rather than pasting file contents, so everything downstream depends
 on that being true, and it is true of some executors and not others.
 
@@ -115,17 +130,21 @@ Never write down an invocation you have not run. This is the same rule as Step 7
 
 ## Step 3 — Reviewer dispatch
 
-Ask how Gate 2 should get a review, from three answers:
+Ask how Gate 2 should get a review, from three answers. As in Step 2, **a Reviewer section that already
+names something other than the shipped answer is reported in a line and left alone** unless the user asks
+to change it, and the answers are written out in
+[`context/executors.notes.md`](../../../context/executors.notes.md).
 
+- **A reviewer subagent** — an independent reader that never saw the implementation being written. This is
+  what ships, wherever the host has the mechanism, and **look for one this installation already put on
+  disk**: a host-specific agent directory is exactly where a review contract would have been written, and a
+  reviewer sitting there unnamed is the fallback silently winning over the better answer. It needs no
+  invocation.
 - **The host reviews the diff itself** against the plan's review checklist and the standards. That is the
-  default because it always works, not because it is good: it is the session that wrote the code judging
+  fallback because it always works, not because it is good: it is the session that wrote the code judging
   whether the code is good. Any command that runs the gate must say which one it ran.
-- **A reviewer subagent** — an independent reader that never saw the implementation being written. Offer
-  this wherever the host has the mechanism, and **look for one this installation already put on disk**: a
-  host-specific agent directory is exactly where a review contract would have been written, and a reviewer
-  sitting there unnamed is the default silently winning over the better answer. It needs no invocation.
-- **An external reviewer** — the user names the invocation. Write it into `context/executors.md` verbatim,
-  including any scoping it needs on this machine.
+- **An external reviewer** — the user names the invocation, a CLI or a tool. Write it into
+  `context/executors.md` verbatim, including any scoping it needs on this machine.
 
 A host that offers review usually offers more than one shape of it — a review subcommand, a review skill it
 can be asked to run, a subagent it installs — and they do not review alike. **Find out what this host
@@ -133,9 +152,9 @@ actually provides rather than assuming**, show the user what you found, and let 
 shipped here names a winner: it differs per host and changes underneath you. What ships is the contract,
 not the command.
 
-**Say plainly what the default costs.** The first answer is the one every other gate in this workflow is
-weakest under, and it is the one a user gets by not answering. Where either of the other two is available,
-recommend it.
+**Say plainly what the fallback costs.** The host reviewing its own diff is the answer every other gate in
+this workflow is weakest under, and it is what a host with no subagent mechanism gets. Where either of the
+other two is available, recommend it.
 
 Whatever is chosen, that contract stands: a review happens, every item in it is marked blocking or
 not, and a `FAIL` is looped back on.
@@ -170,10 +189,11 @@ and say that either answer can be set on its own if none of the three fits:
 **Anything past the first shape needs the agent to commit.** A branch nobody commits to is an empty branch.
 If the answers collide, say so and ask again rather than writing a pair that cannot both be true.
 
-Write the surviving line in each of the four sections and delete the others, including the commented-out
-alternatives. Keep the **Under the worktree answer** subsection only under that answer; delete it otherwise.
-If `context/git.md` does not exist — an install from before it shipped — create it with all four sections,
-**What no answer here authorises**, and the rules that hold either way.
+Write the chosen answer in each of the four sections — the shipped line where it stands, and the paragraph
+pasted from [`context/git.notes.md`](../../../context/git.notes.md) where it does not — and delete what it
+replaces. Keep the **Under the worktree answer** subsection only under that answer; delete it otherwise. If
+`context/git.md` does not exist — an install from before it shipped — create it from those notes with all
+four sections, **What no answer here authorises**, and the rules that hold either way.
 
 **Never negotiate away *What no answer here authorises*.** It is not one of the questions. Whatever is
 chosen above, that section is written out as shipped: the answers cover the workflow's own commands at the
@@ -275,8 +295,10 @@ migration irreversible, and this command has no way to show a remote write as a 
 
 ### Under the tracker answer
 
-Collect these and write them into the file, then delete the answer that was not chosen along with this
-subsection's heading:
+Write the tracker answer's paragraph from
+[`context/tracking.notes.md`](../../../context/tracking.notes.md) in place of the shipped one, then collect
+these and write them into the file's own *Under the tracker answer* subsection, which stays — it is the
+answer's vocabulary. Under the working-tree answer that subsection is deleted instead, as the stub says.
 
 1. **The repository**, as `OWNER/REPO`. Confirm it against the remote rather than asking blind.
 2. **Two label names.** They ship as `workflow:feature` for the backlog and `workflow:planned` for a
@@ -348,7 +370,8 @@ covers, this is the moment that matters: keeping both means the project has two 
 
 ## Step 7 — Verification commands
 
-**This is the most valuable step in this command.** Do it properly.
+**This is the most valuable step in this command.** Do it properly. What each section of the file takes is
+in [`context/verify.notes.md`](../../../context/verify.notes.md).
 
 1. **Propose candidates.** Take the command claims Step 1 adopted, then read `package.json` scripts, or the
    stack's equivalent — `Makefile`, `composer.json`, `pyproject.toml`, `Cargo.toml`, the CI workflow. The
@@ -397,7 +420,9 @@ time, which is the one moment it is cheap to catch.
 
 ## Step 8 — Stack
 
-Start from what Step 1 routed here, show it back as a draft, and ask only for the gaps:
+What each section takes is in [`context/stack.notes.md`](../../../context/stack.notes.md), including the
+rule that a generated changelog is an output rather than a documentation surface. Start from what Step 1
+routed here, show it back as a draft, and ask only for the gaps:
 
 - What does this project do, in a paragraph — and anything about its history that explains its shape.
 - Runtime, package manager, database, storage, hosting.
@@ -432,6 +457,9 @@ Point out that anything else added under `context/` should be indexed in `stack.
 Ask what a change here announces, and write the answer to
 [`context/release.md`](../../../context/release.md). **It runs after Stack** because it needs the layout
 that step settled, and because it may send you back to the Documentation index that step just wrote.
+
+What each section takes, the alternative answers, the mechanism's settings and the wires are written out in
+[`context/release.notes.md`](../../../context/release.notes.md); the stub itself holds only the answers.
 
 **This one answer is unlike the other five, and the difference decides the whole step.**
 [`context/verify.md`](../../../context/verify.md) can say *no lint step* and be accurate — a project with
@@ -630,6 +658,6 @@ Keeping the original prose in place is a valid answer. If the user chooses it, w
   [`context/workflow.md`](../../../context/workflow.md).
 - **Never write a command you have not run.**
 - **Never delete a claim you could not place.**
-- **Never touch a tool-owned file.** `README.md`, `workflow.md`, `plan-template*.md` and `roles/` are
-  replaced on the next update; an edit there is an edit lost.
+- **Never touch a tool-owned file.** `README.md`, `workflow.md`, `plan-template*.md`, every `*.notes.md`
+  and `roles/` are replaced on the next update; an edit there is an edit lost.
 - **Do not commit.**

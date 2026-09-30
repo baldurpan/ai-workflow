@@ -3521,3 +3521,179 @@ anything else.
 **The four gate headings never needed this rule** because none of them can fail without a diff. That is why
 the axis was missing rather than wrong: §13 opened the file to checks the four do not cover, and this is the
 first one that fails on the calendar.
+
+---
+
+## 17. The reading budget — what a command loads before it touches code, and the model it loads it on
+
+Asked what the tool could do better, where it was inefficient, and where tokens could be cut without losing
+quality. The answer was measured rather than argued, and it turned out to be about three kinds of prose that
+rode every invocation while being needed on only some of them: the answer a project did not choose, the
+reasoning behind a rule, and the guidance for filling a stub once. None of the three was a rule, so none of
+the cuts touched one.
+
+### 17.1 The measurement
+
+Sizes are bytes divided by four. That is an approximation, not a tokenizer, and it is the same approximation
+before and after, so the ratios hold even where the absolute numbers do not. What the orchestrating session
+read before opening a source file, for one `/feature-implement` phase on the working-tree answer with the
+stubs as shipped:
+
+| Read | Before (bytes) | After (bytes) |
+|---|---|---|
+| `feature-implement/SKILL.md` | 28,117 | 20,668 |
+| `workflow.md` | 26,627 | 20,656 |
+| `release.md`, shipped answer | 18,973 | 7,313 |
+| `tracking.md`, shipped | 18,132 | 17,328 |
+| `git.md`, `executors.md`, `verify.md` | 17,477 | 12,605 |
+| Total | 109,326 | 78,570 |
+
+A 28% cut on the shipped files, and more on an install that has run `/onboard`, because the tracker
+subsection of `tracking.md` is deleted there under the tree answer and its 12 KB is most of what did not
+move. The standards are on top of that: the conditional table's always row plus a TypeScript-and-React
+task's rows come to about 27 KB, and §1.1's test B had Codex load eleven files from that table unprompted.
+
+The larger cost was not in the table. Under the shipped executor answers the coder ran in-host, so every
+one of its tool calls re-sent the orchestrator's whole context, and under `--all` that context grew phase by
+phase. A coder making thirty tool calls inside a 100K-token context re-reads about 3M tokens from cache; in
+its own 25K subagent context it re-reads about 750K. That multiplier was set by a default, not by the
+design, and it is the first thing §17.4 changes.
+
+### 17.2 Three relocations, one principle
+
+**Prose that only some invocations need does not ride every invocation.** Each move is a relocation, not a
+rewrite — the moved text is verbatim, and a test that pinned a phrase now reads the file it moved to.
+
+- **`tracker.md` beside five skills.** The *Under the tracker answer* section was 65% of `/roadmap`, 50% of
+  `/feature-plan`, 39% of `/feature-status`, 27% of `/feature-implement` and 21% of `/feature-close`, and a
+  repository on the working-tree answer read all of it on every invocation for an answer it had not chosen.
+  It now sits in a supporting file the body names in its lead sentence, opened only where `tracking.md`
+  names the tracker. A repository on the tracker answer reads both files, the same text in two places, so
+  the cut is neutral there and it is the working-tree answer that gains. The installer walks each skill's
+  directory rather than naming `SKILL.md`, so the supporting file lands in both trees and is hashed like the
+  body.
+- **`<stub>.notes.md` beside each of the six stubs `/onboard` fills.** §7.2 split `plan-template.md` from
+  its notes so that copying the template never shipped the guidance with it; the stubs never got the same
+  split, and their HTML comments were guidance for a command that runs once, paid for on every read. A
+  file-read tool does not strip comments. `release.md` was 62% comment and is read by every command that
+  lands code and by the reviewer, and under the shipped answer nothing ever deleted the comments.
+  `executors.md` was 51%. The stubs now hold answers; the notes hold what each section takes and the
+  alternative answers as copy-ready text, and `/onboard` names the notes file at each step. Every `##`
+  heading in every stub is unchanged, so `stubGaps` reports nothing to an existing install. One side effect
+  is an improvement §4.6 asked for and could not have: the guidance is now tool-owned, so `update` can
+  correct it, where before it lived in a project-owned file the updater was forbidden to touch.
+- **`workflow.notes.md` beside `workflow.md`.** Every command cites `workflow.md` and the block in
+  `AGENTS.md` says to read it first. Each standing rule was a blockquote followed by two to six paragraphs
+  of why, and the section on what happens to a defect the gate found was a third of the file and mostly the
+  history of §12. The rules stay — every blockquote verbatim, the tables, the gate contract, and one or two
+  sentences of consequence per rule — and the history, the rejected alternatives and the argument move. The
+  target was 14–16 KB and the result is 20.7 KB, because the content tests pin more of this file than any
+  other and pin it there on purpose: *the rule has one home, and it is the file every command already
+  cites*. Moving a rule to satisfy a size target would have been the failure the test guards, so the rules
+  were kept and the target was missed. It is recorded here as a missed target rather than restated as a
+  goal.
+
+A fourth cut was proposed and mostly refused by the tests. The Gate 1 contract was restated in full in
+`workflow.md`, `verify.md`, `/feature-implement` and `/orchestrate`; the two skills now cite the contract
+and keep only what is theirs. The test *every place that names the order says where the list ends* keeps
+the *Lint → Typecheck → Build → Test* line in both, deliberately, and the bug-is-not-a-backlog-entry rule is
+pinned in each gate that applies it for the same reason. What survives of that cut is small, and the
+0.17.0 patch note is why it was worth doing at all: two report blocks went on asking for findings and
+severities after 0.12.0 deleted them, which is a restated copy going stale exactly as §2.5 predicts.
+
+### 17.3 The plan traverses the standards table once
+
+Three readers traversed the conditional table independently — the planner, the coder's brief said to load
+per the table, and `reviewer.agent.md` said the same — and §1.1's test B shows what a fresh traversal
+produces: eleven files for a task that needed three to five. The planner already had to cite specific rules
+in each phase's checklist, so it already knew the answer. Each phase section in `plan-template.md` now
+carries a `Standards:` line — that phase's rows of the table, the always row included, and the rows the
+surface question in §13 added, which are the ones a table read misses — and the coder brief and the reviewer
+read that line instead of the README. The reviewer still opens and quotes every file it cites, so its
+independence is intact, and it opens the table where the change plainly reached something the line does
+not cover. A plan written before phases carried the line has none, and both readers fall back to the table.
+`/orchestrate` has no plan and still reads the table itself.
+
+### 17.4 The executor defaults, reversed
+
+§4.6 shipped the weakest answer for both executors and said so: in-host for the coder, self-review for the
+reviewer, with the subagent answer available to anyone who ran `/onboard` and chose it. The skills already
+carried the sentence that reaches a host's subagent mechanism without naming it — *a coder subagent if your
+runtime provides one* — so the shipped stub was overriding a fallback the skills already had. The stub now
+ships the subagent answer for both, with in-host and self-review as what a runtime without the mechanism
+reads, in the stub's own words.
+
+**The coder's tier is written in the Coder answer, and it is `sonnet`.** A subagent had no model anywhere:
+in-host it was the session model, and as a subagent it was the generic one, which resolves to the session
+model unless something says otherwise. Three homes were considered. A `coder.agent.md` with `model: sonnet`
+is what §4.6 rejected and the reasons stand — *coder* is the description most likely to fire on *write this
+for me* and agents have no `disable-model-invocation`. The skill's own frontmatter is the orchestrator's
+model, not the coder's. So the tier is part of the dispatch answer, project-owned, one home for dispatch,
+and the two skills that dispatch say *on the model tier that file names, where your runtime lets you choose
+one*. That rubs against one of `executors.md`'s own standing rules — take the model from the executor's own
+config, never from a flag written here — which is right for an external CLI and has no object for a
+subagent, so the exception is written beside the rule rather than left implicit: as an alias the runtime
+resolves, never a dated model id. `executors.notes.md` carries one optional line a project may add: on a
+loopback, re-dispatch on the reviewer's tier rather than retrying the same one, because a phase that reaches
+the cap costs more than one strong run would have.
+
+**Existing installs keep their answer.** The stub is project-owned and `stubGaps` reports headings, not
+content, so an install that recorded in-host stays in-host until somebody changes it. That is the same
+property that makes a private executor safe to wire in: an MCP tool or a CLI named in `executors.md` is
+outside the manifest, `update` cannot reach it, and `/onboard` — which used to re-ask Steps 2 and 3 on every
+re-run — now reports a section that holds something other than the shipped answer and leaves it alone
+unless asked. The public templates name no executor, which the host-name test already enforced; the seam
+for a private one was always the third answer, and the only change it needed was the word *CLI* becoming
+*executor, a CLI or a tool*.
+
+### 17.5 A model per skill, and the turn it holds for
+
+The Claude Code copy of each skill already differed from the shared body by one injected frontmatter line.
+The same transform now injects two more, `model` and `effort`, from a map in `layout.ts` keyed by the
+skill's own `name:` line, so the shared body stays runtime-neutral and the `.agents/` copy is untouched.
+Every command's orchestration runs on `sonnet` — picking a row, writing a brief, running Gate 1, writing the
+row back is bookkeeping — except `/onboard`, which runs once and whose wrong answer costs every later run.
+`/roadmap` and `/feature-status` run at low effort, the rest at medium, `/onboard` at high. The planner and
+reviewer agent files move from `model: inherit` to `opus` at high effort, which reverses a decision the
+PLAN.md table recorded as cheap to reverse: aliases resolve to whatever the account has, which still assumes
+those two tiers exist, and they are the two every plan has. A project that wants otherwise edits the agent
+files and takes the conflict on the next `update`, which is the correct signal, or sets the host's
+subagent-model environment variable and edits nothing.
+
+**Verified against the host's documentation on 2026-09-30, not observed.** A skill's `model:` holds *for
+the rest of the current turn* and the session model resumes on the next prompt. So `/feature-implement`,
+whose approval checkpoint asks, and `/feature-close`, whose bump confirmation asks, run their remainder on
+the session model once the user answers. The frontmatter still covers every one-turn command outright and
+the first turn of the rest, and it puts the intended tier where a reader looks for it; what makes the tier
+hold across the ask is running the session on `sonnet` with the specialists pinned up, which the README now
+says. The same documentation settled three things the package had assumed: `disable-model-invocation: true`
+removes the description from context entirely rather than only preventing auto-triggering, so the nine
+skills cost nothing per turn under that host; subagents may spawn subagents, three layers deep by default,
+so the sentence in `planner.agent.md` saying a subagent cannot dispatch further ones was stale and is gone;
+and that host does not discover `.agents/skills/`, so the second tree costs no tokens there.
+
+**Rejected for now: `context: fork`.** A forked skill runs in its own context on its own model for its whole
+life, and it fits this design unusually well, since every command already resolves its own starting point
+and a forked skill sees only its `SKILL.md`. It would be the right home for `/roadmap` and `/feature-status`.
+How a forked skill asks the user is not documented, and every command here asks somewhere, so it ships
+nothing unverified. **Deferred: an install-time model policy recorded in the manifest**, so `update` could
+re-apply a project's own tiers. The map in `layout.ts` is the reversal path if the shipped tiers turn out
+to be the wrong default for enough installs.
+
+### 17.6 What it cost, and what is still unrun
+
+The install grew from 103 tool-owned files to 120 and the tarball from 122 files to 134, at 238 kB. The
+content tests grew from 234 to 259, the new ones asserting that the five tracker halves exist beside their
+bodies and nowhere else, that every skill's tier is an alias, and that the notes files are installed and
+hashed. Verified on 2026-09-30 by packing the tree, installing it into an empty repository and running
+`check` and `update --dry-run`, and by installing the 0.21.1 tarball first and updating it: 40 files
+written, 17 of them new, every stub untouched, nothing under **Next**, `check` clean.
+
+None of it has been run by a live agent, which is PLAN.md item 1 in the same clothes it has worn since 0.8.0.
+Two checks join that run: that a command which asks mid-turn really does continue on the session model,
+and that a re-run of `/onboard` leaves a wired executor alone. Both are recorded there.
+
+**The lesson, which is not about tokens.** Every one of the three relocations was available the day
+`plan-template.notes.md` was split from its template. The design record said why that split was right and
+then applied it to one file. A principle that is stated once and applied once is a precedent, not a rule;
+it became a rule when the cost of not applying it was measured.

@@ -25,6 +25,9 @@ running something else.
 **Every command finds its own starting point.** Nothing has to be looked up first, and `/feature-status` is
 never a prerequisite for anything.
 
+This file holds the rules. Why each rule is what it is, and what was tried instead, is in
+[`workflow.notes.md`](workflow.notes.md). Nothing in the loop reads that file.
+
 ## The commands
 
 | Command | Owns | Writes |
@@ -82,12 +85,10 @@ the drift this design exists to prevent.
 `/feature-plan --activate` and `/feature-implement` both check it. Planning is *not* activation — several
 features may hold plans at once, and that is what makes planning ahead possible.
 
-*In a working tree* matters only under [`git.md`](git.md)'s worktree answer, where each feature is worked
-in its own tree and sets the marker there. That marker never reaches the default branch — `/feature-close`
-removes the entry before the branch merges — so what is in flight across the repository is answered by
-`git worktree list` and by nothing else. **"In flight" is not a status; it is the observation that a
-worktree exists**, the same way "planned" is the observation that a document exists in `plans/`. Everywhere
-else there is one tree, and the rule reads as it always did.
+Under [`git.md`](git.md)'s worktree answer each feature sets the marker in its own tree, and the marker
+never reaches the default branch — `/feature-close` removes the entry before the branch merges. What is in
+flight is answered by `git worktree list` and by nothing else: **"in flight" is not a status; it is the
+observation that a worktree exists.**
 
 ### Feature or task?
 
@@ -103,15 +104,10 @@ commit-sized unit and anything an existing roadmap entry already covers.
 > If it does not exist, or does not say the agent commits, the work is left *unstaged* in the working tree
 > and the user commits it.**
 
-This workflow has always described phases as commit-sized and `done` as landed — which an agent, given no
-policy, resolves by committing on its own every phase. That is a call about someone else's repository, so
-it is a written answer rather than an inference.
-
-[`git.md`](git.md) answers three more of the same shape, each independent of the others and each shipping
-as the most conservative option: **where work lands** (the main working tree, a branch per feature, or a
-worktree per feature), **whether the agent pushes and opens a pull request** (it does not), and at what
-**granularity** it commits. A push happens once per feature, at `/feature-close` — never at the end of a
-phase — and nothing here merges a pull request, deletes a branch, or removes a worktree under any answer.
+[`git.md`](git.md) answers three more, each independent and each shipping as the most conservative option:
+**where work lands**, **whether the agent pushes and opens a pull request**, and at what **granularity** it
+commits. A push happens once per feature, at `/feature-close` — never at the end of a phase — and nothing
+here merges a pull request, deletes a branch, or removes a worktree under any answer.
 
 **Those answers authorise the commands in this workflow, at the point each one names, and nothing else.**
 *The agent commits* is permission for `/feature-implement` to close a phase it just ran, not standing leave
@@ -137,20 +133,12 @@ the default. The same goes for removing one.
 > or does not say otherwise, the backlog is `roadmap.md`, a plan is a document under `plans/`, and a
 > retired feature is a `history.md` row.**
 
-Everything above describes the working-tree answer, which is the default and what every install does
-until someone changes it. The second answer puts the same tiers in an issue tracker — a feature is an
-issue, a plan is that issue's body, a closed issue is the archive — because **a file cannot be the shared
-home for several agents at once.** A worktree carries only what its ref holds, so a plan on one branch is
-invisible to every other tree; a tracker sits outside all of them.
-
-**The tier model is identical under both.** What changes is where a fact is read, and only
-[`tracking.md`](tracking.md) says how — no skill names a tracker, which is what keeps a different one a
-rewrite of that file rather than of every command.
+Everything in this file describes the working-tree answer, which is the default. **The tier model is
+identical under both answers.** What changes is where a fact is read, and only [`tracking.md`](tracking.md)
+says how — no skill names a tracker.
 
 **Changing the answer is not moving the work.** `/onboard` sets which substrate this project uses;
-`/tracking-migrate` carries what already exists onto it. They are two commands because the second is a
-data migration with remote writes that can fail partway, and running one off the back of the other is the
-side-effect this tier model refuses everywhere else. A repository whose answer says *tracker* while its
+`/tracking-migrate` carries what already exists onto it. A repository whose answer says *tracker* while its
 entries sit in `roadmap.md` reads as an empty backlog to every command — which is why `/onboard` refuses to
 write that state and names the migration instead.
 
@@ -160,13 +148,9 @@ write that state and names the migration instead.
 > [`stack.md`](stack.md), and the repository itself when that index is missing or empty. Whatever a change
 > makes untrue there is fixed by the phase that makes it untrue, not by a follow-up.**
 
-Documentation is an output with no gate behind it, and the rule below is about the others. Nothing fails
-when a README goes on describing a flag that was renamed, so the drift is invisible until someone follows
-the old instructions and it is not invisible to them. `/feature-plan` writes the affected surfaces into the plan's §7, each assigned to a
-phase, and that phase's **Files:** line carries the path like anything else it touches.
-
-*"Nothing here describes this feature"* is a legitimate answer, and it names the surfaces that were
-checked. Saying nothing is not that answer.
+`/feature-plan` writes the affected surfaces into the plan's §7, each assigned to a phase, and that phase's
+**Files:** line carries the path like anything else it touches. *"Nothing here describes this feature"* is
+a legitimate answer, and it names the surfaces that were checked. Saying nothing is not that answer.
 
 ### The standards table is keyed on a question nothing asks
 
@@ -174,15 +158,6 @@ checked. Saying nothing is not that answer.
 > (accessibility), a hot path or a payload that grows (performance), a trust boundary — input,
 > authentication, a secret, a public endpoint (security). Write the answer down. *None of these* is an
 > answer; saying nothing is not.**
-
-`standards/README.md` loads conditionally, on *if the task involves…*. Most of its rows answer themselves —
-a file is TypeScript or it is not, there is a form or there is not — and these three do not. They are
-properties of the change that the reader has to have thought of already, so the row saying *accessibility is
-part of the definition of done* is reached only by somebody who had agreed before they opened the table.
-
-The kinship is with the rule above, and so is the reason: **no gate fails** when a control cannot be reached
-by keyboard, any more than one fails when a README describes a flag that was renamed. A linter catches a
-fraction of the first and none of the rest.
 
 **A surface reaches the work the way a documentation row does.** The standards rows it loads become the
 review expectations on the phase that carries it, and whatever proves it goes in that plan's §8
@@ -194,54 +169,30 @@ driver is [`verify.md`](verify.md)'s answer like every other command, and nothin
 > **Read [`release.md`](release.md) before closing out any command that lands code. If it does not exist, or
 > does not say otherwise, nothing here announces a change and no note is owed.**
 
-*Documentation is part of the change* covers a README that a rename made wrong. It does not cover the
-release note that was never written — a different surface, a different audience, and one that is not in the
-repository to go stale. [`release.md`](release.md) is where that answer lives: which paths announce
-something and to whom, what records a note, at what granularity, and **what a release ships, and on what
-event** — nothing in this workflow bumps a version, tags, publishes or deploys.
-
 **Landing a change is not shipping it, and that holds for a deployed app as much as a published package.**
 Both are consequences of **one event** — the merge of the pull request where the notes were consumed and the
 versions moved — and a feature's own merge lands a note and ships nothing. So a command that finishes work
 reports what the change is waiting for; it never reports it as released, deployed or live because the work
-landed. Which paths that merge publishes, which it deploys, and what it keys on are
-[`release.md`](release.md)'s answer, per path — never inferred from the fact that a version exists.
+landed. Which paths that merge publishes or deploys is [`release.md`](release.md)'s answer, per path —
+never inferred from the fact that a version exists.
 
-**The answer is per path, and the granularity is per project.** A repository can publish one artifact,
-deploy another and say nothing about a third, so *does this change deserve a note* is asked of each path it
-touched. *When is one written* — once per feature, or per phase — is asked once, because it is a fact about
-what leaves this repository as a unit. `/orchestrate` has neither an entry nor a ledger, so for that
-command the change is the unit.
-
-**A path that file does not cover is reported, never guessed at.** The same rule [`verify.md`](verify.md)
-states about an empty section: a missing entry is skipped and said so, never faked. Writing a note into a
-path whose owner never answered for it invents policy mid-change; refusing the work blocks it over a gap in
-a configuration file. Name the path and name `/onboard`.
+**The answer is per path, and the granularity is per project.** *Does this change deserve a note* is asked
+of each path it touched; *when is one written* — once per feature, or per phase — is asked once.
+`/orchestrate` has neither an entry nor a ledger, so for that command the change is the unit. **A path that
+file does not cover is reported, never guessed at** — name the path and name `/onboard`.
 
 ### Writing a note is the workflow's half; consuming notes is not
 
 > **Never run what bumps, tags, publishes or deploys — not as a step, not to tidy up, and not to check
 > that it works. Only when the user asks for it in that turn.**
 
-Writing a note is cheap and reversible: it is a tracked file that publishes nothing until a version moves.
-Consuming them is neither. Whatever a project uses to turn notes into versions takes *every* pending note,
-not this change's — including ones other people wrote and have not shipped yet — rewrites the changelogs,
-deletes the notes it used, and where a deploy watches versions it is the button that ships. A command that
-runs it has released a version of somebody else's work on their behalf.
-
-So it is a person's deliberate act. A skill may **name** it, report that it is pending, and stop — the same
-way it names `/onboard` for a gap it will not fill itself. Asked for directly, in that turn, it is the
-user's call and theirs to give.
+A skill may **name** it, report that it is pending, and stop — the same way it names `/onboard` for a gap it
+will not fill itself. Asked for directly, in that turn, it is the user's call and theirs to give.
 
 **`/feature-close --release` is what that asking looks like, and it is the only shape of it this workflow
 ships.** A flag typed in the turn it takes effect, which lists every pending note it is about to consume —
-other people's included — before it runs anything. Nothing else is the ask: not a sentence earlier in the
-session, not a plan that ends in a release, not the notes looking ready. **The gap between writing a note
-and consuming it is where a wrong bump level is still free**, so a command that closes that gap says so
-while it asks.
-
-The same applies to any script that writes rather than reports. A candidate for [`verify.md`](verify.md) is
-something Gate 1 can run on every phase; a release command is not, and `/onboard` refuses one there.
+other people's included — before it runs anything. **The gap between writing a note and consuming it is
+where a wrong bump level is still free**, so a command that closes that gap says so while it asks.
 
 ### Never transcribe a credential
 
@@ -274,15 +225,12 @@ and resume — do not restart it.
 
 **One run is one phase, unless `--all` says otherwise.** That flag repeats the pick above, and stops
 exactly where a single run would: a phase that ended `blocked` or part-landed, a gate at its loopback cap,
-a ledger that disagrees with the repo. Phase to phase is not a tier
-boundary, so nothing above changes — and when the last phase goes `done` it stops there and names
-`/feature-close`. **That boundary is still crossed by an explicit command**, and a flag on the command
-below it is not one.
+a ledger that disagrees with the repo. When the last phase goes `done` it stops there and names
+`/feature-close` — **that boundary is still crossed by an explicit command.**
 
 **A phase's row is written twice.** It opens to `in progress` when the work starts, before any code, and
 closes to `done`, `in progress` or `blocked` when the phase ends. The opening write is what makes an
-interruption survivable: a run that dies mid-phase leaves a tree with half the work in it, and the row is
-the only thing that can say so.
+interruption survivable.
 
 `done` means the phase's scope landed and both gates passed — **a verdict about the gates, not about git.**
 Whoever finishes a phase updates its row **as part of the same change as the work**: one commit where the
@@ -337,15 +285,10 @@ was to find:
 | **a backlog entry** | it is not a defect, and it is work you would want a `history.md` row for | the backlog, added by `/roadmap` |
 | **a note** | anything else | `notes.md` in this branch's working tree, until the branch ends |
 
-**Kind is the test because severity was tried and failed.** A grade assigned to answer *does this stop the
-phase* tells you nothing about *is this worth keeping*, and having one on hand invited the second question
-to be answered with the first question's answer.
-
 ### A bug is not a backlog entry
 
 **The backlog is a list of features** — work you would want a `history.md` row for. A defect is not one,
-however real it is, and filing one there makes it compete for the next plan against work of a different
-kind and a different size.
+however real it is.
 
 **A bug goes wherever this project already files bugs**, carrying this project's own labels. The workflow
 does not read it, rank it or carry it: [`tracking.md`](tracking.md) adds one bit to an issue and reads
@@ -357,16 +300,13 @@ nothing else, and a bug is outside that bit. **Do not apply the backlog label to
 > test that decides whether it belongs there, and produced an entry missing what the ranking reads. Where a
 > finding really is a feature, **name `/roadmap` and let it decide.**
 
-**Nothing enters the backlog except through `/roadmap`.** Two other commands write the label, and neither
-is an exception: `/tracking-migrate` carries an existing backlog out of the working tree onto the tracker,
-and `/feature-plan` splits one entry already in it into several. **Both move or divide what `/roadmap` has
-already admitted, and no new work enters at either** — which is what keeps the worth-adopting test applied
-exactly once per entry, at the only moment anyone is deciding whether to have it at all.
+**Nothing enters the backlog except through `/roadmap`.** `/tracking-migrate` and `/feature-plan` also
+write the label, and both only move or divide what `/roadmap` has already admitted.
 
 **This is the third category the loop had no word for.** A feature is planned and gets a history row; a
-task is `/orchestrate`'s and is not written down at all; a bug is recorded and is neither. With nowhere of
-its own it went into the backlog, because that was the only *record* this workflow knew about — which is
-how a list of features fills up with defects.
+task is `/orchestrate`'s and is not written down at all; a bug is recorded and is neither.
+
+### `notes.md`
 
 **`notes.md` is branch-local, advisory and disposable.** The first note that needs it creates it; it is
 never installed and there is no stub. **Nothing reads it** — no gate consults it, no command parses it, no
@@ -378,27 +318,17 @@ because nothing tracks the state of something nothing acts on.
 > file cannot accumulate across features because it does not survive one, which is a property of the
 > lifecycle rather than a rule somebody has to keep.
 
-**Why a file rather than an issue, when an issue is also somewhere to put it.** A note in the backlog is an
-object with a number, a title and a rank, competing with real features for the next plan — and the backlog
-is a list of **features**, which a note about internals is not. A line in a branch-local file costs nothing
-to write, nothing to ignore and nothing to delete. Keeping the cheap disposition cheap is what stops the
-expensive one from being used for everything.
-
 **The ledger is the record, because it is already the record.** A row opens to `in progress` before any
-code and closes to `done`, `in progress` or `blocked` when the phase ends — so a session that dies mid-gate
-has already written where the phase stands. A separate file saying *this phase is done and also broken*
-would be a second answer to a question the Status column already answers.
+code and closes to `done`, `in progress` or `blocked` when the phase ends, so a session that dies mid-gate
+has already written where the phase stands.
 
 > **A defect found against a phase that is already `done` sets that phase back to `blocked`**, with the
 > reason in its Note. Do not record it elsewhere and leave the row claiming `done`. If it is larger than
 > the feature, it is an issue instead, and the row stays as it is.
 
-**Nothing accumulates across features.** There is no disposition to decide at retirement and no way for a
-defect to outlive the thing it was about: a `blocked` row is archived with its plan at `/feature-close`,
+**Nothing accumulates across features.** A `blocked` row is archived with its plan at `/feature-close`,
 `notes.md` is deleted there, and an issue was never this feature's to carry.
 
-**`/orchestrate` has no ledger**, so a capped gate there ends the only way it can: the work stays in the
-working tree, the report says what failed and why, and anything still worth doing becomes an issue. **It
-writes no `notes.md`** — it has no branch of its own and no close, so nothing would ever delete one, and a
-file only that command wrote is the one that would outlive every branch. A commit-sized change that cannot
-pass its gates is not a thing to file away — it is a thing to hand back.
+**`/orchestrate` has no ledger**, so a capped gate there hands the work back: it stays in the working tree,
+the report says what failed, and anything still worth doing becomes an issue. **It writes no `notes.md`** —
+it has no close, so nothing would ever delete one.

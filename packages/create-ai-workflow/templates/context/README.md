@@ -28,8 +28,10 @@ generated "current state" file — hand-editing a ledger row changes every comma
 |---|---|---|
 | `README.md` | this file | tool |
 | [`workflow.md`](workflow.md) | the tier model, the commands, the standing invariants | tool |
+| [`workflow.notes.md`](workflow.notes.md) | why each of those rules is what it is — cited by no command | tool |
 | [`plan-template.md`](plan-template.md) | the bare skeleton every Tier-2 plan is copied from | tool |
 | [`plan-template.notes.md`](plan-template.notes.md) | what goes in each section of that skeleton | tool |
+| `<stub>.notes.md`, one beside each of the six stubs below | what each section of that stub takes, and its alternative answers written out — read by `/onboard` when it fills the stub, and by nothing in the loop | tool |
 | [`roles/coder.md`](roles/coder.md) | the coder system prompt — names no commands | tool |
 | [`standards/`](standards/README.md) | engineering standards, loaded per that README's conditional table | tool* |
 | [`stack.md`](stack.md) | this project's runtime, layout, conventions, where it documents itself, and an index of your own files | project |
@@ -71,7 +73,7 @@ hash, `update` walks that manifest, and a project-owned file is not in it — so
 
 | Tool-owned — replaced on `update` | Project-owned — unreachable by the updater |
 |---|---|
-| `README.md`, `workflow.md`, `plan-template*.md`, `roles/` | `stack.md`, `verify.md`, `executors.md`, `git.md`, `tracking.md`, `release.md` |
+| `README.md`, `workflow.md`, `plan-template*.md`, every `*.notes.md`, `roles/` | `stack.md`, `verify.md`, `executors.md`, `git.md`, `tracking.md`, `release.md` |
 | the skill and agent trees, the `AGENTS.md` block | `roadmap.md`, `history.md` |
 | `standards/` while it is ours and unmodified | `drafts/`, `plans/`, `archive/`, `notes.md`, `CLAUDE.md` |
 

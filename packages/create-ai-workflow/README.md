@@ -161,18 +161,26 @@ not.
 
 ```
 context/
-  README.md  workflow.md  plan-template.md  plan-template.notes.md  roles/  standards/     tool-owned
+  README.md  workflow.md  workflow.notes.md  plan-template.md  plan-template.notes.md      tool-owned
+  <stub>.notes.md — one beside each of the six stubs below      roles/  standards/         tool-owned
   stack.md  verify.md  executors.md  git.md  tracking.md  release.md                       yours
   roadmap.md  history.md                                                                   yours
   drafts/  plans/  archive/                                                                yours
   .state/manifest.json
-.claude/skills/<nine>/SKILL.md    .claude/agents/*.agent.md                                tool-owned
-.agents/skills/<nine>/SKILL.md    the same nine bodies, for hosts that read that tree       tool-owned
+.claude/skills/<nine>/SKILL.md    tracker.md beside five    .claude/agents/*.agent.md      tool-owned
+.agents/skills/<nine>/             the same bodies, for hosts that read that tree           tool-owned
 AGENTS.md   a delimited block, merged into whatever is already there
 CLAUDE.md   a single @AGENTS.md line, and only when the file does not exist
 ```
 
 Nothing is committed. Review the diff yourself.
+
+**What a command reads is split by when it is needed.** The issue-tracker half of five skills sits in a
+`tracker.md` beside the body, read only where `tracking.md` names the tracker. The reasoning behind
+`workflow.md` is in `workflow.notes.md`, which no command cites. Each stub's guidance — what its sections
+take, and the alternative answers written out — is in a notes file beside it that `/onboard` reads once. A
+repository on the working-tree answer never loads the tracker half, and nothing in the loop loads a notes
+file.
 
 **Onto a repository that already documents itself**, the installer only appends — your existing
 `AGENTS.md` prose is left exactly where it is. `/onboard` reconciles the two afterwards: it classifies
@@ -219,8 +227,9 @@ over the shape of a file it may not touch would be calling someone else's busine
 ## Standards
 
 `context/standards/` ships a vendored default, and `context/standards/README.md` holds a
-conditional-loading table that agents actually traverse — the skills say "consult the conditional loading
-table", and that is how standards get loaded per task.
+conditional-loading table that agents actually traverse. The planner traverses it once, with the research
+in hand, and writes each phase's share of it onto that phase's `Standards:` line; the coder and the reviewer
+load those files and not the table. `/orchestrate` has no plan, so it reads the table itself.
 
 **A wrong set is not inert**, because it is loaded unprompted on every task. Swap it:
 
@@ -299,9 +308,17 @@ positive points at the document that is out of step.
 ## Scope
 
 **Both skill trees ship.** Claude Code reads `.claude/skills/`; Codex reads `.agents/skills/` and never
-looks at the other one. They get the same nine bodies — the only difference is one frontmatter line,
-`disable-model-invocation: true`, which is Claude Code's key and means nothing elsewhere. The bodies are
-written runtime-neutral, with no runtime primitive named in any of them, and a test enforces it.
+looks at the other one. They get the same nine bodies — the only difference is the Claude Code copy's frontmatter:
+`disable-model-invocation: true`, and a `model` and `effort` per command, keys that mean nothing elsewhere.
+The bodies are written runtime-neutral, with no runtime primitive named in any of them, and a test enforces
+it.
+
+**Every command's own orchestration runs on `sonnet`**, except `/onboard`, which runs once on `opus`; the
+planner and reviewer subagents are pinned to `opus`. Picking a ledger row, writing a brief, running the
+gates and writing the row back is bookkeeping, and the planner and the reviewer are where the judgment
+lives. A skill's model holds for the turn it was invoked in and your session model resumes on your next
+prompt, so a command that stops to ask — the approval checkpoint, the bump confirmation — continues on the
+session model. Run the session on `sonnet` if you want the tier to hold across the ask.
 
 Duplication is the cost, and it is contained by construction rather than by discipline: one canonical
 source lives in the package, both trees are written at install, both are hashed in the manifest, and
@@ -317,12 +334,15 @@ per-machine fact that hosts change underneath you, so `/onboard` asks and writes
 is not, and a `FAIL` is looped back on — not the command.
 
 Each executor has **three answers**: in-host, in-host but isolated in a subagent, or offloaded to an
-external CLI. The middle one is written as *"a subagent if your runtime provides one"* — described by what
-it does, never by naming a runtime primitive — so a host without the mechanism reads it and falls back to
-the first. For the coder it buys a caller that keeps the ledger and the gates while the implementation's
-file reads stay elsewhere; for the reviewer it buys the cheapest real independence there is, a reader that
-never saw the code being written. The gates do not move either way: they run in the caller, on the diff,
-because **an executor that reports its own success has reported nothing.**
+external executor, a CLI or a tool. **The subagent answer is what ships** — the coder on `sonnet`, with the
+tier written in `executors.md` as an alias the runtime resolves — and it is written as *"a subagent if your
+runtime provides one"*, described by what it does and never by naming a runtime primitive, so a host without
+the mechanism reads it and falls back to in-host and to reviewing its own diff. For the coder it buys a
+caller that keeps the ledger and the gates while the implementation's file reads stay elsewhere; for the
+reviewer it buys the cheapest real independence there is, a reader that never saw the code being written.
+The gates do not move either way: they run in the caller, on the diff, because **an executor that reports
+its own success has reported nothing.** An executor you wired yourself — a CLI, a tool — is a line in
+`executors.md`, which `update` cannot reach and a re-run of `/onboard` reports and leaves alone.
 
 Requires Node 20.10 or newer. One `context/` per repository.
 

@@ -2,13 +2,33 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { claudeSkillTransform, SKILL_NAMES, STUBS, agentsBlockBody, readTemplate } from '../src/layout.ts';
+import {
+  CLAUDE_ONLY_KEYS,
+  CLAUDE_SKILL_SETTINGS,
+  claudeSkillTransform,
+  SKILL_NAMES,
+  STUBS,
+  agentsBlockBody,
+  readTemplate,
+} from '../src/layout.ts';
 import { parseHistory, parseRoadmap } from '../src/check/parse.ts';
 import { stripComments } from '../src/check/markdown.ts';
 import { sections } from '../src/stubs.ts';
-import { packageRoot, templatesDir, walk } from '../src/paths.ts';
+import { exists, packageRoot, templatesDir, walk } from '../src/paths.ts';
 
-const skillBody = (name: string) => readTemplate(`skills/${name}/SKILL.md`);
+/** The shared body alone — frontmatter and the working-tree procedure. */
+const skillMain = (name: string) => readTemplate(`skills/${name}/SKILL.md`);
+
+/**
+ * Everything a skill can put in front of an agent: the body, plus the tracker answer's half where the skill
+ * has one. Five skills keep that half in a `tracker.md` beside the body, read only where `tracking.md`
+ * names the tracker, so a repository on the working-tree answer never loads it — and an invariant about
+ * what a command says has to hold across both files.
+ */
+const skillBody = (name: string) => {
+  const tracker = path.join(templatesDir, 'skills', name, 'tracker.md');
+  return exists(tracker) ? `${skillMain(name)}\n${readFileSync(tracker, 'utf8')}` : skillMain(name);
+};
 
 /** Files whose content is ours. `standards/` is vendored third-party content and is excluded. */
 function ourTemplates(): { rel: string; text: string }[] {
@@ -21,7 +41,7 @@ function ourTemplates(): { rel: string; text: string }[] {
 describe('skill frontmatter', () => {
   it('every skill declares its own name and a narrow, explicit-invocation description', () => {
     for (const name of SKILL_NAMES) {
-      const text = skillBody(name);
+      const text = skillMain(name);
       assert.match(text, new RegExp(`^name: ${name}$`, 'm'), `${name} declares its name`);
       assert.match(text, /^description: /m, `${name} has a description`);
       assert.match(text, /Explicit invocation only/, `${name} says so in prose`);
@@ -29,23 +49,71 @@ describe('skill frontmatter', () => {
     }
   });
 
-  it('the Claude copy differs from the shared body by exactly one line', () => {
+  it('the Claude copy differs from the shared body by its frontmatter lines only', () => {
+    // Three keys, all Claude Code's: the switch that keeps a skill from auto-firing, and the model and
+    // effort the command's own orchestration runs on. Nothing below the frontmatter may differ.
     for (const name of SKILL_NAMES) {
-      const body = skillBody(name);
+      const body = skillMain(name);
       const claude = claudeSkillTransform(body);
       const added = claude.split('\n').filter((line) => !body.split('\n').includes(line));
-      assert.deepEqual(added, ['disable-model-invocation: true']);
+      const settings = CLAUDE_SKILL_SETTINGS[name];
+      assert.deepEqual(added, [
+        'disable-model-invocation: true',
+        `model: ${settings.model}`,
+        `effort: ${settings.effort}`,
+      ]);
+    }
+  });
+
+  it('every skill has a model and an effort, as aliases rather than dated ids', () => {
+    // An alias resolves to whatever the account has; a dated id is a line to update when models turn over,
+    // in a file `update` replaces and a person never opens.
+    for (const name of SKILL_NAMES) {
+      const { model, effort } = CLAUDE_SKILL_SETTINGS[name];
+      assert.match(model, /^[a-z]+$/, `${name} pins an alias, not an id (${model})`);
+      assert.ok(['low', 'medium', 'high', 'xhigh', 'max'].includes(effort), `${name} effort ${effort}`);
     }
   });
 
   it('the transform is idempotent', () => {
-    const once = claudeSkillTransform(skillBody('roadmap'));
+    const once = claudeSkillTransform(skillMain('roadmap'));
     assert.equal(claudeSkillTransform(once), once);
   });
 
   it('the shared body carries no adapter-only frontmatter', () => {
     for (const name of SKILL_NAMES) {
-      assert.doesNotMatch(skillBody(name), /disable-model-invocation/);
+      const frontmatter = /^---\n([\s\S]*?)\n---\n/.exec(skillMain(name))?.[1] ?? '';
+      for (const key of CLAUDE_ONLY_KEYS) {
+        assert.doesNotMatch(frontmatter, new RegExp(`^${key}:`, 'm'), `${name} carries ${key}`);
+      }
+    }
+  });
+});
+
+describe('the tracker answer is read only where it applies', () => {
+  // Five commands carry a second procedure for the issue-tracker answer. In the body it was a third to two
+  // thirds of what every invocation read, on the working-tree answer as much as the other — so it lives in
+  // a file beside the body, which the body names and the agent opens only where tracking.md says to.
+  const SPLIT = ['roadmap', 'feature-plan', 'feature-implement', 'feature-status', 'feature-close'];
+
+  it('the five that have one keep it beside the body, and the body points at it', () => {
+    for (const name of SPLIT) {
+      const tracker = path.join(templatesDir, 'skills', name, 'tracker.md');
+      assert.ok(exists(tracker), `${name} ships a tracker.md`);
+      assert.match(readFileSync(tracker, 'utf8'), /^## Under the tracker answer$/m);
+      assert.doesNotMatch(skillMain(name), /^## Under the tracker answer$/m, `${name}'s body no longer holds it`);
+      assert.match(skillMain(name), /\[`tracker\.md`\]\(tracker\.md\)/, `${name}'s body names the file`);
+      assert.match(
+        skillMain(name).replace(/\s+/g, ' '),
+        /where that file names the tracker/i,
+        `${name} says when to read it`,
+      );
+    }
+  });
+
+  it('the four that have none ship none', () => {
+    for (const name of SKILL_NAMES.filter((n) => !SPLIT.includes(n))) {
+      assert.ok(!exists(path.join(templatesDir, 'skills', name, 'tracker.md')), `${name} has no tracker half`);
     }
   });
 });
@@ -715,6 +783,10 @@ describe('what a change announces is an answer, not an assumption', () => {
   // asked per path, and that the commands defer to it rather than knowing a tool.
   const flat = (text: string) => text.replace(/\s+/g, ' ');
   const stub = readTemplate('stubs/release.md');
+  // The stub holds the answers; what each section takes, the alternative answers and the mechanism's
+  // settings are in the notes beside it, read by /onboard when it fills the stub. An invariant about what
+  // the answer file *says* is asserted on the stub; one about what it *teaches* is asserted on both.
+  const answer = `${stub}\n${readTemplate('context/release.notes.md')}`;
   // The three commands that put changes into the product. /prototype is excluded on purpose: a throwaway
   // mockup under prototypes/ ships to nobody, so there is nothing for it to announce.
   const LANDS_SHIPPABLE = ['feature-implement', 'feature-close', 'orchestrate'] as const;
@@ -742,11 +814,12 @@ describe('what a change announces is an answer, not an assumption', () => {
   it('the shipped answer is true of every repository, so an install behaves as it did', () => {
     assert.match(stub, /\*\*Nothing here announces a change\.\*\*/, 'the answer is written out');
     assert.match(stub, /\*\*Nothing records a note here\.\*\*/, 'and so is the mechanism answer');
-    // The alternatives ship commented, the way git.md's and tracking.md's do — a fresh install that carried
-    // two answers would have none.
+    // The alternatives ship in the notes beside the stub, the way git.md's and tracking.md's do — a fresh
+    // install that carried two answers would have none.
     const live = stripComments(stub);
-    assert.doesNotMatch(live, /\*\*Per phase\.\*\*/, 'the second granularity ships commented out');
+    assert.doesNotMatch(live, /\*\*Per phase\.\*\*/, 'the second granularity ships in the notes');
     assert.match(live, /\*\*Once per feature\.\*\*/, 'the first one does not');
+    assert.match(answer, /\*\*Per phase\.\*\*/, 'and the notes carry it, copy-ready');
   });
 
   it('every command that lands shippable code defers to the file instead of knowing a tool', () => {
@@ -761,7 +834,7 @@ describe('what a change announces is an answer, not an assumption', () => {
     // A granularity column in the table would let one repository write per-phase notes for its app and
     // per-feature notes for its package, which makes "when does this command write" depend on what the
     // phase happened to touch.
-    const body = flat(stub);
+    const body = flat(answer);
     assert.match(body, /The unit is the path, not the change/i, 'one change can owe two notes');
     assert.match(body, /what leaves this repository as a unit/i, 'granularity is a fact about the repo');
   });
@@ -773,7 +846,7 @@ describe('what a change announces is an answer, not an assumption', () => {
     const body = flat(skillBody('orchestrate'));
     assert.match(body, /the change is the unit/i, 'the missing value is supplied');
     assert.match(body, /The table still governs/i, 'and the per-path judgment still applies');
-    assert.match(flat(stub), /`\/orchestrate` has neither value/i, 'the stub says it too, for a reader');
+    assert.match(flat(answer), /`\/orchestrate` has neither value/i, 'the stub says it too, for a reader');
   });
 
   it('a script that writes never becomes a Gate 1 candidate', () => {
@@ -853,7 +926,7 @@ describe('what a change announces is an answer, not an assumption', () => {
     for (const name of LANDS_SHIPPABLE) {
       assert.match(flat(skillBody(name)), /does not cover is named/i, `${name} reports the gap`);
     }
-    assert.match(flat(stub), /named in the report, given no note, and left alone/i);
+    assert.match(flat(answer), /named in the report, given no note, and left alone/i);
   });
 
   it('the tracker answer changes nothing here, and the absence is stated', () => {
@@ -882,7 +955,7 @@ describe('what a change announces is an answer, not an assumption', () => {
 
   it('a generated changelog is an output, not a documentation surface', () => {
     // A plan that listed one in its §7 would be proposing to hand-edit something a tool rewrites.
-    assert.match(readTemplate('stubs/stack.md'), /A generated changelog is not a surface/i);
+    assert.match(readTemplate('context/stack.notes.md'), /A generated changelog is not a surface/i);
   });
 
   it('the reviewer points at the file and reads the granularity before judging', () => {
@@ -949,7 +1022,7 @@ describe('what a change announces is an answer, not an assumption', () => {
       !headings.some((h) => /does not do here/i.test(h)),
       'and the list of four gaps it replaced is gone, so there is one place to read it',
     );
-    const body = flat(stub);
+    const body = flat(answer);
     assert.match(body, /one event, not one per artifact kind/i);
     assert.match(body, /merge of the release pull request/i, 'the event is named');
     assert.match(
@@ -975,7 +1048,7 @@ describe('what a change announces is an answer, not an assumption', () => {
   // deciding to have one. §11.10 made the *trigger* uniform across artifact kinds and left the *record*
   // per artifact kind; this is the other half of that sentence.
   it('the event leaves a record, and it is the same record whichever half a path got', () => {
-    const body = flat(stub);
+    const body = flat(answer);
     assert.match(
       body,
       /Every path that merge ships leaves a tag and a release behind/i,
@@ -994,7 +1067,7 @@ describe('what a change announces is an answer, not an assumption', () => {
   });
 
   it('names the failure that looks like success, since every step of it reports green', () => {
-    const body = flat(stub);
+    const body = flat(answer);
     assert.match(body, /A deploy that leaves no tag and no release is the failure that looks like success/i);
     assert.match(
       body,
@@ -1004,7 +1077,7 @@ describe('what a change announces is an answer, not an assumption', () => {
   });
 
   it('Release is a wire of its own, because nothing else in a deploy would produce one', () => {
-    const body = flat(stub);
+    const body = flat(answer);
     assert.match(body, /\*\*Release\*\* — what turns a tag into the page someone reads/i);
     assert.match(
       body,
@@ -1020,7 +1093,7 @@ describe('what a change announces is an answer, not an assumption', () => {
   });
 
   it('the tagging setting is recorded next to the versioning one it is always confused with', () => {
-    const body = flat(stub);
+    const body = flat(answer);
     assert.match(body, /\*\*Whether private packages get tagged\.\*\*/i);
     assert.match(
       body,
@@ -1034,7 +1107,7 @@ describe('what a change announces is an answer, not an assumption', () => {
     // `a release happened` is the condition someone reaches for, and it deploys production off a release
     // that only bumped a package. The honest condition is narrower, and it is where the bump level chosen
     // for a note stops being prose.
-    const body = flat(stub);
+    const body = flat(answer);
     assert.match(body, /what it reads is that path's own version/i);
     assert.match(body, /never \*a release happened\*/i, 'the wrong condition is named as wrong');
     assert.match(body, /A path that deploys has to be versioned/i, 'or there is nothing to key on');
@@ -1070,7 +1143,7 @@ describe('what a change announces is an answer, not an assumption', () => {
     // Its old justification was "a deployed app, where each phase reaches users on its own" — which the
     // ship answer contradicts outright: under it a landed phase has shipped nothing either. The value
     // still exists; what it claims is about entries in a changelog.
-    for (const text of [stub, skillBody('onboard')]) {
+    for (const text of [answer, skillBody('onboard')]) {
       assert.doesNotMatch(flat(text), /each phase reaches users on its own/i);
       assert.match(flat(text), /cuts a release about as often as it merges/i);
     }
@@ -1111,15 +1184,15 @@ describe('what a change announces is an answer, not an assumption', () => {
   // push that owes nothing is the one the check fails, and the way out it teaches is a note that describes
   // nothing, written to satisfy a gate. This is the same class as §11.11: every step reports success.
   it('a note check is exempted on the release commit, and reuses the ship gate rather than inventing one', () => {
-    assert.match(flat(stub), /what exempts the release commit from it/i, 'the answer records the exemption');
+    assert.match(flat(answer), /what exempts the release commit from it/i, 'the answer records the exemption');
     assert.match(
-      flat(stub),
+      flat(answer),
       /are there pending notes\?\* as a proxy for \*is this change described\?\*/i,
       'and says which two questions the check confuses',
     );
     assert.match(
-      flat(stub),
-      /it is the same \*this path's version moved\* the last answer in this file already uses/i,
+      flat(answer),
+      /it is the same \*this path's version moved\* the last answer in (this file|`?release\.md`?) already uses/i,
       'the condition is the gate that already exists, not a second rule that can disagree with it',
     );
   });
@@ -1186,8 +1259,8 @@ describe('what a change announces is an answer, not an assumption', () => {
     //
     // It is structural rather than bad luck: the tool refuses to generate the release job, so that job is
     // always written by someone else and Step 9 reads it back as the source of truth.
-    assert.match(flat(stub), /A wire names something that has run, or says that it has not/i);
-    assert.match(flat(stub), /Written, never run\*+ is a real\s*answer/i, 'and the honest answer is named');
+    assert.match(flat(answer), /A wire names something that has run, or says that it has not/i);
+    assert.match(flat(answer), /Written, never run\*+ is a real\s*answer/i, 'and the honest answer is named');
 
     const raw = skillBody('onboard');
     const step = flat(raw.slice(raw.indexOf('## Step 9 — Release'), raw.indexOf('## Step 10')));

@@ -36,6 +36,15 @@ repo match the ledger" has no answer. A phase is a **commit-sized unit of work w
 not a category of activity — "grammar plus container support for the new token" is a phase; "testing" is
 not.
 
+**The `Standards:` line is the phase's share of the conditional table**, and the plan is the one place that
+table is traversed. The planner read [`standards/README.md`](standards/README.md) with the research in
+hand; the coder and the reviewer read this line instead of reading the table again, so each loads the
+three or five files that apply rather than the eleven a fresh table read tends to produce. It carries the
+always row, the rows for the code the phase touches, and the rows the surface question in
+[`workflow.md`](workflow.md) added — accessibility, performance, security — which are the ones a table read
+misses. A reviewer that finds the change drifted past the line opens the table; that is the fallback, not
+the route.
+
 **§7 Documentation** — every place this project explains itself that the feature makes wrong, out of date
 or incomplete. The surfaces come from [`stack.md`](stack.md)'s Documentation index, and from a sweep of the
 repository when that index is empty — an index nobody filled in is not evidence that there are no docs.

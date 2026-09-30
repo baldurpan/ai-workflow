@@ -1,5 +1,19 @@
 # @baldurpan/create-ai-workflow
 
+## 0.22.0
+
+### Minor Changes
+
+- Every command now reads less before it starts: the tracker-answer half of five skills, each stub's setup
+  guidance and `workflow.md`'s reasoning have moved into files that are read only when they apply, and a plan
+  names per phase the standards files the coder and the reviewer load instead of the whole table. `update`
+  brings the new files in and leaves your stubs untouched.
+- The shipped executor answers now prefer a subagent where the runtime has one — the coder on `sonnet`, with
+  the tier written in `executors.md` — and fall back to in-host and self-review where it does not; the Claude
+  Code copy of each skill carries a `model` and `effort`, and the planner and reviewer subagents run on
+  `opus`. Existing installs keep whatever their `executors.md` already says, and a re-run of `/onboard` no
+  longer re-asks an answer that is not the shipped one.
+
 ## 0.21.1
 
 ### Patch Changes

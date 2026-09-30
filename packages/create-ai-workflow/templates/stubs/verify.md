@@ -11,7 +11,8 @@ Keep it in step with CI. If a command here fails while CI is green, this file is
 Run `/onboard` to fill these sections in — it proposes candidates, **runs each one, and writes only the
 ones that exit 0.** Filling them in by hand is fine too; running them first is not optional either way.
 
-<!-- Prerequisites, if any: node version, package manager, install step already run, services up. -->
+What each section takes, and the alternative answers written out, are in
+[`verify.notes.md`](verify.notes.md). `/onboard` reads that file when it fills this one.
 
 ## Lint
 
@@ -33,19 +34,7 @@ ones that exit 0.** Filling them in by hand is fine too; running them first is n
 ```bash
 ```
 
-<!-- Add a heading of your own above this line for anything the four do not cover, that Gate 1 can still
-     afford on every phase, and that fails because of the change rather than because of the calendar — an
-     accessibility suite, a size budget, a coverage floor. Gate 1 runs every section above "Not run by
-     Gate 1", in order. -->
-
 ## Not run by Gate 1
-
-<!-- Three kinds of command: ones that need Docker, a cloud account or a deploy target; ones Gate 1
-     cannot afford on every phase — an end-to-end run against a browser, a full performance pass, a visual
-     snapshot; and ones a change is not what makes fail, like a dependency audit. Name what does run each
-     one: the pipeline, the deploy, a person before a release. Without that name this section reads as a
-     check nobody runs rather than one this gate does not. List them here so nobody promotes one into a
-     gate section by mistake. -->
 
 ## Rules
 

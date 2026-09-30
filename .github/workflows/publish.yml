@@ -246,6 +246,50 @@ jobs:
             SOURCE=commit-body
           fi
 
+          # GitHub rejects a release body over 125,000 characters, and the rejection lands on the one step
+          # that runs *after* the publish and the tag — the two things that cannot be taken back. Worse,
+          # the repair this file documents makes it permanent: `Run workflow` re-attempts the same
+          # oversized body and fails identically every time, so the only way out is a human editing a
+          # CHANGELOG that has already shipped, or cutting the release by hand.
+          #
+          # Verified against a real failure, not documentation: `northguild/gmt` run 35871279627, on
+          # 2026-09-23, died with `body is too long (maximum is 125000 characters)` on a v1.16.0 entry of
+          # 137,782 characters, after the packages were on npm.
+          #
+          # This repository is nowhere near that — its largest entry to date is 610 characters, and its
+          # whole CHANGELOG is 4,883 — so this is insurance, not a fix. It is worth the eight lines only
+          # because of where the failure lands. Truncating costs a tail nobody can read on the release
+          # page anyway; the pointer says where the whole thing is.
+          NOTES=$(
+            NOTES="$NOTES" \
+            NOTES_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/blob/${TAG}/packages/create-ai-workflow/CHANGELOG.md" \
+            node -e '
+              const LIMIT = 125000;
+              const notes = process.env.NOTES || "";
+              const chars = Array.from(notes);
+              // No `process.exit()` anywhere below. stdout is a pipe here, the write is asynchronous, and
+              // exiting on the spot discards whatever is still buffered — which silently cuts any body
+              // over the 64 KiB pipe buffer down to 64 KiB, mid-sentence and with no pointer. Letting the
+              // script end on its own is what flushes it. Caught by the 125,000-exactly case, which came
+              // back as 65,536.
+              if (chars.length <= LIMIT) {
+                process.stdout.write(notes);
+              } else {
+                const pointer =
+                  "\n\n---\n\nThese notes were truncated to fit the GitHub release limit of " + LIMIT +
+                  " characters. The full entry is in [CHANGELOG.md](" + process.env.NOTES_URL + ").";
+                let body = chars.slice(0, LIMIT - Array.from(pointer).length).join("");
+                // Cut back to a line boundary, so the page never ends mid-sentence.
+                const lastBreak = body.lastIndexOf("\n");
+                if (lastBreak > 0) body = body.slice(0, lastBreak);
+                process.stdout.write(body + pointer);
+              }
+            '
+          )
+          if [[ "$NOTES" == *"truncated to fit the GitHub release limit"* ]]; then
+            SOURCE="$SOURCE (truncated)"
+          fi
+
           ARGS=(--title "$TAG")
           if [[ -n "${NOTES//[$'\t\r\n ']/}" ]]; then
             ARGS+=(--notes "$NOTES")

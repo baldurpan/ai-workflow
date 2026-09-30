@@ -6,7 +6,7 @@ import { describe, it } from 'node:test';
 import { render } from '../src/agents-block.ts';
 import { install } from '../src/commands/install.ts';
 import { update } from '../src/commands/update.ts';
-import { AGENTS_BLOCK_KEY, SKILL_NAMES, STANDARDS_PREFIX } from '../src/layout.ts';
+import { AGENTS_BLOCK_KEY, CLAUDE_ONLY_KEYS, SKILL_NAMES, STANDARDS_PREFIX } from '../src/layout.ts';
 import { UserError } from '../src/log.ts';
 import { readManifest, writeManifest } from '../src/manifest.ts';
 import { exists } from '../src/paths.ts';
@@ -80,20 +80,24 @@ describe('install', () => {
     rmSync(root, { recursive: true, force: true });
   });
 
-  it('writes the second tree from the same body, differing by exactly the Claude-only line', () => {
+  it('writes the second tree from the same body, differing by exactly the Claude-only frontmatter', () => {
     const root = scratch();
     quiet(() => install(root));
     const manifest = readManifest(root);
+    const claudeOnly = new RegExp(`^(${CLAUDE_ONLY_KEYS.join('|')}): `);
 
     for (const name of SKILL_NAMES) {
       const claude = readFileSync(path.join(root, `.claude/skills/${name}/SKILL.md`), 'utf8');
       const agents = readFileSync(path.join(root, `.agents/skills/${name}/SKILL.md`), 'utf8');
 
-      assert.doesNotMatch(agents, /disable-model-invocation/, `${name}: that key is Claude Code's`);
+      for (const key of CLAUDE_ONLY_KEYS) {
+        assert.doesNotMatch(agents, new RegExp(`^${key}:`, 'm'), `${name}: ${key} is Claude Code's`);
+      }
+      assert.match(claude, /^model: /m, `${name}: the Claude copy names its model`);
       assert.equal(
         claude
           .split('\n')
-          .filter((line) => line !== 'disable-model-invocation: true')
+          .filter((line) => !claudeOnly.test(line))
           .join('\n'),
         agents,
         `${name}: one body, two trees`,
@@ -101,6 +105,21 @@ describe('install', () => {
       assert.ok(manifest.managedFiles[`.agents/skills/${name}/SKILL.md`], `${name} is hashed`);
     }
     assert.deepEqual(manifest.adapters, ['claude', 'agents']);
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  it('a supporting file beside a skill body lands in both trees and is hashed like the body', () => {
+    const root = scratch();
+    quiet(() => install(root));
+    const manifest = readManifest(root);
+    for (const tree of ['.claude', '.agents']) {
+      const dest = `${tree}/skills/feature-plan/tracker.md`;
+      assert.ok(exists(path.join(root, dest)), `${dest} was written`);
+      assert.ok(manifest.managedFiles[dest], `${dest} is in the manifest`);
+    }
+    for (const notes of ['workflow', 'executors', 'git', 'release', 'verify', 'stack', 'tracking']) {
+      assert.ok(manifest.managedFiles[`context/${notes}.notes.md`], `${notes}.notes.md is tool-owned`);
+    }
     rmSync(root, { recursive: true, force: true });
   });
 

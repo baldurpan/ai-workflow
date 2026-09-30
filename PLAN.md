@@ -10,7 +10,7 @@ Every `§`-number below points into that document.
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 234 tests. The 130 in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 259 tests. The 154 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, git on instruction rather than on
    initiative, a worktree made by the recorded command or not at all, one home for the tracker, no
@@ -19,7 +19,9 @@ Every `§`-number below points into that document.
    for its home being split rather than trimmed, documentation reaching the plan, an answer file that may
    not hold a false answer, one status vocabulary with no second place to record a defect, an order
    between features that is a relationship rather than a sentence, a titled §-citation resolving against
-   the template, and every relative link resolving after install — in both skill trees. `ci.yml`
+   the template, the tracker half of a command kept beside its body and read only where it applies, a
+   model tier that is an alias and never a dated id, and every relative link resolving after install — in
+   both skill trees. `ci.yml`
    runs them on every push and pull request against `main`, plus an `engines-floor` job that builds on
    Node 20.10.0 and runs the packed CLI there — the suite itself cannot, since it executes `.ts` directly
    and that needs type stripping.
@@ -205,7 +207,7 @@ Eight tests guard it.
 release.** An npm workspaces monorepo — the installer lives in
 `packages/create-ai-workflow/`, and `apps/*` is reserved for a landing site or hosted documentation.
 Installs a `context/` tree, the nine skills into **both** `.claude/skills/` and `.agents/skills/`, two
-Claude subagents, a merged `AGENTS.md` block and a manifest that draws the ownership boundary — 103
+Claude subagents, a merged `AGENTS.md` block and a manifest that draws the ownership boundary — 120
 tool-owned files, 8 project-owned stubs.
 
 ---
@@ -255,6 +257,12 @@ on the right prompt and stays quiet on the wrong one. That host has no `disable-
 equivalent, so the second and third questions above are open there in a way they are not under Claude
 Code — the description text is the only thing holding the line.
 
+**§17 adds two checks to the same run, and answers one question from the docs.** The host's documentation
+says `disable-model-invocation: true` removes the description from context entirely, which answers the
+second question above on paper. Still to observe: that a per-skill `model:` really does hand back to the
+session model after a command asks mid-run, which §17.5 records from the docs and has not seen; and that a
+re-run of `/onboard` reports an executor somebody wired into `executors.md` and leaves it alone.
+
 ### 2. Licensing for the vendored standards — a confirmed gap, not a hypothetical
 
 `baldurpan/ai-engineering-standards` has **no LICENSE file** — `git ls-files | grep -i licen` returns
@@ -297,7 +305,7 @@ run is the publish half of that branch.
 calling this package's own `changesetConfig()` and `changesetReadme()` rather than retyping them — one
 honest edit, `access: "public"`, which `release-init` cannot know about a repository it has just met.
 `release-init` itself **refuses here**, correctly: it requires an ai-workflow install, and there is none.
-Three scripts on the root manifest, `release-note.yml` asking the question on every pull request, and
+Three scripts on the root manifest, `release-note.yml` asking the question on every push to `main`, and
 `publish.yml` taking the release body from the CHANGELOG entry with the old commit-body convention as its
 first fallback, so the releases that predate this still read correctly.
 
@@ -308,8 +316,8 @@ are still true as *descriptions of how this repository used to work* — and tha
 weak: it defended the existing cadence rather than examining it. Notes are what make a different cadence
 possible, which is the point of adopting them, and **the tool's own repository being the one place its
 release answer was not used was a fact about inertia, not a design position.** What it costs is a note per
-package change and a release branch; what it buys is the changelog this repository has never had, and a
-release whose notes were written when the change was fresh.
+package change, and a commit that runs `changeset:prepare-release`; what it buys is the changelog this
+repository has never had, and a release whose notes were written when the change was fresh.
 
 **It is not the dogfood run item 1 wants, and must not be mistaken for it.** A human writes these notes;
 `/feature-close` does not, because there is no skill tree here. What is now exercised on a real repository
@@ -319,10 +327,33 @@ record — the §11.11 half. The loop under a live agent is still unrun.
 **Item 1 below was supposed to happen before this.** It did not. The live-agent run is now the
 outstanding risk against a package other people can already install.
 
+**The release body is capped at GitHub's 125,000 characters, as of 2026-09-23.** Not because this repository
+is near it — its largest CHANGELOG entry to date is 610 characters and the whole file is 4,883 — but because
+of *where* that failure lands. `gh release create` is the last step in `publish.yml`, so a rejected body
+fails the job after npm publish and after the tag push, and `Run workflow`, which this pipeline documents as
+the repair for a half-landed release, re-attempts the same oversized body and fails identically forever. The
+only exits are editing a CHANGELOG that has already shipped, or cutting the release by hand.
+
+The number is verified against a real failure rather than documentation: `northguild/gmt` run 35871279627,
+`body is too long (maximum is 125000 characters)`, on a v1.16.0 entry of 137,782 characters, with the
+packages already on npm. Over the cap the body is cut back to a line boundary and gains a pointer to
+`CHANGELOG.md` at the tag; the step summary reports `changelog (truncated)` so a shortened page is never
+silent. Tested against seven inputs including gmt's real entry, the exact boundary, and an empty body, which
+still reaches `--generate-notes`.
+
+**One bug found in writing it, worth keeping written down:** `process.stdout.write(big); process.exit(0)` in
+the capping script truncated a 125,000-character body to exactly 65,536. stdout is a pipe in a command
+substitution, the write is asynchronous, and `process.exit()` discards the buffer. The under-limit path was
+the one affected — the path that is supposed to change nothing. The script now ends on its own instead, and
+the same hazard applies to the extraction script above it, which is why neither calls `process.exit` after a
+write.
+
 `npm pack` produces a working 177.6 kB / 121-file tarball — verified again after §4.5 and §4.6 by installing it
 into a clean repo and running `install`, `check` and `update --dry-run` against it, with the standards tree
 landing 78 files and `standards/templates/.gitignore` restored from `_dot_gitignore`. Do that again after
-any change to `templates/`.
+any change to `templates/`. **After §17 it is 238 kB and 134 files**, verified the same way on 2026-09-30,
+plus an upgrade from the 0.21.1 tarball: 40 files written, 17 of them new, every stub untouched, no gap
+under **Next**, and `check` clean afterwards.
 
 ### 4. Try an offloaded executor for real
 
@@ -622,7 +653,7 @@ Five places the design left the call open and the build had to make one.
 | `update` reconciles adapters to **what the running version ships**, not to what the manifest recorded — so a v0.1 install silently gains `.agents/skills/` | It is the only way an existing install ever reaches a new tree, and the alternative is a flag nobody knows to pass. The eight files are reported as `add`, visible under `--dry-run`, and a directory the tool did not write is still a conflict rather than an adoption | `const adapters = DEFAULT_ADAPTERS` → `manifest.adapters` in `src/commands/update.ts`, plus a way to opt in |
 | An edited `context/standards/` file hands over **the whole tree**, not that file | §6.2 says a hash mismatch is a conflict; §4.1 says standards are ours only "while unmodified". The tree is an interface — the README's conditional table and the files it names have to agree, so a half-managed tree is one where an update replaces a file the user's own table no longer points at | the tree-level branch in `src/commands/update.ts` |
 | An upgraded install **never gets `context/git.md`**, and never gains a section a newer stub added — `update` reports both and writes neither | Stubs are project-owned; a pass that writes missing ones is a pass that can overwrite a file someone deleted on purpose. Instead the absence is a defined state, and `update` ends by naming each gap under **Next** and pointing at `/onboard` (§6.2) — the boundary holds, and it is no longer silent | a stub-restore pass in `src/commands/update.ts` that writes only stubs whose destination does not exist, reported as `add` |
-| Subagents use **`model: inherit`** | The package installs into other people's accounts and assumes nothing about model access. The reference pinned `opus` and `sonnet` | one line in each `templates/claude/agents/*.agent.md`. Note that pinning after install makes it a conflict on the next `update` — which is the correct signal |
+| Subagents pin **`model: opus`**, and the Claude copy of every skill carries a `model` and `effort` | Reversed from `inherit` on 2026-09-30 (§17.5). A command's own orchestration is bookkeeping and runs on `sonnet`; the planner and the reviewer are where the judgment lives. Aliases rather than dated ids, so they resolve to whatever the account has — which still assumes those two tiers exist, and they are the two every plan has | `CLAUDE_SKILL_SETTINGS` in `src/layout.ts`, and one line in each `templates/claude/agents/*.agent.md`. Pinning differently after install is a conflict on the next `update` — which is the correct signal |
 
 ---
 
