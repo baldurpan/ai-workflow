@@ -1,5 +1,14 @@
 # @baldurpan/create-ai-workflow
 
+## 0.23.0
+
+### Minor Changes
+
+- `/orchestrate` gains a `--pr` flag that ends the run at a pull request instead of in the working tree: one
+  commit, the current branch pushed, and the work opened for a person to read. The flag itself is the
+  permission, so no `git.md` answer changes and nothing it does carries over to the next invocation — and it
+  creates no branch of its own, stops rather than pushing the default branch, and never merges.
+
 ## 0.22.0
 
 ### Minor Changes

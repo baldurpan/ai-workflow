@@ -38,7 +38,7 @@ starting point — nothing has to be looked up first.
 | `/feature-implement` | activates a planned feature and runs **one phase** through both gates — or phase after phase with `--all`, which stops at a `blocked` phase, a capped gate or a ledger that disagrees with the repo, and never at `/feature-close` |
 | `/feature-status` | read-only. Reconciles the ledger against the repo — sweeping every worktree where the project works that way — then names **exactly one** next action |
 | `/feature-close` | retires a feature: a `history.md` row, a `git mv` into `archive/`, a reviewed reference sweep, and the release note where `release.md` says one is owed |
-| `/orchestrate` | one ad-hoc, commit-sized change through the same gates — no entry, no ledger |
+| `/orchestrate` | one ad-hoc, commit-sized change through the same gates — no entry, no ledger. With `--pr` the run ends at a pull request instead of in the working tree: the flag is the permission, it never creates a worktree, it stops rather than branching off the default branch itself, and nothing merges it |
 | `/prototype` | a throwaway HTML/CSS mockup under `prototypes/`, to settle a layout question before a plan commits to it — no gates, no application code |
 | `/onboard` | fills in your own stubs, adopting what the repo already documented, indexing where it documents itself, running each verification command before writing it down, and asking per path what a change announces |
 | `/tracking-migrate` | moves an existing backlog, its drafts and its plans onto the substrate `tracking.md` names — one feature at a time, resumable, removing a file only once the issue that replaces it exists |

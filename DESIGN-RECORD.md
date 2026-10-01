@@ -3697,3 +3697,161 @@ and that a re-run of `/onboard` leaves a wired executor alone. Both are recorded
 `plan-template.notes.md` was split from its template. The design record said why that split was right and
 then applied it to one file. A principle that is stated once and applied once is a precedent, not a rule;
 it became a rule when the cost of not applying it was measured.
+
+---
+
+## 18. `/orchestrate --pr` — the push that had no answer, and the two flags that were refused with it
+
+Asked for as `--autopilot`: a flag that makes the agent commit and open a pull request, with `/bugfix` as an
+alias for it, and then `--automerge` on top, merging once CI went green. One of the three shipped.
+
+### 18.1 The hole, and why it was only half a hole
+
+`/orchestrate` refused to push at all — *"Nothing here branches, worktrees or pushes, whatever* Where work
+lands *and* Push and pull request *say"* — because both of those `git.md` answers are written about a
+feature: one branch or tree per entry, one push at `/feature-close`. An ad-hoc change has neither, so the
+answers did not reach it and the command declined rather than guessing.
+
+**Committing was never the hole.** `git.md`'s *Who commits* already governs it and step 6 already obeys, so
+a flag adds nothing there. What was missing was the **push and the pull request**, and the thing that made
+it look like a configuration problem is that the obvious implementation — read *Push and pull request* —
+cannot work: a fresh install ships *the user commits*, *neither*, and an empty *Branch and worktree*, so the
+flag would have been inert three times over until someone re-answered three unrelated questions.
+
+### 18.2 The flag is the permission — the source `git.md` already names
+
+`git.md`'s *What no answer here authorises* lists two sources and only two: an answer covering this command
+at this point, **or** the user asking in this session, in plain words. **A typed flag is the second one.**
+That settles the whole design without a new answer file, a new section in `git.md` or a fourth question in
+`/onboard`:
+
+- The flag does not need *Who commits* to say *the agent commits*, and does not read *Push and pull
+  request*. Those answers stay about features, which is what they were written about.
+- What it authorises is **this invocation**. Nothing it does becomes policy for the next one — which is the
+  property an answer file could not have given it, since an answer is standing by construction.
+
+**Rejected: writing the answer instead.** `--pr` could have set *Push and pull request* on first use, or
+`/onboard` could have grown a fifth question. Both convert a per-invocation ask into standing leave, which
+is exactly the inversion §4.7 was written to stop, and the second one asks every installer to pre-answer a
+question most will never use.
+
+### 18.3 It cannot invent a branch, and that is the interesting half
+
+A pull request needs a branch, and `/orchestrate` lands on whatever is checked out. Three cases:
+
+| HEAD | What happens |
+|---|---|
+| not the default branch | commit, push that branch, open the pull request. **Nothing was created** |
+| the default branch | **stop before the commit**, unless *Branch and worktree* in `executors.md` names a command — then run that one |
+| that command makes a worktree | stop and say so |
+
+The second row is forced from two directions at once: pushing to the default branch is on `git.md`'s
+asked-by-name-each-time list under every answer, and `executors.md` says an empty *Branch and worktree* means
+the workflow makes no branch rather than that it should improvise `git checkout -b`. The third row keeps step
+6's existing refusal — a worktree answer is not permission to move an ad-hoc change into a tree of its own —
+which a flag on this command is not the user lifting.
+
+So the flag's reach is smallest exactly where the repository has recorded least, and it never writes history
+in a place no answer named. **Nothing is lost in the stopped case**: the change is in the tree, which is
+where it would have been without the flag.
+
+### 18.4 Rejected — `--automerge`
+
+Proposed as the natural companion: merge once CI is green. Refused on four counts, the first of which is
+already written down twice.
+
+1. **`git.md` reserves it in one line** — *review and merge are yours* — and `/feature-close` says *nothing
+   merges it*. The push exists so a person reads the change; `/feature-close` states the purpose outright
+   (*"a pull request is where finished work goes to be read by a person"*). A merge on green CI deletes the
+   only thing the push was buying, which makes `--pr --automerge` strictly worse than not pushing at all.
+2. **It needs a session that outlives itself.** `/orchestrate` keeps no resumable record on purpose —
+   *"nothing here is half-finished in a way the next session could resume"*. A run parked on a check suite
+   is precisely that, and a session that dies mid-wait leaves an open pull request and no record anywhere
+   that a merge was intended. That is a new terminal state in the one command built to have none.
+3. **A merge is a write to the default branch**, which that same list says is asked for by name each time. A
+   flag is standing policy for its invocation; that is fine for a push to a feature branch and not for this.
+4. **"Green" is not one fact** — required checks or all checks, pending against neutral against skipped, a
+   required approving review, a merge queue, a merge method. The dangerous default decides it: a repository
+   with no checks configured is green because nothing ran, so the flag would be most eager where it has
+   least evidence.
+
+**The narrow version, if it is ever wanted, is the forge's own auto-merge, not an agent's** — and the first
+draft of this section overstated what that buys, in the exact way §2.9's rule about sourcing exists to
+catch. What was **verified against `gh` 2.100.0** is one string: `gh pr merge --auto` is *"Automatically
+merge only after necessary requirements are met"*. What *necessary requirements* resolves to was not
+verified against anything — it was assumed, and written down as though the tool had said it.
+
+**Read in GitHub's documentation on 2026-10-01**, not verified against a repository: auto-merge merges once
+*"all required reviews and status checks pass"*, it has to be enabled at the repository level, and the option
+appears **only when the pull request cannot already merge** — that is, when a protection rule is holding it.
+So the load-bearing word is **required**:
+
+- **A CI job that is not a required check is not waited for.** A repository with branch protection that
+  requires a review but does not require its checks would auto-merge with CI still running, or failing. "It
+  waits for CI" is not a property of the feature; it is a property of a protection rule somebody configured.
+- **With nothing required, the pull request is already mergeable**, so there is no auto-merge to enable and
+  the call either merges now or errors. The dangerous default of §18.4's fourth count survives intact at the
+  forge: least configuration, least waiting.
+
+That **strengthens** the conclusion rather than weakening it. **The safety would be a property of the
+repository, never of the flag** — so a flag claiming to merge on green could not honestly say what it waits
+for without reading the repository's required-check list first, and that is a forge fact, which `tracking.md`
+owns and a skill may not name (§10.8). Not shipped: it needs a merge-method answer, it needs that read, and
+`--pr` should land a few changes first.
+
+### 18.5 Rejected — renaming to `/implement`, and `/bugfix` as an alias
+
+Two shapes of the same mistake: making the command's name the phrase people type.
+
+**`/implement` is the one name this command cannot have.** `/feature-implement`'s description ends *"Do NOT
+match on 'implement X', 'build this', 'let's code it'"* and `/orchestrate`'s ends *"Do NOT match on 'build
+X', 'implement X'"*. Both exist because the tier model's whole job is keeping planned work from being done
+unplanned. A skill **named** `implement` makes "implement X" a name match, and no description overrides its
+own name — so the predictable misroute sends a planned feature into the command with no entry and no ledger,
+leaving step 1's guards to catch it every single time. `implement` beside `feature-implement` is also
+confusable for a reader at the one moment the distinction matters.
+
+**`/bugfix` fails three ways.** It is the same magnet pointed at the most ambiguous phrase in the language;
+it is a second home for one command's behaviour, against the invariant the content tests guard; and it fuses
+two orthogonal axes — *bug* is the category of work, `--pr` is how far the run goes, and you want supervised
+bug fixes and unattended non-bug ones. `/orchestrate #<issue>` is already the documented route a bug takes
+(§15.4). A per-user alias in somebody's own `~/.claude/commands/` costs no install anything.
+
+**`/task` was §3.8's own suggestion and §10.11 has since retired it.** GitHub's default type set is
+`Task`/`Bug`/`Feature`, and *The word `Task` means the opposite thing here* records that an issue typed
+`Task` is a workflow **feature** — loop, plan and history row. Renaming the command to `/task` puts that
+collision on the form that takes an issue, where `/task #412` would read as the right command for the one
+issue that must not go there.
+
+**So the name stays, and `--pr` is an argument for keeping it.** The §3.8 complaint is cosmetic — the
+command sounds larger than `/feature-implement` while being smaller. Nobody says "orchestrate this" meaning
+"write this code", and that is the property you want in a command that runs on explicit invocation only.
+**Raising a command's ceiling is a reason to make its name less inviting, not more**: without the flag a
+misroute ends in a working tree somebody looks at, and with it a misroute ends in a pushed branch.
+
+### 18.6 What the flag refuses to be
+
+Two sections in the skill exist only to keep later readings out, because each one is a sentence away:
+
+- **It suppresses no question.** Step 2's release-note level is still proposed and confirmed — §11 made it an
+  ask because the level is a judgment, and the flag names where the run *ends*, not that nobody is reading. A
+  run that waits there is working as intended. The first draft of this design had the flag assert the level
+  and report it; that fuses *don't pause* onto *go further*, which is how `--autopilot` would have accreted
+  meaning and why the flag is not called that.
+- **It lifts no refusal and no stop.** Step 1's three guards, a non-clean Gate 1 and a capped Gate 2 all end
+  the run **before the commit** — nothing committed, nothing pushed, the change left in the tree exactly as
+  step 5 leaves it. So does a push that will not fast-forward, and a repository with no remote.
+
+### 18.7 What it cost
+
+One section in the skill, renumbering *Report* to 8; one row each in `workflow.md`'s tier table and command
+table, the `AGENTS.md` block and the package README; and one correction, which is the part worth noting.
+`workflow.md` summarised the push answer as *"a push happens once per feature, at `/feature-close`"*, and
+that sentence became false the moment this flag shipped — **an answer file may not hold a false answer**, so
+it now accounts for the one push outside a feature and states the merge refusal as covering any answer *and
+any flag*. **Eight tests**, including that one, that the stop list ends the run before the push rather than
+after it, and that every document showing the command shows the flag.
+
+Verified on 2026-10-01 by packing the tree, installing it into an empty repository, and running `check`
+(clean, exit 0) and `update --dry-run` (121 files current, nothing under **Next**, exit 0), with the flag
+present in both skill trees and every relative link in the rewritten skill resolving after install.

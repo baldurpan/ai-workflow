@@ -606,6 +606,96 @@ describe('--all runs the phases without crossing a tier', () => {
   });
 });
 
+describe('--pr ends the run at a pull request without becoming policy', () => {
+  // `/orchestrate` refused to push at all, because `git.md`'s push answer is written about a feature and an
+  // ad-hoc change has none. The flag is legitimate on the other source of permission that file names — the
+  // user asking in this session, in plain words — and a typed flag is that ask. So the invariant worth
+  // guarding is the boundary: it buys this invocation's commit, push and pull request, it creates no
+  // worktree, it branches off nothing by itself, it lifts no refusal, and it does not merge.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const body = skillBody('orchestrate');
+  const start = body.indexOf('## 7. `--pr`');
+  const pr = flat(body.slice(start, body.indexOf('## 8. Report')));
+
+  it('the flag is in the usage block and has a section of its own', () => {
+    assert.ok(start > 0, 'the flag has a section of its own');
+    const usage = body.slice(body.indexOf('## Usage'), body.indexOf('## 1.'));
+    assert.match(usage, /\/orchestrate --pr "<what to do>"/, 'the prose form is shown');
+    assert.match(usage, /\/orchestrate --pr #<issue>/, 'and the issue form, since a bug is why this exists');
+    assert.match(skillMain('orchestrate'), /^description: .*--pr/m, 'the description carries it, like --all');
+  });
+
+  it('the flag is the permission, and it rewrites no answer', () => {
+    // The failure this prevents is the flag being implemented as "set git.md to the agent commits": that
+    // would authorise every later invocation, which is the opposite of asking by name.
+    assert.match(pr, /the permission, not a new `git\.md` answer/i);
+    assert.match(pr, /in this session in plain words/i, 'it names the source it rests on');
+    assert.match(pr, /What it authorises is \*\*this invocation\*\*/, 'and the scope of what it bought');
+    assert.match(pr, /nothing here is written into `git\.md`/i, 'no answer file is edited');
+  });
+
+  it('it cannot invent a branch, and never a worktree', () => {
+    assert.match(pr, /HEAD is not the default branch/, 'the case the flag is built for');
+    assert.match(pr, /stop before the commit/i, 'and the case it refuses');
+    assert.match(pr, /asked for by name each time/i, 'pushing the default branch is still that');
+    assert.match(pr, /executors\.md/, 'a branch comes from the recorded command or not at all');
+    assert.match(pr, /improvise `git checkout -b`/, 'an empty section is not a licence to improvise');
+    assert.match(pr, /makes a worktree rather than a branch\*\* → stop/i, 'the worktree case stops');
+    // Step 6's existing refusal has to survive the flag, not be softened by it.
+    assert.match(flat(body), /the flag does not change it\*\* — step 7 pushes a branch and creates no tree/);
+  });
+
+  it('nothing reaches a pull request that would not have been handed back', () => {
+    for (const [what, re] of [
+      ['a scope step 1 refused', /step 1 refuses the scope/i],
+      ['a gate that did not come back clean', /Gate 1 does not come back clean/i],
+      ['a push that is not a fast-forward', /will not fast-forward/i],
+    ] as const) {
+      assert.match(pr, re, `${what} must stop before the push`);
+    }
+    assert.match(pr, /Nothing is committed and nothing is pushed/i, 'the handback stays a handback');
+    assert.match(pr, /not where unfinished work goes to be verified/i, "the PR's purpose is stated");
+    assert.match(pr, /lifts no refusal/i, 'and the flag widens nothing');
+  });
+
+  it('nothing merges, and nothing stays alive watching a check run', () => {
+    // The flag that was asked for alongside this one was --automerge. `git.md` reserves merging in one
+    // line, and an agent polling CI is a half-finished run in the one command that keeps no resumable
+    // record. Both refusals are in the skill so neither has to be re-argued.
+    assert.match(pr, /\*\*Nothing merges it\.\*\*/, 'stated as flatly as /feature-close states it');
+    assert.match(pr, /Not on green CI/i, 'the green-CI reading is named and refused');
+    assert.match(pr, /review and merge are yours/i, "and git.md's line is quoted");
+    assert.match(pr, /does not delete a branch, enable the forge's own auto-merge, or stay alive/i);
+    assert.match(flat(body), /Nothing merges, and nothing waits for CI/, 'the Rules list carries it too');
+  });
+
+  it('the release-note ask survives the flag', () => {
+    // --pr names where the run ends, not that nobody is reading. The bump level is a judgment that
+    // release.md has confirmed before the note is written, and a flag that silently asserted it would be
+    // the one place this command guesses at a version.
+    assert.match(pr, /release-note ask still happens/i);
+    assert.match(pr, /names where the run ends, not that nobody is reading/i);
+  });
+
+  it('every document that shows the command shows the flag', () => {
+    // Same rule as --all: the tables are where a reader learns the command exists, and a flag missing from
+    // them is a flag nobody types.
+    assert.match(readTemplate('context/workflow.md'), /`\/orchestrate \[--pr\]`/, 'the tier table carries it');
+    assert.match(readTemplate('context/workflow.md'), /A typed flag is that ask/, 'and the git rules do');
+    assert.match(agentsBlockBody(), /`--pr` ends it at a pull request/, 'the always-loaded block carries it');
+    const readme = readFileSync(path.join(packageRoot, 'README.md'), 'utf8');
+    assert.match(readme, /With `--pr` the run ends at a pull request/, "the package README's table carries it");
+  });
+
+  it('the one push outside a feature is accounted for where the push answer is summarised', () => {
+    // workflow.md said a push happens once per feature, at /feature-close. That sentence became false the
+    // moment this flag shipped, and an answer file may not hold a false answer.
+    const workflow = flat(readTemplate('context/workflow.md'));
+    assert.match(workflow, /the only push outside them is the one `\/orchestrate --pr` is asked for by name/);
+    assert.match(workflow, /under any answer or any flag/, 'and the merge refusal covers the flag');
+  });
+});
+
 describe('documentation is part of the change', () => {
   // A plan could name every file it touched and still leave the README describing the flag it renamed.
   // Nothing fails for that — docs are the one output with no gate behind them — so the drift is invisible

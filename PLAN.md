@@ -3,19 +3,20 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 2995 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 3858 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 259 tests. The 154 in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 267 tests. The 162 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, git on instruction rather than on
    initiative, a worktree made by the recorded command or not at all, one home for the tracker, no
    self-declared status, inert stubs, a ledger row that opens before the work, a substrate answer that
-   never strands the data it names, a `--all` loop that stops where a single run stops, a plan too large
+   never strands the data it names, a `--all` loop that stops where a single run stops, a `--pr` flag whose
+   authority ends with the invocation that typed it, a plan too large
    for its home being split rather than trimmed, documentation reaching the plan, an answer file that may
    not hold a false answer, one status vocabulary with no second place to record a defect, an order
    between features that is a relationship rather than a sentence, a titled §-citation resolving against
@@ -34,6 +35,21 @@ also the first release cut from accumulated notes in this repository, so
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**, and `main` now carries
 **0.17.0** — **§10.14**, `blocked by` between features, which is the first thing a live agent running the
 tracker answer has asked for.
+
+**Pending release on top of 0.22.0: §18**, `/orchestrate --pr` — the first flag in this workflow whose
+authority is the typing of it. `git.md` names two sources of permission and only two, and the second is *the
+user asking in this session, in plain words*; a typed flag is that, so the flag needs no answer file, no new
+`git.md` section and no fifth `/onboard` question, and **nothing it does becomes policy for the next
+invocation**. Committing was never the hole — *Who commits* already governs it — the push and the pull request
+were, and the obvious implementation could not work: a fresh install ships *the user commits*, *neither* and
+an empty *Branch and worktree*, so a flag reading those answers would have been inert three times over. **It
+cannot invent a branch**: on the default branch it stops before the commit unless `executors.md` names a
+command, and it never makes a worktree. **Two flags were refused with it** — `--automerge`, because `git.md`
+reserves merging in one line and an agent polling CI is a half-finished run in the one command that keeps no
+resumable record; and `/bugfix` as an alias for `/orchestrate --pr`, with the rename to `/implement`, because
+both make the command's name the phrase people type into the command that has no ledger. One correction fell
+out of it: `workflow.md` said a push happens once per feature, at `/feature-close`, which this flag made
+false. **Eight tests.**
 
 **Pending release: §4.7**, the fourth field report in a row and the second about git. §4.4 asked *who
 commits* and §4.5 asked *where work lands*; both answer what the **workflow's commands** do, and the
