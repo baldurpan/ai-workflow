@@ -20,7 +20,7 @@ running something else.
 | Tier 1 → a plan | `/feature-plan` |
 | a plan → being worked, then phase by phase | `/feature-implement`, or `/feature-implement --all` |
 | Tier 2 → retired | `/feature-close` |
-| no tier crossed | `/orchestrate [--pr]` — one ad-hoc gated change; `/feature-status` — read-only; `/prototype` — a throwaway mockup |
+| no tier crossed | `/orchestrate [--pr]` — one ad-hoc gated change; `/release` — cut the accumulated notes into a release pull request; `/feature-status` — read-only; `/prototype` — a throwaway mockup |
 
 **Every command finds its own starting point.** Nothing has to be looked up first, and `/feature-status` is
 never a prerequisite for anything.
@@ -38,6 +38,7 @@ This file holds the rules. Why each rule is what it is, and what was tried inste
 | `/feature-status` | nothing — read-only | — |
 | `/feature-close` | Tier 2 → retired | `history.md`, `archive/`, the reference sweep, a release note where [`release.md`](release.md) says *once per feature*, and the push and pull request where [`git.md`](git.md) says so |
 | `/orchestrate` | one ad-hoc gated change | the code, a release note where [`release.md`](release.md) says one is owed, and under `--pr` the branch it pushes and the pull request it opens |
+| `/release` | the one act that consumes notes | nothing of its own — it runs what [`release.md`](release.md)'s *Bump* wire names, on a branch [`executors.md`](executors.md) made, and ends at a pull request |
 | `/prototype` | one throwaway HTML/CSS mockup — no gates, no application code | `prototypes/<NAME>/`, and nothing else |
 | `/onboard` | the project-owned stubs | `verify.md`, `executors.md`, `git.md`, `tracking.md`, `release.md`, `stack.md`, and the pruning of what they replace |
 | `/tracking-migrate` | moving existing state onto the substrate `tracking.md` names | issues, and the tree files they replace — never `history.md` or `archive/` |
@@ -107,16 +108,17 @@ commit-sized unit and anything an existing roadmap entry already covers.
 [`git.md`](git.md) answers three more, each independent and each shipping as the most conservative option:
 **where work lands**, **whether the agent pushes and opens a pull request**, and at what **granularity** it
 commits. Under those answers a push happens once per feature, at `/feature-close` — never at the end of a
-phase — and the only push outside them is the one `/orchestrate --pr` is asked for by name. **Nothing
-merges a pull request, deletes a branch, or removes a worktree under any answer or any flag.**
+phase — and the only pushes outside them are the two asked for by name: `/orchestrate --pr`, and
+`/release`. **Nothing merges a pull request, deletes a branch, or removes a worktree under any answer, any
+flag or any command.**
 
 **Those answers authorise the commands in this workflow, at the point each one names, and nothing else.**
 *The agent commits* is permission for `/feature-implement` to close a phase it just ran, not standing leave
 to commit whatever is in the tree; *a worktree per feature* is permission for a **planned feature's** first
 phase to make one, not for an ad-hoc request to be moved into a tree of its own. Outside those points, an
-operation needs the user to ask for it in this session. **A typed flag is that ask** — `/orchestrate --pr`
-is the one the workflow ships, and it authorises that invocation's commit, push and pull request without
-changing a single answer in [`git.md`](git.md) for the next one.
+operation needs the user to ask for it in this session. **A typed flag or a typed command is that ask** —
+`/orchestrate --pr` and `/release` are the two the workflow ships, and each authorises that invocation's
+commit, push and pull request without changing a single answer in [`git.md`](git.md) for the next one.
 
 **Permission is not inferred.** Choosing between approaches does not authorise any of this, even where the
 option text mentions it — and *especially* where you wrote that option text yourself. Neither does "ship
@@ -128,7 +130,9 @@ default branch, and rewriting published history. Each has to be asked for by nam
 
 **A worktree is created only by what [`executors.md`](executors.md) names.** If that file names no
 invocation, there is no fallback — a bare `git worktree add` is the failure this rule exists to stop, not
-the default. The same goes for removing one.
+the default. The same goes for removing one. **`/release` is the one command that may make one for
+something that is not a feature**, because a branch of its own is what that command is for rather than a
+side effect of it — and it still makes it only with the recorded invocation, and still removes nothing.
 
 ### Where this state lives is an answer, not an assumption
 
@@ -192,10 +196,18 @@ file does not cover is reported, never guessed at** — name the path and name `
 A skill may **name** it, report that it is pending, and stop — the same way it names `/onboard` for a gap it
 will not fill itself. Asked for directly, in that turn, it is the user's call and theirs to give.
 
-**`/feature-close --release` is what that asking looks like, and it is the only shape of it this workflow
-ships.** A flag typed in the turn it takes effect, which lists every pending note it is about to consume —
-other people's included — before it runs anything. **The gap between writing a note and consuming it is
-where a wrong bump level is still free**, so a command that closes that gap says so while it asks.
+**A command or a flag typed in the turn it takes effect is what that asking looks like, and those are the
+only two shapes of it this workflow ships.** Both list every pending note they are about to consume —
+other people's included — before running anything, and **neither is inferred from prose: a sentence is not
+a command.**
+
+| Shape | The release is | Cut from |
+|---|---|---|
+| `/release` | its own pull request, and the merge of that is the ship event | the default branch, where notes accumulate as features land |
+| `/feature-close --release` | fused into the feature's own merge | that feature's branch — for a repository that releases about as often as it merges |
+
+**The gap between writing a note and consuming it is where a wrong bump level is still free**, so whichever
+of the two closes that gap says so while it asks.
 
 ### Never transcribe a credential
 

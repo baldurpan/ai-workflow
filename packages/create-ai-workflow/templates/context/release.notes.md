@@ -122,7 +122,11 @@ for that one.
 Write down what the event is wired to, one line each:
 
 - **Bump** — the script that consumes the notes, and who runs it. It cannot be run twice, and where a
-  deploy watches versions it is the button that ships.
+  deploy watches versions it is the button that ships. **Write this line even if nothing else in the
+  section is filled in**: it is the one wire a command in this workflow reads. `/release` runs it, on a
+  branch of its own and after Gate 1, in the turn somebody types that command — and where this line is
+  empty that command refuses rather than guessing, which is the behaviour an empty wire buys. A person
+  typing it by hand is also a real answer; say which.
 - **Tag** — what creates the tag, and from what. **Do not assume the publish step owns this.** In the
   common shape one command both publishes and tags, so a repository that publishes gets tags without ever
   deciding to — and a repository that only deploys runs no such command and silently gets none. If nothing

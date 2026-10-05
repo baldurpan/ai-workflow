@@ -3,20 +3,21 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 3858 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 4049 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 267 tests. The 162 in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 278 tests. The 173 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, git on instruction rather than on
    initiative, a worktree made by the recorded command or not at all, one home for the tracker, no
    self-declared status, inert stubs, a ledger row that opens before the work, a substrate answer that
    never strands the data it names, a `--all` loop that stops where a single run stops, a `--pr` flag whose
-   authority ends with the invocation that typed it, a plan too large
+   authority ends with the invocation that typed it, **a `/release` whose Gate 1 and whose
+   confirmation both sit above the step that consumes the notes**, a plan too large
    for its home being split rather than trimmed, documentation reaching the plan, an answer file that may
    not hold a false answer, one status vocabulary with no second place to record a defect, an order
    between features that is a relationship rather than a sentence, a titled §-citation resolving against
@@ -29,14 +30,38 @@ Every `§`-number below points into that document.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** `main` carries **0.14.0** — the body's ceiling (§10.13), **item 6, the release answer** (§11) in
-both its phases, the event that completes it (§11.10), the event's record (§11.11) and **§11.12**. It is
-also the first release cut from accumulated notes in this repository, so
-`packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**, and `main` now carries
-**0.17.0** — **§10.14**, `blocked by` between features, which is the first thing a live agent running the
-tracker answer has asked for.
+**State:** `main` carries **0.24.0**. 0.14.0 was the body's ceiling (§10.13) and **item 6, the release
+answer** (§11) in both its phases, with the event that completes it (§11.10), the event's record (§11.11)
+and **§11.12** — and it was the first release cut from accumulated notes in this repository, so
+`packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
+`blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
+adds **§4.7**; 0.23.0 adds **§18**; and 0.24.0 adds **§19**.
 
-**Pending release on top of 0.22.0: §18**, `/orchestrate --pr` — the first flag in this workflow whose
+**The version each section shipped in is below, on the section.** A paragraph here is the summary of a
+`DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
+was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
+claim this file must not make.
+
+**Shipped in 0.24.0: §19**, `/release` — the pull request `release.md` has described since §11.10 and the
+tool could not produce. §11.12's flag runs the Bump wire on a **feature's** branch, so the pull request whose
+merge ships is the feature's own wearing the release's hat; the separated shape lets the notes accumulate on
+the default branch and cuts a branch carrying nothing but the version move and the changelog. **Both ship** —
+they differ in which branch the version moves on and therefore in what the merge ships, so `workflow.md`
+carries a two-row table and `/feature-close` names `/release` for the case where a release was asked for and
+no flag was typed. **Nothing new was needed**: C18's *typed in the turn it takes effect* admits a command as
+readily as a flag and the test now asserts that the list is **closed** rather than quoting its one member;
+§18.2's permission source is unchanged; `executors.md` still owns the branch. **The one new piece of
+reasoning is the order.** The script the *Bump* wire names cannot be run twice, so Gate 1 runs before
+anything is consumed and the branch exists before the script runs — a gate run afterwards on a red default
+branch leaves a tree whose notes are gone and whose release cannot be cut again, which is **the one
+unrecoverable state in §11** and is reachable by doing the obvious things in the obvious order. There is no
+Gate 2, written down with its reason. The branch is named for the act (`release/<date>`) because the version
+is not knowable before the script has run. **Six sentences in answer files were false** — three from this
+change and **three that `--release` had already broken** in §11.12 and nobody swept, all three blanket
+reassurances, which is the generalisation: when a command gains an exception, sweep the sentences written to
+reassure. Plus six hardcoded "nine"s, two now derived from `SKILL_NAMES.length`. **Eleven tests.**
+
+**Shipped in 0.23.0: §18**, `/orchestrate --pr` — the first flag in this workflow whose
 authority is the typing of it. `git.md` names two sources of permission and only two, and the second is *the
 user asking in this session, in plain words*; a typed flag is that, so the flag needs no answer file, no new
 `git.md` section and no fifth `/onboard` question, and **nothing it does becomes policy for the next
@@ -51,7 +76,7 @@ both make the command's name the phrase people type into the command that has no
 out of it: `workflow.md` said a push happens once per feature, at `/feature-close`, which this flag made
 false. **Eight tests.**
 
-**Pending release: §4.7**, the fourth field report in a row and the second about git. §4.4 asked *who
+**Shipped in 0.18.0: §4.7**, the fourth field report in a row and the second about git. §4.4 asked *who
 commits* and §4.5 asked *where work lands*; both answer what the **workflow's commands** do, and the
 observed failure was outside all of them — worktrees and branches created unasked, and commits, while doing
 anything at all. The scope of those answers was implicit and an implicit scope reads as a grant, which is

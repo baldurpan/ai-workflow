@@ -1,5 +1,14 @@
 # @baldurpan/create-ai-workflow
 
+## 0.24.0
+
+### Minor Changes
+
+- Adds `/release`: it makes the release branch `context/executors.md` names, runs the script
+  `context/release.md`'s *Bump* wire names — once, and after Gate 1, because it cannot be run twice — and
+  ends at a pull request for you to approve. `/feature-close --release` is unchanged and still fuses a
+  release into a feature's own merge; reach for `/release` when the notes have been accumulating.
+
 ## 0.23.0
 
 ### Minor Changes

@@ -7,7 +7,7 @@
 npx @baldurpan/create-ai-workflow      # or: npm create @baldurpan/ai-workflow
 ```
 
-You get a backlog, plan documents with phase ledgers, two verification gates, and nine commands that
+You get a backlog, plan documents with phase ledgers, two verification gates, and ten commands that
 move work between them. Your coding agent runs the commands; you read and hand-edit the files.
 
 ---
@@ -39,6 +39,7 @@ starting point — nothing has to be looked up first.
 | `/feature-status` | read-only. Reconciles the ledger against the repo — sweeping every worktree where the project works that way — then names **exactly one** next action |
 | `/feature-close` | retires a feature: a `history.md` row, a `git mv` into `archive/`, a reviewed reference sweep, and the release note where `release.md` says one is owed |
 | `/orchestrate` | one ad-hoc, commit-sized change through the same gates — no entry, no ledger. With `--pr` the run ends at a pull request instead of in the working tree: the flag is the permission, it never creates a worktree, it stops rather than branching off the default branch itself, and nothing merges it |
+| `/release` | consumes every note waiting on the default branch: makes the release branch `executors.md` names, runs what `release.md`'s *Bump* wire names — exactly once, and after Gate 1, because it cannot be run twice — and ends at a pull request for a person to approve. The one command that moves a version, and only when typed |
 | `/prototype` | a throwaway HTML/CSS mockup under `prototypes/`, to settle a layout question before a plan commits to it — no gates, no application code |
 | `/onboard` | fills in your own stubs, adopting what the repo already documented, indexing where it documents itself, running each verification command before writing it down, and asking per path what a change announces |
 | `/tracking-migrate` | moves an existing backlog, its drafts and its plans onto the substrate `tracking.md` names — one feature at a time, resumable, removing a file only once the issue that replaces it exists |
@@ -167,8 +168,8 @@ context/
   roadmap.md  history.md                                                                   yours
   drafts/  plans/  archive/                                                                yours
   .state/manifest.json
-.claude/skills/<nine>/SKILL.md    tracker.md beside five    .claude/agents/*.agent.md      tool-owned
-.agents/skills/<nine>/             the same bodies, for hosts that read that tree           tool-owned
+.claude/skills/<ten>/SKILL.md     tracker.md beside five    .claude/agents/*.agent.md      tool-owned
+.agents/skills/<ten>/              the same bodies, for hosts that read that tree           tool-owned
 AGENTS.md   a delimited block, merged into whatever is already there
 CLAUDE.md   a single @AGENTS.md line, and only when the file does not exist
 ```
@@ -257,9 +258,15 @@ It sets up a note-per-change mechanism — `.changeset/`, the devDependency, and
 which records what it found. **`prepare-release` prepares one; nothing here publishes one.** **It does not write `context/release.md`.** One writer per file: the installer installs, `/onboard`
 answers, the same way `standards add` does not write `stack.md`.
 
+**`/release` is what runs the middle script, and only when you type that command.** Nothing in the workflow
+reaches for it otherwise: the skill reads the *Bump* wire `/onboard` wrote into `context/release.md`, so the
+command works the same against a hand-maintained changelog or another vendor's tool, and refuses where that
+wire is empty. It cuts the branch `context/executors.md` names, runs the script once — after Gate 1, because
+the script cannot be run twice — and stops at a pull request for you to approve.
+
 **What it sets up is a gate, and the gate is not only for publishing.** The event it makes available is the
-merge of the pull request where `changeset:prepare-release` ran, and that one merge is what ships a
-published package and a deployed app alike — each on the condition that its own version moved in it. That is
+merge of the pull request where `changeset:prepare-release` ran — the one `/release` opens — and that one
+merge is what ships a published package and a deployed app alike — each on the condition that its own version moved in it. That is
 why the question below is the one thing this command will not guess, and why `.changeset/README.md` says a
 feature's merge ships nothing.
 
@@ -308,7 +315,7 @@ positive points at the document that is out of step.
 ## Scope
 
 **Both skill trees ship.** Claude Code reads `.claude/skills/`; Codex reads `.agents/skills/` and never
-looks at the other one. They get the same nine bodies — the only difference is the Claude Code copy's frontmatter:
+looks at the other one. They get the same ten bodies — the only difference is the Claude Code copy's frontmatter:
 `disable-model-invocation: true`, and a `model` and `effort` per command, keys that mean nothing elsewhere.
 The bodies are written runtime-neutral, with no runtime primitive named in any of them, and a test enforces
 it.

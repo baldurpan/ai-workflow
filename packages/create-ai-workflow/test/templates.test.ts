@@ -681,18 +681,187 @@ describe('--pr ends the run at a pull request without becoming policy', () => {
     // Same rule as --all: the tables are where a reader learns the command exists, and a flag missing from
     // them is a flag nobody types.
     assert.match(readTemplate('context/workflow.md'), /`\/orchestrate \[--pr\]`/, 'the tier table carries it');
-    assert.match(readTemplate('context/workflow.md'), /A typed flag is that ask/, 'and the git rules do');
+    assert.match(
+      readTemplate('context/workflow.md'),
+      /A typed flag or a typed command is that ask/,
+      'and the git rules do — both shapes of it, since /release is the second',
+    );
     assert.match(agentsBlockBody(), /`--pr` ends it at a pull request/, 'the always-loaded block carries it');
     const readme = readFileSync(path.join(packageRoot, 'README.md'), 'utf8');
     assert.match(readme, /With `--pr` the run ends at a pull request/, "the package README's table carries it");
   });
 
-  it('the one push outside a feature is accounted for where the push answer is summarised', () => {
+  it('every push outside a feature is accounted for where the push answer is summarised', () => {
     // workflow.md said a push happens once per feature, at /feature-close. That sentence became false the
-    // moment this flag shipped, and an answer file may not hold a false answer.
+    // moment this flag shipped, and an answer file may not hold a false answer. /release made it false a
+    // second time, in the same sentence — which is the reason this assertion counts rather than quotes.
     const workflow = flat(readTemplate('context/workflow.md'));
-    assert.match(workflow, /the only push outside them is the one `\/orchestrate --pr` is asked for by name/);
-    assert.match(workflow, /under any answer or any flag/, 'and the merge refusal covers the flag');
+    assert.match(
+      workflow,
+      /the only pushes outside them are the two asked for by name: `\/orchestrate --pr`, and `\/release`/,
+    );
+    assert.match(
+      workflow,
+      /under any answer, any flag or any command/,
+      'and the merge refusal covers the flag and the command alike',
+    );
+  });
+});
+
+describe('/release is the one command that consumes notes, and the order is what makes it safe', () => {
+  // release.md has always named the ship event as *the merge of the release pull request*, and nothing in
+  // the workflow created one: `/feature-close --release` fuses the release into a feature's own merge, which
+  // is a different shape rather than that one. The invariants here are about the *order*, because the script
+  // the Bump wire names cannot be run twice — so a gate run after it, on a default branch that turns out to
+  // be red, leaves a tree whose notes are gone and whose release cannot be cut again.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const body = skillBody('release');
+  const at = (heading: string) => {
+    const i = body.indexOf(heading);
+    assert.ok(i > 0, `${heading} exists`);
+    return i;
+  };
+  const slice = (from: string, to: string) => flat(body.slice(at(from), at(to)));
+
+  it('the irreversible step runs last, after the gate and after the branch exists', () => {
+    // The three orderings, each load-bearing and each stated in the skill with its reason: Gate 1 before
+    // anything is consumed, the confirmation before anything is created, and the branch before the script.
+    assert.ok(
+      at('## 2. Gate 1, before anything is consumed') < at('## 4. Make the branch, then run the Bump wire'),
+      'Gate 1 precedes the Bump wire',
+    );
+    assert.ok(
+      at('## 3. Show what it will consume') < at('## 4. Make the branch, then run the Bump wire'),
+      'and so does the confirmation',
+    );
+    const gate = slice('## 2. Gate 1', '## 3. Show what it will consume');
+    assert.match(gate, /cannot be run twice/i, 'the reason the gate is second');
+    assert.match(gate, /the one unrecoverable state in this design/i, 'and what it is protecting against');
+    assert.match(gate, /Nothing created, nothing consumed, nothing to undo/i, 'a red gate costs nothing');
+    const bump = slice('## 4. Make the branch', '## 5. Read the diff');
+    assert.match(bump, /The branch exists before the notes are consumed/i, 'the second ordering');
+    assert.match(bump, /exactly once/i, 'and the script runs once');
+    assert.match(bump, /If it fails part-way, stop/i, 'a half-consumed set is never re-run');
+  });
+
+  it('there is no Gate 2, and the skill says why rather than omitting it', () => {
+    // A reviewer dispatched to read a generated changelog is theatre, and a command that simply left Gate 2
+    // out would read as an oversight next to every other command that lands anything.
+    const gate = slice('## 2. Gate 1', '## 3. Show what it will consume');
+    assert.match(gate, /There is no Gate 2, and that is deliberate/i);
+    assert.match(gate, /the review this change needs is a \*\*person's, on the pull request\*\*/i);
+  });
+
+  it('it runs the wire the answer names and knows no tool', () => {
+    // §11.7, applied to the one command whose whole purpose is running the mechanism. The sibling test
+    // above already forbids naming a vendor anywhere in templates/; this is the positive half.
+    const all = flat(body);
+    assert.match(all, /release\.md/, 'it reads the answer');
+    assert.match(all, /\*Bump\* wire/, 'and the wire by name');
+    assert.match(all, /No \*Bump\* wire in \[`context\/release\.md`\]/i, 'refusing where it is empty');
+    assert.match(all, /Name no release tool/i, 'and it says so in the words the other commands use');
+  });
+
+  it('every refusal ends the run before anything is created or consumed', () => {
+    const refuse = slice('## 1. Refuse, before anything else', '## 2. Gate 1');
+    assert.match(refuse, /Nothing is created and nothing is run until all five pass/i);
+    for (const [what, re] of [
+      ['no wire', /No \*Bump\* wire/],
+      ['nothing records notes', /answer is \*nothing\*/],
+      ['no pending notes', /No notes are pending/],
+      ['no branch command', /No invocation under \*Branch and worktree\*/],
+      ['the wrong ref, or a dirty tree', /HEAD is not the default branch, or the working tree is not clean/],
+    ] as const) {
+      assert.match(refuse, re, `${what} is a refusal`);
+    }
+    // The over-eager refusal worth naming: a feature in flight is not this release's business, and an agent
+    // that refused on it would make the command unusable in exactly the repositories it is written for.
+    assert.match(refuse, /A feature in flight is not a reason to refuse/i);
+    assert.match(refuse, /the notes on this ref are exactly the changes on this ref/i, 'and why');
+  });
+
+  it('it never improvises the branch, and a separate tree is welcome here only because it is said to be', () => {
+    // /orchestrate --pr refuses a worktree outright. This command does not, and the difference has to be
+    // written down in both places or the next reader resolves it by picking one.
+    const all = flat(body);
+    assert.match(all, /Never run a bare `git checkout -b`, `git branch` or `git worktree add`/i);
+    assert.match(all, /executors\.md/, 'the invocation has one home');
+    assert.match(all, /A separate working tree is welcome here/i, 'the departure is explicit');
+    assert.match(
+      all,
+      /`\/orchestrate --pr` refuses one because an ad-hoc change has no feature/i,
+      'and it names what it is departing from',
+    );
+    assert.match(
+      flat(readTemplate('context/workflow.md')),
+      /`\/release` is the one command that may make one for something that is not a feature/i,
+      'and the standing rule accounts for it, so the two do not disagree',
+    );
+  });
+
+  it('the confirmation shows the whole blast radius and says the level is now final', () => {
+    // C3 put the bump confirmation where the note is written because a level is cheap until the release.
+    // This command *is* the release, so it is the place that gap actually closes — and the stub's own
+    // paragraph had to say so too, or the file would describe a gap that no longer exists.
+    const confirm = slice('## 3. Show what it will consume', '## 4. Make the branch');
+    assert.match(confirm, /List \*\*every pending note\.\*\*/, 'every one, not just this session\'s');
+    assert.match(confirm, /notes other people wrote/i, 'including work nobody here shipped');
+    assert.match(confirm, /Every level is now final, and say so while asking/i);
+    assert.match(confirm, /This command is that release/i, 'and it names why the gap is gone');
+    assert.match(
+      flat(readTemplate('stubs/release.md')),
+      /`\/release` is where that gap finally closes, and it says so while asking/i,
+      'the answer file no longer describes a gap that outlives the command',
+    );
+  });
+
+  it('it writes no note, because it has nothing of its own to announce', () => {
+    // The inverse of every other command's obligation. A release commit carrying a note would be a release
+    // describing itself, and it is also the exact shape of the placeholder §11.12 forbids.
+    const all = flat(body);
+    assert.match(all, /Never write a release note here/i);
+    assert.match(all, /a release commit carrying a note is a release describing itself/i);
+    assert.match(all, /Do not write a note to silence it/i, 'and the red check is not fixed with one');
+    assert.match(all, /the check is asking the wrong question/i, "§11.12's conclusion, at the point it bites");
+  });
+
+  it('nothing merges, nothing waits for CI, and nothing is removed', () => {
+    const all = flat(body);
+    assert.match(all, /### Nothing merges it/, 'stated as flatly as /orchestrate --pr states it');
+    assert.match(all, /review and merge are yours/i, "and git.md's line is quoted");
+    assert.match(all, /stay alive watching a check run/i, 'no polling, same as --pr');
+    assert.match(all, /It removes nothing either/i, 'and the tree it made outlives it');
+    assert.match(all, /Nothing merges, nothing waits for CI, and nothing is removed/, 'the Rules carry it');
+  });
+
+  it('a moved version is not a shipped change, and the report has to say so', () => {
+    // C13, and the one claim this command is most likely to overstate: it has just run the thing that
+    // publishes in most people's heads, and it has not published anything.
+    const report = slice('## 7. Report', '## Rules');
+    assert.match(report, /Never report this as released, published, deployed or live/i);
+    assert.match(report, /a version moved in a branch, and that is all that has happened/i);
+    assert.match(report, /Say what this is waiting for/i);
+    assert.match(report, /never inferred/i, 'and what the merge ships is read, not guessed');
+  });
+
+  it('the typed command is the permission, and it rewrites no answer', () => {
+    // Same source /orchestrate --pr rests on, and the same failure to avoid: implementing this as "set
+    // git.md to the agent commits" would authorise every later invocation.
+    const all = flat(body);
+    assert.match(all, /The typed command is the permission, not a new answer/i);
+    assert.match(all, /What it authorises is \*\*this invocation\*\*/);
+    assert.match(all, /nothing here is written into \[`context\/git\.md`\]/i);
+    assert.match(all, /A sentence is not a command/i, 'and prose is not the ask');
+  });
+
+  it('every document that shows the command set shows it', () => {
+    // Same rule as --all and --pr: the tables are where a reader learns a command exists.
+    const workflow = readTemplate('context/workflow.md');
+    assert.match(workflow, /\| `\/release` \| the one act that consumes notes \|/, 'the command table');
+    assert.match(flat(workflow), /`\/release` — cut the accumulated notes into a release pull request/, 'the tier table');
+    assert.match(agentsBlockBody(), /`\/release`/, 'the always-loaded block');
+    const readme = readFileSync(path.join(packageRoot, 'README.md'), 'utf8');
+    assert.match(readme, /\| `\/release` \| consumes every note waiting on the default branch/, "the package README");
   });
 });
 
@@ -1302,15 +1471,25 @@ describe('what a change announces is an answer, not an assumption', () => {
     );
   });
 
-  it('--release is the shape of the ask, and nothing else is', () => {
+  it('a typed flag or command is the shape of the ask, and nothing else is', () => {
     // workflow.md forbids running what bumps "except when the user asks for it in that turn", and until
     // now nothing said what asking looked like — leaving an agent to read "and ship it" three messages
-    // back as permission to consume every pending note in the repository.
+    // back as permission to consume every pending note in the repository. Two shapes ship, and the rule
+    // is that the list is closed rather than that it has one member.
     const rule = flat(readTemplate('context/workflow.md'));
-    assert.match(rule, /`\/feature-close --release` is what that asking looks like/i);
-    assert.match(rule, /A flag typed in the turn it takes effect/i, 'it is not inferred from prose');
+    assert.match(rule, /A command or a flag typed in the turn it takes effect is what that asking looks like/i);
+    assert.match(rule, /those are the only two shapes of it this workflow ships/i, 'the list is closed');
+    assert.match(rule, /neither is inferred from prose: a sentence is not a command/i);
+    for (const shape of [/`\/release`/, /`\/feature-close --release`/]) {
+      assert.match(rule, shape, `the table names ${String(shape)}`);
+    }
     const body = flat(skillBody('feature-close'));
     assert.match(body, /A sentence is not a flag/i, 'and the command says the same from its own side');
+    assert.match(
+      body,
+      /If the user asked for a release and typed no flag, name `\/release` rather than assuming this one/i,
+      'and it names the other shape rather than taking the ask for itself',
+    );
     assert.match(body, /the script its Bump wire names/i, 'it runs the answer, never a tool it knows');
     assert.match(body, /there is no Bump wire/i, 'and refuses where the answer is not written down');
     assert.match(body, /takes \*\*every\*\* pending note/i, 'the blast radius is shown before it runs');

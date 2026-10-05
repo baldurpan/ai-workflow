@@ -143,10 +143,19 @@ retirement as one reviewable change and hand it over.
 
 **Without it, this command writes the note and stops.** That is the default and it is the right one.
 [`context/workflow.md`](../../../context/workflow.md) forbids running what bumps, tags, publishes or
-deploys, with one exception — *when the user asks for it in that turn* — and **this flag is what that
-asking looks like.** So it is never inferred: not from "and ship it" earlier in the session, not from a
-plan, not from the notes looking ready, and not from a release being obviously due. A sentence is not a
-flag.
+deploys, with one exception — *when the user asks for it in that turn* — and **this flag is one of the two
+shapes that asking takes.** So it is never inferred: not from "and ship it" earlier in the session, not
+from a plan, not from the notes looking ready, and not from a release being obviously due. A sentence is
+not a flag.
+
+**The other shape is `/release`, and it is the one to name when the user has not typed this flag.** This
+flag **fuses** the release into the feature's own merge: one branch, one pull request, and a diff where the
+version move sits among the feature's code. `/release` separates them — the note waits on the default
+branch with everybody else's, and the release is cut later on a branch of its own, which is where a reader
+can see that the version move is the whole of the change. Neither is the better answer in general: this one
+suits a repository that releases about as often as it merges, and the separated one suits a repository
+where notes accumulate. **If the user asked for a release and typed no flag, name `/release` rather than
+assuming this one.**
 
 Read [`context/release.md`](../../../context/release.md) and run **the script its Bump wire names**. That
 file says what it is; naming a tool here would be wrong in half the repositories this command runs in.

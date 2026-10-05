@@ -3855,3 +3855,195 @@ after it, and that every document showing the command shows the flag.
 Verified on 2026-10-01 by packing the tree, installing it into an empty repository, and running `check`
 (clean, exit 0) and `update --dry-run` (121 files current, nothing under **Next**, exit 0), with the flag
 present in both skill trees and every relative link in the rewritten skill resolving after install.
+
+## 19. `/release` — the pull request the answer file had been describing all along
+
+Asked for as a command that makes a release branch with the recorded worktree command, cuts the release,
+and opens a pull request to approve. It ships as all three, and the interesting part is that **none of it
+needed a new rule** — the exception, the branch answer and the permission source were all already written
+down, each for a different reason.
+
+### 19.1 The hole was named in §11.10 and then not built
+
+§11.10 settled the ship event in one sentence: *the merge of the **release pull request** — the one where
+the script that consumes the notes was run.* Every answer downstream of it is phrased against that merge,
+including the per-path ship table and the *this path's version moved in this merge* gate.
+
+**And nothing in the workflow ever created that pull request.** §11.12 added
+`/feature-close --release`, which runs the Bump wire on a **feature's** branch — so the pull request whose
+merge ships is the feature's own, wearing the release's hat. That is coherent and it is the right shape for
+a repository that releases about as often as it merges. It is not the shape the answer file describes, and
+the file has been describing an artifact the tool could not produce for five versions.
+
+**The separated shape is what makes the sentence true**: notes accumulate on the default branch as features
+land, somebody decides when they go out, and the release is a branch carrying nothing but the version move
+and the changelog. §11.12 was explicit that the flag did not retire the ritual it was asked to retire —
+*"the flag alone would have looked like a fix"* — and this is the other half of that admission.
+
+### 19.2 Both shapes ship, and the rule that admits them was already closed
+
+**Kept rather than replaced**, against the §18.5 instinct that one behaviour gets one home. The two are not
+one behaviour with two front doors: they differ in **which branch the version moves on** and therefore in
+**what the merge ships**. The fused one lands a feature and a release together; the separated one lands a
+release alone, which is the only arrangement where a reader can see that the version move is the whole of
+the change. Neither dominates, so `workflow.md` carries a two-row table instead of a sentence, and
+`/feature-close`'s flag section names `/release` as **the one to reach for when the user asked for a
+release and typed no flag** — the misroute that would otherwise fuse a release into whatever feature
+happened to be closing.
+
+**C18's rule generalised without being edited.** *Only when the user asks for it in that turn* had no
+named shape until §11.12 gave it one; the lesson recorded there was that **an exception with no named shape
+is an exception an agent will size for itself**, and the fix was to name the shape rather than to narrow
+the rule. A typed command is the same shape as a typed flag, so the rule admits this command as written.
+What changed is one word of scope: the list is now *a command or a flag typed in the turn it takes effect*,
+and the sentence that matters is **that the list is closed**, not that it has one member. The test asserts
+the closure rather than quoting the member, which is what stops the third shape arriving by assertion.
+
+**The permission is §18.2's, unchanged.** `git.md` names two sources and only two, and the second is the
+user asking in this session in plain words. A typed command is that. So `/release` reads neither *Who
+commits* nor *Push and pull request* — both are written about a feature and a release is not one — it
+authorises **this invocation**, and nothing it does becomes policy for the next one. No answer file is
+edited, no `/onboard` question is added, and the fresh-install inertness §18.1 found is avoided for the
+same reason.
+
+### 19.3 The ordering is the design, because the script cannot be run twice
+
+Everything else in this command is a refusal. **The one genuinely new piece of reasoning is the order**,
+and it is forced by a property §11 had recorded without drawing this consequence from it: the script the
+*Bump* wire names **cannot be run twice**, because it deletes the notes as it goes.
+
+| Step | Why it is there and not later |
+|---|---|
+| the five refusals | nothing created, nothing consumed — all five are answer-file or ref checks |
+| **Gate 1** | **run before anything is consumed.** A gate run afterwards, on a default branch that turns out to be red, leaves a tree whose notes are gone and whose release cannot be cut again |
+| the confirmation | the last moment a level is free; after the script there is no note left to edit |
+| the branch | **before the script.** A script that eats the notes with no branch to carry them has put the only copy of every pending note on whatever was checked out — and guard 5 says that is the default branch |
+| the script | once, and never again on a half-consumed set |
+| read the diff | the changelog text is what the release page will say, so it is read rather than trusted |
+
+**That is the one unrecoverable state in the whole of §11**, and it is reachable by doing the obvious
+things in the obvious order: cut the release, then check that it builds. Every other failure in this
+workflow leaves the working tree as the record. This one leaves a tree with no notes and no release.
+
+**There is no Gate 2, and the skill says so with its reason.** Gate 2 reviews code against this project's
+standards and this run writes none — the version move and the changelog are a script's output. Dispatching
+a reviewer to read a generated changelog is theatre, and the review this change actually needs is the
+person's on the pull request, which is what the command ends at. **A command that merely omitted Gate 2
+would read as an oversight** next to every other command that lands anything, which is why the omission is
+written down rather than left to be noticed.
+
+### 19.4 The branch is named for the act, because the version is not knowable yet
+
+The obvious name is `release/v0.24.0` and **it cannot exist.** The version is produced by the script, the
+script runs inside the branch, and it cannot be run twice — so a branch named for the version would have to
+be created after the thing that names it. Three ways out, and the first is the one that ships:
+
+- **`release/<today>`, with `/release "<name>"` overriding it.** The branch names the *act*; the version
+  goes in the commit subject and the pull request title, where it is known. A name that already exists
+  **stops the run** rather than being suffixed: an existing release branch is either one in progress or one
+  somebody abandoned, and both want a person.
+- **Require a name every time.** No guessing, one more thing to type for the common case. Rejected as a
+  cost with no matching benefit.
+- **Ask the mechanism what version it *would* produce.** The nicest name, and it needs a **second wire** in
+  `release.md` that most repositories will not have. §11.2 refuses to assume a mechanism that is not on
+  disk, and this would have made the branch name depend on one. Rejected.
+
+### 19.5 A separate working tree is welcome here, and §18.3 said the opposite
+
+§18.3's third row stops `/orchestrate --pr` when the recorded invocation makes a worktree rather than a
+branch: *a worktree answer is not permission to move an ad-hoc change into a tree of its own.* **This
+command takes the opposite answer on the same question**, and the two have to be reconciled somewhere or
+the next reader resolves it by picking one.
+
+The distinction is what the tree is *for*. Under `/orchestrate` a tree is a side effect — the change was
+going to land on whatever was checked out, and a tree appeared because `executors.md` happened to name one.
+Under `/release` **a branch of its own is the entire point of the command**: guard 4 refuses to run at all
+without one, because the alternative is moving a version on the default branch and pushing it, which is on
+`git.md`'s asked-by-name-each-time list under every answer. So the skill states the departure and names
+what it is departing from, `workflow.md`'s worktree rule gains the exception explicitly, and a test asserts
+both — the one arrangement where the two commands disagreeing is a recorded decision rather than drift.
+
+**It still makes the tree only with the recorded invocation, and it still removes nothing.** §4.3's rule is
+untouched: an empty *Branch and worktree* is a refusal, not a licence to improvise, and nothing in this
+workflow removes a tree under any answer.
+
+### 19.6 Three sentences in answer files became false, and two were already false
+
+§18.7's lesson — **an answer file may not hold a false answer** — applied again, and this time it caught
+sentences that `--release` had already broken and nobody had swept:
+
+| Where | Said | Was false since |
+|---|---|---|
+| `workflow.md`, the push summary | *the only push outside them is `/orchestrate --pr`* | this change |
+| `workflow.md`, the typed-flag sentence | *`/orchestrate --pr` is the one the workflow ships* | this change |
+| `workflow.md`, the asking rule | *`--release` ... the only shape of it this workflow ships* | this change |
+| `release.md`, the header | *Nothing in this workflow bumps a version, tags, publishes, releases or deploys* | **§11.12** |
+| `release.md`, *what a release ships* | *Nothing in this workflow bumps a version, creates a tag...* | **§11.12** |
+| `/onboard` Step 9 | *Nothing in this workflow does any of the five* | **§11.12** |
+
+All three of the already-false ones are blanket claims that a flag had made conditional, and all three read
+as reassurance — which is why they survived: the sentence a reader wants to be true is the one nobody
+re-checks. They now say **on its own initiative**, which is what they always meant and is true under both
+shapes. **The generalisation worth keeping: when a command gains an exception, the sentences to sweep are
+the ones that were written to be reassuring**, not the ones that mention it.
+
+The test for the push summary now **counts** rather than quotes, for the same reason: it has been rewritten
+by two consecutive changes, and an assertion naming one member of a list of two is an assertion that will
+need rewriting a third time.
+
+### 19.7 C3's gap finally closes somewhere, and the stub had to say where
+
+C3 put the bump confirmation where the note is written, on the reasoning that a note is a tracked file
+publishing nothing and a wrong level is cheap right up to the release. §11.12 recorded that `--release`
+**deletes** that gap. Neither moment is where the gap actually ends in the separated shape: the note is
+written at `/feature-close`, it waits, and the level stops being free at **`/release`'s confirmation.**
+
+So the stub's own paragraph gains the sentence, and the command says it while asking — the same move
+§11.12 made, for the same reason. **An answer file that describes a gap which no longer outlives any
+command is describing a gap that is not there.**
+
+### 19.8 It writes no note, which is the inverse of every other command's obligation
+
+`LANDS_SHIPPABLE` holds three commands and each must read `release.md` and ask *what records a note*. This
+command reads the same file and **writes nothing into it**, and that had to be stated as a rule rather than
+left as an absence: a release commit carrying a note is a release describing itself, and it is also exactly
+the placeholder §11.12 forbids. The red note check is in the skill at the point it bites, with §11.12's
+conclusion — **the check is asking the wrong question, so do not answer it with a lie.**
+
+### 19.9 What it cost, and the channel question asked before calling it done
+
+One skill, no `tracker.md` — C8 holds, a release is an artifact of the change and not workflow state, so
+`tracking.md` does not reach it. One `SKILL_NAMES` entry, one `CLAUDE_SKILL_SETTINGS` row at
+`sonnet`/`medium` **matching `/feature-close`**, which already carries `--release`: the irreversible step
+here is gated by a user confirmation rather than by model judgment, and inventing a tier distinction for it
+would be a claim that effort buys ordering, which the written procedure buys instead. A row in each of the
+four places that show the command set, and the standing-rule edits above.
+
+**Six hardcoded "nine"s**, found by the install output reading *the nine skills* after the tenth landed.
+Two were in code and are now derived from `SKILL_NAMES.length`; four were prose. The layout comment already
+said a hand-maintained list *"went one file stale each time one was added"* about `context/` — the same
+defect, one directory over, and this is the second time it has been paid for.
+
+**C20's question, asked before calling it done.** An existing install has three channels: tool-owned files,
+which `update` replaces; the stub, which it cannot; and `/onboard`, which rewrites the answer file.
+
+- **The command reaches every install.** Verified: a simulated 0.22.0 install reports
+  `add .claude/skills/release/SKILL.md — new in this version` in both trees.
+- **The stub's corrected prose reaches new installs only**, and `update` will not even mention it —
+  `stubGaps` compares `##` headings and this change adds none. **Unlike §11.12 this gap is cosmetic**: the
+  operative answer is the *Bump* wire, which is already in the file of anyone who has one, and the skill
+  carries everything the command needs. What an existing install misses is the paragraph saying where the
+  bump-level gap closes. Said precisely so it is not later mistaken for the §11.12 shape, where the same
+  channel gap left a red check in place.
+- **`/onboard` Step 9 gains one line** — *say who runs the Bump wire while writing it* — so a re-run
+  records the consumer rather than leaving a wire that reads as firing by itself. That is the channel, and
+  it is setup-time, which means it arrives late or never. Same limit as §11.12's, accepted the same way.
+
+**Eleven tests**, of which the ordering one is the only one worth keeping if the rest were deleted: it
+asserts section order, not prose, so a future edit that moves Gate 1 below the Bump wire fails rather than
+reading fine.
+
+Verified on 2026-10-05 by packing the tree, installing it into an empty repository, and running `check`
+(clean, exit 0) and `update --dry-run` (123 files current, nothing under **Next**), with the command present
+in both skill trees, the Claude copy carrying `sonnet`/`medium`, every relative link in the new skill
+resolving after install, and the upgrade path exercised against a simulated older manifest.

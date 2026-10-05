@@ -4,6 +4,7 @@ import { install } from './commands/install.ts';
 import { releaseInit, type PrivateAnswer } from './commands/release-init.ts';
 import { standardsAdd } from './commands/standards-add.ts';
 import { update } from './commands/update.ts';
+import { SKILL_NAMES } from './layout.ts';
 import { bold, cyan, dim, info, UserError } from './log.ts';
 import { packageVersion } from './paths.ts';
 
@@ -31,8 +32,8 @@ ${bold('Options')}
 ${bold('What it installs')}
   context/            the workflow's documents. Tool-owned files are replaced on update; your
                       roadmap, plans, stack, verify and executors never are.
-  .claude/            nine skills and two subagent definitions, for Claude Code.
-  .agents/            the same nine skills, for Codex and anything else reading that tree.
+  .claude/            ${SKILL_NAMES.length} skills and two subagent definitions, for Claude Code.
+  .agents/            the same ${SKILL_NAMES.length} skills, for Codex and anything else reading that tree.
   AGENTS.md           a delimited block, merged into whatever is already there.
   CLAUDE.md           a single ${cyan('@AGENTS.md')} line, and only if the file does not exist.
 

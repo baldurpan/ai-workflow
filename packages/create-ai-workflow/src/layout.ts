@@ -36,6 +36,7 @@ export const SKILL_NAMES = [
   'feature-status',
   'feature-close',
   'orchestrate',
+  'release',
   'prototype',
   'onboard',
   'tracking-migrate',
@@ -55,8 +56,8 @@ export type SkillName = (typeof SKILL_NAMES)[number];
  *
  * One limit, verified against the host's documentation on 2026-09-30: a skill's `model:` holds for the
  * rest of the turn it was invoked in, and the session model resumes on the next prompt. A command that
- * stops to ask — `/feature-implement`'s approval checkpoint, `/feature-close`'s bump confirmation — runs
- * its remainder on the session model. The lines still cover every one-turn run outright and the first
+ * stops to ask — `/feature-implement`'s approval checkpoint, `/release`'s confirmation — runs its
+ * remainder on the session model. The lines still cover every one-turn run outright and the first
  * turn of the rest, and they put the intended tier where a reader looks for it. Running the session on
  * `sonnet` is what makes the tier hold across the ask.
  */
@@ -67,6 +68,7 @@ export const CLAUDE_SKILL_SETTINGS: Record<SkillName, { model: string; effort: s
   'feature-status': { model: 'sonnet', effort: 'low' },
   'feature-close': { model: 'sonnet', effort: 'medium' },
   orchestrate: { model: 'sonnet', effort: 'medium' },
+  release: { model: 'sonnet', effort: 'medium' },
   prototype: { model: 'sonnet', effort: 'medium' },
   onboard: { model: 'opus', effort: 'high' },
   'tracking-migrate': { model: 'sonnet', effort: 'medium' },

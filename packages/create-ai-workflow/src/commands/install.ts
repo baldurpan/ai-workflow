@@ -6,6 +6,7 @@ import {
   AGENTS_BLOCK_KEY,
   CONTEXT_DIR,
   DEFAULT_ADAPTERS,
+  SKILL_NAMES,
   STUB_DIRS,
   STUBS,
   agentsBlockBody,
@@ -55,7 +56,7 @@ export function install(root: string): number {
   info(`${green('+')} ${managed.length} tool-owned files ${dim('(replaced on update)')}`);
   info(
     dim(
-      `    the nine skills go to ${adapters.map((a) => `${ADAPTER_SKILL_DIRS[a]}/`).join(' and ')} — ` +
+      `    the ${SKILL_NAMES.length} skills go to ${adapters.map((a) => `${ADAPTER_SKILL_DIRS[a]}/`).join(' and ')} — ` +
         'one body, one directory per host, neither hand-edited',
     ),
   );

@@ -581,8 +581,10 @@ leaving it implied.
   the unit.
 - **What a release ships, and on what event** — fill in what bumps a version, what tags, what cuts a
   release, what publishes and what deploys, one line each, and write "nothing yet" where that is the truth.
-  **Nothing in this workflow does any of the five**, and this section is what stops the answer being read as
-  "releases happen automatically".
+  **Nothing in this workflow does any of the five on its own initiative** — `/release` runs the *Bump* wire
+  in the turn somebody types that command, and nothing at all runs the other four — and this section is what
+  stops the answer being read as "releases happen automatically". **Say who runs the Bump wire while writing
+  it**: a wire nobody is recorded as running is the one most likely to be read as firing by itself.
 
   Then, from the sweep's fourth line, **the event and what it ships per path**. There is **one event, not
   one per artifact kind**: the merge of the pull request where the notes were consumed and the versions

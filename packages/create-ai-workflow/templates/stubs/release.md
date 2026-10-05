@@ -17,9 +17,11 @@ in a repository where nothing records one, and a false answer here is the same d
 true, and it refuses to write a mechanism that is not on disk.
 
 **A note is not a release, and a merge is not a deploy.** Nothing in this workflow bumps a version, tags,
-publishes, releases or deploys. What does — and the **one event** that fires it, for a published package and
-a deployed app alike — is the last answer in this file: *What a release ships, and on what event*. That
-answer also records what the event **leaves behind**, which is a tag and a release for every path it ships.
+publishes, releases or deploys **on its own initiative** — only `/release`, or `/feature-close --release`,
+in the turn somebody types it, and each of those runs what this file names rather than anything it knows.
+What ships the change — and the **one event** that fires it, for a published package and a deployed app
+alike — is the last answer in this file: *What a release ships, and on what event*. That answer also records
+what the event **leaves behind**, which is a tag and a release for every path it ships.
 
 What each section takes, and the alternative answers written out, are in
 [`release.notes.md`](release.notes.md). `/onboard` reads that file when it fills this one.
@@ -64,11 +66,15 @@ release. `/feature-close` shows the notes a feature carries and confirms their l
 *once per feature*, reading what the phases wrote under *per phase* — and [`git.md`](git.md)'s
 *Push and pull request* answer decides whether that is the last moment before a push or before a handover.
 
+**`/release` is where that gap finally closes, and it says so while asking.** It lists every note it is
+about to consume — including ones written for work somebody else has already merged — and after it has run
+there is no note left to correct. A level is cheap right up to that confirmation and not past it.
+
 ## What a release ships, and on what event
 
-**Nothing in this workflow bumps a version, creates a tag, publishes an artifact, or deploys anything, and
-nothing here ships on a merge.** Recording a note and cutting a release are two acts; only the first is in
-scope, and what performs the second is not written down here yet.
+**Nothing here ships on a merge, and there is nothing for `/release` to run.** Recording a note and
+cutting a release are two acts; what performs the second is not written down here yet, so the *Bump* wire
+below is empty and that command refuses rather than guessing at it.
 
 ## The rules that hold either way
 
