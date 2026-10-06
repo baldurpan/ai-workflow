@@ -56,6 +56,7 @@ You are working inside a project that references this standards repository. Load
 | Monorepo work | [`architecture/monorepos.md`](architecture/monorepos.md) |
 | API client / contract design | [`architecture/api-design.md`](architecture/api-design.md) |
 | Date / time / timezone handling | [`tooling/dates.md`](tooling/dates.md) |
+| Internationalization / translations / locales | [`tooling/i18n.md`](tooling/i18n.md) |
 | Tooling — TanStack (overview) | [`tooling/tanstack.md`](tooling/tanstack.md) |
 | Tooling — TanStack Router (deep) | [`tooling/tanstack-router.md`](tooling/tanstack-router.md) |
 | Tooling — TanStack Query (deep) | [`tooling/tanstack-query.md`](tooling/tanstack-query.md) |
@@ -83,7 +84,7 @@ You are working inside a project that references this standards repository. Load
 | [`typescript/tsconfig/`](typescript/tsconfig/) | Reference tsconfig presets (base, React, Next.js) |
 | [`react/`](react/) | Component design, hooks, state, forms, a11y, testing |
 | [`architecture/`](architecture/) | Feature-driven structure, monorepos, refactoring, dependency rules |
-| [`tooling/`](tooling/) | TanStack, Nx, Vite, Biome, Tailwind, shadcn, Prisma |
+| [`tooling/`](tooling/) | TanStack, Nx, Vite, Biome, Tailwind, shadcn, Prisma, i18n |
 | [`security/`](security/) | Validation, secrets, auth, API security |
 | [`examples/`](examples/) | Concrete good and bad code examples |
 | [`templates/`](templates/) | Drop-in starter files — `CLAUDE.md`, `AGENTS.md`, `tsconfig.json`, `biome-example.json`, `eslint.config.js`, `.gitignore`, `.editorconfig`, `.nvmrc`, project README, PR template |

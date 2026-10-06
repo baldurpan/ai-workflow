@@ -8,5 +8,5 @@
 #     nested configs by name, so a file called `biome.json` anywhere under a repository is a live
 #     config for the files beside it — here and in every project this tree is installed into.
 origin=https://github.com/baldurpan/ai-engineering-standards
-ref=dd8b7e206ff46d7555aabb2522c792d9272510b9
-vendored=2026-05-19T22:07:27+00:00
+ref=f6feda355ccd2933874a21c36017ac79bea91680
+vendored=2026-10-06T10:45:25+00:00

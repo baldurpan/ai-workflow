@@ -1,5 +1,15 @@
 # @baldurpan/create-ai-workflow
 
+## 0.25.0
+
+### Minor Changes
+
+- The bundled standards gain `tooling/i18n.md` — prefer Lingui, except where the framework owns locale
+  routing — and `tooling/dates.md` now bans the `Date` object outright, naming the `@northguild/gmt` lint
+  package that enforces it for ESLint, oxlint or Biome. Six other standards contradicted that ban with
+  `z.coerce.date()` or `Date` as a type; a date field now validates with `z.iso.date()` and stays an ISO
+  8601 string throughout.
+
 ## 0.24.0
 
 ### Minor Changes

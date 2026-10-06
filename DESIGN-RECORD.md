@@ -1141,6 +1141,37 @@ clobbers it.
 not inert, because agents load from that table unprompted — a wrong set is loaded on every task. The
 decision is to ship the default and make swapping easy and visible.
 
+**A correction to vendored content belongs upstream, not here.** 0.20.1 fixed ten references to a scope
+that no longer exists — `@northguild/gmt` and `@northguild/worktree`, still written as `@burglekitt/*` in
+`tooling/dates.md`, `tooling/ci.md` and `docs/SPEC.md`, so every link and import in them was dead. The fix
+was correct and was shipped, but it was held only in this repository's copy while upstream kept the old
+name. That is the one shape of divergence `.source` cannot express: the marker claims a ref, `update`
+compares refs to report when upstream has moved, and neither notices that the tree is *ahead* of the ref it
+names. A faithful re-vendor — copy the tree, bump the ref — would then have put the dead scope back into
+every install, undoing a released fix with nothing to catch it.
+
+So two things, and the second is the one that holds: the rename was pushed upstream (`c39e58b`), and
+`standards.test.ts` asserts no file under `templates/standards/` mentions the old scope. The test is not
+redundant now that upstream agrees — it is what makes the agreement checkable, and it fails loudly the next
+time a re-vendor reaches for an older tree. **Where a vendored file has to change, change it upstream and
+re-vendor; where it has already been changed here, push it up.** A local-only correction is a regression
+scheduled for whenever someone does the vendoring correctly.
+
+**And it happened again, one commit later.** Re-vendoring the Date-ban rewrite copied `tooling/biome.md`
+over wholesale, reverting the `biome-example.json` rename and leaving three links to a file this tree does
+not contain. The rule above was already written down and was not enough, because the failure is mechanical:
+a copy cannot know which lines were ours. `links.test.ts` excludes `standards/` as third-party, so nothing
+caught it. **The guard is now in `standards.test.ts`**, which resolves every relative link inside the
+vendored tree — the cheapest check that distinguishes a clean re-vendor from one that clobbered a local
+correction, because a reverted rename almost always leaves a dangling path.
+
+Two other invariants sit beside it: **no file names the renamed-away `@burglekitt` scope**, and **no code
+example outside `tooling/dates.md` writes a banned `Date` form**. The second is scoped to fenced code
+blocks, not prose, because the prose has to be able to say `z.coerce.date()` in order to forbid it — and
+it is the examples that get copied, which is how six documents came to contradict the ban in the first
+place. Content guards on a vendored tree are not a violation of its third-party status: they assert what
+this repository ships, whatever upstream happens to say this week.
+
 ### 6.4 `check`
 
 Reports structural breakage. Never writes — no `--fix`, because the moment it can repair a ledger a
