@@ -30,7 +30,7 @@ Every `§`-number below points into that document.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** `main` carries **0.24.0**. 0.14.0 was the body's ceiling (§10.13) and **item 6, the release
+**State:** `main` carries **0.25.0**. 0.14.0 was the body's ceiling (§10.13) and **item 6, the release
 answer** (§11) in both its phases, with the event that completes it (§11.10), the event's record (§11.11)
 and **§11.12** — and it was the first release cut from accumulated notes in this repository, so
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
@@ -684,6 +684,20 @@ afterwards.
 **Worth saying plainly: two field reports about the tracker answer, and neither was a bug.** §10.14's was a
 fact with no home; this one was a fact with a home nobody could see. Both are what running the thing finds
 and reading it does not, which is item 1's whole argument.
+
+### 9. The SSRF standard is written upstream and not yet vendored
+
+§13.4 added the one thing the Top 10 named that the standards tree did not say: an SSRF section in
+`security/api-security.md`, which is **on `main` in `baldurpan/ai-engineering-standards` at `e69b3b9`**.
+The trigger that reaches it — *a URL the server will fetch* — is on `main` here and ships with the next
+release.
+
+So the trigger is live and the standard it points at is not, for installs: the vendored tree is still
+pinned at `f6feda35`. To close it, re-vendor with `standards add
+https://github.com/baldurpan/ai-engineering-standards`, which moves `ref=` in
+`templates/standards/.source` to `e69b3b9`. That is a `templates/` change, so it carries a note and the
+tarball-into-an-empty-repo check in item 3. **Until then the conditional table's `security/api-security.md`
+row is the right destination and arrives one section short.**
 
 ## Decisions that are cheap to reverse now
 

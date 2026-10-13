@@ -163,8 +163,8 @@ a legitimate answer, and it names the surfaces that were checked. Saying nothing
 
 > **Before loading standards, ask what surfaces this change has: something a person operates
 > (accessibility), a hot path or a payload that grows (performance), a trust boundary — input,
-> authentication, a secret, a public endpoint (security). Write the answer down. *None of these* is an
-> answer; saying nothing is not.**
+> authentication, a secret, a public endpoint, a URL the server will fetch (security).
+> Write the answer down. *None of these* is an answer; saying nothing is not.**
 
 **A surface reaches the work the way a documentation row does.** The standards rows it loads become the
 review expectations on the phase that carries it, and whatever proves it goes in that plan's §8

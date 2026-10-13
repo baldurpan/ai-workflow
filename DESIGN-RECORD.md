@@ -3287,6 +3287,43 @@ was missing.
 **Any edit to `templates/standards/`.** It is vendored verbatim from a pinned ref, and an edited file there
 hands the whole tree over to the user on the next update. New standards content belongs upstream.
 
+### 13.4 The OWASP Top 10 is a taxonomy, not a standard
+
+Asked whether the Top 10 should be part of the coding standards. **No as a document, yes as four words of
+trigger**, for three reasons that stack, and the useful half is the third.
+
+**It is not this repository's to add.** §13.3 above refused any edit to `templates/standards/` for a
+reason that has not changed: the tree is vendored verbatim from a pinned ref (§6.3), so a
+`security/owasp-top-10.md` written here costs every install its managed standards on the next update.
+
+**Upstream it would be nine-tenths restatement.** Mapped against the four `security/` files plus
+`tooling/`, nine of the ten already have a home — broken access control and auth failures in `auth.md`,
+injection in `api-security.md` and `validation.md`, misconfiguration in `api-security.md`, crypto and
+secrets across `auth.md` and `secrets.md`, vulnerable components in `dependencies.md` and `ci.md`,
+logging in `observability.md`. **Only SSRF had nothing** — the word did not occur anywhere in the tree.
+A file whose nine-tenths restates four others is two places that have to agree, and the copy organised by
+breach statistics rather than by what a developer is doing is the one that drifts. It is dated by
+construction too: the list is revised every few years, which is a second staleness clock the pinned ref
+does not cover. The mapping above is against the 2021 list and was not verified against the current
+revision; it is the shape of the argument, not a citation.
+
+**And it does not fix what it looks like it fixes.** §13.1 found that the security row is reached only by
+somebody who had already concluded the change was security-relevant. **A fifth file behind the same table
+is reached exactly as rarely.** What reaches the work is the trigger in the standing rule, so the shipped
+change is an addition to that enumeration — *a URL the server will fetch* — and not a document. The
+enumeration lives in exactly one place; `planner.agent.md`, `/feature-plan` and `/orchestrate` name the
+shape and cite the rule rather than restating the boundaries, so one edit covers all four.
+
+The SSRF content went upstream into `security/api-security.md`, beside SQL injection, in that file's voice
+and with its own limits stated: resolve-then-connect loses to DNS rebinding, so the allowlist is the real
+answer and the check is the fallback. `net.BlockList` and `dns/promises.lookup({ all: true })` were
+verified against the Node v24 API documentation, including that an IPv4-mapped address matches a v4 range
+only when checked as `ipv6`.
+
+**The general rule, which is the reusable part:** a published list of risks is an index into standards,
+not a standard. Ask what it names that the tree does not say, add that one thing where the tree already
+talks about its neighbours, and put the rest of its value into the question that gets the tree opened.
+
 
 ---
 
