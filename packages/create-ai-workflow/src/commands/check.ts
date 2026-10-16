@@ -47,6 +47,9 @@ export function check(root: string): number {
   if (errors.length === 0) {
     info(dim('Notes do not fail the check — nothing here is structurally broken.'));
   }
+  if (notes.length > 0) {
+    info(dim('A note is a finding about the work, not about the documents. Nothing here is repaired by an edit.'));
+  }
 
   return errors.length > 0 ? 1 : 0;
 }

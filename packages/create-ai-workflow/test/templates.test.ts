@@ -20,14 +20,21 @@ import { exists, packageRoot, templatesDir, walk } from '../src/paths.ts';
 const skillMain = (name: string) => readTemplate(`skills/${name}/SKILL.md`);
 
 /**
- * Everything a skill can put in front of an agent: the body, plus the tracker answer's half where the skill
- * has one. Five skills keep that half in a `tracker.md` beside the body, read only where `tracking.md`
- * names the tracker, so a repository on the working-tree answer never loads it — and an invariant about
- * what a command says has to hold across both files.
+ * Everything a skill can put in front of an agent: the body, plus every supporting file beside it. Those
+ * are read conditionally — `tracker.md` only where `tracking.md` names the tracker, `split.md` only where
+ * a plan came out over its budget — so a given invocation loads a subset. An invariant about what a
+ * command *says* has to hold across all of them, which is what this concatenation is for.
+ *
+ * It is a directory walk rather than a list for the same reason `skillFiles` is: a list went one file
+ * stale the first time a skill grew a second supporting file.
  */
 const skillBody = (name: string) => {
-  const tracker = path.join(templatesDir, 'skills', name, 'tracker.md');
-  return exists(tracker) ? `${skillMain(name)}\n${readFileSync(tracker, 'utf8')}` : skillMain(name);
+  const dir = path.join(templatesDir, 'skills', name);
+  return walk(dir)
+    .filter((rel) => rel.endsWith('.md'))
+    .sort((a, b) => (a === 'SKILL.md' ? -1 : b === 'SKILL.md' ? 1 : a.localeCompare(b)))
+    .map((rel) => readFileSync(path.join(dir, rel), 'utf8'))
+    .join('\n');
 };
 
 /** Files whose content is ours. `standards/` is vendored third-party content and is excluded. */
@@ -369,61 +376,120 @@ describe('one home for the tracker', () => {
   });
 });
 
-describe('a plan too large for its home is a scope signal', () => {
-  // An issue body has a hard ceiling and a plan document has none. The tempting reading is that the
-  // ceiling is a defect of the tracker answer to be worked around; the design's reading is the opposite —
-  // a plan that overflows a body is a feature that is several features, and this substrate is simply the
-  // first thing to say so. Everything here guards that the workaround is refused and the split is offered.
+describe('a plan has a size budget, and overflow is a scope signal', () => {
+  // An issue body has a hard ceiling. The tempting reading is that the ceiling is a defect of the tracker
+  // answer to be worked around; the design's reading is the opposite — a plan that overflows a body is a
+  // feature that is several features, and the tracker was simply the first thing to say so. §10.16 gives
+  // the working-tree answer the same check, because the field measurement says the plans that answer
+  // actually produces have a median of 49 KB and six of twenty-three were over the body limit, with
+  // nothing in the tree ever mentioning it.
   const flat = (text: string) => text.replace(/\s+/g, ' ');
   const plan = flat(skillBody('feature-plan'));
   const migrate = flat(skillBody('tracking-migrate'));
+  const tracking = readTemplate('stubs/tracking.md');
 
-  it('the number is a fact of the substrate, so only tracking.md states it', () => {
+  it('the numbers have one home, and it is the stub that holds every tracking answer', () => {
     // Same rule as the forge command and the issue type: a skill asks for the fact, `tracking.md` answers
-    // it. A limit written into a skill is one a different tracker could not change.
-    assert.match(readTemplate('stubs/tracking.md'), /65,536 characters/, 'the ceiling has one home');
+    // it. A limit written into a skill is one no project could change.
+    assert.match(tracking, /\*\*Plan size ceiling:\*\* 65,536 characters/, 'the ceiling is a field');
+    assert.match(tracking, /\*\*Ledger reserve:\*\* 500 characters per phase row/, 'so is the reserve');
     for (const name of SKILL_NAMES) {
-      assert.doesNotMatch(skillBody(name), /65,?536/, `${name} hardcodes the tracker's ceiling`);
+      assert.doesNotMatch(skillBody(name), /65,?536/, `${name} hardcodes the ceiling`);
+      assert.doesNotMatch(skillBody(name), /\b500 characters\b/, `${name} hardcodes the reserve`);
     }
     for (const name of ['feature-plan', 'feature-implement', 'tracking-migrate']) {
       assert.match(
         flat(skillBody(name)),
-        /how large a body may be|body has a size limit/i,
-        `${name} asks for the fact rather than knowing it`,
+        /How much a plan may hold/,
+        `${name} asks for the fact by section name rather than knowing it`,
       );
     }
   });
 
-  it('/feature-plan measures before the one write, not after one fails', () => {
-    // The body is a single write, so there is no partial state to recover from — which also means a
-    // failed write is the worst possible place to discover the plan was too big, with the research done
-    // and nowhere to put it.
-    assert.match(plan, /before writing, not after a write fails/i, 'the check precedes the write');
-    assert.match(plan, /room to spare/i, 'and it leaves room for the rows written later');
+  it('the budget is a `##` section, so an install without it is told', () => {
+    // It has to survive /onboard deleting `### Under the tracker answer` on a tree install, which a `##`
+    // does by construction. And it has to be *reported*: `tracking.md` is project-owned, so `update`
+    // cannot add the section to an existing install, and `stubGaps` compares `##` headings only. A `###`
+    // here would have been silent in exactly the installs that need to hear it.
+    assert.ok(
+      sections(tracking).some((heading) => /^How much a plan may hold$/.test(heading)),
+      'stubGaps compares this heading',
+    );
+    assert.ok(
+      tracking.indexOf('## How much a plan may hold') > tracking.indexOf('### Under the tracker answer'),
+      'and it sits outside the subsection /onboard deletes',
+    );
+    assert.match(flat(skillBody('onboard')), /How much a plan may hold/, '/onboard is what fills it');
+  });
+
+  it('a missing section is named rather than guessed around', () => {
+    // The same rule this workflow applies to a path release.md does not cover: name the gap, do not
+    // invent policy mid-run, and do not refuse the work over it either.
+    assert.match(plan, /name the gap, do not invent a\s*number/i);
+    assert.match(plan, /`check` carries its own fallback/i, 'and the check still reports in that install');
+  });
+
+  it('the same number holds under both answers, so a plan is portable', () => {
+    // A tree threshold above the body limit would let a repository build plans that adopting a tracker
+    // then refuses — which turns /tracking-migrate's refusal into a trap rather than a backstop.
+    assert.match(flat(tracking), /The number is the same under both answers, and that is deliberate/);
+    assert.match(flat(migrate), /A repository that has been measuring never reaches this refusal/);
+  });
+
+  it('/feature-plan measures before it writes, under both answers', () => {
+    // Under the tracker answer the body is a single write, so a failed one is the worst possible place to
+    // discover the plan was too big. In the tree there is no failed write at all — the plan just lands,
+    // which is why that answer needed the check stated rather than inherited.
+    assert.match(plan, /Do this before the write, not after one fails/i, 'the check precedes the write');
+    assert.match(plan, /does it fit with room for the rows still to be written/i, 'the reserve is the point');
+    assert.match(plan, /Say the measurement in the report either way/i, 'a silent check is not trusted');
+    assert.match(
+      flat(skillMain('feature-plan')),
+      /it is measured under both tracking answers/i,
+      "the body says so, not just the tracker half",
+    );
+  });
+
+  it('the split proposal is a supporting file, read only when the measurement fires', () => {
+    // §17.2's rule, applied again: prose that only some invocations need does not ride every invocation.
+    // Every /feature-plan run measures; almost none of them split.
+    const split = path.join(templatesDir, 'skills', 'feature-plan', 'split.md');
+    assert.ok(exists(split), 'it lives beside the body');
+    assert.match(skillMain('feature-plan'), /\[`split\.md`\]\(split\.md\)/, 'the body names the file');
+    assert.match(
+      flat(skillMain('feature-plan')),
+      /only when the measurement|Over the budget/i,
+      'and says when to read it',
+    );
+    assert.doesNotMatch(skillMain('feature-plan'), /Three ways out are refused/, 'the argument is not in the body');
   });
 
   it('/feature-plan splits the feature rather than shrinking the plan', () => {
-    assert.match(plan, /the only honest response is to split the feature/i);
-    for (const escape of [/Trimming the plan until it fits/i, /Continuing the plan into comments/i, /Linking out to a document or a paste/i]) {
+    assert.match(plan, /The only honest response is to split the feature/i);
+    for (const escape of [
+      /Trimming the plan until it fits/i,
+      /Continuing the plan into a second document/i,
+      /Linking out to a gist or a paste/i,
+    ]) {
       assert.match(plan, escape, `the escape ${String(escape)} is named and refused`);
     }
-    assert.match(plan, /\*\*Propose, then ask\.\*\*/, 'a scope decision is the user\'s, not the command\'s');
+    assert.match(plan, /## Propose, then ask/, "a scope decision is the user's, not the command's");
+    assert.match(plan, /The phase list is already the seam/i, 'and the plan proposes its own split');
     assert.match(plan, /write nothing until the user answers/i);
   });
 
-  it('the split keeps the issue and opens no hierarchy', () => {
-    // §10.10 removed the one-object-per-phase design. A split that produced a parent issue would put the
-    // phase ordering back into a second home by another route.
-    assert.match(plan, /keeps the first chunk/i, 'the id is reused, so the thread survives');
-    assert.match(plan, /No parent issue/i, 'and nothing hierarchical replaces it');
-    assert.doesNotMatch(skillBody('feature-plan'), /sub-issue/i);
+  it('the split keeps the entry and opens no hierarchy', () => {
+    // §10.10 removed the one-object-per-phase design. A split that produced a parent would put the phase
+    // ordering back into a second home by another route.
+    assert.match(plan, /keeps the first chunk/i, 'the entry is reused, so a thread survives');
+    assert.match(plan, /No parent entry/i, 'and nothing hierarchical replaces it');
+    assert.doesNotMatch(plan, /sub-issue/i);
   });
 
   it('/tracking-migrate refuses rather than guessing at a split', () => {
     // A migration that split a feature would be making a scope decision on the way past, which is the
     // same thing its ledger-disagreement refusal already declines to do.
     assert.match(migrate, /A plan too large for an issue body/i, 'it is in the refusal list');
-    assert.match(migrate, /several features/i, 'and says what the overflow means');
     assert.match(migrate, /Never shorten a plan to make it fit/i, 'the standing rule matches the refusal');
   });
 
@@ -433,6 +499,122 @@ describe('a plan too large for its home is a scope signal', () => {
     const implement = flat(skillBody('feature-implement'));
     assert.match(implement, /shorten your own Note until the row fits/i);
     assert.match(implement, /Never drop a row/i);
+  });
+
+  it('check reports an oversized plan as a note, and a note fails nothing', () => {
+    // The one rule in `check` that is not structural breakage: the document is well-formed and every
+    // answer it gives is right. So it may not fail the check, and it may not propose the split either —
+    // that is /feature-plan's, and `check` stays the thing you can delete without changing an answer.
+    const rules = readFileSync(path.join(packageRoot, 'src/check/rules.ts'), 'utf8');
+    assert.match(rules, /level: 'note'/, 'the budget rule is the note level');
+    assert.match(rules, /Run \/feature-plan to split it/, 'it names the command and proposes nothing');
+    assert.match(flat(tracking), /`check` reports a plan over the line as a \*\*note\*\*/, 'the stub says so');
+    assert.match(flat(tracking), /a note does not fail the check/i);
+  });
+});
+
+describe('the ledger Note is one line', () => {
+  // Measured across 23 plans in four installs on 2026-10-16: 142 ledger rows, a median Note of 440
+  // characters and a longest of 6,714 — a phase log in a table cell that nothing wraps. 113 of the 142
+  // were over 200 characters. The column has no visible bound, which is why the rule has to be written.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+
+  it('the rule lives in the ledger that travels with every plan', () => {
+    // plan-template.md §6.1 is the one home: the ledger goes into a plan document under one answer and
+    // into an issue body under the other, and the rule goes with it either way.
+    const template = flat(readTemplate('context/plan-template.md'));
+    assert.match(template, /\*\*The Note is one line/, 'the template states it');
+    assert.match(template, /understand or resume the Status beside it/, 'and says what the line is for');
+  });
+
+  it('the detail has somewhere to go, and the rule says where', () => {
+    // A rule that only forbids produces a session that drops the measurement rather than relocating it.
+    for (const text of [flat(readTemplate('context/plan-template.md')), flat(skillBody('feature-implement'))]) {
+      assert.match(text, /measurements|test counts/i, 'it names what does not belong in the Note');
+      assert.match(text, /commit message/i, 'and the commit message as one home');
+      assert.match(text, /report/i, 'and the run report as the other');
+    }
+  });
+
+  it('/feature-implement cites the rule rather than restating it', () => {
+    // §2.5: two independently-worded copies of one rule is the drift this design exists to prevent. The
+    // skill carries the one sentence that is its own — where the gate output goes instead.
+    const implement = flat(skillBody('feature-implement'));
+    assert.match(implement, /\*\*The Note is one line\*\*, per §6\.1 of the plan itself/, 'it cites the home');
+    assert.match(implement, /Gate 1's output, the test counts and the measurements do not go in it/);
+  });
+
+  it('the opening write is bound by the same rule as the closing one', () => {
+    // §2.8's two writes. The opening Note is the one a resuming session reads, so it is the one most
+    // likely to be written as a narrative of what is about to happen.
+    assert.match(flat(skillMain('feature-implement')), /\*\*One line\*\*, by the same rule step 11 applies/);
+  });
+
+  it('the reserve is sized against the one-line rule, and says so', () => {
+    // If the Note is not one line the reserve is wrong, and the failure shows up as a body at its limit
+    // three phases from the end. Naming the dependency is what makes that diagnosable.
+    assert.match(
+      flat(skillBody('feature-implement')),
+      /a Note stopped being one line/,
+      'the tracker half names the dependency',
+    );
+    assert.match(
+      flat(readTemplate('context/tracking.notes.md')),
+      /one sha and a one-line Note per row/,
+      'and the notes file says what the reserve was sized from',
+    );
+  });
+});
+
+describe('a brief carries the phase, not the plan', () => {
+  // §17.1's reading budget never counted the plan, and three readers open one on every phase. The field
+  // measurement puts the median plan at 49 KB — 62% on top of the whole 78 KB budget, per reader, per
+  // phase. The phase's own §6.2 section is a median 24% of the document.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+
+  it('every phase carries the decisions that govern it, as the Standards line already did', () => {
+    // §17.3 made the plan the one traversal of the standards table. §3 is the same shape of problem one
+    // section over: a constraint that lives only there either rides a whole-plan read or gets re-decided.
+    const template = readTemplate('context/plan-template.md');
+    const phases = template.split('#### Phase').slice(1);
+    assert.ok(phases.length >= 2, 'the template ships more than one phase section');
+    for (const phase of phases) {
+      assert.match(phase, /\*\*Standards:\*\*/, 'the standards line is there');
+      assert.match(phase, /\*\*Decisions:\*\*/, 'and so is the decisions line');
+    }
+  });
+
+  it('both dispatch briefs name the section rather than the document', () => {
+    const implement = flat(skillBody('feature-implement'));
+    assert.match(implement, /it names the phase rather than the plan/i, 'the coder brief');
+    assert.match(implement, /\*\*The section, not the plan\*\*/, 'the reviewer brief');
+    assert.match(implement, /A whole-plan read is the fallback, not the route/i, 'and the fallback is named');
+  });
+
+  it('a plan written before the lines existed still works', () => {
+    // The same fallback §17.3 wrote for the Standards line. A rule that bricks existing plans is one
+    // nobody can adopt.
+    assert.match(
+      flat(skillBody('feature-implement')),
+      /A plan written before phases carried these lines has neither/i,
+      'the skill names the fallback',
+    );
+    assert.match(flat(readTemplate('context/roles/coder.md')), /Where the brief has no such line, read §3/);
+  });
+
+  it('the roles read the lines and treat the decisions as settled', () => {
+    const coder = flat(readTemplate('context/roles/coder.md'));
+    assert.match(coder, /\*\*That section is the brief, not the whole plan\.\*\*/);
+    assert.match(coder, /\*\*They are settled\.\*\*/, 'a decision is not the coder\'s to re-open');
+    const reviewer = flat(readFileSync(path.join(templatesDir, 'claude/agents/reviewer.agent.md'), 'utf8'));
+    assert.match(reviewer, /whether the implementation honoured it — not whether it was right/);
+  });
+
+  it('the planner writes both lines and is told the budget it is drafting into', () => {
+    const planner = flat(readFileSync(path.join(templatesDir, 'claude/agents/planner.agent.md'), 'utf8'));
+    assert.match(planner, /\*\*Every phase also carries a `Decisions:` line\*\*/);
+    assert.match(planner, /\*\*Keep the plan within its budget\.\*\*/);
+    assert.match(planner, /more than one feature's worth/, 'and can say so itself');
   });
 });
 
@@ -1940,7 +2122,7 @@ describe('what a feature waits on is a relationship, not a sentence', () => {
 
   it('the split records its own dependency edges rather than describing them', () => {
     const plan = flat(skillBody('feature-plan'));
-    assert.match(plan, /The order between the chunks is a relationship, not a sentence/);
+    assert.match(plan, /The order between chunks is a relationship, not a sentence/);
     // 0.16.0's split wrote "a line naming the chunk it depends on" into each new body, which is the
     // second home tracking.md now refuses. The line is gone; the relationship replaces it.
     assert.doesNotMatch(plan, /a line naming the chunk it depends on/);

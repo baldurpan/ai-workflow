@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { after, before, describe, it } from 'node:test';
-import { runChecks, trackingAnswer, type Problem } from '../src/check/rules.ts';
+import { planBudget, runChecks, trackingAnswer, type Problem } from '../src/check/rules.ts';
+import { check } from '../src/commands/check.ts';
 import { install } from '../src/commands/install.ts';
 import { readTemplate } from '../src/layout.ts';
 
@@ -232,5 +233,106 @@ describe('the tracker answer', () => {
       [],
       `errors: ${messages(problems).join(', ')}`,
     );
+  });
+});
+
+describe('the plan size budget', () => {
+  // §10.16. The one rule in this command that reports something other than structural breakage: the plan
+  // is well-formed and every answer it gives is right, and what it says is that the feature is more than
+  // one feature. So it is a note, it fails nothing, and the numbers come from `tracking.md` rather than
+  // from here — a project that wants a different ceiling edits that file.
+  let budgeted: string;
+
+  before(() => {
+    budgeted = mkdtempSync(path.join(tmpdir(), 'aiw-budget-'));
+    install(budgeted);
+  });
+  after(() => rmSync(budgeted, { recursive: true, force: true }));
+
+  /** A plan padded to `size` characters, carrying the two-row shipped ledger. */
+  function sized(size: number): string {
+    const base = plan();
+    const padding = '\n' + 'x'.repeat(Math.max(size - base.length - 1, 0));
+    return base + padding;
+  }
+
+  function budgetNotes(): Problem[] {
+    return runChecks(budgeted).filter((p) => /over the .* allows a plan/.test(p.message));
+  }
+
+  function setPlan(text: string): void {
+    const full = path.join(budgeted, 'context/plans/WIDGETS-PLAN.md');
+    mkdirSync(path.dirname(full), { recursive: true });
+    writeFileSync(full, text, 'utf8');
+    writeFileSync(
+      path.join(budgeted, 'context/roadmap.md'),
+      roadmapWith(entry('widgets', 'pending', 'plans/WIDGETS-PLAN.md')),
+      'utf8',
+    );
+  }
+
+  it('reads the shipped numbers out of tracking.md', () => {
+    assert.deepEqual(planBudget(budgeted), { ceiling: 65_536, reserve: 500 });
+  });
+
+  it('says nothing about a plan comfortably under the line', () => {
+    setPlan(sized(40_000));
+    assert.deepEqual(budgetNotes(), []);
+  });
+
+  it('fires on room-to-spare, not on room-to-fit', () => {
+    // 65,000 characters fits. It does not fit with 500 held back for each of the two ledger rows, and by
+    // the time both have closed with a sha and a Note it would not have. That gap is the whole rule:
+    // the body is written into for the feature's whole life, so a plan that only just fits has failed.
+    setPlan(sized(65_000));
+    const [note, ...rest] = budgetNotes();
+    assert.ok(note, 'a plan inside the reserve is reported');
+    assert.deepEqual(rest, [], 'once');
+    assert.equal(note.level, 'note', 'an oversized plan is not structural breakage');
+    assert.match(note.message, /1,000-character reserve for 2 ledger rows/, 'the reserve is shown, not hidden');
+    assert.match(note.message, /464 over the 65,536/, 'and so is the margin');
+    assert.match(note.message, /Run \/feature-plan to split it/, 'it names the command and proposes nothing');
+    assert.match(note.rule, /tracking\.md/, 'a false positive points at the file that set the number');
+  });
+
+  it('a note does not fail the check', () => {
+    setPlan(sized(65_000));
+    assert.equal(check(budgeted), 0, 'exit 0 — nothing here is broken');
+  });
+
+  it('follows the numbers when the project changes them', () => {
+    // The point of the fields being in a project-owned stub. A repository with longer plans raises the
+    // ceiling and the rule moves with it; nothing in the code knows either number.
+    const tracking = path.join(budgeted, 'context/tracking.md');
+    const text = readFileSync(tracking, 'utf8');
+    writeFileSync(tracking, text.replace('**Plan size ceiling:** 65,536', '**Plan size ceiling:** 20,000'), 'utf8');
+    assert.equal(planBudget(budgeted).ceiling, 20_000);
+
+    setPlan(sized(40_000));
+    assert.equal(budgetNotes().length, 1, 'a plan that passed at the shipped ceiling now reports');
+
+    writeFileSync(tracking, text, 'utf8');
+    assert.deepEqual(budgetNotes(), [], 'and stops again when the number goes back');
+  });
+
+  it('falls back to the shipped numbers when the fields are gone', () => {
+    // Same shape as the column set falling back when `plan-template.md` is missing. A stub somebody
+    // rewrote by hand must not silently disable the check or crash it.
+    const tracking = path.join(budgeted, 'context/tracking.md');
+    const text = readFileSync(tracking, 'utf8');
+    writeFileSync(tracking, '# Tracking\n\n## Where tracking lives\n\n**In the working tree.**\n', 'utf8');
+    assert.deepEqual(planBudget(budgeted), { ceiling: 65_536, reserve: 500 });
+    writeFileSync(tracking, text, 'utf8');
+  });
+
+  it('ignores retired plans, like every other rule here', () => {
+    // An archived plan's size is not actionable: the feature shipped. Validating retired records against
+    // current rules is the false-positive machine that makes validators get ignored.
+    rmSync(path.join(budgeted, 'context/plans/WIDGETS-PLAN.md'), { force: true });
+    writeFileSync(path.join(budgeted, 'context/roadmap.md'), roadmapWith(''), 'utf8');
+    const archive = path.join(budgeted, 'context/archive/OLD-PLAN.md');
+    mkdirSync(path.dirname(archive), { recursive: true });
+    writeFileSync(archive, sized(200_000), 'utf8');
+    assert.deepEqual(budgetNotes(), []);
   });
 });

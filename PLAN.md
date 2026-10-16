@@ -3,22 +3,23 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 4049 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 4357 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 278 tests. The 173 in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 303 tests. The 195 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, git on instruction rather than on
    initiative, a worktree made by the recorded command or not at all, one home for the tracker, no
    self-declared status, inert stubs, a ledger row that opens before the work, a substrate answer that
    never strands the data it names, a `--all` loop that stops where a single run stops, a `--pr` flag whose
    authority ends with the invocation that typed it, **a `/release` whose Gate 1 and whose
-   confirmation both sit above the step that consumes the notes**, a plan too large
-   for its home being split rather than trimmed, documentation reaching the plan, an answer file that may
+   confirmation both sit above the step that consumes the notes**, a plan over its
+   size budget being split rather than trimmed under either tracking answer, a ledger Note that stays one
+   line, a brief that carries the phase and not the plan, documentation reaching the plan, an answer file that may
    not hold a false answer, one status vocabulary with no second place to record a defect, an order
    between features that is a relationship rather than a sentence, a titled §-citation resolving against
    the template, the tracker half of a command kept beside its body and read only where it applies, a
@@ -35,12 +36,34 @@ answer** (§11) in both its phases, with the event that completes it (§11.10), 
 and **§11.12** — and it was the first release cut from accumulated notes in this repository, so
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
 `blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
-adds **§4.7**; 0.23.0 adds **§18**; and 0.24.0 adds **§19**.
+adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; and **§20** is written and unreleased.
 
 **The version each section shipped in is below, on the section.** A paragraph here is the summary of a
 `DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
+
+**Written and unreleased: §20**, the plan's size budget. Measured 23 plans in four real installs on
+2026-10-16: the median is **48,893 characters** and six are over the 65,536 an issue body holds, which
+falsifies §10.13's "a filled plan is a few thousand characters" — the one load-bearing premise in that
+section. §10.13 had already written down the consequence and left it unbuilt: under the working-tree
+answer *nothing in the tree ever says so*. **Now something does.** The ceiling and a **500-character
+per-phase reserve** are fields in `tracking.md`, one home for a question that file's primitive map already
+held, placed above the subsection `/onboard` deletes and as a `###` so `stubGaps` reports nothing.
+**The number is the same under both answers on purpose** — a plan that passed in the tree fits a body, so
+`/tracking-migrate`'s refusal stops being a trap sprung by adopting a tracker. `/feature-plan` measures in
+step 5 and sends an over-budget plan to **`split.md`**, a supporting file beside the body: §17.2's rule a
+third time, since every run measures and almost none split, and it deduplicated a split that would
+otherwise have been written out under both answers. **The ledger Note is one line** — the measured median
+was 440 characters and the longest 6,714, a phase log in the one column with no visible bound — with the
+detail relocated to the commit message or the report, because a rule that only forbids loses the thing
+worth keeping. **The briefs carry the phase, not the plan**: `coder.md` had said it receives "a plan", and
+every phase now carries a `Decisions:` line, which is §17.3's standards move applied to §3 and the second
+application is what makes it a rule. The plan was outside §17.1's reading budget entirely while three
+readers opened one per phase — 49 KB each against a 78 KB budget. `check` reports an oversized plan as a
+**note**, which was a level with display code and **no producer** — §2.8's shape found the same way. Cost
+**+3,479 bytes** on the orchestrator's per-phase read, against roughly 37 KB saved per brief, twice over.
+**Twenty-five tests.**
 
 **Shipped in 0.24.0: §19**, `/release` — the pull request `release.md` has described since §11.10 and the
 tool could not produce. §11.12's flag runs the Bump wire on a **feature's** branch, so the pull request whose
@@ -297,6 +320,14 @@ the host that reads it. §1.2 proved that tree is *discovered*; nothing has yet 
 on the right prompt and stays quiet on the wrong one. That host has no `disable-model-invocation`
 equivalent, so the second and third questions above are open there in a way they are not under Claude
 Code — the description text is the only thing holding the line.
+
+**§20 adds four behavioural checks to the same run, and every one of them is about whether a session
+follows prose it has no mechanical reason to follow.** Does `/feature-plan` really measure in step 5
+rather than writing the plan and hoping; does it open `split.md` when the measurement fires; does it
+propose a split along the phase boundaries the research already justified rather than inventing one; and
+does a ledger Note stay one line over a dozen phases, or does the first interesting gate output go back
+into the cell. The last is the one with no backstop — `check` would notice an oversized plan, and nothing
+notices a Note that has become a log.
 
 **§17 adds two checks to the same run, and answers one question from the docs.** The host's documentation
 says `disable-model-invocation: true` removes the description from context entirely, which answers the

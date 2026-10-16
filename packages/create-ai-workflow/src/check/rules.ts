@@ -23,6 +23,12 @@ export interface Problem {
 /** Used only when `context/plan-template.md` is missing — the template is the source of truth. */
 const FALLBACK_COLUMNS = ['#', 'Phase', 'Status', 'Depends on', 'Note'];
 
+/**
+ * Used only when `context/tracking.md` is missing or has had the fields edited out — that file is the
+ * source of truth, the same way the template is for the column set. These are what the stub ships.
+ */
+const FALLBACK_BUDGET = { ceiling: 65_536, reserve: 500 };
+
 const RULES = {
   columns:
     'context/plan-template.notes.md — "the ledger\'s column set is fixed — `check` compares every plan\'s ledger against the template\'s"',
@@ -41,6 +47,8 @@ const RULES = {
     'context/workflow.md — "Each entry\'s **Doc** field points at its document" · "a link into `context/archive/`"',
   unmigrated:
     'context/tracking.md — "Setting the answer is not moving the work." · context/workflow.md — "Changing the answer is not moving the work."',
+  budget:
+    'context/tracking.md — "the plan\'s own size plus the reserve times its phase count has to come in under the line"',
 } as const;
 
 function read(root: string, rel: string): string | null {
@@ -65,6 +73,31 @@ export function trackingAnswer(root: string): 'tree' | 'tracker' {
   return /\*\*In an issue tracker\.\*\*/.test(stripComments(text)) ? 'tracker' : 'tree';
 }
 
+/**
+ * The plan size budget `context/tracking.md` records — a ceiling and a per-phase reserve, both in
+ * characters. The fields are the same shape as that file's `**Repository:**` line, so a project changes
+ * the numbers by editing them there and this reads whatever it finds.
+ *
+ * Shape, not a workflow question (§2.4): this reads two numbers out of the file that states them and
+ * compares a file's length to them. It does not decide what to do about an overrun — `/feature-plan`
+ * proposes the split, and a plan over the line is reported as a note that fails nothing.
+ */
+export function planBudget(root: string): { ceiling: number; reserve: number } {
+  const text = read(root, 'context/tracking.md');
+  if (text === null) return FALLBACK_BUDGET;
+  const clean = stripComments(text);
+  const field = (label: string): number | null => {
+    const match = new RegExp(`\\*\\*${label}:\\*\\*\\s*([\\d,_]+)`).exec(clean);
+    if (!match) return null;
+    const value = Number(match[1]?.replace(/[,_]/g, ''));
+    return Number.isFinite(value) && value > 0 ? value : null;
+  };
+  return {
+    ceiling: field('Plan size ceiling') ?? FALLBACK_BUDGET.ceiling,
+    reserve: field('Ledger reserve') ?? FALLBACK_BUDGET.reserve,
+  };
+}
+
 export function expectedColumns(root: string): string[] {
   const template = read(root, 'context/plan-template.md');
   const ledger = template ? parseLedgers(template)[0] : undefined;
@@ -79,6 +112,7 @@ export function expectedColumns(root: string): string[] {
 export function runChecks(root: string): Problem[] {
   const problems: Problem[] = [];
   const columns = expectedColumns(root);
+  const budget = planBudget(root);
 
   const roadmapText = read(root, 'context/roadmap.md');
   const roadmap = roadmapText ? parseRoadmap(roadmapText) : [];
@@ -247,6 +281,30 @@ export function runChecks(root: string): Problem[] {
     }
 
     problems.push(...dependencyProblems(rel, ledger));
+
+    // A plan over its budget. This is the only rule here that is not structural breakage, so it is the
+    // only one that reports a `note`: the document is well-formed and every answer it gives is correct —
+    // what it says is that the feature is more than one feature. §10.13's reading of the tracker's body
+    // limit, given to the answer that has no limit of its own and so never notices.
+    //
+    // Measured in code points, because the ceiling the tracker answer inherits counts characters. The
+    // reserve is multiplied by the ledger's own row count: the question is never whether the plan fits
+    // today, it is whether it still fits once every row has closed with a sha and a Note.
+    const size = [...text].length;
+    const reserve = budget.reserve * ledger.rows.length;
+    if (size + reserve > budget.ceiling) {
+      const over = size + reserve - budget.ceiling;
+      problems.push({
+        level: 'note',
+        file: rel,
+        message:
+          `${size.toLocaleString('en-US')} characters plus a ${reserve.toLocaleString('en-US')}-character ` +
+          `reserve for ${ledger.rows.length} ledger ${ledger.rows.length === 1 ? 'row' : 'rows'} is ` +
+          `${over.toLocaleString('en-US')} over the ${budget.ceiling.toLocaleString('en-US')} this project ` +
+          'allows a plan — a plan this size is more than one feature. Run /feature-plan to split it',
+        rule: RULES.budget,
+      });
+    }
   }
 
   return problems;

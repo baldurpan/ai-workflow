@@ -1976,7 +1976,13 @@ should work around it. **The reading taken here is the opposite.**
 
 A filled plan is a few thousand characters. §6 of the template is a ledger and a short section per phase;
 §1–§5 are a problem, its constraints, its decisions and its risks. Reaching sixty-five thousand means the
-design, the phases and the risks of **more than one piece of work** were written into one document. That is
+design, the phases and the risks of **more than one piece of work** were written into one document.
+
+> **Corrected by measurement in §20.1 — that first sentence is false.** Across 23 plans in four installs
+> the median is 48,893 characters and six are over the ceiling. The conclusion below stands and the
+> premise does not: the ceiling is a real scope check, but it is a boundary real work crosses rather than
+> a rare backstop, and the "nothing in the tree ever says so" this section notes two sentences on was
+> left unbuilt for eleven versions. §20 builds it. That is
 already a defect under the working-tree answer — §2.6 defines a feature as work you would want one history
 row for, and a plan that size describes several — and nothing in the tree ever says so. **The tracker
 answer is the first thing that notices.** So the ceiling is not a constraint to route around; it is a
@@ -4115,3 +4121,237 @@ Verified on 2026-10-05 by packing the tree, installing it into an empty reposito
 (clean, exit 0) and `update --dry-run` (123 files current, nothing under **Next**), with the command present
 in both skill trees, the Claude copy carrying `sonnet`/`medium`, every relative link in the new skill
 resolving after install, and the upgrade path exercised against a simulated older manifest.
+
+---
+
+## 20. The plan had no size, and only the substrate with a limit ever said so
+
+Asked why plans in real installs are so much larger than the design assumes, with the measurement attached.
+Three things came out of it: the working-tree answer gets the scope check the tracker answer had for free,
+the ledger's Note column gets the only bound anything in the design ever gave it, and the briefs stop
+being pointed at a document when they only ever needed a section of it.
+
+### 20.1 The measurement, which is the whole argument
+
+Twenty-three plans under `context/plans/` and `context/archive/` in four installs — `piff/piff`,
+`dynjandi/dynjandi-core`, `baldurpan.com` and `bgmusik` — **measured 2026-10-16 against the files on disk**,
+not reported from memory:
+
+| | |
+|---|---|
+| Median plan | **48,893 characters** |
+| Mean | 56,457 |
+| Over 65,536 | **6 of 23** — 134,539 (`piff` CUTOVER-PIFF-IS-TO-WORKER), 97,384 (`dynjandi-core` CLOUDFLARE), 87,927, 81,234 (`bgmusik` SITE-SCAFFOLD, for a scaffold), 72,326, 70,156 |
+| Ledger rows across all 23 | 142 |
+| Median ledger Note | **440 characters**; 113 of the 142 over 200, 59 over 500 |
+| Longest Note | **6,714 characters** (`dynjandi-core` SENTRY-ERROR-MONITORING; the whole row is 6,805) |
+| Ledger as a share of its plan | median **7.5%** |
+
+**§10.13 said a filled plan is "a few thousand characters". That is false, and it was the load-bearing
+claim.** Everything in that section followed from it: if a plan is a few thousand characters then 65,536 is
+a limit nobody reaches except by writing several features into one document, and the ceiling is a free
+scope check. The field says the median plan is seven times "a few thousand" and that a quarter of them are
+over the line — so the ceiling is not a rare backstop, it is a boundary real work crosses, and **under the
+working-tree answer nothing in the tree has ever mentioned it.** §10.13 predicted exactly this and left it
+unbuilt: *"that is already a defect under the working-tree answer … and nothing in the tree ever says so."*
+
+**The ledger share is the finding that redirected part of this change.** At a median 7.5% the Note column
+is not what makes plans large — the prose is. Capping the Note is worth doing for the reason §20.3 gives
+and **not** as a way to keep a plan under its budget, and saying so here stops the next reader from
+treating the two as one lever.
+
+### 20.2 One number, one home, and `/feature-plan` measures before it writes
+
+**The budget is a ceiling plus a per-phase reserve**, and both are fields in `tracking.md`:
+`**Plan size ceiling:** 65,536 characters` and `**Ledger reserve:** 500 characters per phase row`. Same
+shape as `**Repository:**` beside them, so a project changes the numbers by editing the file.
+
+**It is `tracking.md` rather than `workflow.md`, which is the one placement worth arguing.** The question
+*how much may a plan hold* already lived in that file's primitive map, because under the tracker answer the
+answer is a GitHub fact (§10.13's rule: the skills ask for the fact, the stub states it). Putting the tree
+answer anywhere else would give one question two homes. So the row stays and the section it points at holds
+both answers, outside `### Under the tracker answer` — `/onboard` deletes that subsection on a tree install,
+and a budget living inside it would exist only for the answer that already has a hard limit.
+
+**It is a `##` heading, and the first draft had it as a `###` for the wrong reason.** §17.2 recorded
+"every `##` heading in every stub is unchanged, so `stubGaps` reports nothing to an existing install" as a
+property worth having, and it was — in a change that asked nothing new of the stub. **This one does.**
+`tracking.md` is project-owned, so `update` cannot write the section into an existing install; `stubGaps`
+compares `##` headings only; and the skills now read a section those installs do not have. A `###` is
+therefore silent in exactly the installs that need to hear it, which is the §11.12 shape — a gap whose
+only channel was switched off to keep a report quiet. As a `##` the update says the section is missing and
+names `/onboard`, which is both true and actionable, and that is the whole of the noise. **Treating §17.2's
+silence as a rule rather than a side effect was the error**, and it is the second time in this record that
+a property observed once got mistaken for a constraint.
+
+**The window before `/onboard` runs is covered by naming the gap, not by a hidden default.**
+`/feature-plan` says the budget is not recorded, names `/onboard` and writes the plan anyway — the same
+rule this workflow applies to a path `release.md` does not cover. Inventing a ceiling mid-run would write
+policy nobody chose; refusing to plan over a missing answer would be worse. `check` has a code-level
+fallback to the shipped pair, so an oversized plan is still reported in that install, which is the one
+place a default is safe: it changes no file and fails nothing.
+
+**The number is the same under both answers, deliberately.** The tempting alternative is a smaller tree
+threshold keyed to the reading budget, or a larger one on the grounds that nothing in the tree enforces
+anything. Both break portability: `/tracking-migrate` refuses to carry an oversized plan, so a tree
+threshold above 65,536 makes that refusal a trap sprung by adopting a tracker, and one below it fires on
+plans a tracker would have accepted. **One number means a plan `/feature-plan` passed in the tree fits a
+body**, and a repository that has been measuring never reaches the migration's refusal. The migration now
+says that about itself.
+
+**A smaller number was also rejected on its own terms.** A threshold set near "a few thousand characters"
+would fire on the median plan, and a validator that fires on the median artifact is the false-positive
+machine §6.4 refuses. The measurement does not say plans should be 3 KB; it says the 65,536 line was
+telling the truth and nobody was listening.
+
+**The reserve is what makes this a check rather than a formality**, and it is §10.13's *room to spare, not
+room to fit* given a number. A plan is measured as its own size plus the reserve times its phase count,
+because the ledger is written into for the feature's whole life. On the corpus it changes one verdict:
+`baldurpan.com` SITE-CORE-PLAN is 61,912 characters across 11 phases, which fits today and is 1,876 over
+once 500 is held back for each row. That plan would have failed on its last phase under the tracker answer
+and nobody would have known why. **500 is derived from §20.3**: a closing row gains a sha and one line, and
+the measured median Note is 440. If the Note stops being one line the reserve is wrong, so
+`/feature-implement`'s tracker half names that dependency out loud — otherwise the failure arrives as a
+body at its limit three phases from the end with no way to diagnose it.
+
+**`/feature-plan` measures in step 5, between the research and the write.** Under the tracker answer the
+body is one write and a failed one is the worst possible moment to learn the plan was too big; in the tree
+there is no failed write at all, which is *why* that answer needed the check written down rather than
+inherited. The command reports the measurement either way — a check nobody sees the result of is one
+nobody trusts.
+
+**The split prose moved out of the body into `split.md` beside it.** §17.2's rule applied a third time:
+prose only some invocations need does not ride every invocation. Every `/feature-plan` run measures and
+almost none split, so the refused workarounds, the propose-then-ask and what happens to each chunk are in
+a supporting file the body opens only when the measurement fires. That also deduplicated it — the split
+had been written out in `feature-plan/tracker.md` and had to exist under both answers now, and writing it
+twice was the alternative. The tracker half keeps the four things that differ: the ceiling is the
+substrate's rather than a budget, the body is one write, the chunks are issues with a `Priority:`, and the
+order between them is a relationship rather than a sentence.
+
+**Net on the reading budget**, against §17.1's 78,570 for one `/feature-implement` phase on the tree
+answer: `feature-implement/SKILL.md` +1,303 and `tracking.md` +2,176 as a tree install reads it, so
+**+3,479, or 4.4%.** What it buys is in §20.4 and is two orders larger.
+
+### 20.3 The Note is one line, and the detail has somewhere to go
+
+**One line: what a later session needs in order to understand or resume the Status beside it.** What is
+underway, what remains, what is blocking, the sha where the phase is `done`. The measurements, the test
+counts, the gate output and the account of how the phase went go in the commit message that carries the row
+— under `git.md`'s answer, since the row lands with the work — or in the run's own report.
+
+**It is the only column with no visible bound.** `#` is a number, `Phase` is a name, `Status` is one of
+four words and `Depends on` is a short list. The Note is prose in a table cell that nothing wraps, so it
+grows until a reader cannot find the Status beside it, and a 6,714-character cell is what that looks like.
+The design never said otherwise; it simply never said anything, and a column with no stated bound and an
+obvious use as a log becomes one.
+
+**The rule lives in `plan-template.md` §6.1 and is cited, not restated, by `/feature-implement` step 11.**
+§6.1 is the ledger's own definition and it travels with the ledger — into a plan document under one answer
+and into an issue body under the other — so the rule goes wherever the table goes. The skill carries only
+the sentence that is its own: where the gate output goes instead. Two independently-worded copies of one
+rule is the drift §2.5 exists to prevent, and this change had a standing invitation to produce one.
+
+**It binds the opening write as much as the closing one** (§2.8's two writes). The opening Note is the one
+a resuming session reads, which makes it the most likely place to write a narrative of what is about to
+happen rather than a line saying where the work got to.
+
+**A rule that only forbids relocates nothing**, so both homes name the destination. Without that, a session
+told the Note is one line drops the measurement instead of moving it, and the thing worth keeping is gone
+for the sake of a column width.
+
+### 20.4 A brief carries the phase, not the plan
+
+**§17.1's reading budget never counted the plan, and three readers open one on every phase** — the
+orchestrator, the coder and the reviewer. At the measured median that is 48,893 characters each, which is
+62% of the entire 78,570 budget the §17 pass worked to produce, per reader, per phase, and it was outside
+the frame the whole time.
+
+**The dispatch briefs already pointed at the phase's own section**, which is the half of this that was
+already right. What was missing was a reason a reader would respect it and a way to brief a phase without
+its constraints:
+
+- **`coder.md` said it receives "a **plan**"** — the scope, the files, the acceptance criteria. So the role
+  file invited the whole-plan read that the dispatch step had just avoided. It now says it receives one
+  phase as its own section, and that the section is the brief.
+- **A phase's constraints live in §3 and its work lives in §6.2**, so a brief carrying only the second
+  leaves the coder to either read the whole plan or re-decide what §3 settled. **Every phase section now
+  carries a `Decisions:` line** — the §3 decisions that govern it, by number and in a clause each.
+
+**That is §17.3's move applied one section over, and the second time it is applied is what makes it a
+rule.** §17.3 made the plan the single traversal of the standards table because three readers were
+traversing it independently; §3 is the same shape of problem, and §17.6's lesson — *a principle stated once
+and applied once is a precedent, not a rule* — is the reason to notice rather than re-derive it. The
+reviewer gets the line too, with the one thing that is its own: a decision on that line is settled, so an
+implementation that took the rejected alternative is a blocking finding and a decision the reviewer
+disagrees with is a note.
+
+**The fallback is §17.3's, verbatim in shape.** A plan written before phases carried these lines has
+neither, and both readers fall back — to the conditional table for standards, to §3 for decisions. A rule
+that bricks the plans already on disk is a rule nobody can adopt.
+
+**What it buys.** The largest `#### Phase` section in the measured plans is a median **24.4%** of its
+document, so the section plus the two lines is roughly 12 KB where the plan is 49 KB — about 37 KB saved
+per reader, per phase, twice over. Against §20.2's +3,479 on the orchestrator that is not a trade worth
+agonising over.
+
+### 20.5 `check` reports it, and it is the first `note` anything ever wrote
+
+**It reports an oversized plan and nothing else about it**, as a `note` rather than an error, naming
+`/feature-plan` and proposing no split.
+
+**`note` was a level with display code and no producer** — `check.ts` filtered for it, counted it and
+printed *"Notes do not fail the check"*, and every `problems.push` in `rules.ts` said `error`. That is
+§2.8's shape exactly: a legal value nothing ever wrote, found the same way, which is by looking for who
+writes it. The budget rule is its first producer, and the level turned out to be sized for precisely this
+case.
+
+**It had to be a note, not an error.** An oversized plan is well-formed: its columns match, its statuses
+are legal, its dependencies resolve, every answer it gives is correct. What it says is that the feature is
+more than one feature — a finding about the *work*, not about the document. An error would fail CI on a
+repository whose documents are all structurally sound, which is how a validator earns the reputation §6.4
+exists to avoid. So it exits 0, and the summary now says what a note means.
+
+**It stays read-only and answers no workflow question.** It reads two numbers from the file that states
+them and compares a file's length to them — the same kind of act as comparing a ledger's columns to
+`plan-template.md`'s. It does not decide what to do about the overrun, propose a boundary, or name which
+phases to cut; that is `/feature-plan`'s, with the user answering. §6.4's test still holds: delete `check`
+and every workflow answer is unchanged, because the skills measure for themselves.
+
+**It reads `plans/` and never `archive/`**, like every other rule here. A retired plan's size is not
+actionable — the feature shipped — and §6.4's reason is unchanged.
+
+**Measured in code points**, since the ceiling the tracker answer inherits counts characters, with the
+numbers read from `tracking.md` and a fallback to the shipped pair when the file is missing or the fields
+have been edited out — the same shape as the column set falling back when `plan-template.md` is absent.
+
+### 20.6 What it cost, and what was verified
+
+**Twenty-five tests**, 278 → 303. The ones worth keeping if the rest went: that the budget is a `##`
+heading outside the subsection `/onboard` deletes, that no skill hardcodes either number, that the reserve
+fires on room-to-fit (a 65,000-character plan with two rows reports 464 over), and that a note exits 0.
+
+**Verified on 2026-10-16**, by packing the tree and installing it into an empty repository: `check` clean
+at exit 0, `update --dry-run` reporting 126 files current and nothing under **Next**, and `split.md`
+present in both skill trees.
+
+**End to end against the field.** The 23 measured plans copied into that install report **7 notes** — the
+6 over the ceiling plus SITE-CORE-PLAN on the reserve — each naming its own size, its reserve and its
+margin, with the run exiting 0 on the notes alone.
+
+**The upgrade path, which is where the `###` mistake was caught.** Installing the published 0.25.0 and
+updating to this build reports `! context/tracking.md has no "How much a plan may hold" section — this
+version's stub has one` under **Next**, and names `/onboard`. In that same install, whose `tracking.md`
+genuinely lacks the section, `check` still reports the 134,539-character plan against the fallback pair
+and still exits 0 — so the window between `update` and `/onboard` is covered rather than silent.
+
+**Unrun, and it is PLAN.md item 1 again.** Nothing here has been executed by a live agent: whether a
+session actually measures in step 5 rather than writing and hoping, whether it opens `split.md` when told
+to, whether it proposes a split along phase boundaries rather than inventing one, and whether a Note stays
+one line over a dozen phases are all behavioural and none of them is testable from outside a real session.
+
+**The lesson, which is not about size.** §10.13 reasoned correctly from a number it had not measured, and
+reached a conclusion that was right about the tracker and wrong about the field. It even wrote down the gap
+it was leaving. **A claim about what the artifacts look like is the one kind of premise that can be checked
+against the artifacts**, and this design record says so about itself: *claims in either file are
+load-bearing.* Four installs and twenty minutes were what it took.

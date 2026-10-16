@@ -31,6 +31,22 @@ worth pairing with *the agent pushes and opens a pull request* for a reason that
 answer exists for several agents in several trees, and work that is never pushed is visible to exactly one
 of them.
 
+### How much a plan may hold
+
+Two numbers, and both ship with an answer already in them: a **ceiling** of 65,536 characters and a
+**reserve** of 500 characters per phase row. They hold under both answers above, so this subsection stays
+either way.
+
+**Leave them alone unless the project has a reason.** The ceiling is the issue body's hard limit under the
+tracker answer, and the working-tree answer takes the same number on purpose — a plan that fits one
+substrate fits the other, so adopting a tracker later never forces a split that the tree had already
+passed. Raising it in the tree is the one edit that breaks that, so a project that raises it should know
+it is choosing plans a tracker will not accept.
+
+The reserve is how much the ledger is expected to grow after the plan lands: one sha and a one-line Note
+per row, written twice. It is the number to change if this project's phases are unusually many or its
+Notes unusually long — and a Note long enough to matter is the thing to fix instead.
+
 ### Under the tracker answer
 
 Keep this subsection of the stub only under the tracker answer, and delete it — heading and all — under
@@ -46,8 +62,8 @@ Under the tracker answer, fill in its three parameters and check its one optiona
 - **Types.** Where the project has issue types configured, name them; where it has none, delete the
   `**Types:**` line. The workflow sets a type and never reads one.
 
-Everything else in that subsection — the primitive table, the planned label, priority, `blocked by`, the
-body's ceiling — is live prose and stays as it is.
+Everything else in that subsection — the primitive table, the planned label, priority, `blocked by`, and
+what the body's ceiling costs when it is reached — is live prose and stays as it is.
 
 ## What this file does not decide
 

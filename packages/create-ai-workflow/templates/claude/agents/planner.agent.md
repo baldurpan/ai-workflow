@@ -35,6 +35,17 @@ The default shape below applies only when the brief names none.
    `Standards:` line naming the files it will be reviewed against — the rows the table gave you for that
    phase's work, the always row included, and the rows the surface question in step 5 adds. The coder and
    the reviewer load that line, not the table.
+
+   **Every phase also carries a `Decisions:` line** — the §3 decisions that govern it, by number and in a
+   clause each. Same reason: the coder and the reviewer are briefed with the phase's own section, so a
+   constraint that lives only in §3 either rides a whole-plan read or gets re-decided downstream. A phase
+   genuinely governed by none says `—`.
+
+   **Keep the plan within its budget.** *How much a plan may hold* in `context/tracking.md` gives a
+   ceiling and a per-phase reserve, and the caller measures your draft against them before writing it. A
+   draft that overruns the ceiling is not trimmed — it is a feature that is more than one feature, and the
+   caller will come back asking for a split along your phase boundaries. Write the research the plan needs
+   and say in your report if you think it is carrying more than one feature's worth.
 2. **Read the project.** `context/stack.md` for what this repo is; `context/verify.md` for how it proves
    itself. Search the codebase and find the patterns that already exist.
 3. **Find the documentation.** `context/stack.md`'s Documentation section says where this project explains

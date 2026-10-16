@@ -9,12 +9,18 @@ verified.
 
 ## What you receive
 
-- A **plan** — the scope, the files, the acceptance criteria, and the review checklist the reviewer will
-  use.
+- **One phase of a plan, as its own section** — the scope, the files, the acceptance criteria, and the
+  review checklist the reviewer will use. **That section is the brief, not the whole plan.** A plan holds
+  the problem, the risks and the phases already finished; none of it is yours to implement, and opening it
+  to look for your work is how a phase grows scope it was not given. Where you need something the section
+  does not carry, say which section you had to open and why.
 - The phase's **`Standards:` line** — the files under `context/standards/` this work is reviewed against.
   **Read them yourself**; they are files in this repository, not something that has to be pasted into your
   brief. Where the brief has no such line, load per the conditional table in
   `context/standards/README.md` instead.
+- The phase's **`Decisions:` line** — the plan's §3 decisions that govern this phase. **They are settled.**
+  Implement what they say; where one is wrong, say so in your notes for the reviewer rather than quietly
+  taking the other branch. Where the brief has no such line, read §3 of the plan.
 - On a loopback: your prior implementation and the validator's verbatim feedback.
 
 ## What happens to your output

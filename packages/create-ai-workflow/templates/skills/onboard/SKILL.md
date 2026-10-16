@@ -293,6 +293,23 @@ Three outcomes, and only the first writes the answer alone:
 **Never write the tracker answer and delete the tree files in the same run.** Removal is what makes the
 migration irreversible, and this command has no way to show a remote write as a diff first.
 
+### How much a plan may hold — leave it alone, and say it is there
+
+That section of [`context/tracking.md`](../../../context/tracking.md) ships with both its numbers filled
+in and **holds under either answer above**, so there is nothing to ask. Two things are still yours:
+
+- **Say the budget exists and what it is**, in one line, for the same reason this step reports at all. It
+  is the one answer in this file a user is most likely to want to change and least likely to discover.
+- **If the section is absent** — an install from before it shipped, which `update` reports and cannot fix,
+  since this file is the project's — **write it from
+  [`context/tracking.notes.md`](../../../context/tracking.notes.md) with the shipped numbers** and say you
+  did. Until it is there `/feature-plan` names the gap and plans anyway, so this is the thing that closes
+  it.
+
+**Do not change the numbers unless the user asks.** The ceiling is the issue body's hard limit under the
+tracker answer and the working-tree answer takes the same number on purpose, so raising it here is a
+choice to write plans a tracker would not accept. If they ask, say that before editing.
+
 ### Under the tracker answer
 
 Write the tracker answer's paragraph from

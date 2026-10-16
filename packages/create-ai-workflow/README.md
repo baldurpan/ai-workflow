@@ -305,6 +305,11 @@ a cycle, two entries marked `active`, a second phase table, a `**Status:**` head
 at, a dead `Doc` or history link, and a backlog left in `roadmap.md` after `tracking.md` was switched to
 the tracker — entries that are still well-formed and no longer read by anything.
 
+It reports one thing that is **not** breakage, as a `note` rather than an error: a plan over the size
+budget in `tracking.md`. The document is well-formed and every answer it gives is right — what it says is
+that the feature is more than one feature. A note fails nothing, and the split is `/feature-plan`'s to
+propose.
+
 It **never writes** — there is no `--fix`, because the moment it can repair a ledger, a program's edit
 competes with a hand edit. Nothing depends on it: no skill calls it and no git hook installs it. **Delete
 it and every workflow answer is unchanged.** It reads `roadmap.md`, `plans/` and `history.md` — never

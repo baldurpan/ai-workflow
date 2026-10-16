@@ -97,7 +97,8 @@ cancelled — leaves a working tree with half a phase in it. A row still reading
 run into step 5's disagreement stop, or into redoing work that is already there.
 
 One token and one Note, in the row that is already there — do not move the entry, restructure the table, or
-write a summary anywhere else. If the row is already `in progress` because you are resuming it, leave it
+write a summary anywhere else. **One line**, by the same rule step 11 applies: what is underway, so a
+session arriving after an interruption knows where it landed. If the row is already `in progress` because you are resuming it, leave it
 alone; step 11 rewrites the Note.
 
 **This write is not a change of its own.** Leave it in the working tree — it lands with the phase's work
@@ -159,11 +160,17 @@ the first answer and implements in-host; that is a fallback, not a failure, and 
 coder produced. A coder that reports its own success has reported nothing — that is what step 11 means by
 refusing `done` on a self-report.
 
-The brief **cites paths, it does not paste files.** Point at the phase's own section in the plan — its
-`Files:`, and its `Standards:` line, which is the plan's one traversal of `context/standards/README.md` and
-what the coder loads instead of the table — and at `context/stack.md`. Anything that can read this
-repository can open them, and a brief that inlines them is a brief that goes stale. A plan written before
-phases carried a `Standards:` line has none; then say to load per that README's conditional table.
+The brief **cites paths, it does not paste files, and it names the phase rather than the plan.** Point at
+the phase's own §6.2 section — its `Files:`, its `Standards:` line, which is the plan's one traversal of
+`context/standards/README.md` and what the coder loads instead of the table, and its `Decisions:` line,
+which is the plan's one traversal of §3 — and at `context/stack.md`. Anything that can read this repository
+can open them, and a brief that inlines them is a brief that goes stale.
+
+**A whole-plan read is the fallback, not the route.** Plans in the field run tens of thousands of
+characters and three readers open one on every phase; the §6.2 section plus the two lines is what a coder
+needs, and a brief that says *read the plan* spends the rest on §1, §5 and the phases that are already
+`done`. A plan written before phases carried these lines has neither: then say to load per that README's
+conditional table, and to read §3 for the decisions that bind this phase.
 
 Describe **what** needs to happen, never **how** to code it. Scope each delegated task to specific files.
 
@@ -185,7 +192,9 @@ Dispatch per [`context/executors.md`](../../../context/executors.md), which hold
 The last is the fallback and the weakest — the session that wrote the code judging whether the code is good
 — so **say which one you ran**, every time. The first is the cheapest real independence available: a
 reader that never saw the implementation being written, only what it produced. Brief it with the phase's
-section — its `Files:`, its review expectations and its `Standards:` line — and the diff. Where the runtime
+§6.2 section — its `Files:`, its review expectations, its `Standards:` line and its `Decisions:` line —
+and the diff. **The section, not the plan**, for the reason step 7 gives; a reviewer judging whether the
+change honoured a decision needs the decisions the phase cites, not all of §3. Where the runtime
 has no such mechanism, fall back to reviewing the diff yourself against the plan's review expectations and
 the standards, and say that is what happened.
 
@@ -241,6 +250,12 @@ The row is part of the same change as the work — never a separate step afterwa
   not landed has not landed.
 - **Some landed** → stays `in progress`, Note rewritten to name exactly what remains.
 - **A gate hit its cap, or something external blocks it** → `blocked`, with the blocker in the Note.
+
+**The Note is one line**, per §6.1 of the plan itself: what a later session needs in order to understand
+or resume the Status beside it, and nothing else. **Gate 1's output, the test counts and the measurements
+do not go in it.** They go in the commit message that carries the row, under
+[`context/git.md`](../../../context/git.md)'s answer, or in step 13's report. The ledger is read in a hurry
+by a session that has just arrived, and a Note that has become a phase log is one it cannot skim.
 
 **Never mark `done` on a coder's self-report** — the gate output is the evidence. A blocking item that was
 not fixed means the gate did not pass, and a gate that did not pass means the phase is not `done` — there
