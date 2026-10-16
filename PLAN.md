@@ -351,70 +351,124 @@ tool-owned files, 8 project-owned stubs.
 
 ## What is left
 
-### 1. Run the loop under a live agent — do this before publishing
+### 1. Run the loop under a live agent — most of it has run, and this item was wrong for six weeks
 
-The dogfood was executed **by hand**: install into a scratch repo with a real `package.json`,
+**Seven repositories have been running the loop, the earliest since 2026-09-06.** Each carries
+`context/.state/manifest.json`: **0.25.0** in `piff/piff` (installed 2026-09-06),
+`snowsense/snowsense` (2026-09-08) and `baldurpan/quotavero` (2026-10-12); **0.24.0** in
+`dynjandi/dynjandi-core` (2026-09-10) and `baldurpan/bgmusik` (2026-10-05); **0.23.0** in
+`dynjandi/dynjandi` (2026-10-02) and `baldurpan/baldurpan.com` (2026-10-05). Re-verified 2026-10-16 by
+reading those files, their
+`context/` trees, `git log`, `git worktree list` and their issue and pull-request history. **They were read
+and not touched**, and nothing below is claimed that was not seen there.
+
+The original dogfood was executed **by hand**: install into a scratch repo with a real `package.json`,
 `/onboard`'s run-each-candidate pass, then `/roadmap` → `/feature-plan` → `/feature-implement` (both
 phases, both gates) → `/feature-close`, with `check` clean at every step and correctly reporting four
-planted breakages afterwards.
+planted breakages afterwards. That proved the documents were **executable and mutually consistent**. What
+follows is what the seven repositories prove on top of it, and what they still do not.
 
-That proves the documents are **executable and mutually consistent**. It does not prove the part that
-matters most in practice:
+#### What has run
 
-- **Do the descriptions fire correctly?** `/roadmap` must match "/roadmap" and must *not* match "plan out
-  a feature for me". This is §3.1's whole premise and it is untestable from outside a real session.
-- **Does `disable-model-invocation: true` actually suppress auto-matching?** It is asserted, not verified.
-- **Does a real session pick the right phase unprompted**, and stop when the ledger disagrees with the
-  repo?
+- **The whole four-phase run this item was waiting for, forty times.** Across the five repositories on the
+  tracker answer, **40 features carry a ledger of four or more phases with every row at `done`** — 21 in
+  `piff`, 8 in `snowsense`, 7 in `dynjandi-core`, 3 in `dynjandi`, 1 in `quotavero`. The longest are
+  `snowsense` #57 `gmt-date-handling` (8), `snowsense` #27 `mcp-apps-charts` (7), `quotavero` #1
+  `bokun-connect` (7) and `piff` #99 (7). *Checked:* `gh issue list --label workflow:feature` per repo,
+  then the `Status ledger` section of each body, counting rows and `done` rows.
+- **Both gates and the loopback, under a real reviewer.** `piff`'s ledger rows carry **126 `PASS WITH
+  NOTES`, 18 `FAIL` and 55 mentions of a loopback** — #172 Phase 6 reads *"Gate 2 (Opus reviewer) FAIL → 1
+  loopback → PASS WITH NOTES"*, #139 Phase 4 *"Gate 2 FAIL, FAIL, then PASS WITH NOTES on loopback 2"*, and
+  #113 Phase 4 records a `PASS WITH NOTES` that went back to `FAIL` on an in-host fix. *Checked:* grep over
+  the ledger rows of all 61 feature issues in that repo.
+- **The reviewer subagent answer, which this item said had never been run.** All seven repositories name
+  `.claude/agents/reviewer.agent.md` in `context/executors.md` as the Gate 2 reviewer, dispatched as
+  `subagent_type: "reviewer"`; **28 of `piff`'s ledger rows name it** (18 *"reviewer subagent"*, 10 *"Opus
+  reviewer"*). `piff` also records that the pinned `model: opus` is what keeps a Sonnet coder from being
+  reviewed by its own tier, and that an older `.claude/agents/reviewer.md` declaring the same name on
+  `sonnet` was found and deleted on 2026-09-30. **`/onboard` Step 3 went looking and found it** — all
+  seven `executors.md` files name the installed file by path rather than defaulting past it. *Checked:*
+  those seven files, plus `.claude/agents/` on disk and the manifest's ownership list.
+- **`/onboard` re-run, reporting an executor someone wired in and leaving it alone** — §17's second check.
+  `dynjandi-core`'s `executors.md` records three: 2026-09-30 against 0.22.0 (one answer changed, by the
+  user's decision in that run), 2026-10-05 against 0.23.0 (*"The Coder and Reviewer answers are unchanged,
+  and `.claude/agents/reviewer.agent.md` is still on disk"*, with two per-machine findings re-run rather
+  than read off `--help`), and again the same day against 0.24.0. *Checked:* that file.
+- **`/prototype` has run — seven mockup trees across three repositories**, and nothing else fired in its
+  place. `prototypes/` holds: `bgmusik` (`bowie-raun`, `estate-forsida`, `front-page`, `front-page-cascade`),
+  `baldurpan.com` (`site-core`, `night-sky-stars` — the latter opened as a feature's Phase 1 and retired at
+  Phase 8) and `dynjandi-core` (`landing-page`, for #140). Each `NOTES.md` carries the skill's own shape:
+  the throwaway warning, and the question the mockup exists to answer. *Checked:* the directories, their
+  `NOTES.md` files, and `git log -- prototypes`.
+- **`/release`.** `piff` PR **#193** `release/2026-10-09`, *"Release @piff/web 1.9.0"*, merged — and its
+  `executors.md` records the `worktree branch release/<name> --source main --no-open --install` invocation
+  the owner adopted for it on 2026-10-09, flag by flag, with why each is there. *Checked:* `gh pr list`,
+  that file, and `context/release.md`.
+- **The worktree answer, which this item called the largest untested surface.** Five repositories are on it
+  — `piff` since **2026-09-13** (commit `0b79727`, *"Move to a worktree flow and put the backlog in GitHub
+  issues"*), `dynjandi-core` since 2026-09-10, `dynjandi` since 2026-09-30, `snowsense` since 2026-10-01,
+  `quotavero` since 2026-10-12. Worktrees besides the default are live right now — **7** in `snowsense`,
+  **5** in `dynjandi-core`, **4** in `dynjandi`, **2** in `quotavero`, **1** in `piff` — and most are named
+  for the issue they are working. *Checked:* `git worktree list` in all seven, `context/git.md`'s *Where
+  work lands* section, and `git log -- context/git.md`.
+- **`/feature-close` pushing and opening a pull request, in trees it made.** **200 pull requests across the
+  five**, **152 carrying `Closes #<n>`** — the close mechanism `tracking.md` names. `snowsense` alone
+  carries thirteen *"Retire <feature>: delete the feature's working notes"* commits between 2026-10-07 and
+  2026-10-16. *Checked:* `gh pr list --state all` with the body matched against `Closes #`, and `git log`.
 
-Install into a scratch repo and try to trip each of the nine skills, both ways: invoke it explicitly,
-then describe the same work in prose and confirm it stays quiet.
+#### What is still unrun
 
-**`/prototype` (§3.10) is the sharpest case of this and has never been run at all.** Its subject matter
-is the one an agent is most likely to volunteer for unasked — "mock this up", "what should this look
-like" — so it is the best test of whether a narrow description plus the flag actually holds, and the
-worst skill to have firing on its own. Try to trip it in prose first.
+- **The prose-trigger half of every skill, including `/prototype`'s.** This is the original item's sharpest
+  question and **an install records nothing about it**: a skill that correctly stayed quiet leaves no file,
+  no commit and no comment. Seven `prototypes/` trees prove `/prototype` fires when invoked; nothing
+  anywhere shows what happened the next time somebody typed *"mock this up"*. Still a scratch repo and a
+  deliberate attempt to trip each description both ways. *Checked:* looked for any such record across all
+  seven repositories' `context/`, commits and issue comments, and found none — the absence is the finding.
+- **`.agents/skills/` under the host that reads it.** Present in all seven, 9 to 11 skills each,
+  byte-for-byte beside the Claude copies. **Nothing in any of the seven records a session under that
+  host**: every recorded dispatch is the Claude Code `Agent` tool, every subagent is a `.claude/agents/`
+  definition, and every skill trace is `.claude/skills/`. §1.2 proved the tree is discovered; that a skill
+  in it fires on the right prompt and stays quiet on the wrong one is still unobserved, and that host has
+  no `disable-model-invocation` equivalent, so the description text is the only thing holding the line.
+  *Checked:* `ls .agents/skills` in all seven, and every `context/` file, commit message and issue comment
+  for a trace of one — all of it is Claude-Code-shaped, which is weaker than proof and is all there is.
+- **The planner subagent answer.** `/feature-plan` offers to delegate research and the draft to one;
+  **nothing in any of the seven records a planner dispatch**, while the reviewer's appears 28 times in
+  `piff` alone. Where the prose mentions a planner it is the tool's own template text, not a run. *Checked:*
+  grep for `planner` across all seven `context/` trees and all 116 feature issue bodies and ledger rows.
+- **`/feature-status`'s file-path sweep across a tree it did not create.** The sweep resolves
+  `<path>/context/plans/<NAME>-PLAN.md`, and **that path is only live under the working-tree answer** — the
+  five repositories with second worktrees are all on the tracker, where step 2's sweep becomes one query on
+  the assigned issues, and the two on the working-tree answer (`baldurpan.com`, `bgmusik`) have exactly one
+  tree each. So the resolution has still never happened. *Checked:* `feature-status/tracker.md`'s
+  translation table, `git worktree list`, and `context/plans/` in the two working-tree repos.
+- **`/feature-implement` step 2's refusal to work a tree whose branch is not the feature's.** No ledger
+  Note and no issue comment in 116 feature issues records it firing. *Checked:* grep over every comment on
+  every feature issue in the five for a branch-mismatch stop.
+- **`/orchestrate --pr`.** `piff`'s `executors.md` says it in those words: *"Read from the skill on
+  2026-10-04 and not yet run."* *Checked:* that file; `dynjandi-core`'s equivalent section records a probe
+  of the invocation, not a run of the command.
+- **§20's and §21's checks cannot have run anywhere.** `feature-plan/split.md` landed in `a5e8a60` and the
+  owner check at close in `b50ad14`, both on 2026-10-16 and both **after `v0.25.0`** — so no install has
+  either file, and `.claude/skills/feature-plan/` in all seven holds `SKILL.md` and `tracker.md` only.
+  Whether `/feature-plan` measures in step 5, opens `split.md`, and splits along the phase boundaries, and
+  whether `/feature-close` reads §9 and files an owner check as a check, are unrun because unreleased.
+  *Checked:* `git log` on those paths against `git tag`, and `ls` in all seven installs.
+- **The per-skill `model:` handback after a command asks mid-run** (§17.5). Recorded from the host's
+  documentation and unobservable from a repository.
 
-**Neither subagent answer has been run**, and `/onboard` Step 3's instruction to go looking for a reviewer
-this installation already put on disk has never been followed by a live agent. It is the cheap half of this
-item: one scratch repo, `/onboard`, and a check that Step 3 surfaces `reviewer.agent.md` rather than
-defaulting past it.
+#### One candidate item, found while checking: the ledger Note has become a log
 
-**The worktree answer has never been run at all**, and it is the largest untested surface in the package.
-`/feature-status`'s sweep resolves `<path>/context/plans/<NAME>-PLAN.md` across trees it did not create;
-`/feature-implement` step 2 is supposed to **stop** rather than carry on when the working tree's branch is
-not the feature's; `/feature-close` pushes and opens a pull request. None of that has met a second worktree.
-The prose is right — it is whether an agent follows it that is open, and it is the same class of gap as the
-rest of this item. Set a scratch repo to the worktree and pull-request answers, plan two features on `main`,
-and run them in parallel trees.
-
-**This is now two runs, not one.** `.agents/skills/` ships as of v0.2.0 and has never been exercised by
-the host that reads it. §1.2 proved that tree is *discovered*; nothing has yet proved a skill in it fires
-on the right prompt and stays quiet on the wrong one. That host has no `disable-model-invocation`
-equivalent, so the second and third questions above are open there in a way they are not under Claude
-Code — the description text is the only thing holding the line.
-
-**§20 adds four behavioural checks to the same run, and every one of them is about whether a session
-follows prose it has no mechanical reason to follow.** Does `/feature-plan` really measure in step 5
-rather than writing the plan and hoping; does it open `split.md` when the measurement fires; does it
-propose a split along the phase boundaries the research already justified rather than inventing one; and
-does a ledger Note stay one line over a dozen phases, or does the first interesting gate output go back
-into the cell. The last is the one with no backstop — `check` would notice an oversized plan, and nothing
-notices a Note that has become a log.
-
-**§21 adds three to it, all about one step of `/feature-close` that nothing can force.** Does a session
-read §9 at the close at all, rather than going straight to the row and the `git mv`; does it apply the one
-bit — *does this need a person* — rather than disposing of twenty lines one by one, which is the ceremony
-§12.2 was refused for; and does it file an owner check as a check, saying what has to be looked at and who
-it waits on, rather than as a bug nobody can reproduce. There is **no backstop for any of them**: `check`
-has no rule here by design, and a plan archived with its questions unread looks exactly like a plan
-archived with them answered.
-
-**§17 adds two checks to the same run, and answers one question from the docs.** The host's documentation
-says `disable-model-invocation: true` removes the description from context entirely, which answers the
-second question above on paper. Still to observe: that a per-skill `model:` really does hand back to the
-session model after a command asks mid-run, which §17.5 records from the docs and has not seen; and that a
-re-run of `/onboard` reports an executor somebody wired into `executors.md` and leaves it alone.
+§20 asks whether a Note stays one line over a dozen phases "or does the first interesting gate output go
+back into the cell", and says there is **no backstop** — `check` has no rule here. It is already answered,
+and the answer is the second one. **99 ledger Notes across the five tracker repositories run past 400
+characters**: 47 in `piff`, 28 in `snowsense`, 22 in `dynjandi-core`, 2 in `dynjandi`, 0 in `quotavero`.
+The longest is **3,440 characters** (`piff` #22 Phase 1), then 3,077 (`dynjandi-core` #99), 2,667 (`piff`
+#22 again) and 2,186 (`piff` #6). They are not padding — they are gate output, deviation lists, corrected
+decisions and test counts, which is exactly the content §20 predicted would land there. *Checked:* the
+`Status ledger` section of every feature issue body in the five, measuring the last column of each row.
+**Not fixed here.** Whether the answer is a `check` rule, a cap in the skill, or accepting that the cell is
+where the evidence goes, is a design question for `DESIGN-RECORD.md`.
 
 ### 2. Licensing for the vendored standards — a confirmed gap, not a hypothetical
 
@@ -508,18 +562,63 @@ any change to `templates/`. **After §17 it is 238 kB and 134 files**, verified 
 plus an upgrade from the 0.21.1 tarball: 40 files written, 17 of them new, every stub untouched, no gap
 under **Next**, and `check` clean afterwards.
 
-### 4. Try an offloaded executor for real
+### 4. The offloaded executor — run in `piff`, and the one branch it never took
 
-`/onboard` Step 1 now tests the §1.1 assumption per machine — cite a path, ask for a fact only readable
-from that file, record whether it came back — and Step 2 refuses to name a reviewer, asking instead. Both
-are **written but unexercised**: no external coder or reviewer has been configured through them end to
-end. The path from a `FAIL` verdict through a written finding to the loopback has only ever run in-host.
+**An out-of-host coder ran real phases, and §1.1 was tested rather than assumed.** `piff` dispatched the
+**Codex CLI** as its coder from 2026-09-06 until it was suspended on 2026-09-30 in favour of a Sonnet
+subagent. Its `context/executors.md` keeps the whole invocation and says in those words: *"Verified
+2026-09-06, for Codex. Codex was given a one-line brief citing `context/workflow.md` and asked for a
+heading only obtainable by opening the file; it returned the correct heading."* That is `/onboard` Step 1
+executed against a real external coder. Ledger rows name it as the coder on `piff` #99 Phases 3, 4, 5 and 6
+and #118 Phase 1, and name the Codex-to-Opus handover on, among others, #84 Phase 2, #92 Phase 2, #118
+Phase 2, #126 Phases 3 and 4, #134 Phase 3 and #138 Phases 2 and 3 — *"Codex hit its limit; Opus coder
+finished"*.
 
-`agy` in particular remains untested against §1.1. That is no longer a claim the package makes on its
-behalf — Step 1 tests it rather than assuming it — but it does mean the branch where an executor needs
-content inline has never been taken.
+**Step 1 has run twice, and the second one is the better-designed test.** `dynjandi-core`'s
+`executors.md`, 2026-09-30: *"Brief: 'open `context/workflow.notes.md` and reply with the exact text of
+line 186'. Nothing was inlined. It returned `## What happens to a defect the gate found` — exact, and from
+a file that had arrived in the working tree that same day, so not answerable from anywhere but the file."*
+That one is in-host, so it tests the step rather than the offload — but it is the step working, and it
+closes the hole in the `piff` run, where a heading could in principle have been recalled.
 
-### 5. The tracker answer (§10) — rebuilt in 0.10.0, and still never run by an agent
+**The loopback ran with it.** `piff` #99 Phase 4, commit `6970264`: *"Coder: Codex. Gate 1 green … Gate 2
+PASS WITH NOTES after 1 loopback (stack.md deviation count)."* A reviewer's notes went back to an
+out-of-host coder and the phase converged.
+
+**`agy` was tested and it failed, for a reason §1.1 never predicted.** On 2026-09-14 Codex exhausted
+mid-phase and `agy` could not take over: in print mode it auto-denies every write and command tool call,
+and the only fixes are per-machine entries in `~/.gemini/settings.json` or a blanket bypass flag
+`executors.md` forbids. *A fallback that needs the operator's global config edited before it can run is not
+a fallback* — so it was replaced on 2026-09-15 by an Opus subagent, which needs nothing configured and
+inherits the worktree. **The failure was about permissions, not about reading the repository**, so §1.1's
+own question went unanswered for `agy` rather than answered badly.
+
+**Step 1 also found the failure mode nobody wrote the test for.** Two exit-0-after-writing-nothing cases
+are recorded in that file: a hardcoded `-m gpt-5.3-codex` that Codex rejected (*"not supported when using
+Codex with a ChatGPT account"*) and still exited 0, and `codex exec` exiting 0 after hitting its ChatGPT
+usage limit mid-run. Both are now *"grep the captured output for `You've hit your usage limit` and
+`ERROR:`"*, because a partial run leaves files changed and `git status` alone looks healthy.
+
+**What is still unrun:**
+
+- **A `FAIL` verdict dispatched back to an out-of-host coder.** Every one of `piff`'s 18 `FAIL` rows that
+  names a coder names an in-host subagent; the one Codex loopback was a `PASS WITH NOTES`, not a `FAIL`. So
+  the specific path this item names — `FAIL` → written finding → loopback, out of host — is still only
+  half-walked.
+- **The branch where an executor needs content inline.** All seven `executors.md` carry the rule, five of
+  them in the shipped wording: *"Briefs cite paths; they do not paste file contents. If an executor
+  genuinely has no filesystem access, say so here — that is the one case where a brief has to carry content
+  inline."* **No install declares that case**, so the branch has never been taken.
+- **An out-of-host reviewer.** All seven name a Claude subagent, or the host reading its own diff, as the
+  Gate 2 reviewer. `piff` records what that costs — *"it is in-host, and that costs the vendor separation
+  Codex bought"* — and that since 0.22.0 the two are at least different tiers. A different vendor's
+  reviewer has not run since Codex was suspended as the coder, and never ran as the reviewer.
+- **`agy` against §1.1.** Still open, for the reason above.
+
+*Checked:* `context/executors.md` in all seven repositories; `piff`'s 61 feature issue bodies, grepped for
+`Codex`, `agy`, `FAIL` and `loopback` in the ledger rows; and `git log -- context/executors.md`.
+
+### 5. The tracker answer (§10) — rebuilt in 0.10.0, and running in five repositories since 2026-09-10
 
 `context/tracking.md` ships as the fifth project-owned stub, with **in the working tree** as the first
 answer, so every existing install behaves exactly as before. The second answer puts the three tiers in
@@ -575,21 +674,80 @@ research and records its split's own edges, and `/feature-implement` and `/featu
 never write it.
 
 **A second report has since arrived, and it is the same shape** — see item 8 and §10.15. *Has a plan* is
-observable, stored nowhere and incapable of drift, and it is invisible to a person scanning the issues
+observable, stored nowhere and incapable of drift, and it was invisible to a person scanning the issues
 list, because §10.10 removed the one primitive GitHub rendered and priced the loss against the agent as
-reader. Diagnosed and written up; nothing built, because what that page actually renders has not been
-checked.
+reader. **That one was built and shipped** — the `workflow:planned` label, in 0.21.1 — and it is in use:
+**63 of the five repositories' 116 `workflow:feature` issues carry it** (18 of 19 in `snowsense`, 28 in
+`piff`, 10 in `dynjandi-core`, 4 in `dynjandi`, 3 in `quotavero`), and `dynjandi-core`'s `tracking.md`
+records `/onboard` creating it on 2026-09-28 *"when workflow 0.21.1 added it"*. **Item 8 still says neither
+half has been run by a live agent, and that half of it is no longer true.** Left as it stands — this pass
+covers items 1, 4 and 5 — but it is the same stale claim, in the same file, and it is owed the same rewrite.
 
-**The mechanisms are still unrun, and that is still the whole of the risk.** 0.10.0 is what one
-careful read of the prose found; it is not what running it found. Four things are not known to have executed:
-**optimistic claiming** (assign, re-read, confirm sole assignee, back off), the **phase-boundary
-heartbeat**, **`/tracking-migrate`**, and the **body read-modify-write** — the one genuinely new hazard
-this change introduces, where a person editing a plan and an agent flipping a row can clobber each other.
+#### The four mechanisms have run, in five repositories
 
-Fold this into item 1's run rather than testing it separately — the worktree scenario and this one exercise
-the same surface, so it is one scratch repo instead of two. Set it to the tracker and pull-request answers,
-plan two features, and run them in parallel trees. **The run worth doing most is the boring one**: plan a
-feature with four phases and execute all four, which is precisely what no published version could do.
+0.10.0 was what one careful read of the prose found. The repositories are what running it found, and all
+four of the things this item listed as *not known to have executed* have executed.
+
+- **The phase-boundary heartbeat.** **84 feature issues across the five carry it**, with **308 comment
+  lines announcing a phase opening and 273 announcing one closing** — often in the same comment, which is
+  the shape the skill's *two lines is enough* produces: *"Phase 1 closed `done` in 6f360cc. Phase 2 (Move
+  release.yml to changesets/action v2) opening."* (`snowsense` #35). It carries the commit sha, and it
+  carries a `blocked` close three times, with the full finding in the comment and a later *"Phase 3 resumed
+  from blocked"* (`snowsense` #35 again). *Checked:* every comment on every feature issue in the five.
+- **The body read-modify-write.** This is the mechanism the 40 four-or-more-phase ledgers in item 1 are
+  made of: each `done` row is a separate remote edit of a body that also holds the plan. Nothing in the
+  five shows a clobbered plan — bodies carry full plans with §1 through §9 intact beside completed
+  ledgers, up to eight rows (`snowsense` #57). *Checked:* the `Status ledger` section and the surrounding
+  plan sections of all 116 feature issue bodies.
+- **Optimistic claiming — the assign half.** **85 of the 116 feature issues are assigned**, and **none has
+  more than one assignee**. *Checked:* `gh issue list --json assignees` in the five.
+- **`/tracking-migrate`.** `piff`'s `tracking.md` names the skill by path and records the run: *"The
+  migration ran on 2026-09-13, and the tree is empty"* — nine `roadmap.md` entries into issues #1 to #9,
+  each body carrying the entry's lines, its `Size:`, a `Priority:` rank and its document in full, all nine
+  open and unassigned because no entry was `active`. `snowsense`'s records a second run on 2026-10-01: four
+  entries into #1 to #4, two `drafts/` documents folded into the bodies of #2 and #4 under *Reference
+  material*, `roadmap.md` and `drafts/` then removed, landed as commit `ece1738` — which describes the
+  migration but does not name the command, so that one is the shape rather than a citation. `dynjandi` and
+  `quotavero` record the third state the skill has to handle: *set with nothing to migrate*. *Checked:*
+  `context/tracking.md` and `git log` in the five.
+- **And `blocked by`, §10.14's answer, is in use.** `piff` #45 waits on #34, #174 on #173, and #100 on #31
+  and #99 — real relationships, readable from both ends. *Checked:* `gh api
+  repos/baldurpan/piff/issues/<n>/dependencies/blocked_by`.
+
+**What is still unrun under this answer:**
+
+- **Claiming's contention branch, and it may be unreachable as written.** *Assign, re-read, confirm you are
+  the sole assignee, and back off if you are not* — **every assignment in all five repositories is to the
+  same GitHub account**, so the re-read always confirms the agent's own login and *"an issue that already
+  has a different assignee is held"* can never fire. Two agents on one feature would both see themselves as
+  the sole assignee and both proceed, which is precisely the state the protocol exists to prevent, and
+  precisely the state *"a feature has exactly one writer"* rests on. **Candidate item, not fixed here:**
+  either the claim needs a per-agent identity the assignee cannot carry, or the protocol needs to treat
+  *already assigned* as held regardless of who holds it, and the second reading breaks a legitimate
+  resume. §10 should say which. *Checked:* the assignee of all 116 feature issues, and every issue comment
+  in the five for a recorded back-off or a named holder — there is none.
+- **A clobbered body, and so the hazard's actual cost.** **303 ledger rows have reached `done`** across
+  the five, each one a separate edit of a body that also holds the plan, and every one of them opened its
+  row first — so the sequence has run several hundred times with no visible loss. That is evidence it is
+  followed, not evidence the window is narrow.
+- **A body that overflowed its 65,536-character ceiling** (§10.13), and so `/feature-implement`'s
+  *shorten your own Note until the row fits* and `/tracking-migrate`'s refusal to guess at a split. The
+  largest body in the five is **`piff` #6 at 56,445 characters** — 86% of the ceiling — then `piff` #22 at
+  55,622, `quotavero` #2 at 41,986 and `snowsense` #57 at 40,903. Near, and not over. **§20's own
+  measurement, recorded above, found six plans past the ceiling across four installs on the same day**, so
+  the overflow is real in the field; what is unrun is a tracker-side response to it, and §20's `split.md`
+  is unreleased, so the measurement has no home in any install yet.
+- **A stale claim found and reported** — an assignee left behind by an agent that died. The heartbeat is
+  what makes it visible and nothing in the five records one being found.
+
+**One more candidate item, found while checking.** `piff` #45 is open and still carries a body line
+*"Blocked by #34 `sponsorship-ledger` — the per-season amounts this weighting reads do not exist until it
+lands"*, beside the real relationship, and **#34 closed on 2026-09-17**, so the line is now false.
+`tracking.md` already flags it (*"**#45 carries such a line beside its real relationship** (seen
+2026-09-30, its blocker #34 already closed) — a person's to remove, not a command's"*), and it is still
+there on 2026-10-16. The rule *never a body line and never a comment* is the right one; it has no
+enforcement, and this is the drift it predicted, sitting in the field for a month. Nothing to fix in the
+package unless the answer is that `/feature-status` should report it.
 
 **The `AGENTS.md` block hit its ceiling and the ceiling turned out to be the wrong shape.** It was a flat
 `< 40` lines; a ninth command made it 40. Neither of the two options this file named was right — the
