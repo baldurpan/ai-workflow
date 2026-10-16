@@ -1,0 +1,176 @@
+{
+  "note": "Byte limits for the prose this package ships — DESIGN-RECORD §24.5. A limit may fall freely (npm run budget:relock) and is never raised by a script: a raise is typed by hand and its why names the section that justifies it. The test also fails when a file is more than slack bytes under its limit, so a cut is locked in by the commit that earns it.",
+  "slack": 2048,
+  "ceilings": {
+    "always-loaded": {
+      "limit": 28672,
+      "why": "§24.5 — the only bytes every invocation of every command pays",
+      "files": [
+        "blocks/agents-block.md",
+        "context/workflow.md"
+      ]
+    },
+    "our-templates": {
+      "limit": 383488,
+      "why": "§24.5 — per-file limits let growth spread; this is the sum"
+    }
+  },
+  "files": {
+    "blocks/agents-block.md": {
+      "limit": 3584,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "claude/agents/planner.agent.md": {
+      "limit": 6656,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "claude/agents/reviewer.agent.md": {
+      "limit": 7168,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "context/executors.notes.md": {
+      "limit": 5632,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "context/git.notes.md": {
+      "limit": 4096,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "context/plan-template.md": {
+      "limit": 5120,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "context/plan-template.notes.md": {
+      "limit": 8192,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "context/README.md": {
+      "limit": 6656,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "context/release.notes.md": {
+      "limit": 13312,
+      "why": "§24.11 — the restated standard cut back to a pointer"
+    },
+    "context/roles/coder.md": {
+      "limit": 8192,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "context/stack.notes.md": {
+      "limit": 3072,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "context/tracking.notes.md": {
+      "limit": 4096,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "context/verify.notes.md": {
+      "limit": 3072,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "context/workflow.md": {
+      "limit": 25088,
+      "why": "§24.9 — the owner-check contract moved to its one reader"
+    },
+    "context/workflow.notes.md": {
+      "limit": 24064,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/feature-close/SKILL.md": {
+      "limit": 19968,
+      "why": "§24.9 — it is that reader, so it carries the ends"
+    },
+    "skills/feature-close/tracker.md": {
+      "limit": 5120,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/feature-implement/SKILL.md": {
+      "limit": 23040,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/feature-implement/tracker.md": {
+      "limit": 8704,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/feature-plan/SKILL.md": {
+      "limit": 14848,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/feature-plan/split.md": {
+      "limit": 4096,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/feature-plan/tracker.md": {
+      "limit": 10240,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/feature-status/SKILL.md": {
+      "limit": 7680,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/feature-status/tracker.md": {
+      "limit": 5632,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/onboard/SKILL.md": {
+      "limit": 51712,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/orchestrate/SKILL.md": {
+      "limit": 16896,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/prototype/SKILL.md": {
+      "limit": 6656,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/release/SKILL.md": {
+      "limit": 16384,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/roadmap/SKILL.md": {
+      "limit": 6144,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/roadmap/tracker.md": {
+      "limit": 11264,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "skills/tracking-migrate/SKILL.md": {
+      "limit": 13824,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "stubs/executors.md": {
+      "limit": 4096,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "stubs/git.md": {
+      "limit": 6144,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "stubs/history.md": {
+      "limit": 1024,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "stubs/release.md": {
+      "limit": 8192,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "stubs/roadmap.md": {
+      "limit": 1536,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "stubs/stack.md": {
+      "limit": 1024,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "stubs/tracking.md": {
+      "limit": 19456,
+      "why": "§24.5 — locked at its size when the budget was written"
+    },
+    "stubs/verify.md": {
+      "limit": 2560,
+      "why": "§24.5 — locked at its size when the budget was written"
+    }
+  }
+}

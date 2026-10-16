@@ -40,7 +40,9 @@
     "build": "tsc",
     "prepublishOnly": "npm run build && npm test",
     "test": "node --test \"test/*.test.ts\"",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "budget:report": "node scripts/budget.ts",
+    "budget:relock": "node scripts/budget.ts --relock"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

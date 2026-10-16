@@ -51,7 +51,8 @@ A refusal here is the workflow working.
 
 ## 2. Do the work
 
-Read `context/stack.md` and load `context/standards/README.md` per its conditional table.
+Read [`context/stack.md`](../../../context/stack.md) and load `context/standards/README.md` per its
+conditional table.
 
 **Ask the surface question first**, per the standing rule in
 [`context/workflow.md`](../../../context/workflow.md): does this change put something in front of a person,

@@ -51,14 +51,21 @@ Read the plan's **§9 Open questions**, and the **Note** column of its ledger. `
 §9 at activation and nothing has read it since, and **this is the last command that ever will** — after the
 `git mv` it is in `context/archive/`, where no command looks.
 
-**Every item that still needs a person gets one of three ends.** *What happens to a question the plan could
-not settle* in [`context/workflow.md`](../../../context/workflow.md) has the table and the reasoning:
+**What is still open here is an owner check** — an item no gate can close because it needs a person: a
+reading in a language nobody on the branch speaks, a screen-reader pass, a judgement about how something
+looks, a check on a device this project does not drive. *What happens to a question the plan could not
+settle* in [`context/workflow.md`](../../../context/workflow.md) is the standing rule; the ends are here.
+
+**Every item that still needs a person gets one of three:**
 
 - **answered** → write the answer into the item, in the plan, in place. A phase that settled one has
   already done this; the user settling one here is the same end.
 - **filed** → one issue, wherever this project already files bugs, carrying this project's own labels,
   saying what has to be looked at and who it waits on. **Never the backlog label**, and not written up as a
-  defect — it is a check nobody has run, not a thing known to be wrong.
+  defect — it is a check nobody has run, not a thing known to be wrong. **It is filed as what it is, and
+  not as a bug**: a pending screen-reader pass recorded as a defect is a defect report nobody can
+  reproduce. **The person who does the check is what closes it**, and the workflow neither reads it nor
+  ranks it.
 - **waived** → the user says in this turn that it does not matter. Mark the item waived and move on.
 
 **The user picks, item by item, and silence is not a waiver.** Use your runtime's question mechanism if it
@@ -67,6 +74,10 @@ item is answered or waived. Do not invent a store for it, and do not hold up the
 
 **This runs before the writes below** because its result is what the `history.md` row's Why and the archived
 document both carry. Nothing afterwards would have anything to amend.
+
+**This adds no status and no fourth phase state.** An owner check is not a phase's and does not gate one:
+a phase whose scope landed and whose gates passed is `done` whether or not a person has since looked at
+what it produced, and the feature's Outcome stays `shipped` for the same reason.
 
 **Most of §9 is not an owner check.** The filter is one bit — *does this need a person* — applied to a list
 the plan already wrote, not a disposition assigned to every line. **This is not the `notes.md` triage

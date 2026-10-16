@@ -2332,11 +2332,31 @@ describe('a question the plan could not settle has an end at close', () => {
     assert.match(flat(workflow), /It is not a defect/, 'and the two are told apart');
   });
 
+  it('the contract only one command acts on lives in that command', () => {
+    // §24.9. `/feature-close` is the only command that reads §9 after activation, so the ends, the
+    // destinations and the Outcome rule were 4,665 bytes on `workflow.md` that nine other commands paid
+    // for and none of them used. What stays is the standing rule — which does have several readers, since
+    // a phase answers what it settles — and a pointer. The ends have one home, and this is it.
+    const holders = ourTemplates()
+      .filter(({ text }) => /\*\*waived\*\*/.test(text))
+      .map(({ rel }) => rel);
+    assert.deepEqual(holders, [path.join('skills', 'feature-close', 'SKILL.md')], 'one home for the ends');
+    assert.match(flat(workflow), /are `\/feature-close`'s/, 'and the rule names the command that holds them');
+    assert.equal(
+      (workflow.match(/\| End \| When \| Where the record lives \|/g) ?? []).length,
+      2,
+      'and no third copy of the destinations table is left behind',
+    );
+  });
+
   it('three ends, and the user picks rather than the run', () => {
+    // §24.9: the ends are `/feature-close`'s, which is the only command that reads §9 after activation.
+    // The standing rule stays where every command already looks, in one blockquote.
     for (const end of [/\*\*answered\*\*/, /\*\*filed\*\*/, /\*\*waived\*\*/]) {
-      assert.match(workflow, end, `the contract names ${String(end)}`);
+      assert.match(close, end, `the command names ${String(end)}`);
     }
-    assert.match(flat(workflow), /silence is not a waiver/i, 'so a quiet turn cannot dispose of one');
+    assert.match(flat(workflow), /answered, filed or waived/i, 'the rule names them without the table');
+    assert.match(flat(workflow), /picked by the user item by item/i, 'and says whose call it is');
     assert.match(close, /silence is not a waiver/i, 'and the command applies it');
   });
 
@@ -2355,31 +2375,33 @@ describe('a question the plan could not settle has an end at close', () => {
   });
 
   it('a filed check goes on the bug shelf, as what it is and never into the backlog', () => {
-    const w = flat(workflow);
-    assert.match(w, /wherever this project already files bugs/i, 'the destination is the project\'s own');
-    assert.match(w, /never the backlog label/i, 'and the one rule that governs it is restated nowhere else');
-    assert.match(w, /filed as what it is, and not as a bug/i, 'the kind is not the destination');
-    assert.match(close, /not written up as a defect/i, 'and the command says the same');
+    // §24.4: the destination rule had two bodies in one file. It has one, and this section cites it.
+    assert.match(flat(workflow), /the shelf \*A bug is not a backlog entry\* already names/i, 'cited');
+    assert.match(flat(workflow), /the kind is not a bug/i, 'with the one thing that differs');
+    assert.match(close, /wherever this project already files bugs/i, 'the destination is the project\'s own');
+    assert.match(close, /\*\*Never the backlog label\*\*/, 'and the rule that governs it');
+    assert.match(close, /filed as what it is, and\s*not as a bug/i, 'the kind is not the destination');
+    assert.match(close, /not written up as a defect/i);
   });
 
   it('a project that files bugs nowhere gets two ends, not an invented store', () => {
-    for (const text of [flat(workflow), close]) {
-      assert.match(text, /two ends rather than three/i);
-      assert.match(text, /not invent a store/i);
-    }
+    assert.match(close, /two ends rather than three/i);
+    assert.match(close, /not invent a store/i);
     assert.match(close, /not hold up the retirement/i, 'and a gap is not a refusal, as everywhere else');
   });
 
   it('the Outcome column gains no value, because the file is append-only', () => {
     // The tempting fix is a fourth outcome word. `history.md` is append-only and never edited, so that
     // word outlives the check by as long as the repository lasts; and under the tracker answer the column
-    // is the close reason, which has two values and no room for a third.
-    const w = flat(workflow);
-    assert.match(w, /The Outcome column does not change and gains no value/i);
-    assert.match(w, /append-only and never edited/i);
-    assert.match(w, /a status nothing can withdraw/i);
-    assert.match(w, /The Why column names what is waiting and the issue that carries it/i);
-    assert.match(flat(readTemplate('stubs/history.md')), /the issue that carries it/i, 'where a reader is');
+    // is the close reason, which has two values and no room for a third. §24.4: the rule belongs to the
+    // file it governs and to the command that writes the row — the argument is in the notes, once.
+    const history = flat(readTemplate('stubs/history.md'));
+    assert.match(history, /append-only/i, 'the stub says what it is');
+    assert.match(history, /nothing can withdraw/i, 'and what that costs a status');
+    assert.match(history, /the issue that carries it/i, 'where the person who would add a word is reading');
+    assert.match(close, /the outcome stays `shipped` and gains no value/i, 'the writer of the row');
+    assert.match(close, /the why names it and the issue that carries it/i);
+    assert.match(flat(readTemplate('context/workflow.notes.md')), /a status nothing can withdraw/i);
   });
 
   it('nothing new accumulates — no file, no stub, no check rule, no status', () => {
@@ -2393,14 +2415,14 @@ describe('a question the plan could not settle has an end at close', () => {
     );
     const rules = readFileSync(path.join(packageRoot, 'src/check/rules.ts'), 'utf8');
     assert.doesNotMatch(rules, /owner check/i, 'check grew a reader, which is what makes a store silent');
-    assert.match(flat(workflow), /This adds no status and no fourth phase state/i);
-    assert.match(flat(workflow), /does not gate one/i, 'and it cannot hold a phase open');
+    assert.match(close, /This adds no status and no fourth phase state/i);
+    assert.match(close, /does not gate one/i, 'and it cannot hold a phase open');
   });
 
   it('notes.md keeps its unconditional delete, and the two files are told apart', () => {
     assert.match(close, /not the `notes\.md` triage refused further down/i);
-    assert.match(flat(workflow), /`notes\.md` is not swept/i);
-    assert.match(flat(workflow), /That file is a gate's; this section is the plan's/i);
+    assert.match(close, /that file is a gate's and grows without bound/i, 'the two files are told apart');
+    assert.match(close, /§9 is the plan's and is bounded by it/i);
     // The refusal this must not have reopened.
     assert.match(close, /delete it — whole/i);
     assert.match(close, /do not assign each line a disposition/i);

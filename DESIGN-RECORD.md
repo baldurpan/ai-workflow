@@ -4801,3 +4801,605 @@ the three ends §12 and §15 already defined.
 orchestrator's, and §17.4 moved that read into a subagent for this exact reason. `reviewer.agent.md`
 +1,556, same argument. **Nine tests.** Verified by packing the tarball, installing into an empty
 repository, and running `check` and `update --dry-run` against it.
+
+## 24. The prose budget — a cut with no ratchet comes back, and the test that would hold one
+
+Asked to shrink the tool's own prose and to propose before editing, on three premises: `README.md` is
+26 KB, `onboard/SKILL.md` is 49 KB, `workflow.md` is 20.7 KB against §17.2's 14–16 KB target, and every
+command loads these files. Two of the three sizes are right, the third is sixteen days stale in the wrong
+direction, and the last clause is true of exactly one of them. **Nothing below moves a rule or deletes
+one.** Measured first, because the interesting finding is not that the files are large — it is that
+§17.2's cut has already been given back, that every byte of it was recorded on the way in, and that
+nothing added the record up.
+
+### 24.1 The measurement — ten commands, both answers, and the plan in the frame
+
+**Method, same as §17.1 so the numbers compose.** Bytes, measured 2026-10-16 against the files on disk;
+divide by four for a token estimate, which is an approximation held constant rather than a tokenizer. The
+read set per command is **derived from the links the skill body carries** — a tool-owned file a command
+tells you to read is written as a markdown link to `../../../context/<file>.md`, and a project-owned state
+file it names in passing is bare backticks. That convention turns out to be exact in 10 of 10 skills for
+the tool-owned half, and recomputing §17.1's five rows at `5a86de4` from it gives **78,570 — the recorded
+total to the byte**, which is how the derivation was checked rather than assumed. §24.5 makes it a test.
+
+What each command loads before it opens a source file. *Tool prose* is what this package ships;
+*standards* is vendored and excluded from our own budget by the same rule `ourTemplates()` uses; *plan* is
+the project's own document, at §20.1's measured median:
+
+| Command | its `SKILL.md` | tool prose, tree as shipped | tree after `/onboard` | tracker answer | + standards | + the plan | total, shipped tree |
+|---|---|---|---|---|---|---|---|
+| `/roadmap` | 5,653 | 56,312 | 44,504 | 67,343 | — | — | **56,312** |
+| `/feature-plan` | 14,418 | 86,834 | 75,026 | 96,619 | 31,808 | — | **118,642** |
+| `/feature-implement` | 22,722 | 93,802 | 81,994 | 102,016 | — | 15,597 | **109,399** |
+| `/feature-status` | 7,545 | 68,330 | 56,522 | 73,465 | — | 3,667 | **71,997** |
+| `/feature-close` | 18,759 | 88,202 | 76,394 | 93,144 | — | 3,667 | **91,869** |
+| `/orchestrate` | 16,615 | 88,399 | 76,591 | 88,399 | 31,808 | — | **120,207** |
+| `/release` | 16,234 | 68,349 | 68,349 | 68,349 | — | — | **68,349** |
+| `/prototype` | 6,557 | 45,038 | 45,038 | 45,038 | — | — | **45,038** |
+| `/onboard` | 51,581 | 154,987 | 143,179 | 154,987 | — | — | **154,987** |
+| `/tracking-migrate` | 13,382 | 70,124 | 58,316 | 70,124 | — | — | **70,124** |
+
+**The floor under every row is 31,694 bytes** — `agents-block.md` 3,183 plus `workflow.md` 28,511 — paid
+before a command's own body is read, because the block says to read that file first. `/prototype`, the
+command whose own text says nothing in the workflow requires it, loads 45,038 bytes to draw two static
+files.
+
+**The tree-after-`/onboard` column is the honest one for a working install.** `/onboard` deletes
+`tracking.md`'s *Under the tracker answer* subsection on a tree install, and that run is 11,808 bytes of
+the 18,965 the stub ships with. The shipped-tree column is a pre-`/onboard` transient and is in the table
+only because §17.1 measured there.
+
+**The tracker answer costs 39,107 more across the ten commands** and is the answer that reads the same
+rule in two files, which §17.2 chose deliberately: the relocation was neutral there and the tree answer
+was what gained.
+
+**The plan is counted as the orchestrator now reads it, not whole.** §20.4 observed that §17.1's budget
+never counted the plan at all and that three readers opened one per phase. Since then the briefs carry a
+phase, so the orchestrator's share is the ledger — §20.1's median 7.5% of 48,893, or 3,667 — plus, for
+`/feature-implement`, the median largest phase section at §20.4's 24.4%, or 11,930. **A plan written
+before phases carried `Standards:` and `Decisions:` lines still costs the full 48,893 per reader**, by
+both those sections' own fallback rule, so the table understates every install that has a plan from before
+0.25.0.
+
+**What is still outside the frame, named so the next measurement does not re-discover it:** the coder's and
+reviewer's own contexts (`coder.md` 7,689, `reviewer.agent.md` 6,866, `planner.agent.md` 6,379, each paid
+in a subagent since §17.4), `context/README.md` 6,642 — linked from the always-loaded block, read by no
+command — and the per-tool-call re-send of the orchestrator's whole context, which §17.1 priced at about
+3M tokens for a thirty-call in-host coder and which §17.4's subagent default is what actually fixed.
+
+### 24.2 §17.2's cut came back in sixteen days, and every byte of it was recorded on the way in
+
+`context/workflow.md`, by commit:
+
+| Commit | Date | Bytes | |
+|---|---|---|---|
+| `7a2afdb` | 2026-09-06 | 10,727 | `git.md` says where work lands |
+| `d4a5bd8` | 2026-09-15 | 26,627 | the size §17.1 measured as *before* |
+| `5a86de4` | 2026-09-30 | **20,656** | §17.2's cut — the 20.7 KB the premise quotes |
+| `a5eccc8` | 2026-10-05 | 22,095 | `/release` |
+| `b50ad14` | 2026-10-16 | 26,868 | an end for a plan's open questions |
+| `6f5192a` | 2026-10-16 | **28,511** | the coder's correctness rule |
+
+**+7,855 in sixteen days, which is 39% of everything the §17 pass recovered, and the file is now 1,884
+bytes larger than before it was cut.** §17.1's five-row like-for-like total has gone 78,570 → **90,619,
++15.3%**.
+
+**It is not drift and it is not duplication: 6,328 of the 7,855 is two new rules.** `b50ad14` added *What
+happens to a question the plan could not settle* and its two subsections, 4,685 bytes; `6f5192a` added *An
+expected value has a source, and it is never the code under test*, 1,643. Both are rules. Rules stay, so
+**no proposal below reclaims those bytes by deleting what they say.**
+
+**Each addition was reported against §17.1 in its own section of this record, and nothing ever summed
+them.** §20.2 closed with *+3,479, or 4.4%*; §23.6 closed with *+1,643 bytes on the per-phase read, which
+is the only addition inside §17.1's budget*. Both true, both local, and three sections apart there is no
+reader who sees 15%. **A budget reported per change and never totalled is a changelog, not a budget** —
+and that, rather than any one file, is what this section is about. PLAN.md already wrote the governing
+finding for this shape: *a ban is only real if a test enforces it.*
+
+**The same sixteen days, the other files:** `onboard/SKILL.md` 49,240 → 51,581; `feature-implement/SKILL.md`
+20,668 → 22,722 (its §17.2 cut, +2,054 back); the package `README.md` 24,670 → 26,099;
+`test/templates.test.ts` 106,068 → 150,005, **+41%**, which is the one number here that is pure good news
+and is also why the test file is the thing a size rule has to be written carefully against.
+
+### 24.3 Read-weight, not size — and the one premise that is false
+
+**`README.md` is on no command's path.** The 26,099 bytes are the npm package page and the GitHub landing
+read; the repository root `README.md` is a separate 3,670. Both are read by people, neither by a command.
+It is worth fixing (§24.7) for the reader it is for, and it buys nothing on any invocation.
+
+**`onboard/SKILL.md` is the largest file in the package and the cheapest to leave alone.** 51,581 bytes,
+one reader, **once per install** — re-run after a stack change, which is rare by its own description.
+
+**`workflow.md` is the only one of the three on the always path**, and the premise quoted it 7,855 bytes
+light, from this record rather than from the file. The record's number was true on 2026-09-30 and is a
+claim about a file that moves, which is the kind of claim this repository's own rule says to verify against
+the thing rather than recall.
+
+So the axis is **bytes × readers**, and the ranking it gives is not the ranking by size:
+
+| File | Bytes | Commands that read it | Read-weight |
+|---|---|---|---|
+| `context/workflow.md` | 28,511 | 10 | **285,110** |
+| `stubs/tracking.md` | 18,965 | 8 | **151,720** |
+| `stubs/git.md` | 6,083 | 9 | 54,747 |
+| `skills/onboard/SKILL.md` | 51,581 | 1, once per install | 51,581 |
+| `stubs/release.md` | 7,816 | 6 | 46,896 |
+| `blocks/agents-block.md` | 3,183 | 10 | 31,830 |
+| `stubs/executors.md` | 4,043 | 6 | 24,258 |
+| `context/workflow.notes.md` | 23,702 | 0 — cited by nothing in the loop | 0 |
+| `README.md` (package) | 26,099 | 0 | 0 |
+
+**`workflow.md` and `tracking.md` are 57% of all read-weight between them**, and `workflow.notes.md` —
+the second-largest of our files — is free by construction, which is §17.2's relocation working exactly as
+designed and is the destination every reduction below reaches for.
+
+### 24.4 What is actually restated — three scans, and the answer that duplication is not where the bytes are
+
+Three mechanical passes over the 39 our-owned templates (`standards/` excluded, as everywhere): identical
+9-word runs across files, identical runs inside one file, and a hand-written pattern per rule family to
+catch the same idea in different words. Every count below is from those scans, not from reading
+impressions.
+
+**Identical text in several files, and why none of it is worth touching.** The three largest are
+deliberate one-per-file lines: the *Explicit invocation only — run this when the user types* clause in all
+ten skill descriptions (a frontmatter contract, and a test asserts it), the *the stub is the answer; this
+file is never read by a command* preamble in all six `<stub>.notes.md` (§17.2's whole point, stated where a
+reader of that file needs it), and the *read this after `SKILL.md`, and only where `tracking.md` names the
+tracker* preamble in all five `tracker.md`. Together about 2 KB, spread one sentence per file, each on a
+path where the other copies are not loaded. **Parallel text in parallel files is not duplication in the
+sense that costs anything** — the cost is bytes on one read, and none of these puts two copies on one read.
+
+**Rules with more than one home — the family scan.** The shape to compare against is §23.3, which is the
+newest and is right: the rule's blockquote lives in `workflow.md`, four readers name it by title and point
+at the file, and a test asserts both halves. Measured against that:
+
+| Rule family | Files | Verdict |
+|---|---|---|
+| *An expected value has a source…* | 6 | **cited, not restated** — §23.3's shape, test-enforced |
+| *A bug is not a backlog entry* | 7 | **cited by title** in `/orchestrate` and `/feature-implement`; one restatement, below |
+| *Documentation is part of the change* | 5 | cited; the plan template and `stack.md` hold their own halves |
+| Gate 1's *Lint → Typecheck → Build → Test* | 7 | **deliberate**, and §17.2 recorded the decision: the test keeps the line in both skills |
+| git-on-instruction-only | 8 | three homes by design — the block, `workflow.md`, `git.md` — each a different length |
+| *a subagent if your runtime provides one* | 6 | the sentence that reaches a host mechanism without naming one; one copy per dispatching skill |
+| the tracker-answer pointer | 17 | one sentence per file, §24.4's parallel case |
+
+**Nothing in that table is a rule with two bodies**, which is the failure §2.5 predicts and §17.2's fourth
+cut went after. The restating-rather-than-citing cases are small and specific, and they are in-file:
+
+- **`workflow.md` says where a bug goes twice.** *A bug is not a backlog entry* (296 bytes of destination
+  rule) and *Where a filed owner check goes* (389 bytes) carry the same three facts — the project's own bug
+  shelf, never the backlog label, the workflow neither reads nor ranks it — for two different kinds of
+  thing. The second can cite the first and keep only what is its own (*filed as what it is, not as a bug*,
+  and that the person doing the check closes it). **~350 bytes**, and the citation convention for it
+  already exists.
+- **Three `| End | When | Where the record lives |` tables** in one file, at lines 310, 319 and 390. The
+  first two are one rule split by blocking/non-blocking and belong together; the third is the open-question
+  section's and shares two of its three rows with them. **~400 bytes** if the destinations are stated once
+  and the two sections name their ends against them.
+- **Argument prose in the two newest sections, which has a home that is already free.** *An object with an
+  assignee, in a list somebody reads, is the point* (395 bytes, and it is the reasoning that sank two
+  rejected stores) and *Two reasons it could not say otherwise even if it should* (500 bytes, one of the
+  two reasons being this record's own §21 argument). `workflow.notes.md` is cited by nothing in the loop
+  and exists for exactly this. **~900 bytes.**
+- **`release.notes.md` says *true of every repository before anyone has looked* three times** and *a
+  mechanism that is not on disk is a false answer, and every command would dutifully write into it forever*
+  twice. **~800 bytes**, on a path only `/onboard` reads, once.
+- **`stubs/tracking.md` says *the issue's type — set by the workflow, read by nothing in it* twice**, at
+  lines 43 and 84, once as a table cell and once as prose. **~100 bytes**, and it is on eight commands'
+  path until `/onboard` runs.
+
+**Total identified, with every rule kept: about 1.75 KB on the always path and 800 bytes behind
+`/onboard`.** Against a `workflow.md` that grew 7,855 bytes in sixteen days, **that is the finding**: the
+restatements are real and worth fixing, and they are a quarter of one month's growth. **Duplication is not
+where the bytes are. New rules are.** So the only lever that holds is one that makes the author of the
+next rule choose — which is a limit — and the limit has to be a test, because a cut without one has now
+been observed to come back in full.
+
+### 24.5 The limit — one table, a ratchet, and the number the ratchet is for
+
+**One limit per file, in bytes, committed, and checked by a test.** Bytes rather than words or tokens:
+there is no tokenizer in this package and adding one for a test would be a dependency bought to measure an
+approximation, while §17.1's bytes-over-four has been stable across every measurement in this record.
+
+**`packages/create-ai-workflow/templates.budget.json`**, at the package root. Not under `templates/`,
+because `files` ships that directory wholesale and an install has no use for the number; not in
+`src/layout.ts`, because a generated table in a hand-written module is a merge conflict waiting for the
+next two branches. `files` is `dist`, `templates`, `README.md`, `LICENSE`, so a root-level JSON is
+developer-facing by construction.
+
+**The limits are today's sizes rounded up to the next 512 bytes.** Not a target, not an aspiration — the
+line the file is already at, so the test passes on the commit that introduces it and the first thing it
+ever does is refuse the next unbudgeted paragraph:
+
+| File | Now | Limit |
+|---|---|---|
+| `context/workflow.md` | 28,511 | 28,672 |
+| `context/workflow.notes.md` | 23,702 | 24,064 |
+| `stubs/tracking.md` | 18,965 | 19,456 |
+| `stubs/release.md` | 7,816 | 8,192 |
+| `stubs/git.md` | 6,083 | 6,144 |
+| `stubs/executors.md` | 4,043 | 4,096 |
+| `stubs/verify.md` | 2,479 | 2,560 |
+| `blocks/agents-block.md` | 3,183 | 3,584 |
+| `skills/onboard/SKILL.md` | 51,581 | 51,712 |
+| `skills/feature-implement/SKILL.md` | 22,722 | 23,040 |
+| `skills/feature-close/SKILL.md` | 18,759 | 18,944 |
+| `skills/orchestrate/SKILL.md` | 16,615 | 16,896 |
+| `skills/release/SKILL.md` | 16,234 | 16,384 |
+| … | | every other our-owned template, same rule |
+
+**`npm run budget:relock` writes the file; nobody types a number.** The table is generated, the generator
+is the same walk `ourTemplates()` uses, and a new template appears in it automatically rather than being
+unbudgeted because somebody forgot a line. **Superseded in one respect by §24.10**: the script only ever
+lowers a limit, and a raise is typed by hand with a `why` naming the section that justifies it.
+
+**The ratchet is the half that matters, and it fails in both directions.** Over the limit fails, with the
+file, the size and the overage named. **More than 2,048 bytes under it also fails**, and says to re-lock —
+so a reduction is written into the table in the commit that earns it and cannot be spent again on prose.
+§17.2 recovered 30,756 bytes with no ratchet and 39% of it is back; this is the whole mechanism for not
+repeating that. 2,048 is slack enough that an ordinary sentence costs nothing and a section does not slip
+through: the smallest of §24.2's two additions was 1,643.
+
+**Two hard ceilings on top, because per-file limits let growth spread.**
+
+- **The always-loaded pair**, `agents-block.md` + `workflow.md`, today 31,694: **32,768**. This is the only
+  number in the design that every invocation of every command pays, and it is 1,074 bytes from its line.
+- **Every our-owned template summed**, today 385,755 across 39 files: **393,216**.
+
+**The per-command totals are reported, not limited.** The test prints §24.1's table on every run and
+writes nothing; a second set of hard numbers would mean two bookkeeping edits for one sentence, and the
+tighter of two ratchets is the only one anybody ever sees fail. What the report buys is that the number in
+§24.2's story — the one three sections of this record each reported a piece of — is in front of whoever
+runs `npm test`.
+
+**The read set behind the report is derived, and that makes it a second invariant worth having.** A
+command may read only what it links: the test extracts the linked tool-owned files from each skill body,
+and a file the prose names in bare backticks is not in the set. This is true today for the tool-owned half
+of all ten skills except four mentions — `stack.md` in `/prototype`, `/orchestrate` and
+`/feature-implement`, and `plan-template.md` in `/feature-plan` — each of which *is* read and should be a
+link. **Four prose edits, no rule touched**, and the budget then cannot go stale against the skills the way
+§17.1's table went stale against the files.
+
+**Rejected — a per-directory total instead of per-file limits.** Growth inside a directory just moves
+between its files, which is how `onboard/SKILL.md` could absorb a step and report nothing.
+
+**Rejected — a limit on `test/templates.test.ts`.** It grew 41% in sixteen days and that is the only growth
+in this repository nobody should discourage. The test file is not read by an agent and ships nowhere.
+
+**Rejected — a `check` rule in the installed tool.** The limit is a fact about this package's development,
+not about an install; a project's own `context/` files are theirs, and §20.5 already put the one size rule
+an install needs — the plan ceiling — where it belongs.
+
+### 24.6 Pinning an invariant without pinning its wording — and the measurement that says this is not the lever
+
+**The census first, because the premise attributes §17.2's missed target to the tests.** 606 regex literals
+in `test/templates.test.ts`, classified by the longest run of consecutive literal characters each one
+requires: **45 pin 60 characters or more, 125 pin 40–59, 264 pin 20–39, 172 pin under 20.** Of 554
+assertions, 333 resolve to a template by static reading; `context/workflow.md` is the largest single target
+with **56 assertions, 20 of them pinning 40 characters or more.** The 221 unresolved ones assert against
+local slices and are not attributed here — the attribution is a script, and it is reported as approximate
+rather than cleaned up by hand.
+
+**Four classes, and only one of them holds wording.** Read against what each protects:
+
+- **Heading pins** — `/^### Documentation is part of the change$/m` and six more. These assert *this rule
+  has a home and it is this file*, which is §17.2's load-bearing property. They cost nothing: a heading is
+  a name, and the paragraph under it is free. **Keep, and prefer.**
+- **Data pins** — `| whether a change owes a release note |`, `` | `/release` | the one act that consumes
+  notes | ``, the Gate 1 order, the four phase states, `not started` spelled as two words. These are not
+  prose; they are the table rows and the vocabulary an agent matches on, and §17.2 already recorded the
+  decision to keep the Gate 1 line in two skills on purpose. **Keep, unchanged.**
+- **Token pins** — `/\bunstaged\b/`, `/never standing policy/i`, `/not inferred/i`, `/option text/i`,
+  `/written twice/`. Short, operative, and each one was added because its absence had been satisfiable: the
+  `git add` case in the comment above the staging pin is the model. **Keep — these are already the shape
+  this section is proposing.**
+- **Sentence pins** — the ones that hold wording. In `workflow.md`: *the only pushes outside them are the
+  two asked for by name…*, *Landing a change is not shipping it, and that holds for a deployed app as much
+  as a published package*, *`/release` is the one command that may make one for something that is not a
+  feature*, *A typed flag or a typed command is that ask*, *One run is one phase, unless `--all`*, and
+  §23.3's three test-first phrases. **These are what to convert.**
+
+**Measured, the sentence pins hold 508 bytes of `workflow.md`'s 28,511.** That is the sum of the literal
+characters all nine require. Halving every one of those sentences recovers under a kilobyte, and the file
+grew 7,855 bytes in sixteen days. **So the premise is wrong on this point, and §17.2's own account is the
+right one:** the 14–16 KB target was missed because the rules were kept where the test says they live, and
+the regrowth since is two new rules, not pinned wording. This proposal is worth doing for the next rewrite
+and for the next author who wants to say a rule in fewer words. **It is not the lever for the ceiling, and
+proposing it as one would have been the §20.1 error again** — a load-bearing claim nobody measured.
+
+**The shape to generalise already exists in the newest test in the file.** §23.3's three tests are, in
+order: the rule's heading is in `workflow.md`; the blockquote's opening appears in **exactly one** file,
+asserted with `deepEqual(holders, ['context/workflow.md'])`; and each of four readers *names the rule by
+its italicised title and points at the file*. Only the third test touches wording, and what it pins is a
+**title**, which is a name the whole design already treats as stable. **Applied backwards over the other
+32 describe blocks, that is the conversion.**
+
+**The helper, so the conversion is mechanical rather than a judgement per pin:**
+
+```ts
+/** The rule's own section, from its heading to the next of the same or higher level. */
+const saysIn = (file: string, heading: RegExp, terms: RegExp[]) => { … };
+
+// before — one sentence, 101 literal characters, unrewritable
+assert.match(flat(workflow), /Landing a change is not shipping it, and that holds for a deployed app as much as a published package/i);
+
+// after — the operative terms, scoped to the section that must carry them
+saysIn('context/workflow.md', /^### What a change announces is an answer/m, [
+  /landing .{0,24}not shipping/i,   // the claim
+  /deployed app/i,                  // and both halves it has to cover,
+  /published package/i,             // which is what the sentence was there to hold
+]);
+```
+
+**Scoping to the section is what makes the short terms safe.** `/deployed app/i` against the whole file
+would pass on a mention three sections away; against the rule's own section it asserts that *this* rule
+still names that case. The three pins together are 38 literal characters where the sentence was 101, and
+the sentence can be rewritten, shortened, or split in two without the test noticing.
+
+**The citation convention is already consistent and simply untested.** Thirteen italicised citations across
+ten files resolve **exactly** to a `##` or `###` heading in `workflow.md`, and **22 of its 23 headings are
+named verbatim somewhere outside the file** — the sole exception is *Where a filed owner check goes*, which
+is also §24.4's one restatement. So two more structural tests cost nothing to satisfy:
+
+1. **Every rule has one body.** For each standing rule, the opening of its blockquote appears in exactly
+   one file — `holders`, generalised from §23.3 over a list of rule titles rather than written per rule.
+2. **Every citation names its home.** An italicised phrase that matches a heading in a home file must be
+   accompanied by a reference to that file, in the same file. This is §23.3's `TITLE` loop, hoisted out of
+   one describe block and run over all of them.
+
+**Optional, and cheap because it ships nowhere: one name per invariant.** The test file's 33 describe
+strings, `workflow.md`'s 23 headings and the README's 30 bold claims are three vocabularies for one set of
+properties — *one home for commands* and *Commands live in one file*; *git happens on instruction, never on
+initiative* and *Nothing stages, commits, branches or pushes on your own initiative*. Measured agreement
+today is **6 of 33 against the headings and 4 of 33 against the README.** Picking the heading's wording as
+the name everywhere is a rename pass over about 27 describe strings and no shipped prose, and it is what
+makes §24.7's new document provably complete rather than marketing.
+
+**Rejected — ids or markers in the template prose.** A `<!-- inv:note-one-line -->` or a `[R12]` tag would
+make every pin exact and wording-free, and it would put bookkeeping in a file whose only job is to be read
+by an agent. §17.2's principle applies to noise as much as to bytes: the rule file is the one every command
+loads.
+
+**Rejected — snapshotting whole files.** Every edit becomes a snapshot update, and a test that is updated
+by reflex is a test nobody reads. The 210 tests in this file are read, which is the property worth
+protecting.
+
+### 24.7 The README — ten lines that get somebody running, and the 9 KB that is not for a first reader
+
+**Measured:** `packages/create-ai-workflow/README.md` is 26,099 bytes. *What makes it different* is
+**9,102 of them, 34.9%**, 18 bold claims deep. The install command is in line 6; **`/onboard` — the step
+without which `verify.md` names no command and `git.md` authorises nothing — first appears in row 9 of a
+ten-row table**, 11 KB in. A first reader is told what is unusual about the design before being told the
+second thing to type.
+
+**The quickstart, as proposed, replacing nothing above it except by sitting there:**
+
+````md
+## Quickstart
+
+```bash
+npx @baldurpan/create-ai-workflow      # writes context/ and both skill trees; commits nothing
+```
+
+Then, in your coding agent:
+
+| | |
+|---|---|
+| `/onboard` | **first, and once.** Writes your answers: the real test commands, who commits, where the backlog lives |
+| `/roadmap "an idea"` | puts it on the backlog |
+| `/feature-plan` | turns one backlog entry into a plan with a phase ledger — then stops |
+| `/feature-implement` | runs the next phase: code, verify, review. One phase a run, or `--all` |
+| `/orchestrate "fix X"` | one commit-sized change through the same gates, with no plan |
+
+Six more commands below. Why it is built this way: [the invariants](…/INVARIANTS.md).
+````
+
+**The four are derived from the commands' own text, not chosen by taste.** `/onboard` and
+`/tracking-migrate` run once per install by their own descriptions; `/prototype` says *nothing in the
+workflow requires this command — skip it and every other command behaves identically*;
+`/feature-status` says *it is never a prerequisite… it exists for when you want to know*; `/feature-close`
+runs once per feature and `/release` when somebody decides. What is left is the four that move work:
+three tier boundaries and the ad-hoc route.
+
+**The 9 KB goes to `packages/create-ai-workflow/INVARIANTS.md`, one claim per property, each with the test
+that holds it.** Not a WHY document and not a second design record — §24.6's naming pass is what makes this
+worth more than the prose it replaces: the claims in that section *are* the describe blocks of
+`templates.test.ts`, and a reader who wants to know whether *no skill names GitHub* is aspiration or fact
+gets the test's name next to it. A test can then assert the two lists agree, which is the one thing a
+marketing section can never be.
+
+**It is not added to `files`, and the link from the README is absolute.** `files` is `dist`, `templates`,
+`README.md`, `LICENSE`; the reader this document is for is deciding whether to adopt the tool, which
+happens on npm or GitHub and before any install. A relative link would depend on the registry rewriting it
+against the repository — plausible, **not verified here**, and an absolute `https://github.com/…` URL is
+true on npm, on GitHub and in an unpacked tarball without the assumption.
+
+**The command table stays in the README**, and so do the three tests that pin cells in it —
+`/feature-implement [--all]`, *With `--pr` the run ends at a pull request*, and `/release`'s row. It is the
+reference a returning reader comes for, it is 2,125 bytes, and moving it would move three pins for nothing.
+
+**Result: about 17.7 KB**, in the order install → quickstart → tiers → commands → what gets installed →
+`release-init` / `check` → scope.
+
+**Not proposed, and named so it is a decision rather than an oversight:** `## Scope` (3,081 bytes) carries
+the executor and model argument, which overlaps what `INVARIANTS.md` would hold. It is a reference section
+for somebody already running the tool, it is where the `sonnet`/`opus` answer lives, and splitting it is a
+second judgement call that should not ride along with this one.
+
+### 24.8 What it would cost, and what is deliberately not proposed
+
+**The work.** One `templates.budget.json` and its generator; a budget test with the two-direction ratchet
+and the two hard ceilings; the derived read-set report; **four prose edits** to make a read a link
+(`stack.md` in three skills, `plan-template.md` in one); the five named reductions in §24.4, about 1.75 KB
+on the always path; the README restructure and `INVARIANTS.md`. Then, as separate work: the `saysIn`
+conversion of 45 long pins, the two structural citation tests, and optionally the 27-string rename pass.
+
+**Not proposed — moving a rule out of `workflow.md` to meet a number.** §17.2 was asked the same question
+and refused, and it was right: *the rule has one home, and it is the file every command already cites.*
+Every limit in §24.5 is set at the file's **current** size for exactly that reason — the ceiling's job is
+to make the next addition deliberate, never to make a rule homeless.
+
+**Not proposed — splitting `/onboard` into per-step files.** Its three detection recipes are 15,355 bytes
+between them (step 4's git sweep 5,335, step 7's verification sweep 5,341, step 9's release sweep 4,679),
+and a `detect.md` beside the body would take about 10 KB off a 51,581-byte read. It is declined for now on
+read-weight: one reader, once per install, against a real risk that a command which fetches its own steps
+skips one. Recorded here with the number so the next person does not have to measure it again.
+
+**Not proposed — anything about `context/standards/`.** Vendored verbatim (§6.3), 26 files of it on a
+`/feature-plan` or `/orchestrate` read, and §17.3 already bought the only reduction available to us by
+making the plan traverse the table once.
+
+**No release note is owed for this section.** `DESIGN-RECORD.md` is not the package, and nothing under
+`packages/` changed. The edits it proposes are a different matter: `templates/` is what every install
+inherits, so the reductions and the four link edits are a **minor** when they land, and the budget test,
+the README and `INVARIANTS.md` are not.
+
+### 24.9 The placement rule — a section only one command acts on lives in that command
+
+**Asked for beside the duplication work, and it is the lever §24.4 said duplication was not.** A rule
+restated in two files is a rule with two bodies; a rule stated once, in the file every command loads, that
+only *one* command ever acts on is a different defect with the same cost — nine commands pay for it on
+every invocation and none of them uses it.
+
+**Measured across all 23 sections of `workflow.md`**, by which skills name the section's title verbatim and
+then by reading what each one does with it:
+
+| Readers | Bytes | Sections |
+|---|---|---|
+| Several commands, or every command | ~23,800 | the tier model, the two tables, every standing rule, *Phase status*, *The gates*, the defect contract and `notes.md` |
+| **Exactly one** | **4,665** | *What happens to a question the plan could not settle*, *Where a filed owner check goes*, *The history row says what is waiting, in the Why* |
+
+**One section qualifies, and it is 16% of the file.** The owner-check contract is `/feature-close`'s: that
+command is the only one that reads a plan's §9 after activation — its own prose says so, *this is the last
+command that ever will* — and the other nine never file, waive or write a history row.
+
+**It was already a rule with two bodies as well**, which the §24.4 scan missed by looking for restated
+*rules* rather than restated *procedure*. `/feature-close` carried the three ends, their destinations,
+*never the backlog label*, *silence is not a waiver*, the two-ends case and the Outcome rule **in full**,
+in its own words, before this change. `stubs/history.md` carried the Outcome rule a third time, where the
+person who would invent a fourth value is reading. So the move is mostly a deletion.
+
+**What stayed in `workflow.md`**, 1,172 bytes against the 4,665 the three sections held: that §9 has
+readers after the planner and that in between it is the phases' to answer — which is
+`/feature-implement`'s and `/feature-plan`'s as much as `/feature-close`'s, and is the half with several
+readers; that what is still open at the retirement is an
+owner check and **is not a defect**; one blockquote saying every one of them gets an end before anything is
+written; and a pointer naming the command that has the ends and the shelf rule that already names the
+destination.
+
+**What moved into `/feature-close`**, +809 bytes on the one command that is the reader: the definition with
+its four examples, *filed as what it is, and not as a bug*, that the person who does the check is what
+closes it, and that this adds no status and no fourth phase state.
+
+**Nothing moved into `workflow.notes.md`, because it was already there.** §21.8 recorded putting the
+reasoning under a matching heading, and it is intact: *why not a file*, *why the outcome column gains no
+value*, *the destination is the bug shelf and the kind is not a bug*. The two argument paragraphs §24.4
+proposed relocating were **third copies** and are simply gone.
+
+**Net: `workflow.md` 28,511 → 24,998, −3,513 on every invocation of every command**, against +809 on one
+command and nothing on the other nine. The tests that pinned the moved sentences now read the file they
+moved to, which is §17.2's rule for a relocation, and one new test asserts the ends have exactly one home
+and that no third copy of the destinations table is left behind.
+
+**`/prototype` needs no more than the two rules it says it reads** — checked, since it is the command with
+the least to do and the same 28,511-byte floor. Its text cites the tier model and the feature/task rule;
+it restates *never transcribe a credential* itself, in its own step 3; the git rule it needs is in the
+always-loaded `AGENTS.md` block; and nothing else in `workflow.md` governs writing two static files under
+`prototypes/`. **What it needs is about 1,900 bytes of a 24,998-byte file** — the preamble's tier model and
+*Feature or task?* — and it reads all of it because the block says to read that file first, not because the
+command asked. **That is a property of the block, not of the command**, so no per-command trimming follows
+from it and none is proposed: a command that reads a subset of the rules is a command that misses the rule
+nobody predicted it needed. It is recorded as the measured floor, and as the reason the always-loaded
+ceiling in §24.5 is the number worth defending.
+
+**The rule, for the next section somebody adds:** *a rule several commands act on lives in `workflow.md`; a
+contract one command acts on lives in that command, with the standing rule and a pointer left behind.*
+Both halves matter — §17.2 refused to move a rule to hit a size target and was right, and this is not that
+move: the standing rule did not move, and the thing that did had one reader.
+
+### 24.10 What was decided
+
+**The ratchet fails on slack rather than warning.** A warning is a line of output nobody reads on a green
+run, and §24.2 is the record of what happens to a cut nothing holds.
+
+**A limit is never raised by a script.** `npm run budget:relock` lowers limits and refuses to raise one,
+printing what it refused and why. A raise is typed by hand, and **the entry's `why` must name the section
+of `DESIGN-RECORD.md` that justifies it** — the test parses the `§N.M`, checks that section exists, and
+fails on an entry that names none. A generated file regenerates; a file whose numbers each carry a citation
+is a decision somebody made.
+
+**This is affordable here because this repository already writes a section per change.** §18 through §23
+each did. In a repository that did not, the rule would price an ordinary paragraph at a design document,
+which is the one way it could become the thing people route around.
+
+**The rename pass is skipped and `saysIn` is deferred** until a pin actually blocks a cut. The pins are
+about a kilobyte of `workflow.md`, and what §24.9's move needed from them was not a conversion at all: six
+tests now read the file the prose moved to, which is §17.2's rule and cost nothing. §24.6 stands as
+written and is not implemented.
+
+**The `detect.md` split of `/onboard` is declined**, per §24.8.
+
+**The agreement test between `INVARIANTS.md` and the describe blocks is skipped**, because it needs the
+rename pass to pass. The document names the test file and **says that the pairing is maintained by hand
+and not checked**, citing this section — a claim about its own reliability is the one thing a document
+like that can always make true.
+
+### 24.11 What was done, and what it cost
+
+| File | Before | After | |
+|---|---|---|---|
+| `context/workflow.md` | 28,511 | **24,998** | §24.9's move; −3,513 on every command |
+| `skills/feature-close/SKILL.md` | 18,759 | 19,568 | +809 on the one command that reads §9 |
+| `context/release.notes.md` | 13,050 | 12,948 | −102; the restated standard became a pointer |
+| `README.md` | 26,099 | **18,356** | −7,743; the quickstart, and §24.7's split |
+| `INVARIANTS.md` | — | 9,528 | new, unshipped, linked absolutely |
+| Three skill bodies | | +97 | a read is a link, so the budget's read sets are derived |
+
+**The always-loaded pair is 28,181 bytes, down from 31,694** — the only number every invocation of every
+command pays, and the one §24.5 set a ceiling on. **Our template prose totals 383,046 across 39 files.**
+
+**`/feature-close` is the only command that got more expensive**, and it is the command the bytes are for.
+Every other command's read falls by 3,513.
+
+**The duplication cuts came in under their estimate, and the estimate was wrong in a way worth recording.**
+§24.4 priced the `release.notes.md` repeats at about 800 bytes and the realised cut is 102. Each of the
+three repetitions carried a clause that was *not* duplicated — *including one that publishes, where it says
+the answer has not been set* — so what could go was the restated standard, not the sentence around it. **A
+duplication scan measures the matching text, not the recoverable text**, and the difference was a factor of
+eight here. The `stubs/tracking.md` repeat was **declined** on reading it: the two copies are a primitive
+map's lookup cell and the prose section it points at, and a lookup table whose cell says *see below* costs
+a reader a jump to save 100 bytes. Both are project-owned files besides, so a cut there reaches new
+installs only — `update` cannot touch a stub.
+
+**The budget.** `templates.budget.json` at the package root — 39 files, two ceilings, `slack: 2048` — and
+`scripts/budget.ts` behind `npm run budget:report` and `npm run budget:relock`. It is not under
+`templates/`, which `files` ships wholesale, and not in `src/`, which compiles into `dist/`: the number is
+a fact about developing this package and an install has no use for it.
+
+**The read sets are derived from the links**, so §24.1's table is recomputed rather than remembered. The
+convention held exactly once the four reads became links, and the discipline it enforces is sharper than
+expected: `/feature-plan` names `stack.md` twice and links it neither time, because both mentions are
+inside the *planner's* brief — the subagent reads it, not the command. The same was true of
+`/feature-implement`'s one mention, which was reverted to bare backticks for that reason.
+
+**The derived numbers are not §24.1's to the byte, and every difference is the derivation being
+stricter.** That table was built from read sets written out by hand against the same convention, and three
+entries were generous: `stubs/history.md` counted in `/feature-close`'s, which writes a row to that file
+rather than reading its prose; `stubs/stack.md` counted in `/feature-plan`'s, where both mentions are
+paths handed to the planner; and `plan-template.notes.md` left out of it, which `/feature-plan` does link
+and does read. `npm run budget:report` is the number from here on, because it is the one that is
+recomputed: `/onboard` 151,372 across 15 files, `/feature-implement` 90,289, `/prototype` 41,554.
+
+**Tests: 211 content tests** (one new: the ends have one home and no third destinations table survives)
+**and 128 budget tests** — a limit and a ratchet per file, a cited section per limit, the two ceilings, and
+the derived read sets. **All four refusals were exercised rather than assumed**: 600 bytes added to
+`workflow.md` fails its limit, 2,500 removed fails the ratchet with the relock instruction, `relock`
+refuses the raise and says why, and an entry citing a section `DESIGN-RECORD.md` does not have fails on
+that alone — which is how §24.9's three new citations were caught before they were written. **Verified** by
+packing the tarball, installing it into an empty repository, and running `check` and `update --dry-run`
+against it: `check` clean at exit 0, 126 files current, nothing under **Next**, and `INVARIANTS.md`,
+`templates.budget.json` and `scripts/` absent from the 137 files the tarball holds.
+
+**What this does not do.** It buys nothing on the 48,893-byte median plan (§20.1), nothing on the vendored
+standards, and nothing on `/onboard`'s 51,581 bytes. The budget's job from here is that the next
+measurement is not a rediscovery.

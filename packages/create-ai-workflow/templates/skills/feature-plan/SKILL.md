@@ -78,9 +78,10 @@ upper-cased.
 - **If the entry's **Doc** names a draft in `context/drafts/`**, `git mv` it to that path and build the
   plan on top of its content. Use `git mv`, not `mv`. Do not create a second file and do not leave the
   draft behind — a draft and a plan for the same feature is two documents disagreeing about one thing.
-- **Otherwise** copy `context/plan-template.md` to that path. Copy it verbatim; it is a bare skeleton with
-  nothing to strip. [`context/plan-template.notes.md`](../../../context/plan-template.notes.md) says what
-  goes in each section.
+- **Otherwise** copy [`context/plan-template.md`](../../../context/plan-template.md) to that path. Copy
+  it verbatim; it is a bare skeleton with nothing to strip.
+  [`context/plan-template.notes.md`](../../../context/plan-template.notes.md) says what goes in each
+  section.
 
 **The draft is the most valuable input you have** — material the user gathered deliberately, often from
 somewhere you cannot reach. Carry its specifics forward; do not summarise them away, and do not silently

@@ -10,9 +10,9 @@ false answer, and every command would dutifully write into it forever while noth
 
 ## What announces a change, and to whom
 
-**Shipped as:** nothing here announces a change. It is the only answer that is true of every repository
-before anyone has looked — including one that publishes, where it says the answer has not been set rather
-than that there is nothing to announce.
+**Shipped as:** nothing here announces a change. It is the only answer that meets the standard above —
+including for a repository that publishes, where it says the answer has not been set rather than that
+there is nothing to announce.
 
 Replace the shipped line with one row per path that announces something. The table is **per path**, not
 per repository: a repo can publish one thing, deploy another, and say nothing about a third.
@@ -37,9 +37,8 @@ A single-package repository gets one row, and that is a real answer rather than 
 
 ## What records a note
 
-**Shipped as:** nothing. Keep this until something in the repository actually records notes — an answer
-naming a mechanism that is not on disk is a false answer, and every command would dutifully write into it
-forever while nothing consumed it.
+**Shipped as:** nothing. Keep this until something in the repository actually records notes: a mechanism
+that is not on disk is the false answer the standard above rules out.
 
 Replace the shipped line with what this project actually uses. Three common shapes:
 
@@ -107,9 +106,9 @@ stay under either answer.
 
 ## What a release ships, and on what event
 
-**Shipped as:** nothing here ships on a merge. Like the first answer in the stub it is true of every
-repository before anyone has looked — including one that deploys, where it records that the event has not
-been written down rather than that nothing reaches users.
+**Shipped as:** nothing here ships on a merge. Like the first answer in the stub it meets the standard
+above — including for a repository that deploys, where it records that the event has not been written down
+rather than that nothing reaches users.
 
 Replace the shipped paragraph once something does. There is **one event, not one per artifact kind**: the
 merge of the release pull request — the one where the script that consumes the notes was run, so the notes

@@ -3,14 +3,14 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 4803 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 5405 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 325 tests. The 210 in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 454 tests. The 211 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, git on instruction rather than on
    initiative, a worktree made by the recorded command or not at all, one home for the tracker, no
@@ -25,9 +25,12 @@ Every `§`-number below points into that document.
    a person getting an end at the close rather than being archived unread**, a titled §-citation resolving against
    the template, **an expected value that has a source outside the code under test, with the rule in one
    file and its title in the four that cite it**, the tracker half of a command kept beside its body and
-   read only where it applies, a
+   read only where it applies, **a contract only one command acts on living in that command rather than
+   in the file every command loads**, a
    model tier that is an alias and never a dated id, and every relative link resolving after install — in
-   both skill trees. `ci.yml`
+   both skill trees. The 128 in `budget.test.ts` guard *size*: a byte limit and a ratchet per shipped
+   file, a cited `§` behind every limit, the always-loaded ceiling, and the per-command read sets derived
+   from the links each skill carries (§24.5). `ci.yml`
    runs them on every push and pull request against `main`, plus an `engines-floor` job that builds on
    Node 20.10.0 and runs the packed CLI there — the suite itself cannot, since it executes `.ts` directly
    and that needs type stripping.
@@ -968,6 +971,28 @@ https://github.com/baldurpan/ai-engineering-standards`, which moves `ref=` in
 `templates/standards/.source` to `e69b3b9`. That is a `templates/` change, so it carries a note and the
 tarball-into-an-empty-repo check in item 3. **Until then the conditional table's `security/api-security.md`
 row is the right destination and arrives one section short.**
+
+### 10. Two deferrals from the prose budget, each with a trigger rather than a date
+
+§24.10 decided both, and neither is work to pick up unprompted:
+
+- **`saysIn` — convert a sentence pin to section-scoped terms when one actually blocks a cut.** The pins
+  hold about a kilobyte of `workflow.md` (§24.6 counts 508 literal characters across the nine sentence
+  pins there), so the trigger is a real one: a rule that should be said in fewer words and a test that
+  fails only because of the wording. §24.6 has the helper and a worked conversion. The move §24.9 made
+  needed none of it — six tests simply read the file the prose moved to.
+- **One name per invariant — the rename pass over about 27 `describe` strings.** Skipped. The trigger is
+  wanting the agreement test between `INVARIANTS.md` and `test/templates.test.ts`, which cannot pass until
+  the names agree. Until then that document says the pairing is maintained by hand and not checked, which
+  is true and is the honest version of the claim.
+
+**The always-loaded ceiling has 491 bytes of headroom** — `agents-block.md` plus `context/workflow.md` is
+28,181 against a limit of 28,672, and it is the only number every invocation of every command pays. **So
+the next standing rule added to `workflow.md` needs a cut first**, or a raise typed into
+`templates.budget.json` with a `why` naming the section that justifies it. That is the budget working as
+intended rather than a problem to report: §24.2 is what happened the last time nothing held the line.
+
+---
 
 ## Decisions that are cheap to reverse now
 
