@@ -101,4 +101,6 @@ reads as "not checked", and nothing downstream can tell those apart.>
 
 ## 9. Open questions
 
-- <Anything the plan could not settle. An honest gap is worth more than an invented decision.>
+- <Anything the plan could not settle. An honest gap is worth more than an invented decision. Say which
+  items need a person — a reading, a judgement, a pass on a device nothing here drives — because
+  `/feature-close` goes through this section and gives each of those an end before the plan is archived.>

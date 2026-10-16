@@ -10,7 +10,7 @@ Every `§`-number below points into that document.
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 303 tests. The 195 in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 316 tests. The 201 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, git on instruction rather than on
    initiative, a worktree made by the recorded command or not at all, one home for the tracker, no
@@ -21,7 +21,8 @@ Every `§`-number below points into that document.
    size budget being split rather than trimmed under either tracking answer, a ledger Note that stays one
    line, a brief that carries the phase and not the plan, documentation reaching the plan, an answer file that may
    not hold a false answer, one status vocabulary with no second place to record a defect, an order
-   between features that is a relationship rather than a sentence, a titled §-citation resolving against
+   between features that is a relationship rather than a sentence, **a plan's open question that still needs
+   a person getting an end at the close rather than being archived unread**, a titled §-citation resolving against
    the template, the tracker half of a command kept beside its body and read only where it applies, a
    model tier that is an alias and never a dated id, and every relative link resolving after install — in
    both skill trees. `ci.yml`
@@ -36,12 +37,53 @@ answer** (§11) in both its phases, with the event that completes it (§11.10), 
 and **§11.12** — and it was the first release cut from accumulated notes in this repository, so
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
 `blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
-adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; and **§20** is written and unreleased.
+adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; and **§20**, **§21** and **§22** are written and
+unreleased.
 
 **The version each section shipped in is below, on the section.** A paragraph here is the summary of a
 `DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
+
+**Written and unreleased: §22**, found in the paragraph next door while §21 was being written.
+`/orchestrate` step 4 still said a non-blocking observation *"needs code changes, in which case it is work
+and belongs in the backlog per `tracking.md`"* — the condition §14.3 showed was not a bar, routing to the
+destination §15.3 forbade, **four versions after both landed**, and contradicting step 5 of the same file
+eleven lines down. §15.3's fix reached `/feature-implement`, which it quotes, and never looked for the
+sibling. **The guard missed it because it was keyed on the words of the one violation it was written for:**
+a sentence containing `backlog label` plus an applying verb, and the stale sentence has neither — it says
+*the backlog* and *belongs in*. That is **§12.5 a second time** (a deletion test keyed on a path misses
+every reference that never needed the path), one step more general: key a guard on the **fact** — something
+is being routed into the backlog — not on the sentence that was wrong. Worse, two test comments describe
+the old rule in the past tense beside a suite that was not checking where it was still in force; **a
+comment written at the moment of a repair is the most confident thing in the repository.** The guard is now
+keyed on `backlog` with a routing-verb set and two exemptions — the sentence refuses, or it names
+`/roadmap` — verified by reverting the one sentence and watching it fail with the sentence quoted. The dead
+condition is **named where it bit** rather than dropped. One leftover const went with it. **No new rule:
+the rule was already right in `workflow.md` and in two of the three places that cite it.**
+
+**Written and unreleased: §21**, the owner check — the fifth field report, and the first about a section
+of a document rather than a store. `baldurpan.com` retired **nine of thirteen** features `shipped` with a
+human check still open, every one of them said out loud in the `history.md` Why column: *"the Icelandic and
+VoiceOver check await the owner"*, *"the owner's wording (Q11, Q18), the halo and look (Q16, Q20) and an
+iPhone check (Q14) await"*. **Nothing was negligent** — every phase was `done`, both gates passed, the
+ledger check at the top of Mode 1 was satisfied, and `/feature-close` has no step that reads §9. The plan's
+open questions are surfaced once, at activation, and then archived into a file no command opens. **None of
+the three endings fitted one:** it is not a defect (nothing is known to be wrong), not a backlog entry
+(nobody wants a history row for *read the Icelandic*), and not a note (`notes.md` is deleted at the close,
+which is the moment the check becomes real). **The fourth kind is defined by its closer — a person looking
+at it** — so the close now gives every surviving item one of **answered, filed or waived**, with the user
+picking and silence not a waiver. **The destination is reused and the kind is named:** it goes wherever this
+project already files bugs, outside `tracking.md`'s one bit under both answers, and **not written up as a
+defect**, because a pending screen-reader pass filed as a bug is a bug report nobody can reproduce. **No
+file, no stub, no `check` rule, no new status word** — the bound is the lifecycle, since §9 is written once
+and archived with a plan nothing reopens, and §14.6's refusal of a watcher stands. **The Outcome column
+gains no value:** `history.md` is append-only, so an outcome reading *pending* is one nothing can withdraw,
+and under the tracker answer that column is a close reason with two values and no room for a third — so the
+**Why names the issue**, which is one clause different from what the field was already writing and is the
+whole fix: the sentence becomes a pointer instead of being the record. `/feature-implement` answers in place
+whatever a phase settles, which is §2.9's documentation rule applied to the plan's own questions and is what
+keeps the close's pass to one bit rather than twenty dispositions. **Thirteen tests.**
 
 **Written and unreleased: §20**, the plan's size budget. Measured 23 plans in four real installs on
 2026-10-16: the median is **48,893 characters** and six are over the 65,536 an issue body holds, which
@@ -328,6 +370,14 @@ propose a split along the phase boundaries the research already justified rather
 does a ledger Note stay one line over a dozen phases, or does the first interesting gate output go back
 into the cell. The last is the one with no backstop — `check` would notice an oversized plan, and nothing
 notices a Note that has become a log.
+
+**§21 adds three to it, all about one step of `/feature-close` that nothing can force.** Does a session
+read §9 at the close at all, rather than going straight to the row and the `git mv`; does it apply the one
+bit — *does this need a person* — rather than disposing of twenty lines one by one, which is the ceremony
+§12.2 was refused for; and does it file an owner check as a check, saying what has to be looked at and who
+it waits on, rather than as a bug nobody can reproduce. There is **no backstop for any of them**: `check`
+has no rule here by design, and a plan archived with its questions unread looks exactly like a plan
+archived with them answered.
 
 **§17 adds two checks to the same run, and answers one question from the docs.** The host's documentation
 says `disable-model-invocation: true` removes the description from context entirely, which answers the

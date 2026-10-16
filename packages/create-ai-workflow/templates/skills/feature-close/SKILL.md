@@ -45,12 +45,45 @@ owned. There is nothing left for a second refusal to catch.
 A refusal here is the workflow working, not a problem to route around. If the user overrides after being
 told, say plainly what is being overridden, then proceed.
 
+### Go through the plan's open questions — before anything is written
+
+Read the plan's **§9 Open questions**, and the **Note** column of its ledger. `/feature-implement` surfaced
+§9 at activation and nothing has read it since, and **this is the last command that ever will** — after the
+`git mv` it is in `context/archive/`, where no command looks.
+
+**Every item that still needs a person gets one of three ends.** *What happens to a question the plan could
+not settle* in [`context/workflow.md`](../../../context/workflow.md) has the table and the reasoning:
+
+- **answered** → write the answer into the item, in the plan, in place. A phase that settled one has
+  already done this; the user settling one here is the same end.
+- **filed** → one issue, wherever this project already files bugs, carrying this project's own labels,
+  saying what has to be looked at and who it waits on. **Never the backlog label**, and not written up as a
+  defect — it is a check nobody has run, not a thing known to be wrong.
+- **waived** → the user says in this turn that it does not matter. Mark the item waived and move on.
+
+**The user picks, item by item, and silence is not a waiver.** Use your runtime's question mechanism if it
+has one. **Where this project files bugs nowhere, there are two ends rather than three** — say so, and the
+item is answered or waived. Do not invent a store for it, and do not hold up the retirement over it.
+
+**This runs before the writes below** because its result is what the `history.md` row's Why and the archived
+document both carry. Nothing afterwards would have anything to amend.
+
+**Most of §9 is not an owner check.** The filter is one bit — *does this need a person* — applied to a list
+the plan already wrote, not a disposition assigned to every line. **This is not the `notes.md` triage
+refused further down**, and that refusal stands: that file is a gate's and grows without bound, while §9 is
+the plan's and is bounded by it.
+
+**Then say in the report where each one went**, including when the answer is *none*. An empty report reads
+as "nobody looked", exactly as it does for documentation and for the release note.
+
 ### Then, as one reviewed change
 
 1. **Move the entry into history.** Remove it from `context/roadmap.md` entirely, and append one row to
    `context/history.md`: date, name, outcome `shipped`, a one-line why, and a link into `context/archive/`.
    One line. That file **indexes** depth, it does not duplicate it — the reasoning stays in the archived
-   plan.
+   plan. **Where an owner check was filed, the why names it and the issue that carries it**, and the
+   outcome stays `shipped` and gains no value — *The history row says what is waiting, in the Why* in
+   [`context/workflow.md`](../../../context/workflow.md) says why it could not be anything else.
 2. **`git mv` the plan** from `context/plans/` to `context/archive/`. Use `git mv`, not `mv` — the file's
    history is the record of how the feature was actually built.
 3. **Rewrite the document's header to point at the history row.** In the moved document, replace
@@ -63,6 +96,10 @@ told, say plainly what is being overridden, then proceed.
    Add a note if its §-references are cited from source comments. **Do not stamp the outcome and date
    into the document.** `history.md` owns them, and a copy in the header is a second place to maintain.
    Replacing the old header is what stops a stale status surviving the move.
+
+   **§9 travels with it, carrying the ends the step above gave it** — each item answered, marked waived, or
+   naming the issue it was filed as. That is what makes the archived plan the record for the two ends that
+   have no other one.
 4. **Sweep every reference to its old path**, and **show the sweep for review before committing.**
 
 ### The sweep
@@ -222,6 +259,12 @@ ended by then.
 For an entry that will not be built. **There is no ledger check in this mode** — unfinished phases are
 expected.
 
+**The open-questions pass still runs, and it still runs first**, by the rule the release note already
+follows at the end of this mode: an owner check belongs to the code that landed, not to the outcome the
+feature was later given. So an item about a phase that landed is an owner check like any other, and an item
+about work that was never written is **waived by construction** — say that in one line rather than walking
+it. A feature with no landed phase has nothing here at all.
+
 1. Append a `context/history.md` row with outcome `dropped` (or `superseded by <name>`) and **the reason
    the user gave**, verbatim in substance, not softened. That row is what stops the idea being re-proposed,
    so a vague reason makes it worthless.
@@ -231,6 +274,7 @@ expected.
    stamped outcome, same rule as Mode 1), and sweep.
 4. **Delete `context/notes.md`** if it exists, per *Delete `context/notes.md`* above. A feature that will
    not be built has nothing its notes should outlive.
+
 **`--release` is refused in this mode**, and not as a technicality: there is no note, so there is nothing
 this retirement would be releasing. If a release is due anyway, that is its own act and not this one's.
 

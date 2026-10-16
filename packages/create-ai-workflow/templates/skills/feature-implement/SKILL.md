@@ -114,6 +114,15 @@ paths are on the same **Files:** line as the code. Per the standing rule in
 phase. If the work turned out differently from the plan and made something *else* untrue — a README the
 plan never listed — fix that too and say so; the sweep happened before the code existed.
 
+**An open question this phase settles is answered in the plan's §9, by this phase** — in place, in the
+item it settles, riding the same change as the ledger row. Same rule as the documentation rows above and
+the same reason: the answer is cheapest to write while the work that produced it is still in front of you,
+and `/feature-close` goes through that section before the plan is archived and has to give whatever is left
+an end. **Leave the items this phase did not settle alone**, and do not invent an answer to close one — an
+honest open question is what that section is for, and the one no phase could finish is exactly what the
+retirement is there to catch. Settling one is not part of this phase's scope and step 11 does not test for
+it.
+
 **Read [`context/release.md`](../../../context/release.md) and find out whether this phase owes a release
 note.** That file answers per path and at one granularity, and only one of its two granularity answers
 reaches this step:

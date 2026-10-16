@@ -4355,3 +4355,316 @@ reached a conclusion that was right about the tracker and wrong about the field.
 it was leaving. **A claim about what the artifacts look like is the one kind of premise that can be checked
 against the artifacts**, and this design record says so about itself: *claims in either file are
 load-bearing.* Four installs and twenty minutes were what it took.
+
+---
+
+## 21. The owner check — the question no gate can close, and the file it was archived into
+
+`/feature-plan` writes §9 Open questions. `/feature-implement` step 2 surfaces it at activation and
+requires an acknowledgement. **Nothing reads it again.** `/feature-close` archives the plan, writes
+`shipped`, and the questions go to `context/archive/`, where no command in this workflow looks.
+
+So a feature retires with its human checks open, and the only trace is a sentence in the `history.md` Why
+that reads well and is read by nothing.
+
+### 21.1 The field evidence
+
+`baldurpan/baldurpan.com` runs this workflow on the working-tree answer. Its `context/history.md` on
+2026-10-16 carries thirteen rows, every one `shipped`, and these among them:
+
+| Feature | The Why column, verbatim |
+|---|---|
+| `moon-over-the-mountains` | "The Icelandic and VoiceOver check await the owner." |
+| `solar-eclipses` | "All 8 phases done; the owner's Icelandic wording and VoiceOver reads await." |
+| `night-sky-stars` | "All 9 phases done; the owner's wording (Q11, Q18), the halo and look (Q16, Q20) and an iPhone check (Q14) await." |
+| `site-core` | "All 11 phases done; the owner's read of the 404 copy, the About text (Q1, still lorem ipsum), the real project covers and Gosi's year are outstanding." |
+| `sky-devtools` | "All 4 phases done; the keyboard and contrast pass by a person (§8) is outstanding." |
+| `sky-page` | "the sky project's summary and year (Q6) are still `TODO(owner)`, the home's link words are placeholders (Q5)" |
+
+Six of thirteen, and `english-icelandic-switcher`, `sun-calendar-feed` and `visitor-sun-compare` carry the
+same clause about an unread Icelandic translation — **nine rows in all.** `NIGHT-SKY-STARS-PLAN.md`'s §9
+holds twenty items, nine of them marked `(owner)`, and `MOON-OVER-THE-MOUNTAINS-PLAN.md`'s holds sixteen
+with no marker at all. Both are now in `archive/`.
+
+**The rows were not negligence — they are the workflow working as written.** Every phase was `done`, both
+gates passed on each, the ledger check at the top of Mode 1 was satisfied, and `/feature-close` has no step
+that reads §9. The writer did the honest thing twice: raised the question in the plan, and said in the
+history row that it was still open. The second honest act is the one that disappears, because `history.md`
+is an append-only index that nothing queries.
+
+**And note which section `sky-devtools` cites: §8, not §9.** That is not a second hole.
+`plan-template.notes.md` already requires it — *"a feature whose project has no such driver says that in §9
+rather than naming one"* — so a verification pass with no driver belongs in §9 by a rule four versions old.
+That row is a plan that did not follow it, which is why the sweep reads §9 and not two sections. One place,
+already written down.
+
+### 21.2 Why none of the three existing endings fitted
+
+*What happens to a defect the gate found* (§12, §14, §15) enumerates every end the workflow had. Apply each
+to *the owner reads the Icelandic*:
+
+| End | Why not |
+|---|---|
+| **fixed**, or the phase goes **`blocked`** | there is nothing to fix. The code landed and both gates passed; what is missing is a person's attention, which no loopback supplies |
+| **a bug** | the test is *a real defect, user-visible or a regression would land green.* Nothing is known to be wrong. §15.2's lesson in reverse: a bug closes when a fix ships, and there is no fix |
+| **a backlog entry** | the backlog is a list of features — work you would want a `history.md` row for. Nobody wants one for *read the Icelandic*, and §15.3 is explicit that a gate appending to that list is the defect |
+| **a note in `notes.md`** | `/feature-close` **deletes it whole**, unconditionally (§14.5). The close is the exact moment the check becomes real, so the one store that could hold it is emptied at the one moment it would matter |
+
+**It is a fourth kind, and the fourth kind is defined by its closer.** A defect is closed by a fix, a
+feature by a plan, a note by the branch ending — and an owner check is closed by **a person looking at it**
+and by nothing else. That is the whole of what makes it its own category, and it is why it needed one.
+
+### 21.3 The destination is the bug shelf; the kind is not a bug
+
+§15.5 found this shape and stated its general form:
+
+> **The project's own bug label already is the answer.** What was missing was never a label — it was the
+> sentence saying a bug is outside that bit, and a command that could act on one.
+
+The same applies, and the argument is by elimination. The workflow has exactly three durable homes, and two
+are refused on sight:
+
+| Home | Verdict |
+|---|---|
+| the backlog | refused — a list of features (§15.3) |
+| `history.md` / `archive/` | append-only and frozen. **No closer exists**, which is precisely the defect |
+| whatever this project already files bugs in | the only one left — and it has every property needed |
+
+An owner check needs five things: durability past the branch, a position **outside** `tracking.md`'s one
+bit, an **assignee**, a close performed by a person, and to be **read by nothing in the workflow**. A bug
+already has all five on that shelf. Inventing a second shelf next to it would buy a word and nothing else.
+
+**But it is filed as what it is, not as a bug**, and that distinction is load-bearing rather than
+cosmetic: a pending screen-reader pass written up as a defect is a defect report nobody can reproduce, and
+the next person to triage it closes it as *cannot reproduce*. So the issue says what has to be looked at
+and who it waits on. **Destination reused, kind named** — which is what the instruction to reuse an
+existing ending can mean without collapsing two categories.
+
+**Under both tracking answers this is one answer, not two.** `tracking.md` already puts a bug outside its
+bit under either, and the stub's own rule says so: *"A defect goes wherever this project already files bugs
+… under either answer."* So the tracker delta for `/feature-close` gains three rows about **where the words
+are written** — a body edit rather than a document edit, a comment rather than a Why column — and not one
+about what happens. That asymmetry is the test §10 set for itself, and it passes here for free.
+
+**Where this project files bugs nowhere, there are two ends rather than three.** Said out loud, because the
+alternative shapes are both wrong: inventing a store is what §12 and §14 each removed once, and refusing the
+retirement blocks a finished feature over a gap in somebody's project. It is `release.md`'s *a path this
+file does not cover is named, not guessed at*, applied to a different gap.
+
+### 21.4 Why not a file — the property §14.5 got right, read the other way
+
+§14.5 brought `notes.md` back on three properties, the first of which was *nothing reads it*. The cheap-end
+argument is:
+
+> A line in a branch-local file costs nothing to write, **nothing to ignore** and nothing to delete.
+
+For a note, *nothing to ignore* is the feature. **For a check somebody has to perform, it is the failure.**
+The fact *this has not been done yet* has to be **observable in a place a person already looks** — §10.4's
+test, which asks whether a primitive lets a fact be observed or requires a stored copy somebody maintains.
+An open issue with an assignee is observed: it is in the list, it has a name on it, and closing it is the
+same act as doing the work. A heading accumulating lines is maintained, which is how the 76 KB
+`findings.md` happened and what the one-file-per-note directory in §14.6 was refused for.
+
+So: **no new file, no stub, no `check` rule, no new status word.** §14.6's refusal of a `check` rule applies
+unchanged — *a store should be unable to accumulate, rather than watched while it does* — and here the store
+that cannot accumulate is the plan's own §9, written once, read at activation, disposed of at the close, and
+archived with a plan nothing opens again.
+
+### 21.5 The Outcome column gains no value
+
+The tempting fix is a fourth word: `shipped`, qualified, so the row itself says a check is pending. It is
+wrong twice, and the second reason is the structural one.
+
+1. **`history.md` is append-only and never edited.** The stub says so in its second line. A row reading
+   *pending* is still reading *pending* a year after the owner looked, and nothing in this workflow would
+   ever go back to change it. **A status in an append-only file is a status nothing can withdraw** — which
+   is §2.1's rule arriving from a new direction: the Outcome column is the single home for *what became of
+   this feature*, a fact that is settled at the close, and a fact that is **not** settled cannot share it.
+2. **Under the tracker answer that column is the issue's close reason**, and the tracker offers *completed*
+   and *not planned*. There is no third value to map a fourth word onto, so the vocabulary would exist under
+   one answer and not the other — which the tier model forbids outright (§10.8: the tier model is identical
+   under both answers, and only where a fact is read changes).
+
+**So the Why column names what is waiting and the issue that carries it.** This is one clause different
+from what the field was already writing, and the one clause is the whole fix: today the sentence **is** the
+record, and after this it is a **pointer**. A sentence that is the record is a record nothing reads — which
+is the generalisation of §12.1 (an unbounded file silently disables the check that reads it) for a file that
+has no reader at all.
+
+### 21.6 Why the close, and why it is not the ceremony §12.2 was refused for
+
+§12.2 built a disposition sweep at retirement, with three dispositions and a `check` rule for orphans, and
+it was rejected for bounding the tail while leaving the accumulation — and for costing *"a triage ceremony
+at every retirement, for objects that are mostly noise."* This sweep has to answer that, and it does, on
+three counts:
+
+- **The store is bounded by construction.** One plan's §9, written once by `/feature-plan`, read at
+  activation, read again here. It cannot grow across features because the plan is archived and never read
+  again. That is a lifecycle property, not a rule somebody keeps — §14.5's own test.
+- **The objects are not noise.** `notes.md` holds gate observations, where anything worth keeping was
+  promoted while the branch was alive. §9 holds questions a planner wrote down **on purpose** and a user
+  already acknowledged once at activation.
+- **The filter is one bit, not a disposition per line.** *Does this need a person.* Most of §9 does not, and
+  an item a phase settled reads as settled, because `/feature-implement` step 7 now writes the answer into
+  the item it settles — the documentation rule (§2.9) applied to the plan's own open questions, and the
+  second application is what makes it a pattern rather than a one-off.
+
+**Why the close rather than the phase that raised it.** The phases answer what they settle; what reaches the
+close is precisely what no phase could finish. The retirement is the last moment anyone decides anything
+about this feature with its code still in front of them, which is the same argument that puts the promotion
+of a note while the branch is alive (§14.5) and the release note's bump-level confirmation (§11.12) where
+they are. **It is the second thing `/feature-close` asks rather than reads**, and the two cannot be merged:
+this one feeds the `history.md` row, so it runs before the writes; the bump level is asked when the note is
+written, which is after them.
+
+**`--dropped` runs it too**, which was not obvious. The mode's existing release-note rule already settles
+it: *"a note belongs to the change that landed, not to the outcome the feature was later given."* An owner
+check about a phase that landed is the same case. An item about work that was never written is **waived by
+construction** and costs one line, not a walk.
+
+### 21.7 What was refused
+
+**A fourth Outcome value.** §21.5. Two independent reasons, and the second is fatal rather than merely
+costly.
+
+**A `context/checks.md`, or any file of pending checks.** §21.4. It is `findings.md` with a friendlier name
+and the same closer problem — nothing in the workflow could close a line in it, so the only bound available
+is a sweep, which §12.2 built and §14.6 refused.
+
+**A `workflow:check` label, or any new label.** §15.5 refused a `workflow:bug` label on §10.4's test and
+nothing has changed: nothing would read it, the only candidate reader is a command that would then have a
+queue, and a queue needs ranking. The project's own labels are the answer under both tracking answers.
+
+**A `check` rule faulting a plan archived with unresolved owner items.** The same rule §14.6 withdrew on
+inspection, for the same two reasons: it needs a parser for prose nothing else parses, and it is a reader —
+which is the mechanism by which a store fails silently rather than loudly.
+
+**Marking owner items with a parsed token** — `(owner)`, which two of the field's plans already use by hand.
+Attractive, and refused: a marker the sweep **relies** on is a mechanism maintained by discipline, and a
+plan that forgot it would sweep clean. The sweep has to read the prose either way, so the marker can only
+ever be help for a human reader. It is therefore requested in the template and the planner's brief, and
+**depended on nowhere** — the same standing the planned label has (*a rendering, and nothing reads it*).
+
+**Widening the sweep to §8.** §21.1. A pass with no driver is already required to land in §9.
+
+### 21.8 What it cost
+
+| File | What changed |
+|---|---|
+| `context/workflow.md` | one `##` section with two `###` children, and one cell in the commands table |
+| `context/workflow.notes.md` | the reasoning, under the matching heading |
+| `skills/feature-close/SKILL.md` | the pass, before the writes; the Why clause on step 1; §9 travelling with the document on step 3; one paragraph in Mode 2 |
+| `skills/feature-close/tracker.md` | three delta rows and one paragraph — all about where the words go |
+| `skills/feature-implement/SKILL.md` | one paragraph in step 7: a phase answers what it settles |
+| `skills/feature-plan/SKILL.md` | one bullet extended |
+| `context/plan-template.md`, `.notes.md` | §9's guidance says it has readers after the planner |
+| `claude/agents/planner.agent.md` | *mark them clearly* gains *and say which need a person* |
+| `stubs/history.md` | two sentences, where the person who would invent a fourth Outcome value is reading |
+
+**Thirteen tests.** No new file, no new stub, no `check` rule, no new status vocabulary, and no change to
+`check`, the manifest or any code path. **Verified on 2026-10-16** by packing the tree and installing it
+into an empty repository: `check` clean at exit 0, `update --dry-run` reporting 126 files current with
+nothing under **Next**.
+
+**Unrun, like everything else in PLAN.md item 1.** Whether a session actually reads §9 at the close rather
+than skipping to the writes, whether it applies the one bit instead of disposing of twenty lines, and
+whether it files an owner check as a check rather than as a bug are all behavioural and none is testable
+from outside a real session.
+
+### 21.9 The lesson
+
+§14.7 said: **when a store is deleted its contents go somewhere, and that somewhere is a design decision
+even when nobody makes it.** This is the inverse, and it is the sharper half.
+
+**When a document is archived, its unfinished business goes somewhere too — and if nothing decides where,
+the answer is the archive.** §9 was never a store anybody chose to keep; it was a section of a document
+that stopped being read. The two reads it had were both at the front of the feature's life, and nothing
+looked at it at the end, so the last honest act of nine features in a row — writing down that a person
+still had to look — was performed into a file whose only reader is somebody who already knew.
+
+The test that would have caught it is cheap and generalises past this section: **for every section of every
+document this tool ships, name the command that reads it, and name when.** A section with a writer and no
+reader is not documentation; it is a drain. §12.5 found two report lines asking for counts out of a deleted
+file, and the lesson taken was about deletion tests keyed on paths. The larger version was sitting beside
+it: **a reference nothing reads and a reader nothing references fail the same way, and only one of them
+looks like a bug.**
+
+---
+
+## 22. The sentence §15.3 replaced and nobody deleted — and the guard that was keyed on the wrong words
+
+Found while §21 was being written, in the paragraph next door. `/orchestrate` step 4 said:
+
+> **A non-blocking observation goes in this run's report and dies with the session** — unless it needs code
+> changes, in which case it is work and belongs in the backlog per `context/tracking.md`.
+
+That is the rule §14.3 took apart — *"every true observation about code needs code changes; the condition
+admitted essentially everything, which is not a bar"* — routing to the destination §15.3 forbade, and it
+had been shipping for four versions after both sections landed.
+
+### 22.1 It contradicted the same file, two paragraphs down
+
+Step 5 of the same skill already said the right thing:
+
+> **If the work is still worth doing, it is a bug** — file it wherever this project files bugs and name it.
+> **Never the backlog label**, for the reason in `context/workflow.md`.
+
+So one command held both answers at once, eleven lines apart. A session reading top to bottom met the stale
+one first, at the step where the decision is actually made, and the correct one later in a paragraph about
+a capped gate. **The fix reached `/feature-implement` and stopped there** — §15.3 names
+`/feature-implement` §9 as the line it was repairing, quotes it, and never looked for the sibling.
+
+### 22.2 Why the guard missed it, which is the part worth keeping
+
+§15.3 shipped a test rather than prose, deliberately, because the rule distinguishes reading the backlog
+from writing to it. It looked for a sentence containing **`backlog label`** plus an applying verb, and
+allowed it only if the sentence was also a refusal.
+
+The stale sentence contains **neither**. It says "the backlog", not "the backlog label" — and "belongs in",
+not "apply" or "add". It passed every version of the test while saying the opposite of the rule the test
+exists to enforce.
+
+**This is §12.5 exactly, a second time.** That section found two surviving references to a deleted file and
+drew the lesson: *a deletion test that matches the path misses every reference that never needed the path.*
+Here the test matched the **label**, and the violation never needed the label — the backlog is reachable by
+name, and a sentence can put something in it without naming the mechanism. The general form is one step up
+from both: **a guard keyed on the words of the violation it was written for catches that violation and no
+sibling.** Key it on the *fact* — something is being routed into the backlog — and the family is covered.
+
+**And the test comments asserted the fix had landed.** Two of them describe the old rule in the past tense
+— *"The old rule sent every non-blocking observation that 'needs code changes' to the backlog"* — beside a
+suite that was not checking the file where it was still in force. A comment is not a check, and a comment
+written at the moment of a repair is the most confident thing in the repository.
+
+### 22.3 The repair, in two halves
+
+**The prose.** Step 4 now carries the three ends by kind, as `/feature-implement` step 9 does, with the
+cheap one collapsed into the report because this command writes no `notes.md`. The dead condition is
+**named where it bit** — *not size, and not whether it needs code changes, which every true observation
+about code does* — rather than quietly dropped, so the next reader of that paragraph meets the reason and
+not just the rule. Step 5's summary line went too: *"an observation that is work becomes an issue"* is the
+same loose framing in softer clothing, since *work* spans a bug and a feature and the two have different
+destinations.
+
+**The guard**, keyed on `backlog` rather than `backlog label`, with a routing-verb set and two exemptions —
+the sentence refuses, or it hands the decision to `/roadmap`. Verified by reverting the one sentence and
+watching it fail, quoting the sentence verbatim. The exemptions are what keep it usable: *"the open issues
+carrying the backlog label"* is how half these commands find the backlog at all, and
+`/feature-implement`'s correct ending — *"that is a backlog entry, and adding one is `/roadmap`'s"* —
+names the command rather than refusing, which is the shape a correct hand-off has.
+
+**One leftover went with it:** `OWNS_A_GATE`, declared in the sibling describe block and never read, a
+duplicate of the `GATES` const two blocks down. Dead test scaffolding from the same repair.
+
+### 22.4 What it cost
+
+`skills/orchestrate/SKILL.md` — step 4's paragraph becomes three bullets, step 5's summary line rewritten.
+One test strengthened, one dead const removed, **no new test and no new rule**: the rule was already right
+in `workflow.md` and in two of the three places that cite it.
+
+**The lesson, which is about tests and not about backlogs.** A content test is written at the moment of a
+fix, against the sentence that was wrong, by somebody holding that sentence in their head. That is the
+worst possible moment to choose what the test matches on, and the best possible moment to think it is
+obvious. **Ask what else would violate this rule and not match this pattern** — and if the answer needs a
+grep, run the grep then, while the rule is still in frame.
+

@@ -1758,7 +1758,6 @@ describe('a defect the gate found has one home, and it is the ledger', () => {
   // below are that boundary.
   const flat = (text: string) => text.replace(/\s+/g, ' ');
   const workflow = readTemplate('context/workflow.md');
-  const OWNS_A_GATE = ['feature-implement', 'orchestrate'] as const;
 
   it('nothing the tool installs mentions the file, or ships it', () => {
     for (const { rel, text } of ourTemplates()) {
@@ -1961,22 +1960,46 @@ describe('a bug is not a backlog entry', () => {
     const MAY_WRITE_THE_LABEL = new Set(['roadmap', 'tracking-migrate', 'feature-plan']);
     assert.match(flat(workflow), /Nothing enters the backlog except through `\/roadmap`/);
 
-    // Reading the label is every command's business — "the open issues carrying the backlog label" is how
-    // half of them find the backlog at all. Only writing it is restricted, so this looks for a sentence
-    // that both names the label and applies one, and lets it stand only if it is a refusal.
-    const APPLIES = /\b(apply|applies|applying|add|adds|adding)\b/i;
+    // Reading the backlog is every command's business — "the open issues carrying the backlog label" is
+    // how half of them find it at all. Only putting something *into* it is restricted, so this looks for a
+    // sentence that names the backlog and routes something there, and lets it stand only if it refuses or
+    // hands the decision to /roadmap.
+    //
+    // **It is keyed on `backlog`, not on `backlog label`, and that is the whole repair.** The first
+    // version of this test matched the label, and `/orchestrate` went four versions saying a non-blocking
+    // observation "needs code changes, in which case it is work and belongs in the backlog per
+    // tracking.md" — the rule §14.3 called not a bar and §15.3 replaced, contradicting the same file's own
+    // step 5 two paragraphs later. It spelled neither "label" nor an applying verb, so nothing saw it, and
+    // the comments on the tests above described the fix as landed. §12.5's lesson, a second time: a test
+    // keyed on the exact words of one violation misses every sibling that never needed them.
+    const ROUTES = /\b(appl(y|ies|ying)|adds?|adding|appends?|appending|belongs?|enters?|labell?ed)\b/i;
     const REFUSES = /\b(never|not|no|refuse|refuses)\b/i;
+    const DEFERS = /`\/roadmap`/;
     for (const name of SKILL_NAMES) {
       if (MAY_WRITE_THE_LABEL.has(name)) continue;
       for (const sentence of flat(skillBody(name)).split(/(?<=[.:])\s+/)) {
-        if (!/backlog label/i.test(sentence) || !APPLIES.test(sentence)) continue;
-        assert.match(
-          sentence,
-          REFUSES,
-          `${name} applies the backlog label, and only /roadmap admits new work: "${sentence}"`,
+        if (!/backlog/i.test(sentence) || !ROUTES.test(sentence)) continue;
+        assert.ok(
+          REFUSES.test(sentence) || DEFERS.test(sentence),
+          `${name} routes work into the backlog, and only /roadmap admits new work: "${sentence}"`,
         );
       }
     }
+
+    // And the condition that made the stale sentence look reasonable is named where it bit, so the next
+    // reader of that paragraph meets the reason rather than the rule alone.
+    for (const name of GATES) {
+      assert.match(
+        flat(skillBody(name)),
+        /kind decides which/i,
+        `${name} must route a non-blocking observation by kind`,
+      );
+    }
+    assert.match(
+      flat(skillBody('orchestrate')),
+      /not whether it needs code changes/i,
+      'the bar that was not a bar is named where it was still in force',
+    );
   });
 
   it('the tracker answer says how a change closes an issue, and the skills do not', () => {
@@ -2290,3 +2313,127 @@ describe("/roadmap's print has a shape under the tracker answer", () => {
     assert.match(flat(roadmap), /If nothing is assigned, name `\/feature-plan`\*\* — and \*\*do not pick a candidate/i);
   });
 });
+
+describe('a question the plan could not settle has an end at close', () => {
+  // The field report: baldurpan.com retired features `shipped` whose history rows read "the Icelandic and
+  // VoiceOver check await the owner" and "the owner's wording (Q11, Q18), the halo and look (Q16, Q20) and
+  // an iPhone check (Q14) await". `/feature-implement` surfaces §9 at activation and nothing read it
+  // again, so the questions were archived into a file no command opens. None of the three endings in
+  // *What happens to a defect the gate found* fitted one: an owner check is not a defect, nobody wants a
+  // history row for "read the Icelandic", and `notes.md` is deleted at the close — which is the moment the
+  // check becomes real.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const workflow = readTemplate('context/workflow.md');
+  const close = flat(skillBody('feature-close'));
+
+  it('the contract has a section of its own, beside the one it is modelled on', () => {
+    assert.match(workflow, /^## What happens to a question the plan could not settle$/m);
+    assert.match(workflow, /^## What happens to a defect the gate found$/m, 'the sibling is still there');
+    assert.match(flat(workflow), /It is not a defect/, 'and the two are told apart');
+  });
+
+  it('three ends, and the user picks rather than the run', () => {
+    for (const end of [/\*\*answered\*\*/, /\*\*filed\*\*/, /\*\*waived\*\*/]) {
+      assert.match(workflow, end, `the contract names ${String(end)}`);
+    }
+    assert.match(flat(workflow), /silence is not a waiver/i, 'so a quiet turn cannot dispose of one');
+    assert.match(close, /silence is not a waiver/i, 'and the command applies it');
+  });
+
+  it('/feature-close reads the section nothing has read since activation', () => {
+    assert.match(close, /§9 Open questions/, 'it names the section');
+    assert.match(close, /this is the last command that ever will/i, 'and says why it is here');
+    assert.match(close, /\*\*Note\*\* column of its ledger/, 'the ledger Note is swept with it');
+  });
+
+  it('it runs before the writes, because both of them carry its result', () => {
+    assert.match(close, /before anything is written/i);
+    assert.match(close, /Nothing afterwards would have anything to amend/i);
+    // The two destinations for an end that is not a filing.
+    assert.match(close, /the why names it and the issue that carries it/i, 'the row points at the filing');
+    assert.match(close, /§9 travels with it, carrying the ends/i, 'the archive holds the rest');
+  });
+
+  it('a filed check goes on the bug shelf, as what it is and never into the backlog', () => {
+    const w = flat(workflow);
+    assert.match(w, /wherever this project already files bugs/i, 'the destination is the project\'s own');
+    assert.match(w, /never the backlog label/i, 'and the one rule that governs it is restated nowhere else');
+    assert.match(w, /filed as what it is, and not as a bug/i, 'the kind is not the destination');
+    assert.match(close, /not written up as a defect/i, 'and the command says the same');
+  });
+
+  it('a project that files bugs nowhere gets two ends, not an invented store', () => {
+    for (const text of [flat(workflow), close]) {
+      assert.match(text, /two ends rather than three/i);
+      assert.match(text, /not invent a store/i);
+    }
+    assert.match(close, /not hold up the retirement/i, 'and a gap is not a refusal, as everywhere else');
+  });
+
+  it('the Outcome column gains no value, because the file is append-only', () => {
+    // The tempting fix is a fourth outcome word. `history.md` is append-only and never edited, so that
+    // word outlives the check by as long as the repository lasts; and under the tracker answer the column
+    // is the close reason, which has two values and no room for a third.
+    const w = flat(workflow);
+    assert.match(w, /The Outcome column does not change and gains no value/i);
+    assert.match(w, /append-only and never edited/i);
+    assert.match(w, /a status nothing can withdraw/i);
+    assert.match(w, /The Why column names what is waiting and the issue that carries it/i);
+    assert.match(flat(readTemplate('stubs/history.md')), /the issue that carries it/i, 'where a reader is');
+  });
+
+  it('nothing new accumulates — no file, no stub, no check rule, no status', () => {
+    // §12 and §14's whole lesson. The bound is the lifecycle: one plan's §9, archived and never read
+    // again, so nothing carries into the next feature. A store watched while it grows is the thing that
+    // was removed twice.
+    assert.equal(
+      STUBS.find((s) => /owner|check/i.test(s.dest)),
+      undefined,
+      'an install ships a store for these',
+    );
+    const rules = readFileSync(path.join(packageRoot, 'src/check/rules.ts'), 'utf8');
+    assert.doesNotMatch(rules, /owner check/i, 'check grew a reader, which is what makes a store silent');
+    assert.match(flat(workflow), /This adds no status and no fourth phase state/i);
+    assert.match(flat(workflow), /does not gate one/i, 'and it cannot hold a phase open');
+  });
+
+  it('notes.md keeps its unconditional delete, and the two files are told apart', () => {
+    assert.match(close, /not the `notes\.md` triage refused further down/i);
+    assert.match(flat(workflow), /`notes\.md` is not swept/i);
+    assert.match(flat(workflow), /That file is a gate's; this section is the plan's/i);
+    // The refusal this must not have reopened.
+    assert.match(close, /delete it — whole/i);
+    assert.match(close, /do not assign each line a disposition/i);
+  });
+
+  it('a phase answers what it settles, the way it fixes what it makes untrue', () => {
+    const implement = flat(skillBody('feature-implement'));
+    assert.match(implement, /answered in the plan's §9, by this phase/i);
+    assert.match(implement, /Leave the items this phase did not settle alone/i);
+    assert.match(implement, /step 11 does not test for it/i, 'settling one is not a phase obligation');
+  });
+
+  it('the planner is told the section has readers after it', () => {
+    assert.match(flat(readTemplate('context/plan-template.md')), /items need a person/i);
+    assert.match(flat(readTemplate('context/plan-template.notes.md')), /two readers after you/i);
+    assert.match(flat(skillBody('feature-plan')), /which of them need a person/i);
+    assert.match(flat(readTemplate('claude/agents/planner.agent.md')), /which ones need a person/i);
+  });
+
+  it('the tracker answer moves where it is written and nothing else', () => {
+    const tracker = flat(readTemplate('skills/feature-close/tracker.md'));
+    assert.match(tracker, /§9 is a section of the body, and the body is the plan/i);
+    assert.match(tracker, /the closing comment names it, by number/i);
+    // The primitive someone will reach for and must not: `blocked by` is between features.
+    assert.match(tracker, /no `blocked by` relationship/i);
+    assert.match(tracker, /an owner check is not one/i);
+  });
+
+  it('--dropped still gives a landed phase\'s check an end', () => {
+    // Same rule the release note already follows in that mode: the check belongs to the code that landed,
+    // not to the outcome the feature was later given.
+    assert.match(close, /The open-questions pass still runs, and it still runs first/i);
+    assert.match(close, /waived by construction/i, 'and an item about work never written costs one line');
+  });
+});
+

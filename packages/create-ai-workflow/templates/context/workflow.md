@@ -36,7 +36,7 @@ This file holds the rules. Why each rule is what it is, and what was tried inste
 | `/feature-plan` | Tier 1 → a plan document | `plans/<NAME>-PLAN.md`; the `active` marker only with `--activate` |
 | `/feature-implement` | activation, and the phases within a plan | the plan's ledger, the code, and a release note where [`release.md`](release.md) says *per phase* |
 | `/feature-status` | nothing — read-only | — |
-| `/feature-close` | Tier 2 → retired | `history.md`, `archive/`, the reference sweep, a release note where [`release.md`](release.md) says *once per feature*, and the push and pull request where [`git.md`](git.md) says so |
+| `/feature-close` | Tier 2 → retired | `history.md`, `archive/`, the reference sweep, an end for every open question that still needs a person, a release note where [`release.md`](release.md) says *once per feature*, and the push and pull request where [`git.md`](git.md) says so |
 | `/orchestrate` | one ad-hoc gated change | the code, a release note where [`release.md`](release.md) says one is owed, and under `--pr` the branch it pushes and the pull request it opens |
 | `/release` | the one act that consumes notes | nothing of its own — it runs what [`release.md`](release.md)'s *Bump* wire names, on a branch [`executors.md`](executors.md) made, and ends at a pull request |
 | `/prototype` | one throwaway HTML/CSS mockup — no gates, no application code | `prototypes/<NAME>/`, and nothing else |
@@ -347,3 +347,73 @@ has already written where the phase stands.
 **`/orchestrate` has no ledger**, so a capped gate there hands the work back: it stays in the working tree,
 the report says what failed, and anything still worth doing becomes an issue. **It writes no `notes.md`** —
 it has no close, so nothing would ever delete one.
+
+## What happens to a question the plan could not settle
+
+A plan's §9 Open questions has two readers after the planner: `/feature-implement` surfaces it at
+activation, and `/feature-close` goes through it at the retirement. **In between it is the phases' to
+answer** — whatever a phase settles is written into the item it settles, by that phase, the same way
+whatever it makes untrue in the documentation is fixed by it.
+
+**What is still open at the retirement is an owner check:** an item no gate can close, because it needs a
+person — a
+reading in a language nobody on the branch speaks, a screen-reader pass, a judgement about how something
+looks, a check on a device this project does not drive. **It is not a defect.** Nothing is known to be
+wrong; nobody who could say has looked.
+
+> **`/feature-close` gives every one of them an end, before it writes anything.** A feature retires with
+> its open questions answered, filed or waived — never with them archived into a document no command opens
+> again.
+
+| End | When | Where the record lives |
+|---|---|---|
+| **answered** | the call has since been made — by a phase, or by the user in this turn | the §9 item itself, answered in place. The archived plan is the record |
+| **filed** | it still needs a person, and the feature is retiring anyway | wherever this project already files bugs — see below |
+| **waived** | the user says in this turn that it does not matter | the §9 item, marked waived. That is the whole of it |
+
+**The user picks, item by item, and silence is not a waiver.** This is the second thing `/feature-close`
+asks rather than reads, beside the bump level, and for the same reason: it is a judgement about somebody's
+own project, made at the last moment it can be made against code that still exists.
+
+**A ledger Note that names something waiting on a person is swept the same way.** The retirement already
+reads every row, so reading the Note column while you are in there costs nothing.
+
+**This adds no status and no fourth phase state.** An owner check is not a phase's and does not gate one —
+a phase whose scope landed and whose gates passed is `done` whether or not a person has since looked at
+what it produced.
+
+**`notes.md` is not swept, and the unconditional delete above stands.** That file is a gate's; this
+section is the plan's. Anything in `notes.md` that should outlive the branch was promoted while the branch
+was alive, which is the only moment that call can be made.
+
+### Where a filed owner check goes
+
+**Wherever this project already files bugs**, carrying this project's own labels, and **never the backlog
+label** — the same shelf a bug goes on, under both of [`tracking.md`](tracking.md)'s answers and for the
+same reason: it is outside the one bit that file adds to an issue. The workflow does not read it, rank it
+or carry it, and **the person who does the check is what closes it.**
+
+**It is filed as what it is, and not as a bug.** Say what has to be looked at and who it waits on. A
+pending screen-reader pass recorded as a defect is a defect report nobody can reproduce.
+
+**An object with an assignee, in a list somebody reads, is the point** — which is also the whole reason
+this gets no file of its own. A line in a file costs nothing to write and nothing to ignore, and *nothing
+to ignore* is the property that sank the last two stores: the fact *this check has not been done* has to
+be **observable**, and an open issue is, while a line under a heading is not.
+
+**Where this project files bugs nowhere, there are two ends rather than three.** Say so, and the item is
+answered or waived. **Do not invent a store for it**, and do not hold up the retirement over it.
+
+### The history row says what is waiting, in the Why
+
+**The Outcome column does not change and gains no value.** A feature with a pending owner check is
+`shipped` — a check nobody has run does not un-ship it. Two reasons it could not say otherwise even if it
+should: [`history.md`](history.md) is **append-only and never edited**, so an outcome reading *pending* is
+a claim nothing can retract once the owner has looked; and under [`tracking.md`](tracking.md)'s tracker
+answer that column is the issue's close reason, which offers *completed* and *not planned* and no third
+thing. **A status in an append-only file is a status nothing can withdraw.**
+
+**The Why column names what is waiting and the issue that carries it**, in a clause, like everything else
+in that row. The difference between this and a row that merely mentions a pending check is the whole of
+the fix: the sentence is a **pointer**, and the issue is the record. A sentence that *is* the record is a
+record nothing reads.

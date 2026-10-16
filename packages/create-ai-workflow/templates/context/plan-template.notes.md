@@ -76,7 +76,11 @@ something a person operates, an **end-to-end pass in a real browser** for a user
 to compare for a hot path. Which driver runs it is [`verify.md`](verify.md)'s answer and never this
 section's; a feature whose project has no such driver says that in §9 rather than naming one.
 
-**§9 Open questions** — what the plan could not settle. Do not paper over them.
+**§9 Open questions** — what the plan could not settle. Do not paper over them. **Say which items need a
+person**, because this section has two readers after you: `/feature-implement` surfaces it at activation,
+and `/feature-close` goes through it before the plan is archived and gives every item that still needs a
+person an end — answered, filed where this project files bugs, or waived by the user in that turn. An item
+a phase settles is answered in place, by that phase. Nothing here is archived unread.
 
 ## Standing rules
 

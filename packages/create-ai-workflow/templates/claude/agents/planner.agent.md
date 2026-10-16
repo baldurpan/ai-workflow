@@ -70,7 +70,10 @@ testable acceptance criteria, and the review checklist items (naming the specifi
 
 **Edge cases** — the cross-cutting ones not tied to a single step.
 
-**Open questions** — anything you could not resolve. Mark them clearly.
+**Open questions** — anything you could not resolve. Mark them clearly, and **say which ones need a
+person** rather than more research: a reading, a judgement by eye, a pass on a device nothing here drives.
+Those are the ones `/feature-close` has to find and give an end to, and it finds them by reading what you
+wrote.
 
 ## Rules
 

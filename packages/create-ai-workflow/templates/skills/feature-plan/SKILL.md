@@ -169,7 +169,11 @@ Fill in the template's shape. Then:
   is `context/verify.md`'s answer; **if that file names nothing that drives a browser, say so in §9 rather
   than inventing one** — a standard named in a phase's review expectations and nowhere checkable is a rule
   nobody runs, and `/onboard` is what fills the gap.
-- Fill in **§9 Open questions** honestly. An honest gap is worth more than an invented decision.
+- Fill in **§9 Open questions** honestly. An honest gap is worth more than an invented decision. **Say
+  which of them need a person** — a reading, a judgement, a pass on a device
+  [`context/verify.md`](../../../context/verify.md) names no driver for — because `/feature-close` goes
+  through this section and each one of those has to be answered, filed or waived before the feature
+  retires.
 - Every phase is `not started`.
 
 ### 7. Update the roadmap entry

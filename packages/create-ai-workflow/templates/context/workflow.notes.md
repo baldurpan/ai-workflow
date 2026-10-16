@@ -249,3 +249,49 @@ change has no close — so a note written there is the one that would outlive ev
 change that cannot pass its gates is not a thing to file away; it is a thing to hand back, because nothing
 about it is half-finished in a way the next session could resume. The tree either carries the change or it
 does not.
+
+## What happens to a question the plan could not settle
+
+The field report is the shape of the thing. One repository retired six features `shipped` whose history
+rows read *"the Icelandic and VoiceOver check await the owner"*, *"the owner's Icelandic wording and
+VoiceOver reads await"*, *"the owner's wording, the halo and look and an iPhone check await"*. Every one of
+those sentences is true, written on purpose, and read by nothing. `/feature-implement` surfaces the plan's
+open questions at activation and no command opens them again, so they were archived into a file whose only
+reader is somebody who already knew to look.
+
+**None of the three endings for a defect fitted it**, which is why it had none. It is not a bug — nothing
+is known to be wrong. It is not a backlog entry — nobody wants a history row for *read the Icelandic*. And
+it is not a note, because notes are deleted at the close, which is the moment the check becomes real.
+
+**The destination is the bug shelf and the kind is not a bug**, and keeping those two apart is the whole
+design. The same shape turned up when a bug needed somewhere to go: the project's own tracker already was
+the answer, and what was missing was a sentence saying so. The properties an owner check needs are the five
+a bug already has there — durable, outside the backlog bit, holding an assignee, closed by a person, read
+by nothing in the workflow — so a second shelf would buy a word and nothing else. But filing it *as* a
+defect is a defect report nobody can reproduce, so it says what it is.
+
+**Why not a file.** Because of the property that makes `notes.md` right for the opposite case: a line in a
+file costs nothing to write and **nothing to ignore**. For a note that is the feature; for a check somebody
+has to perform it is the failure. The fact *this has not been done* has to be observable in a place a
+person already looks, rather than stored where somebody has to maintain it. An open issue is observed. A
+heading accumulating lines is maintained, and both stores this design has removed failed in exactly that
+way.
+
+**Why the outcome column gains no value.** The temptation is a fourth word — `shipped`, with something
+appended, so the row says the check is pending. `history.md` is append-only and never edited, so that word
+would still be there a year after the owner looked, and nothing in the workflow would ever remove it. Under
+the tracker answer the column is the close reason, which has two values and no room for a third. A status
+in an append-only file is a status nothing can withdraw; an issue can be closed, which is why the row
+points at one instead of claiming the fact itself.
+
+**Why it is not the triage ceremony this design has already refused once.** That sweep disposed of an
+unbounded store of gate observations, and it bounded the tail while leaving the accumulation. This one
+reads one plan's open questions — written once by `/feature-plan`, bounded by the plan, already read at
+activation — and applies one bit to them: *does this need a person*. Most do not, and one a phase settled
+reads as settled because that phase wrote the answer into it. The lifecycle does the rest: a plan is
+archived and never read again, so nothing carries forward into the next feature.
+
+**Why the close rather than the phase that raised it.** The phases answer what they settle, and that is
+where most items end. What is left is precisely what no phase could finish, and the retirement is the last
+moment anyone is deciding anything about this feature with its code still in front of them — the same
+argument that puts the promotion of a note, and the release note's bump level, where they are.
