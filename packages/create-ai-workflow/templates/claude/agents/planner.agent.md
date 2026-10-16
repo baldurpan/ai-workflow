@@ -87,5 +87,12 @@ wrote.
   Verification says how that is checked — the keyboard pass, the contrast check, an end-to-end pass in a
   real browser. Name no driver for it: `context/verify.md` is the only file in this project that names a
   command, and if it names nothing that drives a browser that is an open question, not an invention.
+- **Name what decides every value the feature computes.** §8 Verification carries them, one row each: the
+  requirement, the specification, the published reference or the outside source that says what the value
+  should be. The coder decides its expected values from those rows and never from the code it is writing —
+  *An expected value has a source, and it is never the code under test* in `context/workflow.md` — and
+  finding the source is research, which is yours. A value whose source you could not find is an **open
+  question**, not a number for the implementation to pick; a feature that computes nothing of its own says
+  that instead of leaving the table empty.
 - **Name no verification command.** `context/verify.md` is the only file in this project that does. Point
   at it.

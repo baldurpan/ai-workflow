@@ -3,14 +3,14 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 4357 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 4803 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 316 tests. The 201 in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 325 tests. The 210 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, git on instruction rather than on
    initiative, a worktree made by the recorded command or not at all, one home for the tracker, no
@@ -23,7 +23,9 @@ Every `§`-number below points into that document.
    not hold a false answer, one status vocabulary with no second place to record a defect, an order
    between features that is a relationship rather than a sentence, **a plan's open question that still needs
    a person getting an end at the close rather than being archived unread**, a titled §-citation resolving against
-   the template, the tracker half of a command kept beside its body and read only where it applies, a
+   the template, **an expected value that has a source outside the code under test, with the rule in one
+   file and its title in the four that cite it**, the tracker half of a command kept beside its body and
+   read only where it applies, a
    model tier that is an alias and never a dated id, and every relative link resolving after install — in
    both skill trees. `ci.yml`
    runs them on every push and pull request against `main`, plus an `engines-floor` job that builds on
@@ -37,13 +39,42 @@ answer** (§11) in both its phases, with the event that completes it (§11.10), 
 and **§11.12** — and it was the first release cut from accumulated notes in this repository, so
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
 `blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
-adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; and **§20**, **§21** and **§22** are written and
-unreleased.
+adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; and **§20**, **§21**, **§22** and **§23** are
+written and unreleased.
 
 **The version each section shipped in is below, on the section.** A paragraph here is the summary of a
 `DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
+
+**Written and unreleased: §23**, the correctness rule the coder never had. `roles/coder.md` held nine
+coding principles and **no step saying when a test is written or where its expected value comes from**, so
+a test could assert whatever the code returned and both gates would pass — Gate 1 because a copied
+expectation is the one assertion that cannot fail, Gate 2 because the checklist asks whether the behaviour
+is covered and the standards say *test behaviour, not internals*, which a copied expectation satisfies
+perfectly. **This is the third instance of the shape §2.9 and §13.1 found: no gate fails**, and the fix has
+the same two halves both times — a question asked out loud, and a place to write the answer down. Taken
+from a second repository's agent tree, where the answer was entangled with a date-time domain; **three
+sentences survive the removal of it** — decide the value before any code runs, check it against something
+independent of the implementation, and a green suite only proves the tests and the code agree with each
+other. The named authorities, the named tools, the word *oracle* and the *zero known bugs* policy did not
+travel. **One sentence was added that the reference does not have:** say where the rule does not apply, for
+documentation, configuration and wiring that only passes a value through — a tool that installs everywhere
+needs it or the rule is ignored on the two thirds of changes it was never about. The rule has **one home**
+in `workflow.md` and **four readers with four different obligations**: the coder's five-step slice loop,
+`plan-template.md` §8's row per computed value, the planner finding those sources as research with an
+unfound one going to §9, and the reviewer's two standing checks. The two reviewer checks are split because
+they **fail differently** — a sourceless expectation is a check that cannot fail, a rule nothing asserts is
+a check that was never switched on — and the enforcement point is the reviewer rather than the coder,
+because the coder is the party who can make a test green by moving the expectation. Gate 1's half is a
+**marker check offered and never installed**: a runner reports a skip as a pass, so the Test section can
+exit 0 while the suite asserts almost nothing, and `/onboard` Step 7 offers a section for it while
+`verify.md` stays the only file that names its command. **Three refusals** — no shipped script, no stub
+heading (`stubGaps` would report a gap to every existing install), and optional on purpose, since a project
+that marks work in progress with a skip has chosen something this check forbids. **The category is named
+and the syntax never is**, as a new test over every template: a marker's spelling picks a stack. Nothing
+under `standards/` changed (§6.3) and no skill body did — the host-review fallback already reads
+`workflow.md`. **Nine tests**, +1,643 bytes on the per-phase read.
 
 **Written and unreleased: §22**, found in the paragraph next door while §21 was being written.
 `/orchestrate` step 4 still said a non-blocking observation *"needs code changes, in which case it is work

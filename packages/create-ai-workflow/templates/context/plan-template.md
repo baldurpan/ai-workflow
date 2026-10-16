@@ -99,6 +99,16 @@ reads as "not checked", and nothing downstream can tell those apart.>
 
 <How to prove the feature works, beyond `context/verify.md` passing.>
 
+**What decides each value this feature computes.** One row per value, so the expected value in a test has a
+source that is not the implementation.
+
+| Value | What decides it |
+|---|---|
+| <a number, string or structure this feature produces> | <the requirement, specification, published reference or outside source that says what it should be — never the code that computes it> |
+
+<If the feature computes no values of its own — wiring, configuration, documentation — say that. A value
+whose source could not be found belongs in §9, not in this table.>
+
 ## 9. Open questions
 
 - <Anything the plan could not settle. An honest gap is worth more than an invented decision. Say which

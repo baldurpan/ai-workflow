@@ -171,6 +171,28 @@ review expectations on the phase that carries it, and whatever proves it goes in
 Verification — for something a person operates, an **end-to-end pass in a real browser**. Which browser
 driver is [`verify.md`](verify.md)'s answer like every other command, and nothing here names one.
 
+### An expected value has a source, and it is never the code under test
+
+> **Where a change has behaviour you can observe at a seam, work test-first in thin slices: decide what
+> each expected value should be — from the requirement, the specification, or a source independent of the
+> implementation — before the code that produces it runs, and write down what decided it. Never read an
+> expectation back out of the code under test. Documentation, configuration and wiring that only passes a
+> value through have no such seam; say which it is rather than leaving the question unasked.**
+
+**A green suite proves that the tests and the implementation agree with each other.** It says nothing about
+whether either agrees with the requirement, so an assertion copied from what the code returned passes both
+gates forever and pins nothing: Gate 1 runs the suite, and Gate 2 walks a checklist that was never asked
+where the number came from. The plan is where the sources are written — a value this feature computes gets
+a row in its §8 Verification naming what decides it, and a value whose source nobody could find is a §9
+open question rather than a number for the implementation to supply.
+
+**Two findings follow, and Gate 2 raises them whatever the suite says:** an expected value with no
+traceable source, and a rule the code implements that no test asserts. Neither is visible to Gate 1 — the
+first passes, and the second is behaviour nothing would fail if it stopped.
+
+Testing behaviour at a seam rather than internals is the vendored tree's rule and not this one's; the
+phase's `Standards:` line names the file that carries it.
+
 ### What a change announces is an answer, not an assumption
 
 > **Read [`release.md`](release.md) before closing out any command that lands code. If it does not exist, or

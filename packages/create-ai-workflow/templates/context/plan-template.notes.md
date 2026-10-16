@@ -76,6 +76,15 @@ something a person operates, an **end-to-end pass in a real browser** for a user
 to compare for a hot path. Which driver runs it is [`verify.md`](verify.md)'s answer and never this
 section's; a feature whose project has no such driver says that in §9 rather than naming one.
 
+**It is also where each value the feature computes gets a source**, one row each: the requirement, the
+specification, the published reference or the outside source that says what the value should be. The coder
+works test-first from that row — *An expected value has a source, and it is never the code under test* in
+[`workflow.md`](workflow.md) — so a row left unwritten is an expectation somebody derives mid-phase, in the
+one place it is cheapest to derive it from the code that was just written. Research is what finds these,
+which is why they are planned rather than left to the phase. A feature that computes nothing of its own
+says so; a value whose source the research could not find is a §9 open question, because the alternative is
+a number the implementation gets to choose.
+
 **§9 Open questions** — what the plan could not settle. Do not paper over them. **Say which items need a
 person**, because this section has two readers after you: `/feature-implement` surfaces it at activation,
 and `/feature-close` goes through it before the plan is archived and gives every item that still needs a

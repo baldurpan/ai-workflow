@@ -26,6 +26,15 @@ can still afford on every phase, and that fails because of the change rather tha
 — an accessibility suite, a size budget, a coverage floor. Gate 1 runs every section above *Not run by
 Gate 1*, in order, so a heading placed there is run like any of the four.
 
+**One of them is offered by `/onboard`, and is worth adding by hand if that offer was declined or never
+made: a check that no test in the suite is skipped, focused or expected to fail.** A runner reports a
+skipped test as a pass and a focused one silences every test beside it, so *Test* above can exit 0 while
+the suite asserts almost nothing — and no other section here can see it, which makes this the gap the four
+headings leave. **Optional on purpose:** a project that uses a skip to mark work in progress has chosen
+something this check forbids, and declining it is a real answer. Where it is wanted, it goes in *Test* if
+this project's runner or its lint rules can assert it there, otherwise under a heading of its own; either
+way the command belongs in [`verify.md`](verify.md)'s block and nowhere else.
+
 ## Not run by Gate 1
 
 Three kinds of command go here: ones that need Docker, a cloud account or a deploy target; ones Gate 1

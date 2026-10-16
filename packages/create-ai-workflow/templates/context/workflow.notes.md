@@ -92,6 +92,32 @@ catches a fraction of the first and none of the rest. Neither gap was a missing 
 already said accessibility was part of done — so the fix is a question asked out loud, with *none of these*
 a legitimate answer and silence not one.
 
+### An expected value has a source, and it is never the code under test
+
+The gates had no opinion about where an expectation came from. A test that asserts whatever the function
+returned is green on the first run and green on every run after, so Gate 1 passes it, and Gate 2 was asked
+whether the behaviour was covered and never where the number came from. Both gates can therefore be
+satisfied by a suite that records what the implementation happened to do on the day it was written — and
+the next change is free to move the behaviour and the expectation together, because nothing outside the
+code ever said which one was right.
+
+This is the same shape as the two rules above it: **no gate fails.** A README describing a renamed flag, a
+control no keyboard can reach, and an expectation copied out of the code are all invisible to a run that
+exits 0, and none of the three was a missing standard. The vendored tree already says to test behaviour at
+a seam rather than internals; what it does not say is where the expected value comes from, and that is the
+sentence this rule adds.
+
+Deciding the value first is what makes the order matter rather than the ceremony. A test written after a
+passing implementation can still be a good test, but the cheapest way to write it is to run the code and
+record the answer, and nobody reading it later can tell which of the two happened. Writing down what
+decided the value is what makes that distinguishable — and it is why the planner carries the sources in §8
+rather than leaving each one to be rediscovered per phase.
+
+The two findings are split the way they are because they fail differently. A sourceless expectation is a
+test that cannot fail; an unasserted rule is behaviour that can be removed without anything failing. One is
+a check switched off, the other is a check that was never on, and a reviewer looking only for the first
+leaves the second in place.
+
 ### What a change announces is an answer, not an assumption
 
 *Documentation is part of the change* covers a README that a rename made wrong. It does not cover the

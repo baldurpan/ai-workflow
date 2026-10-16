@@ -48,6 +48,25 @@ writing "line 42 says X", verify that line 42 says X. If you cannot, write
 
 For every item in the plan's review checklist, write a verdict, using only the evidence from step 1.
 
+**Two checks are standing: they run on every review, whether or not the checklist names them.** Both come
+from *An expected value has a source, and it is never the code under test* in `context/workflow.md`, and
+both are invisible to the gate that ran before you.
+
+- **An expected value with no traceable source is a finding, even though the tests are green.** For each
+  assertion this change added or changed, ask what decided the value: the requirement, the plan's §8
+  Verification row, a specification, a reference independent of this codebase. Where the only available
+  answer is *what the code returns*, say so — that assertion pins the implementation to itself and will
+  pass through any change the implementation makes. **You are called after verification passed, and that
+  proves only that the tests and the code agree with each other.** Whether either agrees with the
+  requirement is your question, and a passing assertion is not evidence for it.
+- **A rule the code implements that no test asserts is a finding too.** Where the change honours a
+  requirement or a §3 decision and nothing in the suite would fail if it stopped honouring it, the next
+  change is free to break it silently. Name the rule, and name the seam where it could be pinned.
+
+Judge both by step 3 like anything else — blocking only where all three of its conditions hold. Where the
+change is documentation, configuration or wiring that only passes a value through, there is no seam and
+neither check has anything to find; say that rather than reporting nothing.
+
 Then check whatever `context/release.md` requires of the paths this change touched. **Read that file's
 granularity answer before judging:** where it says a note is written once per feature, a phase owes
 nothing and a missing note is not a finding. Where it says per phase, a path whose row deserves a note and

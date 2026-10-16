@@ -4668,3 +4668,136 @@ worst possible moment to choose what the test matches on, and the best possible 
 obvious. **Ask what else would violate this rule and not match this pattern** — and if the answer needs a
 grep, run the grep then, while the rule is still in frame.
 
+## 23. The gates never asked where an expected value came from
+
+Asked for after a reading of a second repository's agent tree, which had solved this and whose solution was
+entangled with its domain. The hole in this tool, stated as the request did: **a test can assert whatever
+the code returned, and both gates pass.**
+
+`context/roles/coder.md` had nine coding principles, the last of which says *"favour deterministic,
+testable behaviour; keep tests focused on observable behaviour"* — and no step saying when a test is
+written or where its expected value comes from. `claude/agents/reviewer.agent.md` walks the plan's review
+checklist and the standards files the phase names, and asks of each item whether the implementation
+satisfies it. Neither file, and no standards file in the vendored tree, asks the one question that
+separates a test from a transcript.
+
+### 23.1 Why neither gate catches it
+
+**Gate 1 is the suite, and a copied expectation is the one assertion that cannot fail.** It passed on the
+run that produced the number and it will pass on every run after, including the run where the behaviour
+changes — because the change moves the expectation with it, and nothing outside the code ever said which
+value was right.
+
+**Gate 2 reads a checklist that was written before the tests existed.** The planner drafts review items
+that name specific standards; the standards say to test behaviour rather than internals, which a copied
+expectation satisfies perfectly. A reviewer answering *is this behaviour covered* gets a yes.
+
+This is the third instance of the shape §13.1 named and §2.9 named before it: **no gate fails.** A README
+describing a renamed flag, a control no keyboard can reach, and an assertion copied out of the code are
+all invisible to a run that exits 0. The pattern is now established enough to state as a design fact rather
+than a coincidence — *the three holes in this workflow are all outputs with no gate behind them*, and each
+fix has had the same two halves: a question asked out loud, and a place to write the answer down.
+
+### 23.2 What was taken from the reference tree, and what was left
+
+The reference is a Temporal date-time library whose `tdd-dev` role, `gmt-reviewer` § *Why a green suite
+proves nothing*, and `scripts/test-markers.mjs` carry the answer. Almost all of it is domain:
+`@js-temporal/polyfill`'s catalogued defects, TC39 and RFC 9557 as authorities, `pnpm compat:oracle`,
+test262 files, a priority-tier table, a zone matrix. **Three sentences survive the removal of the domain:**
+
+1. **Decide what should be returned before any code runs**, and be able to say why in one line.
+2. **Check it against something independent of the implementation** — never the code under test, never a
+   helper the same change touches, never a reference implementation written for the task.
+3. **A green suite establishes that the tests and the implementation agree with each other**, and nothing
+   else.
+
+The vertical-slice loop survives too, as a loop rather than as a tier table. What did not survive: every
+named authority, every named tool, the word *oracle* — which carries the reference's whole apparatus of
+approved sources and means nothing without it — and the *zero known bugs* rule, which is a project's
+policy about its own defects and not a property of a correct test.
+
+**One sentence was added that the reference does not have**, because this tool installs into repositories
+that are not a specification-governed library: **say where the rule does not apply.** Documentation,
+configuration and wiring that only passes a value through have no seam to observe, and test-first against
+them produces a test of the framework. The reference never needed this — every task in it computes a date
+— and a tool that ships everywhere does, or the rule gets quietly ignored on the two thirds of changes it
+was never about and loses its force on the third it was.
+
+### 23.3 The rule has one home, and four readers cite it
+
+`context/workflow.md` gains a standing rule, placed beside the two it is kin to, with the blockquote
+carrying all three sentences plus the exemption. **The four obligations are different work, which is why
+they are in four files and not four copies:**
+
+| File | Its obligation |
+|---|---|
+| `roles/coder.md` | the slice loop, in five steps: derive, check independently, watch it fail, minimal change, next |
+| `plan-template.md` §8 + its notes | a row per value the feature computes, naming what decides it |
+| `planner.agent.md` | finding those sources is research, and an unfound one is a §9 open question |
+| `reviewer.agent.md` | two standing checks, run whether or not the checklist names them |
+
+The content test asserts the blockquote appears in exactly one shipped file and the rule's **title** in the
+other four — the §22 lesson applied before the fact: a test keyed on the rule's sentences would pass a
+fifth file that restated them in its own words, which is the drift the standing-rules section exists to
+stop.
+
+**The reviewer's two checks are split because they fail differently.** A sourceless expectation is a check
+that cannot fail; a rule nothing asserts is a check that was never switched on. A reviewer looking only for
+the first leaves the second in place, and the second is the one that makes the next refactor free to break
+a requirement silently.
+
+**Why the reviewer and not the coder is the enforcement point.** The coder is the party with the motive —
+it is the one who can make a test green by moving the expectation — so the check belongs to the reader who
+never saw the implementation being written. The coder's own instruction is the weaker one on purpose: *say
+where the value came from*, which is a thing to write rather than a thing to judge.
+
+### 23.4 Gate 1's half: a marker check, offered and never installed
+
+The reference's `test-markers.mjs` fails on a skipped, focused or expected-to-fail test, and on a
+known-defect note. The transferable part is the first: **a runner reports a skip as a pass, and a focused
+test silences every test beside it**, so the Test section can exit 0 while the suite asserts almost
+nothing. That is a gap the four headings cannot see, which makes it exactly the case §13.2 opened *a heading
+of your own* for.
+
+**It ships as an offer in `/onboard` Step 7 and as a paragraph in `verify.notes.md`, and nothing else.**
+Three refusals, each deliberate:
+
+- **No script.** §4.2's rule is that `verify.md` is the only file naming a command; a shipped script would
+  be a command in a file the project did not choose, in a runner this tool cannot know. What a project uses
+  to detect markers — a lint rule, a runner flag, a few lines of its own — is its answer to write down.
+- **No stub heading.** Adding a `##` to `stubs/verify.md` would make `stubGaps` report a gap to every
+  existing install, for a section most of them will decline. §17.2's constraint, unchanged.
+- **Optional, and declining is an answer.** A project that marks work in progress with a skip has chosen
+  something this check forbids. The reference can forbid it because *zero known bugs* is its policy; this
+  tool has no standing to make that choice for a repository it is installed into, and the one it does make
+  — offer it, name what it protects, record the answer — is the same shape as every other `/onboard` step.
+
+**The category is named and the syntax never is**, which is a new content test over every shipped template:
+a marker's spelling is per-runner, so a template that writes one has picked a stack. *Skipped, focused or
+expected to fail* is what every runner has.
+
+### 23.5 What was not done
+
+**No standards file was touched.** `context/standards/` is vendored verbatim from another repository (§6.3) and
+`update` replaces the tree wholesale, so a rule written there is a rule lost on the next sync. The three
+files checked for overlap — `react/testing.md`, `php/testing.md`, `philosophy/ai-agent-behavior.md` — all
+say *test behaviour, not implementation*, and none says where an expected value comes from; the two rules
+compose rather than conflict, so the workflow rule cites them for the half they own and states only its
+own half. The citation is to the phase's `Standards:` line rather than to a path, per §17.3.
+
+**No skill body changed.** The rule's readers are the two role files and the two agent prompts, and the
+host-review fallback — the session reviewing its own diff — reads `workflow.md` already, since the
+`AGENTS.md` block names it first. Adding a citation to `/feature-implement` and `/orchestrate` would have
+bought nothing and cost the per-phase reading budget twice.
+
+**No new status, no new file, no `check` rule.** A sourceless expectation is a review finding, which has
+the three ends §12 and §15 already defined.
+
+### 23.6 What it cost
+
+`context/workflow.md` +1,643 bytes on the per-phase read, which is the only addition inside §17.1's budget;
+`workflow.notes.md`, `plan-template.notes.md` and `verify.notes.md` are outside it by construction.
+`roles/coder.md` +2,785 bytes, paid once per phase in the coder's own context rather than the
+orchestrator's, and §17.4 moved that read into a subagent for this exact reason. `reviewer.agent.md`
++1,556, same argument. **Nine tests.** Verified by packing the tarball, installing into an empty
+repository, and running `check` and `update --dry-run` against it.

@@ -11,7 +11,7 @@ import {
   agentsBlockBody,
   readTemplate,
 } from '../src/layout.ts';
-import { parseHistory, parseRoadmap } from '../src/check/parse.ts';
+import { parseHistory, parseLedgers, parseRoadmap } from '../src/check/parse.ts';
 import { stripComments } from '../src/check/markdown.ts';
 import { sections } from '../src/stubs.ts';
 import { exists, packageRoot, templatesDir, walk } from '../src/paths.ts';
@@ -2437,3 +2437,122 @@ describe('a question the plan could not settle has an end at close', () => {
   });
 });
 
+describe('an expected value has a source, and it is never the code under test', () => {
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const workflow = readTemplate('context/workflow.md');
+  const coder = readTemplate('context/roles/coder.md');
+  const planner = readTemplate('claude/agents/planner.agent.md');
+  const reviewer = readTemplate('claude/agents/reviewer.agent.md');
+
+  // The hole was that neither gate asked where an expectation came from. A test asserting whatever the
+  // code returned is green on the first run and on every run after, so Gate 1 passes it and Gate 2 walks a
+  // checklist that was never asked about the number. The same shape as the documentation rule and the
+  // surface rule: no gate fails, so the fix is a rule with one home and four readers that cite it.
+  it('the rule has one home, and it is the file every command already cites', () => {
+    assert.match(workflow, /^### An expected value has a source, and it is never the code under test$/m);
+    assert.match(flat(workflow), /work test-first in thin slices/);
+    assert.match(flat(workflow), /before the code that produces it runs/);
+    assert.match(flat(workflow), /expectation back out of the code under test/);
+    assert.match(flat(readTemplate('context/workflow.notes.md')), /A test that asserts whatever the function returned/);
+  });
+
+  it('the blockquote is written once, and the readers cite it rather than restating it', () => {
+    const OPENING = /> \*\*Where a change has behaviour you can observe at a seam/;
+    const holders = ourTemplates().filter(({ text }) => OPENING.test(text)).map(({ rel }) => rel);
+    assert.deepEqual(holders, [path.join('context', 'workflow.md')], 'one file carries the rule itself');
+
+    const TITLE = /\*An expected value has a source, and it is never the code under test\*/;
+    for (const [rel, text] of [
+      ['context/roles/coder.md', coder],
+      ['context/plan-template.notes.md', readTemplate('context/plan-template.notes.md')],
+      ['claude/agents/planner.agent.md', planner],
+      ['claude/agents/reviewer.agent.md', reviewer],
+    ] as const) {
+      assert.match(text, TITLE, `${rel} names the rule`);
+      assert.match(text, /workflow\.md/, `${rel} points at its home`);
+    }
+  });
+
+  it('the coder works test-first in slices and decides the value before the code runs', () => {
+    const text = flat(coder);
+    assert.match(text, /\*\*work test-first, in thin slices\.\*\*/);
+    assert.match(text, /A slice is one observable behaviour at that seam/);
+    assert.match(text, /\*\*Decide what the seam should produce\.\*\*/);
+    assert.match(text, /\*\*Check it against something that is not the implementation\.\*\*/);
+    assert.match(text, /\*\*Never the code under test\*\*/);
+    // The three circular sources, named — each agrees with the implementation by construction.
+    assert.match(text, /never a helper this change also touches/);
+    assert.match(text, /never a reference implementation written for this task/);
+    // Without this the loop closes the wrong way: the expectation moves until the code passes.
+    assert.match(text, /Picking whichever value passes is the failure/);
+    assert.match(text, /\*\*Write down what decided each value\*\*/);
+  });
+
+  it('the coder is told where the rule does not apply, and that silence is not that answer', () => {
+    const text = flat(coder);
+    assert.match(text, /Documentation, configuration, and wiring that only passes a value through/);
+    assert.match(text, /tests the framework/);
+    assert.match(text, /the unanswered question reads exactly like a skipped step/);
+  });
+
+  it('the plan names what decides each value, and the planner is the one who finds it', () => {
+    const template = readTemplate('context/plan-template.md');
+    assert.match(template, /^## 8\. Verification$/m);
+    assert.match(flat(template), /\*\*What decides each value this feature computes\.\*\*/);
+    assert.match(template, /^\| Value \| What decides it \|$/m);
+    assert.match(flat(readTemplate('context/plan-template.notes.md')), /each value the feature computes gets a source/);
+    assert.match(flat(planner), /\*\*Name what decides every value the feature computes\.\*\*/);
+    // The source is research, and research that came back empty is the section this repository already has
+    // for that — not a number the implementation gets to choose.
+    assert.match(flat(planner), /is an \*\*open question\*\*, not a number for the implementation to pick/);
+    assert.match(flat(template), /A value whose source could not be found belongs in §9/);
+  });
+
+  it('the value table is not a second phase ledger', () => {
+    // `check` finds a ledger by its columns, and more than one in a document is itself a finding. A table
+    // in §8 with a Status column beside a Phase one would be read as a decoy ledger.
+    const ledgers = parseLedgers(readTemplate('context/plan-template.md'));
+    assert.equal(ledgers.length, 1, 'the status ledger is still the only table shaped like one');
+  });
+
+  it('the reviewer raises both findings on a green suite, as standing checks', () => {
+    const text = flat(reviewer);
+    assert.match(text, /\*\*Two checks are standing: they run on every review, whether or not the checklist names them\.\*\*/);
+    assert.match(text, /\*\*An expected value with no traceable source is a finding, even though the tests are green\.\*\*/);
+    assert.match(text, /\*\*A rule the code implements that no test asserts is a finding too\.\*\*/);
+    // The reviewer is called after Gate 1 passed, which is exactly why the green is not evidence.
+    assert.match(text, /proves only that the tests and the code agree with each other/);
+    assert.match(text, /a passing assertion is not evidence for it/);
+    // Severity is still the one bit this review has: §12 deleted the scale and nothing re-adds it.
+    assert.match(text, /Judge both by step 3 like anything else/);
+  });
+
+  it('the marker check is offered as a Gate 1 section, and only verify.md names its command', () => {
+    const notes = flat(readTemplate('context/verify.notes.md'));
+    assert.match(notes, /no test in the suite is skipped, focused or expected to fail/);
+    assert.match(notes, /\*\*Optional on purpose:\*\*/, 'a project may use a skip deliberately');
+    assert.match(notes, /the command belongs in \[`verify\.md`\]\(verify\.md\)'s block and nowhere else/);
+
+    const onboard = flat(skillBody('onboard'));
+    assert.match(onboard, /offer one candidate of your own, and only this one/i);
+    assert.match(onboard, /skipped, focused or expected to fail/);
+    assert.match(onboard, /\*\*Offer it; do not assume it\.\*\*/);
+    // It is a gate-section candidate like any other, so step 4 runs it before step 5 writes it down.
+    assert.match(onboard, /it is run in step 4 before it is written down/);
+  });
+
+  it('the marker category is named, and its syntax is spelled nowhere', () => {
+    // A marker's spelling is a runtime fact: `.skip`, `xit` and a focus prefix differ per runner, and a
+    // template that spells one has picked a stack. The three words are what every runner has.
+    const SYNTAX = [
+      /\b(?:it|test|describe|suite)\s*\.\s*(?:skip|only|todo|fails|failing)\b/,
+      /\b[xf](?:it|describe)\s*\(/,
+      /\bt\.Skip\(/,
+    ];
+    for (const { rel, text } of ourTemplates()) {
+      for (const pattern of SYNTAX) {
+        assert.doesNotMatch(text, pattern, `${rel} spells a marker instead of naming it (${String(pattern)})`);
+      }
+    }
+  });
+});

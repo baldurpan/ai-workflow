@@ -419,6 +419,15 @@ in [`context/verify.notes.md`](../../../context/verify.notes.md).
    when an advisory is published against a lockfile nobody touched, and a phase gate cannot tell that from
    a defect the phase introduced. Ask before sorting one there — a project that holds the check clean as a
    standing invariant has decided the opposite, and for that project a red one is this change's problem.
+   **Then offer one candidate of your own, and only this one: a check that no test in the suite is
+   skipped, focused or expected to fail.** A runner reports a skipped test as a pass and a focused one
+   silences every test beside it, so the Test section can exit 0 while the suite asserts almost nothing,
+   and nothing else you write here would notice. It is cheap and the change is what makes it fail, so it
+   belongs above *Not run by Gate 1* — inside Test where this project's runner or its lint rules can
+   assert it, otherwise under a heading of its own. **Offer it; do not assume it.** A project that marks
+   work in progress with a skip has chosen something this check forbids, and declining is an answer. If it
+   is taken, the command is whatever this project already has or a short one written for it, and like every
+   other it is run in step 4 before it is written down.
 4. **Run every candidate bound for a gate section.** Actually run it, from the repo root. One sorted
    under *Not run by Gate 1* is not run here — this command has no Docker, no deploy target and no
    reason to spend minutes driving a browser — and step 6 says what is recorded in its place.

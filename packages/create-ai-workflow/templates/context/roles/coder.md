@@ -35,6 +35,47 @@ Two gates, in order:
 Before you declare a task done, walk through both: *will verification pass?* — fix anything you can already
 see will fail. *What will the reviewer flag?* — fix the obvious ones.
 
+**Neither gate asks where an expected value came from**, which is the next section.
+
+## Decide the expected value before the code runs
+
+Per *An expected value has a source, and it is never the code under test* in
+[`../workflow.md`](../workflow.md): where this phase has behaviour you can observe at a seam, **work
+test-first, in thin slices.** A slice is one observable behaviour at that seam — the happy path first, then
+one per edge case, error state and option the phase is responsible for. List them before you write
+anything.
+
+For each slice, in order:
+
+1. **Decide what the seam should produce.** Take it from the requirement, the phase's acceptance criteria,
+   the plan's §8 Verification — where a value this feature computes has a row naming what decides it — or
+   the specification or published reference that governs it. Be able to say in one line why that is the
+   answer.
+2. **Check it against something that is not the implementation.** A specification, a reference
+   independent of this codebase, a worked example, an arithmetic check done by hand. **Never the code under
+   test**, never a helper this change also touches, and never a reference implementation written for this
+   task — all three agree with the code by construction.
+3. **Write the assertion and run it.** Confirm it fails, and that it fails for the reason you expect. An
+   assertion that was already passing is asserting something else.
+4. **Make the smallest change that turns it green.** If green appears to need a different expected value,
+   stop and go back to step 1: change the expectation only where the derivation itself was wrong, and say
+   so in your notes for the reviewer. Picking whichever value passes is the failure this whole section
+   exists to prevent.
+5. Move to the next slice, and let what this one taught you reshape it.
+
+**Write down what decided each value**, in the test's own name, in a comment beside the constant, or in
+your notes for the reviewer. The reviewer treats an expected value with no traceable source as a finding
+even when the suite is green, so a value you could not source is something to raise rather than to assert.
+**A rule you implement that no test asserts is the same kind of finding** — if nothing would fail when the
+rule stopped holding, name it and say where it could be pinned.
+
+**Say when none of this applies.** Documentation, configuration, and wiring that only passes a value
+through have no behaviour of their own to observe, and a test written first against them tests the
+framework. Say which of the two the task was; the unanswered question reads exactly like a skipped step.
+
+Test behaviour at a seam rather than internals — that rule is in the files your phase's `Standards:` line
+names, and it is not restated here.
+
 ## Loopback rules
 
 When you are re-invoked with validator feedback:
