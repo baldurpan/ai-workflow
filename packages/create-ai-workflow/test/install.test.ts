@@ -9,7 +9,7 @@ import { update } from '../src/commands/update.ts';
 import { AGENTS_BLOCK_KEY, CLAUDE_ONLY_KEYS, SKILL_NAMES, STANDARDS_PREFIX } from '../src/layout.ts';
 import { UserError } from '../src/log.ts';
 import { readManifest, writeManifest } from '../src/manifest.ts';
-import { exists } from '../src/paths.ts';
+import { exists, hash } from '../src/paths.ts';
 
 function scratch(): string {
   return mkdtempSync(path.join(tmpdir(), 'aiw-install-'));
@@ -275,6 +275,28 @@ describe('update', () => {
 
     quiet(() => update(root, { dryRun: false, force: true }));
     assert.equal(readFileSync(readme, 'utf8'), '# Ours now\n', 'even --force cannot reach it now');
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  // §25: up to 0.25.0 the bundled tree carried a `.source` naming the repository it was copied from. That
+  // repository is retired, so an older install loses the marker on update — and only the marker: the rest
+  // of the tree stays managed, rather than being read as an edit that hands it over.
+  it('removes the upstream marker an older version installed, and keeps managing the tree', () => {
+    const root = scratch();
+    quiet(() => install(root));
+    const marker = path.join(root, `${STANDARDS_PREFIX}.source`);
+    const old = 'origin=https://github.com/baldurpan/ai-engineering-standards\nref=f6feda355ccd2933874a21c36017ac79bea91680\n';
+    writeFileSync(marker, old, 'utf8');
+    const manifest = readManifest(root);
+    manifest.managedFiles[`${STANDARDS_PREFIX}.source`] = hash(old);
+    writeManifest(root, manifest);
+
+    const code = quiet(() => update(root, { dryRun: false, force: false }));
+    assert.equal(code, 0);
+    assert.ok(!exists(marker), 'the marker is gone');
+    const after = readManifest(root);
+    assert.ok(!(`${STANDARDS_PREFIX}.source` in after.managedFiles));
+    assert.ok(`${STANDARDS_PREFIX}README.md` in after.managedFiles, 'the tree is still the tool’s to update');
     rmSync(root, { recursive: true, force: true });
   });
 

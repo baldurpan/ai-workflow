@@ -190,7 +190,7 @@ open question rather than a number for the implementation to supply.
 traceable source, and a rule the code implements that no test asserts. Neither is visible to Gate 1 — the
 first passes, and the second is behaviour nothing would fail if it stopped.
 
-Testing behaviour at a seam rather than internals is the vendored tree's rule and not this one's; the
+Testing behaviour at a seam rather than internals is the standards tree's rule and not this one's; the
 phase's `Standards:` line names the file that carries it.
 
 ### What a change announces is an answer, not an assumption

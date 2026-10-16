@@ -110,9 +110,9 @@ export function claudeSkillTransform(text: string): string {
 }
 
 /**
- * npm refuses to publish a file named `.gitignore`, so the vendored standards carry theirs as
- * `_dot_gitignore` and it is restored here. Without this the installed tree would quietly differ from the
- * ref `standards/.source` claims it came from.
+ * npm refuses to publish a file named `.gitignore`, so the bundled standards carry theirs as
+ * `_dot_gitignore` and it is restored here. Without this every install would quietly be missing the one
+ * starter file a new project copies first.
  */
 export function undotted(posix: string): string {
   return posix.replace(/(^|\/)_dot_/, '$1.');

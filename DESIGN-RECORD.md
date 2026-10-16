@@ -1115,7 +1115,8 @@ Next
 ### 6.3 Standards
 
 The bundled default is vendored from `baldurpan/ai-engineering-standards`. A `.source` marker records
-the origin and ref so `update` can report when upstream has moved.
+the origin and ref so `update` can report when upstream has moved. **(§25: no longer vendored. This package is the source, and the bundled
+`.source` is gone.)**
 
 **The conditional-loading table is the interface, not the files behind it.** `context/standards/README.md`
 holds a table of the form
@@ -5403,3 +5404,63 @@ against it: `check` clean at exit 0, 126 files current, nothing under **Next**, 
 **What this does not do.** It buys nothing on the 48,893-byte median plan (§20.1), nothing on the vendored
 standards, and nothing on `/onboard`'s 51,581 bytes. The budget's job from here is that the next
 measurement is not a rediscovery.
+
+---
+
+## 25. The standards stop being vendored — the copy here is the source
+
+**Decided 2026-10-16, by the owner:** `templates/standards/` is where the default standards are written
+and maintained. `baldurpan/ai-engineering-standards` is retired. Nothing syncs from it, nothing links to
+it, and `standards add` no longer has a default upstream to point at. This reverses §6.3's rule that *a
+correction to vendored content belongs upstream, not here*.
+
+### 25.1 Why
+
+- **The owner edits the standards here.** The two upstream commits after 0.20.1 (2026-10-06 and
+  2026-10-13) were made by agents following §6.3, each within a minute of the matching commit in this
+  repository. The other repository had become a second place to remember, and nothing else.
+- **The upstream rule failed a third time.** §6.3 records two: the 0.20.1 scope fix that held only here,
+  and the re-vendor that reverted the `biome-example.json` rename. The third turned up while doing this.
+  The copy's `README.md` lacked three rows sending validation, forms and "any `Date`" work to
+  `tooling/dates.md`. Upstream added them on 2026-10-06, and `.source` claimed `f6feda35`, which has
+  them. So the marker named a ref the tree did not match. That is the divergence §6.3 said `.source`
+  cannot express, this time with the copy *behind* its ref instead of ahead of it.
+- **One tree in two places is the drift this design exists to prevent.** A tree edited here is one fact
+  with one home.
+- **PLAN.md item 2 existed only because the content was copied from a repository with no licence.** Now
+  that the content is written here, the package's MIT licence covers it.
+
+### 25.2 What changed
+
+- **What the copy lacked was brought over**, checked by diffing upstream `e69b3b9` against
+  `templates/standards/`. That was the SSRF section in `security/api-security.md` (§13.4, which closes
+  PLAN.md item 9) and the three `tooling/dates.md` rows. The deliberate differences stay:
+  `biome-example.json`, `_dot_gitignore`, and blank lines in `tooling/ci.md`.
+- **`templates/standards/.source` is deleted.** An install made by 0.25.0 or earlier has one in its
+  manifest, so `update` removes it as *no longer shipped* and keeps managing the rest of the tree.
+  `install.test.ts` holds that. The *bundled standards moved* line in `update` is gone, along with the code
+  that compared refs. Per-file hashes already report every standards file that changed, so the line added
+  nothing.
+- **`standards add` is unchanged.** A tree someone swaps in still gets a `.source`, which is project-owned
+  and which `update` never reads.
+- **The tree stopped pointing agents at GitHub.** Its `README.md` said all paths were relative to the
+  retired repository, and `templates/AGENTS.md` told agents to load that repository's README. Both now
+  point at `context/standards/`. `standards.test.ts` asserts there is no `.source` and no template link to
+  the retired repository.
+- **The content guards in `standards.test.ts` stay.** They were written to survive a re-vendor, and now
+  they simply hold the tree's invariants.
+- **The budget still leaves `standards/` out**, for a different reason. It is reference content that a
+  phase loads row by row through its `Standards:` line, not prose a command reads whole. Budgeting it is a
+  separate decision with no trigger yet. `scripts/budget.ts`, `links.test.ts` and `templates.test.ts` now
+  give their real reasons for excluding the tree, instead of "vendored".
+
+### 25.3 What it costs
+
+There is no standalone copy of the default to point `standards add` at. Anyone who wants the default as a
+starting point for their own set takes it from an install's `context/standards/`. That was accepted.
+
+**Verified** by `npm run check`, `npm run build` and `npm test` (455), then by packing the tarball (136
+files, no `.source`), installing it into an empty repository, and running `check` (exit 0) and
+`update --dry-run`. On a copy of `quotavero` at 0.25.0, `update` removed `context/standards/.source` as no
+longer shipped, with no conflict, and kept all 78 standards files in the manifest. `check` still exits 0
+afterwards.

@@ -88,7 +88,7 @@ before they opened the table.
 
 The kinship is with the documentation rule, and so is the reason: **no gate fails** when a control cannot be
 reached by keyboard, any more than one fails when a README describes a flag that no longer exists. A linter
-catches a fraction of the first and none of the rest. Neither gap was a missing standard — the vendored tree
+catches a fraction of the first and none of the rest. Neither gap was a missing standard — the standards tree
 already said accessibility was part of done — so the fix is a question asked out loud, with *none of these*
 a legitimate answer and silence not one.
 
@@ -103,7 +103,7 @@ code ever said which one was right.
 
 This is the same shape as the two rules above it: **no gate fails.** A README describing a renamed flag, a
 control no keyboard can reach, and an expectation copied out of the code are all invisible to a run that
-exits 0, and none of the three was a missing standard. The vendored tree already says to test behaviour at
+exits 0, and none of the three was a missing standard. The standards tree already says to test behaviour at
 a seam rather than internals; what it does not say is where the expected value comes from, and that is the
 sentence this rule adds.
 

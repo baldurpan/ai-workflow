@@ -37,7 +37,10 @@ const skillBody = (name: string) => {
     .join('\n');
 };
 
-/** Files whose content is ours. `standards/` is vendored third-party content and is excluded. */
+/**
+ * The workflow's own prose. `standards/` is excluded: it names tools and stacks by design, which these
+ * rules forbid everywhere else.
+ */
 function ourTemplates(): { rel: string; text: string }[] {
   return walk(templatesDir)
     .filter((rel) => !rel.split(path.sep).includes('standards'))

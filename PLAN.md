@@ -473,15 +473,10 @@ decisions and test counts, which is exactly the content §20 predicted would lan
 **Not fixed here.** Whether the answer is a `check` rule, a cap in the skill, or accepting that the cell is
 where the evidence goes, is a design question for `DESIGN-RECORD.md`.
 
-### 2. Licensing for the vendored standards — a confirmed gap, not a hypothetical
+### 2. Licensing for the standards — closed by §25
 
-`baldurpan/ai-engineering-standards` has **no LICENSE file** — `git ls-files | grep -i licen` returns
-nothing. So the terms under which 78 vendored files may be redistributed into arbitrary repositories are
-unsettled. They ship on the author's own authority and nothing more.
-
-`README.md` says this plainly and points at `standards add <git-url>` for anyone who needs known terms.
-**The cheap fix is upstream:** add a LICENSE to that repo and this closes. Until then it is the one thing
-in the package that could not be defended to a third party.
+The standards are no longer copied from `baldurpan/ai-engineering-standards`, which never had a licence
+file. They are written in this package, and its MIT licence covers them. The README's caveat is gone.
 
 ### 3. Publish — done, and the pipeline is proven
 
@@ -958,19 +953,12 @@ afterwards.
 fact with no home; this one was a fact with a home nobody could see. Both are what running the thing finds
 and reading it does not, which is item 1's whole argument.
 
-### 9. The SSRF standard is written upstream and not yet vendored
+### 9. The SSRF section — in the bundled tree, closed by §25
 
-§13.4 added the one thing the Top 10 named that the standards tree did not say: an SSRF section in
-`security/api-security.md`, which is **on `main` in `baldurpan/ai-engineering-standards` at `e69b3b9`**.
-The trigger that reaches it — *a URL the server will fetch* — is on `main` here and ships with the next
-release.
-
-So the trigger is live and the standard it points at is not, for installs: the vendored tree is still
-pinned at `f6feda35`. To close it, re-vendor with `standards add
-https://github.com/baldurpan/ai-engineering-standards`, which moves `ref=` in
-`templates/standards/.source` to `e69b3b9`. That is a `templates/` change, so it carries a note and the
-tarball-into-an-empty-repo check in item 3. **Until then the conditional table's `security/api-security.md`
-row is the right destination and arrives one section short.**
+`security/api-security.md` now carries the SSRF section that §13.4's trigger points at. It was brought
+over from the retired upstream rather than re-vendored, along with three `tooling/dates.md` routing rows
+the copy had been missing. There is no upstream to re-vendor from any more: edit `templates/standards/`
+directly.
 
 ### 10. Two deferrals from the prose budget, each with a trigger rather than a date
 

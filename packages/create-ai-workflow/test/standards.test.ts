@@ -80,7 +80,7 @@ describe('the conditional-loading table is the interface', () => {
     const readme = readTemplate('standards/README.md');
     const found = findIndexTable(readme, path.join(templatesDir, 'standards'));
     assert.ok(found, 'the bundled README has a conditional-loading table');
-    assert.deepEqual(found.missing, [], 'every file it names is vendored');
+    assert.deepEqual(found.missing, [], 'every file it names ships');
     assert.ok(found.rows > 10);
   });
 
@@ -101,10 +101,14 @@ describe('the conditional-loading table is the interface', () => {
     );
   });
 
-  it('records where it came from, so update can say when upstream moved', () => {
-    const marker = readTemplate('standards/.source');
-    assert.match(marker, /^origin=https:\/\/github\.com\/\S+$/m);
-    assert.match(marker, /^ref=[0-9a-f]{40}$/m);
+  // §25: this tree is edited here and has no upstream. A `.source` marker would claim a ref nothing moves,
+  // and a link to the retired repository sends an agent to a copy that is behind this one.
+  it('has no upstream — no origin marker, and no link to the repository it used to be copied from', () => {
+    assert.ok(!exists(path.join(templatesDir, 'standards', '.source')));
+    const pointing = walk(templatesDir)
+      .map(toPosix)
+      .filter((rel) => readTemplate(rel).includes('github.com/baldurpan/ai-engineering-standards'));
+    assert.deepEqual(pointing, []);
   });
 
   // 0.20.1 corrected ten references to a scope that no longer exists — `@northguild/gmt` and
@@ -157,7 +161,7 @@ describe('the conditional-loading table is the interface', () => {
   // would configure Biome for every file beside it, and copying upstream's file back over put three links
   // to a name that does not exist here. Nothing noticed, because `links.test.ts` excludes this tree as
   // third-party. Resolving the links is the cheapest check that would have.
-  it('has no relative link pointing at a file the vendored tree does not have', () => {
+  it('has no relative link pointing at a file the bundled tree does not have', () => {
     const standards = path.join(templatesDir, 'standards');
     const broken: string[] = [];
     for (const rel of walk(standards)) {
@@ -171,6 +175,6 @@ describe('the conditional-loading table is the interface', () => {
         if (!exists(path.join(standards, resolved))) broken.push(`${posix} → ${target}`);
       }
     }
-    assert.deepEqual(broken, [], 'every relative link inside the vendored standards resolves');
+    assert.deepEqual(broken, [], 'every relative link inside the bundled standards resolves');
   });
 });

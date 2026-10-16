@@ -18,7 +18,7 @@ const quiet = <T>(fn: () => T): T => {
   }
 };
 
-/** Markdown files this tool writes — the vendored standards are excluded, they are not ours. */
+/** Markdown files the workflow writes. The standards tree is excluded; `standards.test.ts` resolves its links itself. */
 function ourInstalledMarkdown(): string[] {
   return [
     ...walk(path.join(root, 'context'))

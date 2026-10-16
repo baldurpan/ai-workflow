@@ -68,10 +68,6 @@ function projectOwnedLines(width = 62): string[] {
   return lines;
 }
 
-function sourceRef(text: string | null): string | null {
-  return text ? (/^ref=(.+)$/m.exec(text)?.[1]?.trim() ?? null) : null;
-}
-
 export function update(root: string, options: { dryRun: boolean; force: boolean }): number {
   const manifest = readManifest(root);
 
@@ -198,13 +194,6 @@ export function update(root: string, options: { dryRun: boolean; force: boolean 
     info(label + dim(line));
   }
   info(dim('  A project-owned file is not in the manifest, so no code path here reaches it.'));
-
-  const installedRef = sourceRef(readIfExists(path.join(root, `${STANDARDS_PREFIX}.source`)));
-  const bundledRef = sourceRef(renderManagedSourceMarker(files));
-  if (installedRef && bundledRef && installedRef !== bundledRef && !standardsAdopted) {
-    info();
-    info(`${yellow('!')} the bundled standards moved: ${dim(installedRef.slice(0, 8))} → ${dim(bundledRef.slice(0, 8))}`);
-  }
 
   const gaps = stubGaps(root);
   const retired = retiredFiles(root);
@@ -337,9 +326,4 @@ function describeBad(state: { kind: 'duplicate'; count: number } | { kind: 'malf
   return state.kind === 'duplicate'
     ? `${state.count} ai-workflow blocks in AGENTS.md — delete the extra one`
     : `${state.reason} — fix the markers by hand`;
-}
-
-function renderManagedSourceMarker(files: ManagedFile[]): string | null {
-  const marker = files.find((f) => f.dest === `${STANDARDS_PREFIX}.source`);
-  return marker ? renderManaged(marker) : null;
 }

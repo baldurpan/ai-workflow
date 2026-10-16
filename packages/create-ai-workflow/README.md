@@ -138,7 +138,7 @@ over the shape of a file it may not touch would be calling someone else's busine
 
 ## Standards
 
-`context/standards/` ships a vendored default, and `context/standards/README.md` holds a
+`context/standards/` ships a default set, and `context/standards/README.md` holds a
 conditional-loading table that agents actually traverse. The planner traverses it once, with the research
 in hand, and writes each phase's share of it onto that phase's `Standards:` line; the coder and the reviewer
 load those files and not the table. `/orchestrate` has no plan, so it reads the table itself.
@@ -271,11 +271,5 @@ Requires Node 20.10 or newer. One `context/` per repository.
 
 ## Licence
 
-The tool is MIT.
-
-`context/standards/` is vendored from
-[`baldurpan/ai-engineering-standards`](https://github.com/baldurpan/ai-engineering-standards) at the ref
-recorded in `context/standards/.source`. **That repository carries no licence file**, so the terms under
-which the vendored content may be redistributed are unsettled — it is bundled here on the author's own
-authority and nothing more. If you are installing this into a repository where that matters, run
-`standards add <git-url>` and point it at a tree whose terms you know.
+MIT, and that includes `context/standards/`. The default standards are written and maintained in this
+package, not copied in from somewhere else.

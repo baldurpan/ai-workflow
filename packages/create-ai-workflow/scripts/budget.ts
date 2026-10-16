@@ -32,7 +32,10 @@ export interface Budget {
 /** Round up to the next 512 bytes. A limit is the line a file is already at, not a target. */
 export const lock = (size: number): number => Math.ceil(size / 512) * 512;
 
-/** Files whose prose is ours. `standards/` is vendored and `update` replaces that tree wholesale. */
+/**
+ * Files whose prose a command reads. `standards/` is left out: it is reference content a phase loads row by row
+ * through the conditional table, and §25 leaves budgeting it as a separate decision.
+ */
 export function ourTemplates(): string[] {
   const out: string[] = [];
   const walk = (dir: string): void => {
