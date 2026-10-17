@@ -36,6 +36,18 @@ What each section takes, and the alternative answers written out, are in
 
 ## Not run by Gate 1
 
+## Prepare a fresh tree
+
+```bash
+```
+
+What makes a clean checkout of this repository runnable, in order — the dependency install, and anything
+else that has to exist before the sections above can pass. **Gate 1 does not run it**, which is why it sits
+below that line: an ordinary phase works in a tree that is already prepared.
+
+**Empty is an answer with a cost.** `/feature-implement` runs phases side by side in fresh checkouts and
+cannot without this, so it falls back to one phase at a time and names this section as the reason.
+
 ## Rules
 
 - **A missing entry is skipped, never faked.** An empty section above means there is no such step. Gate 1

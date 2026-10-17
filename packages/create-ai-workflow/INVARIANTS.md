@@ -41,7 +41,8 @@ named shapes, because that is how people think about it.
 the same move as *"planned" is the observation that a document exists in `plans/`*. A file recording it
 would be a cache of something git already knows, and it would be wrong in the one case you reach for it.
 Merging stays outside the workflow entirely: nothing here merges a pull request, deletes a branch, or
-removes a worktree.
+removes a worktree — bar one, written where the rule is: the detached, branchless checkout
+`/feature-implement` makes for a phase running beside another, and removes when that phase lands.
 
 **Documentation is part of the change.** A plan starts by finding where the project explains itself —
 `context/stack.md` holds that index, `/onboard` fills it by sweeping the tree and asking what is published

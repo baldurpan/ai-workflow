@@ -785,9 +785,330 @@ describe('--all runs the phases without crossing a tier', () => {
     // command exists at all, and a flag missing from them is a flag nobody types.
     const workflow = readTemplate('context/workflow.md');
     assert.match(workflow, /\/feature-implement \[--all\]/, 'the tier diagram carries it');
-    assert.match(workflow, /One run is one phase, unless `--all`/, 'the phase-status rules account for it');
+    assert.match(workflow, /\*\*`--all` repeats the pick above\*\*/, 'the phase-status rules account for it');
     const readme = readFileSync(path.join(packageRoot, 'README.md'), 'utf8');
     assert.match(readme, /\/feature-implement \[--all\]/, "the package README's diagram carries it");
+  });
+});
+
+describe('a round is formed by the command, and nothing types a flag for it', () => {
+  // §26 measured it before building it: 115 phases across 18 archived plans could have run in 107 rounds
+  // rather than 115 — 8 rounds saved, in 6 of the 18 — once a round is required to hold phases that share
+  // no file. That is too little to be worth a flag a user has to learn and remember, so the command
+  // decides each round by itself. Which removes the permission argument a typed flag would have carried
+  // (§18.2) and replaces it with a written exception in `workflow.md`, so every rule below has to be in
+  // prose somewhere `update` reaches, and the refusals §26 designed are fallbacks instead.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const parallel = flat(readTemplate('skills/feature-implement/parallel.md'));
+  const skill = skillMain('feature-implement');
+  const executors = readTemplate('stubs/executors.md');
+
+  it('no flag asks for it, and none turns it on', () => {
+    const usage = skill.slice(skill.indexOf('## Usage'), skill.indexOf('## 1.'));
+    assert.doesNotMatch(usage, /--parallel|--round|--wide|--jobs/, 'the usage block gains no flag');
+    for (const { rel, text } of ourTemplates()) {
+      assert.doesNotMatch(text, /--parallel\b/, `${rel} types a flag for it`);
+    }
+    assert.match(parallel, /There is no flag/i, 'the contract says so');
+    assert.match(flat(skill), /No flag asks for this and none turns it on/i, 'and so does the step that decides');
+  });
+
+  it('it is opened on a condition, like the other halves beside a body', () => {
+    // The `tracker.md` and `split.md` shape, per §24.9. A round forms in a minority of plans, so a run
+    // that cannot form one does not pay for the contract that describes it.
+    assert.ok(exists(path.join(templatesDir, 'skills', 'feature-implement', 'parallel.md')));
+    assert.match(skill, /\[`parallel\.md`\]\(parallel\.md\)/, 'the body names the file');
+    assert.match(flat(skill), /Where that is true, read \[`parallel\.md`\]/, 'and says when to open it');
+    assert.match(parallel, /A round of one phase is an ordinary run and reads none of this/i);
+  });
+
+  it('a phase joins a round only when nothing it depends on is unfinished', () => {
+    // Step 3's own test, unweakened: a round is a wider pick, never a different one.
+    assert.match(parallel, /\*\*Runnable\*\* is step 3's test and nothing weaker/);
+    assert.match(parallel, /not `done`, every `Depends on` `done`/);
+  });
+
+  it('sharing any path keeps a phase out, and prose counts', () => {
+    // `Depends on` orders information, not files: of the 26 multi-phase rounds in the corpus, 12 shared a
+    // code path and 11 shared only prose. Allowing the prose ones would have bought 11 rounds and paid in
+    // guaranteed conflicts in `verify.md` and `README.md` — the files that say what the commands are.
+    assert.match(parallel, /\*\*Shares no path\*\* is read off the phases' \*\*Files:\*\* lines, compared whole/);
+    assert.match(parallel, /\*\*Prose counts\*\* — a `\.md` file, a README, anything under `context\/`/);
+    assert.match(flat(skill), /shares \*\*no path\*\* with it, prose included/);
+  });
+
+  it('the round is said out loud, with the test that left each phase out', () => {
+    assert.match(parallel, /\*\*Say the round before any coder starts\.\*\*/);
+    assert.match(parallel, /an overlap, \*\*naming the path\*\*, or the cap/);
+  });
+
+  it('the cap lives in executors.md, defaults to 3, and 1 turns it off', () => {
+    // §4.3's reason for that file: the number is a fact about this machine and this account — the usage
+    // limit three agents at once runs into — not something an invocation should re-type.
+    assert.match(parallel, /\*\*3 where\s*that file says nothing, and 1 turns this off\.\*\*/);
+    assert.match(executors, /At most 3 phases of one plan run at once/);
+    assert.match(executors, /\*\*1 turns that off\*\*/);
+    const coder = executors.slice(executors.indexOf('## Coder'), executors.indexOf('## Reviewer'));
+    assert.match(coder, /At most 3 phases/, 'it is the Coder answer that carries it');
+    assert.match(readTemplate('context/executors.notes.md'), /concurrency number is separate/i, 'documented');
+  });
+
+  it('it counts coders, because the gates are serial', () => {
+    assert.match(parallel, /It counts coders, which is all there is to count/);
+    assert.match(
+      parallel,
+      /\*\*Both gates run in the feature's own tree, one phase at a time, in phase order\*\*/,
+      'the gates do not move into the scratch trees',
+    );
+    assert.match(parallel, /Nothing runs the verification stack in two trees at once/);
+    assert.match(parallel, /two loops per gate, per phase/, 'the loopback cap is unchanged');
+  });
+
+  it('nothing refuses — every line falls back to one phase at a time, once, with its reason', () => {
+    assert.match(parallel, /\*\*Nothing here refuses\.\*\*/);
+    assert.match(
+      parallel,
+      /\*\*says so once, before the first phase\*\*, naming the file and the answer that decided it/,
+    );
+    for (const [what, re] of [
+      ['the user commits', /\*Who commits\* — \*\*the user commits\*\*/],
+      ['no coder but the host', /\*Coder\* — not configured, or in-host/],
+      ['a host that cannot run two at once', /the host cannot run two coders at once/],
+      ['no fresh-tree answer', /has no \*\*Prepare a fresh tree\*\* answer/],
+      ['the cap is 1', /the cap is \*\*1\*\* \| the project said one at a time/],
+      ['the tree cannot be made', /`git worktree add` fails, for any reason/],
+    ] as const) {
+      assert.match(parallel, re, `${what} falls back rather than refusing`);
+    }
+    assert.match(parallel, /\*\*say which of the two it was\*\*, the recorded answer or the runtime/);
+    // And *where work lands* is not one of them. §26.4 had a row for the main working tree with the
+    // default branch checked out; it came from `/orchestrate --pr`, which pushes. A round commits, which
+    // an ordinary phase on that branch already does under that answer — and 13 of the 18 measured plans
+    // live in a repository shaped exactly that way, so the row turned the feature off where it is wanted.
+    assert.doesNotMatch(parallel, /default branch checked out/, 'a round commits; it never pushes');
+    assert.doesNotMatch(parallel, /\*Where work lands\*/, 'that answer decides nothing here');
+  });
+
+  it('the scratch tree is plain git, detached, and not what executors.md names', () => {
+    // The user's own line: these are scratch space, not workspaces, and they are not wanted in the tools
+    // that manage one. Verified against git 2.56.0 — a worktree inside the git directory works and
+    // `git worktree list` still reports it.
+    assert.match(parallel, /git worktree add --detach "\$\(git rev-parse --git-dir\)\/phase-trees\//);
+    assert.match(parallel, /\*\*No branch is created\*\*/);
+    assert.match(parallel, /the invocation \[`executors\.md`\].*names is not used/);
+    assert.match(parallel, /\*\*`--git-dir`, not the common directory\.\*\*/);
+    assert.match(parallel, /\*\*The path is fixed\*\*/, 'the location is the identity');
+  });
+
+  it('a runtime that can isolate a coder itself is described, never named', () => {
+    // §4.3 again, and the same rule the coder and reviewer answers follow: what it does, not what it is.
+    assert.match(parallel, /Where the runtime can give a coder its own temporary tree of this repository/);
+    assert.match(parallel, /one whose commits are objects in this repository/);
+    assert.match(parallel, /A copy or a fresh clone is not that/);
+  });
+
+  it('the plan has one writer, and the coder is told the copy beside it is stale', () => {
+    assert.match(parallel, /\*\*Only this command writes the ledger, and only in the feature's own tree\.\*\*/);
+    assert.match(parallel, /Coders never touch the plan/);
+    assert.match(parallel, /\*\*The round's rows open in one write\*\*, before any tree is made/);
+    assert.match(parallel, /the plan here is a stale copy and is not to be edited/);
+    assert.doesNotMatch(
+      readTemplate('context/roles/coder.md'),
+      /cherry-pick|worktree|scratch (tree|checkout)|round/i,
+      'committing is a property of this dispatch, not of the role',
+    );
+  });
+
+  it('a coder in a round is told the others are running, and what that costs', () => {
+    // Coders in a round run at the same time, so anything binding a fixed port collides — the field case
+    // is a Playwright config on port 47321 with `reuseExistingServer: false`. Gate 1 runs one phase at a
+    // time in the feature's own tree, so that is where such a test belongs; what the coder owes is to say
+    // which assertions it did not run, or the gap is invisible.
+    assert.match(parallel, /\*\*The brief is step 7's, plus four sentences and no more:\*\*/);
+    assert.match(parallel, /other coders are running beside you/);
+    assert.match(parallel, /a test that needs a server or a fixed port is Gate 1's/);
+    assert.match(parallel, /say in your output which assertions you did not run/);
+    // And the same collision reaches the one command the orchestrator runs per tree.
+    assert.match(parallel, /\*\*If it fails in a tree, the round does not run\*\*/);
+    assert.match(parallel, /a command there may bind a port the tree beside it holds/);
+  });
+
+  it('what lands is the whole tree as a range, and the row rides it', () => {
+    // How many commits a coder makes in its own tree is its own business, so the phase is `<base>..<tip>`
+    // and not the tip. Verified on git 2.56.0: `git cherry-pick -n <base>..<tip>` applies every commit in
+    // the range, stages all of it, commits nothing and leaves no sequencer state — so one commit still
+    // carries the phase's change and its ledger row, which is `git.md`'s *one commit per phase*.
+    assert.match(parallel, /Per phase, in phase order:/);
+    assert.match(parallel, /`git cherry-pick -n <base>\.\.<tip>` — \*\*the whole tree, however many commits are in it\*\*/);
+    assert.match(parallel, /\*\*The range, not the tip\.\*\*/);
+    assert.match(parallel, /Landing the tip alone would drop work silently/);
+    assert.match(parallel, /\*\*One commit\*\*, carrying the phase's change and its row/);
+    assert.match(parallel, /A merge would add a commit per phase that no granularity answer names/);
+    // The base is read when the tree is made, because the feature branch moves as the round lands.
+    assert.match(parallel, /\*\*Record the sha `HEAD` resolved to\.\*\* It is this tree's base/);
+    assert.match(parallel, /the base cannot be read back afterwards/);
+  });
+
+  it('an unfinished scratch tree lands nothing and is treated as a coder that stopped short', () => {
+    // Uncommitted work in a scratch tree is not a candidate to land: there is nothing to cherry-pick, and
+    // a phase whose coder stopped short is step 11's *some landed* row, not a landing.
+    assert.match(parallel, /\*\*Check the coder finished\.\*\* `git -C <tree> status --porcelain` is empty/);
+    assert.match(parallel, /\*\*nothing from that phase lands\*\*/);
+    assert.match(parallel, /its row stays `in progress` naming what remains, per step 11, and its tree is kept/);
+    assert.match(parallel, /Uncommitted work in a scratch tree is not a candidate to land/);
+  });
+
+  it('a real diff overlap lands the earlier phase and sends the later one back to run alone', () => {
+    // A `Files:` line is a prediction and the field says it grows — `CUTOVER`'s phase 6 went from three
+    // paths to eleven, by the phase itself. So the test that formed the round runs again on the facts.
+    assert.match(parallel, /\*\*Check the real diff\.\*\* `git diff --name-only <base>\.\.<tip>`/);
+    assert.match(parallel, /\*\*The earlier phase stands\.\*\*/);
+    assert.match(parallel, /\*\*The later phase's work is thrown away\.\*\*/);
+    assert.match(parallel, /\*\*Run that phase again, one at a time, on the combined tree\*\*/);
+    assert.match(parallel, /at most once per phase per round/, 'the re-run cannot loop');
+    assert.match(parallel, /never merged — nothing here has the standing to decide/, 'no conflict is resolved');
+    // And it is checked one command earlier than the conflict. Verified on git 2.56.0: a range that
+    // conflicts stops part-applied with the sequencer open — recoverable, unlike a single sha, which
+    // leaves no cherry-pick in progress at all. Either way the way out is a choice between two coders'
+    // versions of a file, which is the decision this rule exists to never make.
+    assert.match(parallel, /\*\*The check is before the cherry-pick, not after\.\*\*/);
+    assert.match(parallel, /A range that conflicts stops part-applied with the sequencer open/);
+  });
+
+  it('a phase that blocks does not hold the round, and the next round does not start', () => {
+    assert.match(parallel, /\*\*A phase that ends `blocked` does not hold the others back\.\*\*/);
+    assert.match(parallel, /\*\*A blocked phase's Note names the tree its work is in\.\*\*/);
+    assert.match(parallel, /\*\*The next round does not start\*\*/);
+    assert.match(parallel, /each phase is reported as it lands/);
+  });
+
+  it('removal is of this command’s own trees only, and never forced', () => {
+    // `workflow.md` says nothing removes a worktree *under any answer, any flag or any command*. This is
+    // the one exception and it is written where that sentence is, per §4.7: an implicit scope reads as a
+    // grant. Verified on git 2.56.0: without `--force`, removal refuses a tree holding modified or
+    // untracked files and succeeds where the only leftovers are ignored — so it cannot destroy work a
+    // coder failed to commit.
+    assert.match(parallel, /\*\*Only a tree this command made, at the path above, detached and with no branch\*\*/);
+    assert.match(parallel, /never with\s*`--force`/);
+    assert.match(parallel, /`git worktree remove <path>`, never `--force`/);
+    assert.match(parallel, /refuses a tree holding\s*modified or untracked files/);
+    assert.match(parallel, /A refusal is reported, not forced/);
+  });
+
+  it('a tree with a branch on it is never touched, and the sweep is by location', () => {
+    assert.match(
+      parallel,
+      /`git worktree list --porcelain` prints `branch` for every worktree the recorded invocation has ever made and `detached` for these/,
+    );
+    assert.match(parallel, /A tree with a branch on it is never touched/);
+    assert.match(parallel, /\*\*A later run sweeps that same path first\*\*/);
+    assert.match(parallel, /removing what it finds there by the same test and touching nothing else/);
+    assert.match(parallel, /\*\*A tree goes as soon as its phase lands\*\*/);
+    assert.match(parallel, /\*\*otherwise kept, with its path in the report\.\*\*/);
+  });
+
+  it('the exception is written where the absolute rule is, in a file `update` reaches', () => {
+    // A stub cannot carry it: `update` never writes one, so an existing install would keep an absolute
+    // rule while the command had an exception to it. That is the §23.3 argument about one home and its
+    // readers, applied to a rule that just grew a carve-out.
+    const workflow = readTemplate('context/workflow.md');
+    assert.match(workflow, /removes a worktree under any answer, any\s*flag or any command/);
+    assert.match(workflow, /The one exception is not a worktree in that sense/);
+    assert.match(workflow, /\*\*detached, branchless checkout under the git directory\*\*/);
+    assert.match(workflow, /removes\s*it when that phase lands/);
+    assert.match(workflow, /Not by the recorded invocation, and no other command makes or removes one/);
+    // And the always-loaded block's standing rule names both homes, or it contradicts the exception.
+    assert.match(agentsBlockBody(), /`context\/git\.md`\]\(context\/git\.md\) or/);
+    assert.match(agentsBlockBody(), /\[`context\/workflow\.md`\]\(context\/workflow\.md\) says so/);
+  });
+
+  it('a gate failure loops back in the feature’s own tree, and nothing is reset', () => {
+    // The design reset the staged cherry-pick and re-briefed the coder in its scratch tree, which needed
+    // an exception to `git.md`'s *discarding someone's work* list. It needs neither: the cherry-pick is
+    // already staged in the feature's own tree, which is the state step 10 re-briefs a coder in on any
+    // ordinary phase — and that tree holds the phases that landed earlier in the round, which the scratch
+    // tree does not, so a failure the combination caused cannot be seen from there at all.
+    assert.match(parallel, /\*\*A gate failure loops back in the feature's own tree\*\* — never in the scratch tree/);
+    assert.match(parallel, /\*\*nothing is reset\.\*\*/);
+    assert.match(parallel, /the state step 10 re-briefs a coder in on any ordinary phase/);
+    assert.match(parallel, /missing the phases that landed earlier in the round/);
+    assert.doesNotMatch(parallel, /reset --hard|comes off with a reset/, 'no reset, so no exception for one');
+    assert.doesNotMatch(parallel, /uncommitted work has no second copy/i, 'that list is untouched');
+  });
+
+  it('a prepared tree has to come back clean, or the round does not run', () => {
+    // *Prepare a fresh tree* runs before any coder, so a step that rewrites a lockfile or writes a
+    // generated file nobody ignores dirties the tree before the phase has started — and from there the
+    // phase's own state is unreadable: landing reads a clean phase as a coder that stopped short, and the
+    // overlap check sees a path every phase in the round touched. Verified on git 2.56.0:
+    // `status --porcelain` is empty when the only leftovers are ignored, ` M` for a rewritten lockfile,
+    // `??` for a generated file that is not ignored.
+    assert.match(parallel, /\*\*Then the tree has to be clean: `git -C <tree> status --porcelain` prints nothing\.\*\*/);
+    assert.match(parallel, /\*\*before the phase started\*\*/);
+    assert.match(parallel, /landing reads a clean phase as a coder that stopped short/);
+    assert.match(parallel, /\*\*name the files it changed\*\*/);
+    assert.match(parallel, /`--porcelain` does not list ignored files/, 'an installed dependency is not dirt');
+
+    // The two answers that keep it clean belong where that section is filled in, not here.
+    const notes = flat(readTemplate('context/verify.notes.md'));
+    assert.match(notes, /\*\*These commands have to leave the tree clean\*\*/);
+    // Named by its shape and not by a package manager: §4.2 keeps every real command in `verify.md`, and
+    // three of the four violations in the reference repo named a tool the project did not have.
+    assert.match(notes, /\*\*Use the install form that reads the lockfile rather than rewriting it\*\*/);
+    assert.match(notes, /usually a `--frozen-lockfile` or `--immutable` flag/);
+    assert.match(notes, /\*\*gitignore anything a step here generates\*\*/);
+
+    // And `/onboard` proves the answer it writes, in a clone — which is not a worktree, because nothing
+    // in this workflow makes one of those but `/feature-implement`'s own scratch checkout.
+    const onboard = flat(skillBody('onboard'));
+    assert.match(onboard, /Verify \*Prepare a fresh tree\* in a tree that is actually fresh/);
+    assert.match(onboard, /`git clone --no-hardlinks \. <tmp>`\. \*\*That is not a worktree\*\*/);
+    assert.match(onboard, /`git -C <tmp> status --porcelain` must print nothing/);
+    assert.match(onboard, /\*\*A dirty tree is a wrong answer, not something to work around:\*\*/);
+    assert.match(onboard, /no commit yet there is nothing to clone/, 'and it says so rather than guessing');
+  });
+
+  it('the report names which phases ran side by side, and every fallback', () => {
+    assert.match(parallel, /\*\*Which phases ran side by side\*\*, and which ran alone/);
+    assert.match(parallel, /\*\*Every fallback, with the file and the answer that caused it\*\* — once, not per phase/);
+    assert.match(parallel, /\*\*Every tree still on disk, by path\*\*, and the sha of anything thrown away/);
+  });
+
+  it('a detached tree is nobody’s claim, so the status sweep skips it', () => {
+    // `/feature-status` reads `git worktree list` and treats a tree as a feature in flight. A scratch
+    // checkout is a checkout of this repository, roadmap and all, so without this it would be reported as
+    // a second feature — and the sweep would read a stale ledger out of it.
+    const status = flat(skillMain('feature-status'));
+    assert.match(status, /\*\*Skip the ones with no branch\.\*\*/);
+    assert.match(status, /a tree with no branch is nobody's claim/);
+    assert.match(status, /read nothing out of it, and remove nothing/);
+  });
+
+  it('verify.md carries the fresh-tree answer, below the line Gate 1 stops at', () => {
+    // The field already wrote this fact as prose with no reader: all three live `verify.md` files say what
+    // a fresh checkout needs, and one of them says it in so many words — *in a new worktree this is not
+    // optional and not shared*. A coder in a scratch tree cannot run §23's failing assertion without it.
+    const verify = readTemplate('stubs/verify.md');
+    const names = sections(verify);
+    assert.ok(names.includes('Prepare a fresh tree'), 'it is a `##` section, so `update` reports the gap');
+    assert.ok(
+      names.indexOf('Prepare a fresh tree') > names.indexOf('Not run by Gate 1'),
+      'below that line, so Gate 1 never runs it on an ordinary phase',
+    );
+    assert.match(verify, /\*\*Gate 1 does not run it\*\*/);
+    assert.match(flat(verify), /\*\*Empty is an answer with a cost\.\*\*/);
+    assert.match(flat(verify), /falls back to one phase at a time and names this section as the reason/);
+    assert.match(readTemplate('context/verify.notes.md'), /^## Prepare a fresh tree$/m, 'the notes mirror it');
+    assert.match(flat(skillBody('onboard')), /goes in \*Prepare a fresh tree\*/, '/onboard asks for it');
+  });
+
+  it('the round reaches the tracker answer too', () => {
+    // One body write per round boundary rather than one per phase, and a sha that resolves: the scratch
+    // commit has no branch and stops existing when its tree is removed.
+    const tracker = flat(readTemplate('skills/feature-implement/tracker.md'));
+    assert.match(tracker, /\*\*The round's rows open in one body write and close in one\*\*/);
+    assert.match(tracker, /\*\*The sha in a closing row is the commit on the feature branch\*\*/);
+    assert.match(tracker, /\*\*The heartbeat names every phase in the round\*\*/);
   });
 });
 
@@ -1154,8 +1475,11 @@ describe('the AGENTS.md block', () => {
     // The ceiling is on the *prose*, not on the file, so a ninth command costs a row and nothing else.
     // A flat line count would have made the block's one legitimate growth indistinguishable from the
     // failure it guards — the block turning into a second copy of the rules.
+    // Raised by one in §26: the standing rule names two permission homes rather than one, because the
+    // scratch checkout a round runs in is authorised by `workflow.md` and not by `git.md`. A second
+    // pointer is still a pointer — what this guards is the block growing a copy of what it points at.
     const lines = agentsBlockBody().split('\n').length;
-    assert.ok(lines - SKILL_NAMES.length < 32, `the block is not a second copy of the rules (${lines})`);
+    assert.ok(lines - SKILL_NAMES.length < 33, `the block is not a second copy of the rules (${lines})`);
   });
 });
 

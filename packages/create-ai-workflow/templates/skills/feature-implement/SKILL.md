@@ -6,8 +6,10 @@ description: "Activate a planned feature and run the next phase of its plan — 
 # /feature-implement
 
 Owns the transition from *has a plan* to *being worked*, **and** the phases within it. One invocation runs
-**one phase**: pick it, do it, gate it, close out its ledger row. `--all` (step 14) runs that same loop
-back to back instead of stopping after the first.
+**one round**: pick a phase, do it, gate it, close out its ledger row — and where phases of this plan are
+independent of each other, up to the cap in [`context/executors.md`](../../../context/executors.md) of them
+side by side, per [`parallel.md`](parallel.md). `--all` (step 14) runs that same loop back to back instead
+of stopping after the first.
 
 Read [`context/workflow.md`](../../../context/workflow.md) for the tier model, the one-active-feature rule
 and the gate contract. This skill cites those rather than restating them.
@@ -75,6 +77,14 @@ entries are all `done`.**
 **State which phase you picked, and why, in one line, before doing anything else.**
 
 If it is already `in progress`, **read its Note and resume from there — do not restart it.**
+
+**Then see what can run beside it.** Where another runnable phase — not `done`, every `Depends on` `done` —
+shares **no path** with it, prose included, on its **Files:** line, the two can run at the same time, each
+with its own coder, up to the cap in [`context/executors.md`](../../../context/executors.md). Where that is
+true, read [`parallel.md`](parallel.md) beside this file before step 6: it holds how the round is formed,
+every line that makes it fall back to one phase at a time, and how the work comes back. **No flag asks for
+this and none turns it on** — it is this command's own decision, each round, and a round of one phase is
+the ordinary run the steps below describe.
 
 ## 4. Read the row you are about to work
 
@@ -306,6 +316,9 @@ side-effect of the last phase finishing.
 
 Without the flag, this invocation is over at step 13. With it, **go back to step 3 and run the next
 phase**, and keep going until the stop list below says otherwise.
+
+**The unit is step 3's round.** This flag decides whether there is a next one, never how wide one is —
+that is [`parallel.md`](parallel.md)'s, and it is decided again each time step 3 runs.
 
 Phase to phase is not a tier boundary — this command already owns "activation, and the phases within a
 plan" — so the flag crosses nothing. What it removes is the pause where a user reads a phase's report

@@ -7,8 +7,8 @@ alone. Each heading below mirrors a section of the stub, in the stub's order.
 ## Before the first section
 
 Write the prerequisites, if any, as a short paragraph above `## Lint`: node version, package manager,
-install step already run, services up. A command that only passes after `install` has run is a command
-that fails on a clean checkout until somebody says so.
+services up. Facts a person reads. The commands that *make* a clean checkout pass go in *Prepare a fresh
+tree* below, where something can run them.
 
 ## Lint, Typecheck, Build, Test
 
@@ -45,6 +45,24 @@ check nobody runs rather than one this gate does not. List them here so nobody p
 section by mistake.
 
 **Shipped as:** empty.
+
+## Prepare a fresh tree
+
+The commands that turn a clean checkout into one where the sections above pass — the dependency install
+first, then anything else: a generated client, a built artifact a test imports, a local service. One fenced
+`bash` block, from the repository root, in order. **Run them in a fresh checkout before writing them
+down**; a command that only works in a tree somebody has been living in is what this section exists to
+catch.
+
+**These commands have to leave the tree clean**, which rules two things in. **Use the install form that
+reads the lockfile rather than rewriting it** — every package manager has one, usually a `--frozen-lockfile`
+or `--immutable` flag or an install subcommand of its own, and it is the form CI already uses — and
+**gitignore anything a step here generates**: a client, a built artifact a test imports, a schema. `/feature-implement` checks `git status --porcelain` after running this section and
+will not run a round of phases in a tree that came back dirty, so a rewritten lockfile costs the round; left
+unfixed it also shows up in every phase's diff from then on.
+
+**Shipped as:** empty. An empty section means `/feature-implement` runs one phase at a time instead of a
+round of them side by side, and says so. It is not a gate failure and nothing else changes.
 
 ## Rules
 

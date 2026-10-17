@@ -11,8 +11,8 @@
       ]
     },
     "our-templates": {
-      "limit": 383488,
-      "why": "§24.5 — per-file limits let growth spread; this is the sum"
+      "limit": 402944,
+      "why": "§26.19 — a prepared tree has to come out clean, in all three files that answer for it"
     }
   },
   "files": {
@@ -65,12 +65,12 @@
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "context/verify.notes.md": {
-      "limit": 3072,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 4608,
+      "why": "§26.19 — the install form, and generated files that have to be ignored"
     },
     "context/workflow.md": {
-      "limit": 25088,
-      "why": "§24.9 — the owner-check contract moved to its one reader"
+      "limit": 25600,
+      "why": "§26.10 — the one exception, written where the absolute rule is"
     },
     "context/workflow.notes.md": {
       "limit": 24064,
@@ -84,13 +84,17 @@
       "limit": 5120,
       "why": "§24.5 — locked at its size when the budget was written"
     },
+    "skills/feature-implement/parallel.md": {
+      "limit": 12800,
+      "why": "§26.19 — the round’s contract, through the clean-tree check after the install"
+    },
     "skills/feature-implement/SKILL.md": {
-      "limit": 23040,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 24064,
+      "why": "§26.3 — step 3 forms the round"
     },
     "skills/feature-implement/tracker.md": {
-      "limit": 8704,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 9216,
+      "why": "§26.13 — the round under the tracker answer"
     },
     "skills/feature-plan/SKILL.md": {
       "limit": 14848,
@@ -105,16 +109,16 @@
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "skills/feature-status/SKILL.md": {
-      "limit": 7680,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 8192,
+      "why": "§26.5 — a detached scratch tree is nobody’s claim"
     },
     "skills/feature-status/tracker.md": {
       "limit": 5632,
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "skills/onboard/SKILL.md": {
-      "limit": 51712,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 53248,
+      "why": "§26.19 — Step 7 verifies the fresh-tree answer in a clone, and checks it left no mess"
     },
     "skills/orchestrate/SKILL.md": {
       "limit": 16896,
@@ -141,8 +145,8 @@
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "stubs/executors.md": {
-      "limit": 4096,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 4608,
+      "why": "§26.11 — the cap on how many phases run at once"
     },
     "stubs/git.md": {
       "limit": 6144,
@@ -169,8 +173,8 @@
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "stubs/verify.md": {
-      "limit": 2560,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 3072,
+      "why": "§26.12 — the *Prepare a fresh tree* answer"
     }
   }
 }

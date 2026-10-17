@@ -402,7 +402,9 @@ in [`context/verify.notes.md`](../../../context/verify.notes.md).
    request, because Gate 1 runs per phase and would flag every docs-only change.
 2. **Show the candidates and ask** which belong in Lint, Typecheck, Build and Test, and whether anything is
    missing. Ask about prerequisites too — a package manager version, an install step, a service that must
-   be up.
+   be up. **Whatever has to be *run* to make a clean checkout pass goes in *Prepare a fresh tree***, not
+   into the preamble: `/feature-implement` runs that section when it prepares a tree for a phase, and
+   without it runs one phase at a time.
 3. **Ask what else this project runs to prove a change is good.** The four headings are the ones every
    project has, not the whole of what one checks — an end-to-end run, an accessibility suite, a size
    budget, a coverage floor, a visual snapshot, a dependency audit. **Ask specifically about the end-to-end
@@ -440,6 +442,17 @@ in [`context/verify.notes.md`](../../../context/verify.notes.md).
    does run each one** — the pipeline, the deploy, a person before a release. That section is the record of
    a check this project has and this gate does not run; without the name it reads as a check nobody runs,
    which is a different and much worse fact.
+
+7. **Verify *Prepare a fresh tree* in a tree that is actually fresh.** Step 4 does not run it — it is below
+   the Gate 1 line, and it is an answer about a checkout nobody has lived in, which this one is not. Clone
+   the repository into a temporary directory instead: `git clone --no-hardlinks . <tmp>`. **That is not a
+   worktree**, and it is not the invocation [`context/executors.md`](../../../context/executors.md) names;
+   nothing here makes one of those. Run the candidates there, in order, and then **check the tree is still
+   clean** — `git -C <tmp> status --porcelain` must print nothing. **A dirty tree is a wrong answer, not
+   something to work around:** name what it changed and fix the answer — the install form that reads the
+   lockfile instead of rewriting it, or a `.gitignore` entry for a file a step generates. Remove the
+   directory afterwards. Where this repository has no commit yet there is nothing to clone, so say the
+   section was written unverified and name what you would have run.
 
 Explain what you are doing: this turns `verify.md` from someone's guess into something verified at install
 time, which is the one moment it is cheap to catch.

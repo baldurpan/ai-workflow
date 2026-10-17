@@ -110,6 +110,18 @@ that is never written is worse than one whose evidence is still owed, and this i
 
 **Never edit a row to get past a refusal**, exactly as no phase is marked `done` to get past one.
 
+### A round of phases, in steps 6 and 11
+
+[`parallel.md`](parallel.md) holds the round itself. Three things change under this answer:
+
+- **The round's rows open in one body write and close in one**, rather than one write per phase. Fewer
+  windows against a person editing the body, which is this answer's one hazard the tree answer lacks.
+- **The sha in a closing row is the commit on the feature branch**, never the one in the phase's scratch
+  tree: that one has no branch and stops existing when the tree is removed. A row naming a sha nothing can
+  resolve is worse than a row naming none.
+- **The heartbeat names every phase in the round**, at the boundary it opens and the one it closes. An
+  assignee is a lock with no expiry, and a run that dies mid-round leaves three open rows instead of one.
+
 **A blocking defect is unchanged too**, because it was never a separate object: it is fixed, or it is the
 `blocked` status in the row this section already describes, or it is an issue. Under this answer the third
 of those is an issue in the same tracker as everything else, which is the one place the file answer had to

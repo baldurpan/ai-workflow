@@ -110,7 +110,9 @@ commit-sized unit and anything an existing roadmap entry already covers.
 commits. Under those answers a push happens once per feature, at `/feature-close` — never at the end of a
 phase — and the only pushes outside them are the two asked for by name: `/orchestrate --pr`, and
 `/release`. **Nothing merges a pull request, deletes a branch, or removes a worktree under any answer, any
-flag or any command.**
+flag or any command.** The one exception is not a worktree in that sense: `/feature-implement` makes a
+**detached, branchless checkout under the git directory** for a phase it runs beside another, and removes
+it when that phase lands. Not by the recorded invocation, and no other command makes or removes one.
 
 **Those answers authorise the commands in this workflow, at the point each one names, and nothing else.**
 *The agent commits* is permission for `/feature-implement` to close a phase it just ran, not standing leave
@@ -260,7 +262,8 @@ To pick the next phase: take the **lowest-numbered phase that is not `done` and 
 are all `done`.** State which one you picked before starting. If it is already `in progress`, read its Note
 and resume — do not restart it.
 
-**One run is one phase, unless `--all` says otherwise.** That flag repeats the pick above, and stops
+**One run is one round**, and a round is one phase or the independent phases `/feature-implement` runs side
+by side under the cap in [`executors.md`](executors.md). **`--all` repeats the pick above**, and stops
 exactly where a single run would: a phase that ended `blocked` or part-landed, a gate at its loopback cap,
 a ledger that disagrees with the repo. When the last phase goes `done` it stops there and names
 `/feature-close` — **that boundary is still crossed by an explicit command.**

@@ -5464,3 +5464,674 @@ files, no `.source`), installing it into an empty repository, and running `check
 `update --dry-run`. On a copy of `quotavero` at 0.25.0, `update` removed `context/standards/.source` as no
 longer shipped, with no conflict, and kept all 78 standards files in the manifest. `check` still exits 0
 afterwards.
+
+---
+
+## 26. Parallel phases — the round, the scratch tree, and the measurement that priced it
+
+Asked for as: independent phases of one plan run at the same time, each with its own coder; isolation per
+phase; a cap on concurrent coders; a merge back in phase order. **Designed first, reviewed, then built on
+2026-10-17** with three parts of the design changed by the user — the flag, the refusals and what happens
+to an overlap. §26.16 holds the recommendation it was built against, which was not to build it.
+
+Three things changed on the way. The **round** turned out not to be a function of the `Depends on` column,
+which is the half of the request the measurement does not support. The isolation turned out to be a
+**scratch checkout rather than a workspace**, which is what makes it cost almost nothing and what keeps the
+worktree rule intact. And **the flag went away**, which moved the permission for that checkout off §18.2's
+typed flag and onto a written exception in `workflow.md` — §26.2 and §26.10.
+
+### 26.1 The measurement, re-run — and the column it does not answer
+
+**Re-measured 2026-10-16** across `baldurpan.com`, `bgmusik` and `piff`. Method: the `Depends on` column of
+each archived plan's §6.1 ledger for the edges, each §6.2 section's **Files:** line for the paths, longest-
+path levels for the unbounded round count, and greedy lowest-numbered-first list scheduling for the capped
+ones. 19 files in the three `context/archive/` directories; **18 carry a phase ledger** — `piff`'s
+`archive/PLAN.md` predates the shape and has none.
+
+| | |
+|---|---|
+| Phases | **115** |
+| Rounds, width unbounded | **80** |
+| Rounds, cap 3 | **81** |
+| Plans with no round wider than one | **3 of 18** |
+
+**The 80 reproduces exactly.** The 121 does not: the gap is `CUTOVER-PIFF-IS-TO-WORKER`, which has **8**
+ledger rows and 8 §6.2 sections, not 14 — its first round really is 6 wide. `SOLAR-ECLIPSES` (8 phases, 4
+rounds) and `SUN-CALENDAR-FEED` (9 in 4) reproduce, and so does *most of `baldurpan.com` is nearly linear*:
+10 of its 13 plans have a widest round of 2.
+
+**Then the column that was not measured.** A round is only runnable in parallel if its phases do not write
+the same file, and `Depends on` says nothing about that — it orders *information*, not paths. Of the **26
+rounds that hold more than one phase** at cap 3:
+
+| | Rounds |
+|---|---|
+| no shared **Files:** path | **3** |
+| share only prose — a `.md` file, or anything under `context/` | 11 |
+| share a path that is neither | **12** |
+
+So the yield depends entirely on which rule forms the round, and the three candidate rules are three
+different features:
+
+| Round formed from | Rounds | Rounds holding >1 phase |
+|---|---|---|
+| `Depends on` alone | 81 | 26 |
+| `Depends on` ∧ disjoint non-prose **Files:** | 94 | 18 |
+| `Depends on` ∧ disjoint **Files:** | **107** | **7** |
+
+**115 phases in 107 rounds is the honest number for the safe rule: 8 rounds saved, and 12 of 18 plans gain
+nothing.** The six that gain are `ISAFJORDUR-SKY` (5+6), `SITE-CORE` (3+5), `SUN-CALENDAR-FEED` (4+5, 6+7),
+`CUTOVER` (1+5+8), `FILMFREEWAY-IMPORT` (1+2) and `TESTING` (2+3).
+
+**Prose overlap cannot be allowed, and the reason is mechanical.** The 11 rounds overlap on
+`context/verify.md`, `README.md` and `context/stack.md` — the answer files. Two phases that each add a
+section to one of those both append, in two trees, from one base: that is a conflict every time, in the
+file that names this project's commands. §4.5 settled the same shape for `history.md` with `merge=union`
+and refused it for a file whose lines are also deleted; `verify.md` is such a file. Overlap on prose is
+not the cheap case, it is the certain one.
+
+**And `Files:` is a prediction, not a contract.** Read in `CUTOVER-PIFF-IS-TO-WORKER`'s ledger: Phase 6's
+*"**Files:** line grew from three paths to eleven, by the phase itself"*, Phase 7's *"grew from four paths
+to five"*. Step 7 of the skill asks for exactly that — whatever a phase makes untrue is fixed by it. So the
+round is formed on a prediction that the field says grows, which is why §26.3 checks it twice.
+
+**The lever is the planner, not this command.** The 12 code-overlapping rounds are a choice `/feature-plan`
+made: §7's documentation rows are already assigned per phase, and two independent phases both listing
+`README.md` is a plan that could have assigned it to one of them. A planner that wrote disjoint phases
+would move the 107 toward the 81. That is a `/feature-plan` change and it is not proposed here.
+
+### 26.2 How it is asked for — it is not. The command decides, each round
+
+**No flag.** `/feature-implement` forms a round itself, every time step 3 runs, out of the ledger, the
+phases' **Files:** lines and the cap in `executors.md`. `--all` keeps exactly the meaning it had: it decides
+whether there is a *next* round, never how wide one is. The design had a typed `--parallel` and the user
+removed it — *how many phases run at once is the command's own decision, not a setting the user types.*
+
+**What that costs is the permission argument, and it has to be paid somewhere else.** §18.2's model is that
+`git.md` names two sources of permission and only two, the second being the user asking in this session —
+and a typed flag is that ask. Without the flag, the scratch tree is this command acting on its own
+initiative, which is the thing `workflow.md` and the always-loaded block both forbid by name. So the
+exception is **written into the rule** instead of being carried by a flag: one sentence in `workflow.md`
+beside the absolute one, and `git.md` or `workflow.md` — not `git.md` alone — as the block's answer to
+*where does permission come from*. §26.10 has the words. This is strictly more durable than the flag was:
+a flag authorises an invocation and is forgotten, where a written exception is a sentence a reader can
+check the behaviour against.
+
+**It also removes the axis question.** §18.5 refused `/bugfix` partly for fusing two orthogonal axes, and
+width and distance were that same pair — `--parallel` for how wide, `--all` for how far. With width no
+longer typed there is one flag and one axis, which is the version with nothing to argue about.
+
+**Still rejected — `--parallel=N`.** The cap is a fact about the machine and the account, which is §4.3's
+whole reason for `executors.md`: a number typed per invocation is one the next invocation forgets, and the
+usage limit it exists for does not change between them. It lives in that file, and `1` is how a project
+turns the whole thing off.
+
+### 26.3 What forms a round — and the check that happens twice
+
+**Forming it, from the plan:** the runnable phases — not `done`, every `Depends on` `done` — taken
+lowest-numbered first, skipping any whose **Files:** line shares a path with a phase already in the round,
+up to the cap. Say the round out loud before any coder starts: which phases, and for each one left out,
+whether it was a dependency, an overlap (naming the path) or the cap.
+
+**Checking it again, from the diffs:** before anything lands, each phase's actual work is compared against
+what the round has already landed — `git diff --name-only <base>..<tip>`, the base recorded when the tree
+was made and the tip that tree's HEAD, read out of the feature's own tree with no checkout. **A path in
+both means the earlier phase stands and the later phase's work is thrown away**, and that phase **runs
+again, one at a time, on the combined tree**, from step 7, with its row still `in progress`.
+
+**And the tree is checked for uncommitted changes before either** — `git -C <tree> status --porcelain`.
+Work a coder left uncommitted is in no commit, so there is nothing to cherry-pick and nothing to compare:
+that phase is a coder that stopped short, which is step 11's *some landed* row with its tree kept, not a
+landing. Landing what was committed and dropping the rest silently is the one failure in this design that
+would produce a `done` phase missing half its work.
+
+The design closed the later phase `blocked` instead; the user changed it, and the change is better. A
+`blocked` row for a phase nothing is wrong with is a lie in the ledger, and it leaves a run that could have
+finished the plan handing back work it is perfectly able to do — re-running on the combined tree is the
+sequential run it would have had anyway, minus one wasted coder. It cannot loop: the re-run is alone, so
+there is nothing left for it to overlap with. The discarded sha goes in the report, because it is readable
+until git collects it.
+
+What did not change is that **the two versions are never merged.** Nothing in this workflow has the
+standing to decide which of two coders' versions of a file wins — `git.md`'s *discarding someone's work*
+list is the same instinct one level down. And the check stays **before** the cherry-pick: verified against
+git 2.56.0, a `git cherry-pick -n` that conflicts leaves *no cherry-pick in progress*, so
+`git cherry-pick --abort` fails with `no cherry-pick or revert in progress` and the only way out is a hard
+reset over the conflict markers. Checking the diffs one command earlier means that state never exists.
+
+### 26.4 When it falls back, and which line said so
+
+**Nothing refuses.** The design had these as refusals, with the flag reporting that it could not run; the
+user replaced every one of them with a fallback to one phase at a time, said once, at the start of the run.
+That is the right shape for a decision nobody typed: a refusal is a sensible answer to *you asked for
+something this project cannot do*, and nobody asked. What survives is the **naming** — each line says which
+file and which answer decided it, the way `--all` names the line that declined the continuation.
+
+| The line | Why a round cannot run under it |
+|---|---|
+| `git.md` *Who commits* — **the user commits** | every mechanism below is a commit. A round that cannot commit cannot be cherry-picked back, and a tree carrying three phases at once cannot be cut into three commits — `--all`'s existing argument, one level down |
+| `executors.md` *Coder* — **not configured, implement in-host** | one coder, by construction. This is the shipped answer, so a fresh install runs one phase at a time until that answer changes |
+| the runtime cannot run two coders at once, whatever that answer says | same outcome — and **say which of the two it was**, the recorded answer or the host, because they are fixed in different places |
+| `verify.md` has no **Prepare a fresh tree** answer (§26.12) | a scratch tree cannot be made runnable, so the coder cannot write a failing assertion and run it, which is step 3 of the loop §23 put in `roles/coder.md`. Name the file and `/onboard` |
+| the cap is **1** | the project said one at a time. An answer, not a gap |
+| `git worktree add` fails, for any reason | report the error and run the phase. A tree that cannot be made is not a phase that cannot be run — this row is new, and it exists because a fallback has to cover the mechanism failing as well as the policy forbidding it |
+
+**The row for *where work lands* was wrong and is gone.** It said a round could not run in the main
+working tree with the default branch checked out, because landing it *writes the default branch, which is
+asked for by name each time*. That is `/orchestrate --pr`'s rule and it is about **pushing**: `git.md`'s
+asked-by-name list has *pushing to the default branch*, not committing to it, and under the shipped answers
+an ordinary one-at-a-time phase already commits there. A round commits and never pushes, so there was
+nothing for the row to protect — and it turned the feature off in exactly the shape most of the measured
+corpus has: 13 of the 18 archived plans live in a repository with one working tree and work going to
+`main`. Caught by the user before this was committed.
+
+**The round of one is not a fallback either.** Where the dependencies, the overlaps or the cap leave one
+runnable phase, this is an ordinary run with no scratch tree and nothing to land — and it is the measured
+common case for 3 of the 18 plans. Say the round was one phase and why; do not make a tree to run it in.
+
+### 26.5 The scratch tree — a checkout, not a workspace
+
+**One tree per phase in the round, made by the command itself with plain git**, at the feature branch's
+HEAD, detached, under the repository's own admin directory:
+
+```
+git worktree add --detach "$(git rev-parse --git-dir)/phase-trees/<PLAN>-phase-<n>" HEAD
+```
+
+**The directory name is fixed — `phase-trees/` — because the location is the only thing that identifies
+these trees as this command's**, which is what §26.10's sweep is keyed on.
+
+**The sha `HEAD` resolved to is recorded with the tree.** It is the tree's base, and `<base>..HEAD` is the
+phase's whole work however many commits its coder made — §26.8. It has to be recorded at that moment
+because the feature branch moves as the round lands, so by the time the second phase is landed the first
+phase's base is no longer anything the branch can be asked for.
+
+**No branch is created**, and the recorded invocation in `executors.md` is not used — these are not
+workspaces and they are not to be handed to anything that manages one.
+
+Verified against **git 2.56.0** on 2026-10-16, in a scratch repository:
+
+- A worktree **inside the git directory works**, and `git worktree list` still reports it — observable to
+  git, invisible to anything that scans the working tree.
+- **`git rev-parse --git-dir`, not `--git-common-dir`.** From inside a linked worktree it resolves to
+  `.git/worktrees/<name>`, so under `git.md`'s worktree answer each feature's scratch trees sit under that
+  feature's own admin directory. Two features in flight cannot collide, and §26.10's cleanup-by-location
+  cannot reach another feature's leftovers.
+- **`git worktree remove` refuses a tree with tracked modifications or untracked files** — exit 128,
+  *"contains modified or untracked files, use --force to delete it"* — and **succeeds when the only
+  leftovers are ignored**, taking an installed `node_modules` with it. So removal without `--force` cannot
+  destroy work a coder failed to commit, and the cleanup needs no judgment to be safe.
+- A detached commit has no branch, so **the worktree's HEAD is the only thing keeping it reachable.** That
+  is why a blocked phase's tree is kept rather than its work being copied somewhere, and why removing a
+  landed phase's tree is safe: the content is already a commit on the feature branch.
+- **`git worktree list --porcelain` prints `branch refs/heads/…` for an ordinary worktree and `detached`
+  for these** — re-verified 2026-10-17. That is the discriminator the removal rule needs, and it is a fact
+  about git rather than about a naming convention anybody has to honour.
+- **`git worktree remove` on a tree whose directory has already gone exits 0 and drops the record.** So the
+  sweep never needs `git worktree prune`, which is repo-wide and would touch records that are not ours.
+
+**Why the git directory and not the OS temp directory.** Same filesystem, so nothing is copied across
+devices; and the temp directory can be swept by the OS mid-run, which would destroy the only copy of a
+blocked phase's work. The property that makes the location safe is the one that makes it cleanable.
+
+**The runtime's own isolation counts, where it has it**, and is described by what it does rather than named:
+where a coder can be given its own temporary tree **of this same repository — one whose commits are objects
+in this repository** — the command creates nothing and takes the same handle. A copy or a fresh clone is not
+that: its commits cannot be cherry-picked from here, so it falls back the way an in-host coder does.
+
+**The brief gains four sentences and `roles/coder.md` gains none.** Work in this directory; the plan here
+is a stale copy and is not yours to edit; commit your work in this tree when you are done, because that
+commit is what the caller takes; and other coders are running beside you, so a test that needs a server or
+a fixed port is Gate 1's — leave it, and say which assertions you did not run. Committing is a property of
+this dispatch, not of the role, and a role file that is one prompt for three dispatch shapes does not learn
+about the third one. The fourth sentence is §26.6's problem stated to the one party that can act on it.
+
+### 26.6 Gate 1 runs in one place, and the integration failure is designed out
+
+**Both gates run in the feature's own tree, one phase at a time, in phase order** — not in the scratch
+trees. This is a deliberate departure from the brief's *Gate 1 and Gate 2 run per worktree*, and it keeps
+what that was for while removing what it costs:
+
+- **Attribution is unchanged.** Phase *k*'s gates run on a tree holding phases 1…*k* of this round and
+  nothing else. The tree with 1…*k*−1 just passed, so a failure at *k* is *k*'s, exactly as in a sequential
+  run. The loopback cap stays two per gate per phase.
+- **The combined Gate 1 is not a second thing.** The last phase of the round is gated on the whole round by
+  construction — so the question *what happens when it fails here having passed in every worktree* has no
+  state to answer for. That state was the design's weakest point and it is gone.
+- **Nothing runs the verification stack twice at once.** `verify.md` names commands that may bind a port, a
+  database or a lock, and there is no answer anywhere about whether two of them can run side by side. A
+  design that gated in three trees at once would need that answer; this one does not.
+- **One verification run per phase**, as today, rather than one per phase plus one for the round.
+
+**What is concurrent is the coders, and only the coders.** That is also the only thing the cap in §26.11
+ever has to count.
+
+**But a coder runs commands too, and that is where the port collision survives.** §23 put a loop in
+`roles/coder.md` — write the failing assertion, then make it pass — so three coders in three trees run
+three test commands at the same time, and anything binding a fixed port collides on the second one.
+The field case is `baldurpan.com`: its Playwright config binds **47321** with `reuseExistingServer: false`,
+so a second run does not attach to the first server, it fails to start one. There is no answer anywhere
+about this, and inventing a port-allocation answer for `verify.md` would be a second feature.
+
+So it is **moved rather than solved**, to the one place that is already serial: the coder is told the others
+are running and that a test needing a server or a fixed port belongs to Gate 1, which runs one phase at a
+time in the feature's own tree — §26.5's fourth sentence. What the coder owes in return is to **say which
+assertions it did not run**, because the alternative is a phase that reports green having skipped the half
+of its own loop that needed a server. Gate 1 then runs them on the combined tree, which is strictly better
+evidence than the same test run three times in three half-built trees.
+
+**The same collision reaches *Prepare a fresh tree***, which the orchestrator runs once per tree per round
+and which `verify.notes.md` already says may start a local service. There it is caught rather than
+described: a prepare step that fails in a tree means the round does not run, no coder has started yet, the
+trees are removed and the run falls back to one phase at a time naming the command and its output.
+
+### 26.7 The ledger — one writer, and the row still rides the work
+
+**Only the orchestrator writes rows, in the feature's own tree.** Coders never touch the plan — and this has
+to be said rather than assumed, because in the field they would: `SUN-CALENDAR-FEED`'s phases 6 and 9 both
+carry `context/plans/SUN-CALENDAR-FEED-PLAN.md` on their own **Files:** line.
+
+- **The round's rows open in one write**, before any tree is made, as step 6 requires — one `in progress`
+  and one Note each, naming the round.
+- **A scratch tree carries a stale ledger and that is harmless.** It is branched before the opening write
+  is committed, so its copy of the plan reads `not started`. Nothing in the tree reads it: the coder is
+  briefed with its §6.2 section, and the one rule the brief adds is that the plan there is not to be
+  edited.
+- **The row still lands with the work, so §12's rule needs no exception.** `git cherry-pick -n` stages the
+  phase's change without committing it; the row is written on top; one commit carries both. Verified on git
+  2.56.0 — two scratch commits, each staged with `-n`, each committed with its row, one commit per phase on
+  the feature branch.
+- **No sha in the Note, and that is the difference from the tracker answer.** `tracker.md` needs one because
+  a body edit is a remote write that cannot be part of a commit; here the row is in the commit, so the Note
+  stays what §20.3 says it is — one line.
+
+### 26.8 Bringing it back — the whole tree, as a range, in phase order
+
+Each phase, in phase order: the finished-tree and overlap checks (§26.3) → `git cherry-pick -n <base>..<tip>`
+→ Gate 1 → Gate 2 on the staged diff → close the row → **one commit**, carrying the phase's code and its
+row.
+
+**The range, not the tip.** The design landed one commit per tree, which assumed a coder makes exactly one.
+Nothing tells it to, and nothing should: how a coder gets to the end in a tree nobody is going to read is
+its own business, and `git.md`'s *one commit per phase* is about this branch, not about that one. Taking the
+tip alone would drop everything before it **silently** — no conflict, no gate failure, a `done` row and a
+phase missing most of its work. `<base>..<tip>` is the phase under either habit. Verified on git 2.56.0:
+`git cherry-pick -n <base>..<tip>` applies every commit in the range, stages all of it, commits nothing, and
+leaves no `sequencer` directory and no `CHERRY_PICK_HEAD` behind.
+
+**Why cherry-pick and not merge or rebase.**
+
+- **Merge** adds a merge commit per phase that `git.md`'s *one commit per phase* does not name, and
+  `--squash` is cherry-pick by another name with the phase's own commit message thrown away.
+- **Rebase** rewrites the scratch commit, which is the only durable record of what Gate 2 reviewed, and for
+  a blocked phase the only copy of the work at all.
+- **Cherry-pick by sha reads the scratch tree without touching it**, which is the property that lets a
+  blocked phase's tree be kept exactly as its coder left it.
+
+**Gate 2 is not re-run on the round.** Each phase's diff is reviewed once, as its own phase, against its own
+§6.2 section. A second review of the combination would be re-reviewing passed work against no checklist.
+
+**A gate failure loops back in the feature's own tree, and nothing is reset.** The design sent the loopback
+to the phase's scratch tree and reset the staged cherry-pick to make room for the new commit, which is what
+the second exception in §26.10 was for. Both were unnecessary and the scratch tree is the wrong place
+besides:
+
+- **The state is already right here.** The cherry-pick is staged in the feature's own tree, which is exactly
+  what step 10 re-briefs a coder in on any ordinary phase. A coder works on top of it; nothing has to come
+  off first.
+- **The scratch tree cannot see the failure.** It was branched before the round started, so it is missing
+  every phase that landed earlier in the round. A failure the *combination* caused — a shared bundle
+  ceiling two phases each fit under alone — is invisible from there, and a coder briefed to fix it there
+  would be fixing it against a tree where it does not reproduce.
+- **And the scratch commit stays the durable record**, which is §26.8's reason for cherry-pick over rebase.
+  A loopback that committed into the scratch tree would move it.
+
+### 26.9 Mixed results
+
+**The phases that passed land, and the round stops.**
+
+- **A phase that ends `blocked`** — the cap, an overlap, or something external — does not hold the others
+  back. Their work passed both gates in the feature's own tree and withholding it buys nothing.
+- **A blocked phase's row Note names the scratch tree its work is in.** That is the one thing a later
+  session cannot rediscover: `git worktree list` shows the tree, and nothing but the row says which phase it
+  belongs to. One line, per §20.3.
+- **A phase whose work was discarded for an overlap is not one of these.** It is not `blocked`, it has not
+  part-landed, and the run finishes it — §26.3. The only phases that end a run are the ones that would have
+  ended a sequential one.
+- **The next round does not start.** `--all`'s stop list already stops on a phase that closed `blocked` or
+  part-landed, and §18.6's rule holds here: a round does not widen a stop list.
+- **Report per phase, as it lands** — `--all`'s rule, one level up. A run that dies three phases into a
+  round has to leave that evidence behind it.
+
+### 26.10 The one narrow exception, written out
+
+It is an exception to a sentence that is currently absolute, so it is written where the rule is rather than
+left to be inferred — §4.7's lesson about an implicit scope reading as a grant.
+
+**A scratch checkout is not a worktree the rule is about.** `workflow.md` says nothing removes a
+worktree *under any answer, any flag or any command*, and `executors.md` says a worktree is only ever made
+by the recorded invocation. The reason §4.7 gives is a workspace that *"looks like a worktree and is missing
+the half that made the answer worth choosing"* — the env files, the naming, the parent directory, the editor
+or agent it is handed to.
+
+**With the flag gone, this sentence is the whole of the permission**, so it is written beside the absolute
+rule in `workflow.md` rather than inferred from the behaviour, and the always-loaded block's *only where
+`git.md` says so* becomes *`git.md` or `workflow.md`* — otherwise the two always-loaded files contradict the
+command on every run. That cost the block one line, and the content test that caps its length was raised by
+one with the reason written in it.
+
+- **What it covers:** a detached checkout with no branch, under the repository's own admin directory, at the
+  fixed `phase-trees/` path, made and removed by one invocation of this one command for a phase of a plan it
+  is running — never handed to a person, an editor or a tool.
+- **Why it is safe:** there is no naming convention to honour because nobody looks for it; no editor to open
+  it in; no env file to copy, because what makes it runnable is `verify.md`'s own answer and a project that
+  needs a secret file says so there; and **no branch, so nothing can be pushed from it and no ref is left
+  behind.**
+- **What removes it:** `git worktree remove` without `--force`, **as soon as its phase lands.** One rule
+  does the rest: **a tree whose phase did not land is kept, with its path in the report** — which covers a
+  blocked phase and a discarded one without a second clause. A later run sweeps the same path and
+  **never a worktree with a branch on it**, which `--porcelain` tells it apart and which is every worktree
+  the recorded invocation has ever made.
+- **What it cannot do:** destroy work. Without `--force`, git refuses a tree holding modified or untracked
+  files (exit 128) and succeeds where the only leftovers are ignored — so an uncommitted half-phase stops
+  the removal rather than being swept up by it, and the refusal goes in the report.
+- **`/feature-status` had to learn about it**, because that command reads `git worktree list` and treats a
+  tree as a feature in flight. A scratch checkout is a checkout of this repository, `roadmap.md` and all, so
+  without one line there it would be reported as a second feature with a stale ledger. A tree with no branch
+  is nobody's claim: skip it, name a leftover's path, remove nothing.
+
+**There was a second exception and it is gone.** It read: a Gate 1 or Gate 2 failure on a staged cherry-pick
+has to come off before the loopback's new commit goes on, which is `git reset --hard` territory — on
+`git.md`'s asked-by-name-each-time list because *"uncommitted work has no second copy"* — and here it has
+one, so the reset is allowed within that scope. The argument was sound and the premise was false: nothing
+has to come off at all. The loopback re-briefs the coder in the feature's own tree, on top of the staged
+cherry-pick, exactly as step 10 does on any ordinary phase (§26.8). **An exception nobody needs is still a
+carve-out in an absolute rule**, which is the §4.7 failure one step removed, so the whole of it came out of
+`parallel.md` and out of here. `git.md`'s list is untouched by this feature.
+
+### 26.11 The cap — 3, and it costs one round in 115
+
+**Recorded in `executors.md`, in the Coder answer, and 3 where that file says nothing.** The measurement
+makes it close to free:
+
+| Cap | Rounds for 115 phases |
+|---|---|
+| 2 | 86 |
+| **3** | **81** |
+| 4 | 81 |
+| unbounded | 80 |
+
+**A cap of 3 costs one round across eighteen plans.** `CUTOVER`'s 6-wide first round becomes two rounds and
+nothing else in the corpus is wider than 3 once §26.3's overlap rule has run.
+
+**`1` turns round-forming off**, which is the answer for a project whose account cannot carry three agents
+and the reason the number is in a file rather than in a flag.
+
+**It goes in the Coder section rather than a heading of its own**, which §4.6 notes means `update` will not
+report it to an existing install. That is acceptable here and would not be for a stub section the command
+cannot run without: an absent cap has a safe default, so an install that never hears about it gets 3. The
+*Prepare a fresh tree* answer is the opposite case and got a `##` heading for exactly that reason — tested,
+and confirmed against an install that predates it.
+
+**It counts coders, which is all there is to count** — §26.6 made the gates serial.
+
+### 26.12 `verify.md` gains the answer the field already wrote in prose
+
+A scratch checkout has no `node_modules`, no `.env` and no build cache, so the coder cannot run the failing
+assertion §23 requires. Read on 2026-10-16, all three live `context/verify.md` files already record what a
+fresh tree needs — and none of them records it as a command anything runs:
+
+- `baldurpan.com`: *"Prerequisites: Node 24, pnpm 10, `pnpm install` already run, and Playwright's Chromium
+  installed."*
+- `bgmusik`: *"`pnpm install` from the repository root, once per clone and after any dependency change."*
+- `piff`: *"**In a new worktree this is not optional and not shared** — `node_modules` does not come across
+  from the main checkout, so a fresh tree has none and every command below fails until it is installed."*
+
+**So the answer exists, in the right file, as prose with no reader.** `/onboard` Step 7.2 already asks for it
+— *"Ask about prerequisites too — a package manager version, an install step, a service that must be up"* —
+and the answer has had nowhere to land. It gets a section:
+
+- **`## Prepare a fresh tree`**, in `stubs/verify.md`, placed **below *Not run by Gate 1*** so Gate 1 never
+  runs it on an ordinary phase. The existing rule — *Gate 1 runs every section above that one* — already
+  covers it, so nothing about the gate contract changes.
+- **Empty means one phase at a time**, per §26.4 — not a refusal and not a gate failure. *Nothing to
+  prepare* is a real answer and is not the same as silence, which is the distinction `verify.md` already
+  draws for a missing section.
+- **One sentence in `/onboard` Step 7.2**, so the prerequisite answer is written into the section instead of
+  into the preamble. The guidance goes in `verify.notes.md`, which no command reads.
+- **The cost is paid per phase, per round.** An install in every scratch tree is the one cost that scales
+  with the width being bought, and on these three repositories it is a `pnpm install` against a warm store
+  against a coder run measured in minutes. Named rather than hidden.
+
+### 26.13 The tracker answer
+
+The ledger in an issue body changes four things and leaves the hazard it already has unchanged.
+
+- **The assignee is unchanged, and a phase gets no object of its own.** §10.10 superseded sub-issues; three
+  coders working at once do not bring them back. A feature still has exactly one writer, which is what makes
+  the body safe to edit, and a coder holds nothing.
+- **One body write per round boundary**, not one per phase: the round's rows open in one read-modify-write
+  and close in one. Fewer windows against a person editing the body, which is `tracker.md`'s one hazard the
+  tree answer does not have.
+- **The sha rule applies, and here it is load-bearing.** A body edit cannot ride a commit, so each closing
+  row names the commit that landed its phase — **the cherry-picked commit on the feature branch**, never the
+  scratch commit, which has no branch and stops existing when the tree is removed. A row naming a sha
+  nothing can resolve is worse than one naming none.
+- **The heartbeat comment is per round, naming every phase in it.** An assignee is a lock with no expiry;
+  a run that dies mid-round leaves three open rows instead of one, and the comment is the only thing outside
+  the process that can say so.
+
+### 26.14 Where the prose goes, and what the budget pays
+
+**Almost all of it in `skills/feature-implement/parallel.md`**, read only where step 3 forms a round of more
+than one phase — the `feature-plan/split.md` shape, and §24.9's placement rule: a contract one command acts
+on lives in that command.
+
+| File | Was | Is | Note |
+|---|---|---|---|
+| `skills/feature-implement/parallel.md` | — | **12,720** | the round, the fallbacks, the scratch tree, the landing, the overlap, the removal, the report |
+| `skills/feature-implement/SKILL.md` | 22,722 | 23,804 | the header's *one round*, step 3's round and its pointer, step 14's unit |
+| `skills/feature-implement/tracker.md` | 8,214 | 9,019 | one body write per round boundary, and a sha that resolves |
+| `skills/feature-status/SKILL.md` | 7,545 | 7,862 | a detached tree is nobody's claim |
+| `skills/onboard/SKILL.md` | 51,581 | 52,842 | Step 7.2's answer gets a destination, and Step 7.7 proves it in a clone |
+| `context/workflow.md` | 24,999 | 25,396 | the exception beside the absolute rule, and *one run is one round* |
+| `context/verify.notes.md` | 3,016 | 4,326 | what *Prepare a fresh tree* takes, and what keeps it clean |
+| `context/executors.notes.md` | 5,150 | 5,503 | the cap, documented where `/onboard` reads it |
+| `stubs/executors.md` | 4,043 | 4,601 | the cap, in the Coder answer |
+| `stubs/verify.md` | 2,479 | 3,015 | `## Prepare a fresh tree` |
+| `blocks/agents-block.md` | 3,183 | 3,231 | the standing rule's second permission home |
+
+**The always-loaded pair stayed inside its ceiling: 28,627 against 28,672**, 45 bytes to spare. That was the
+constraint the user set — *put the detail in the files `/feature-implement` loads* — and it held, at the
+price of the exception in `workflow.md` being three lines rather than a paragraph.
+
+**Eight per-file limits were raised by hand** — `workflow.md`, `verify.notes.md`, `stubs/verify.md`,
+`stubs/executors.md`, both of `/feature-implement`'s files, `/feature-status` and `/onboard` — each with a
+`why` naming a subsection of this one, plus an entry for `parallel.md`. Only `executors.notes.md` and
+`agents-block.md` fit as they stood.
+
+**And the our-templates ceiling went from 383,488 to 402,944 — a raise of 19,456 bytes, 5.1%.** That is the
+honest headline number for this feature, and 12,720 of it is one file that is read only when a round of more
+than one phase forms. §24.5's point is that this is a typed decision with a reason beside it rather than
+drift; it is still the largest single raise that ceiling has taken. The corrections after the first build
+are 3,584 of it — §26.18's whole-tree landing and port rule, and §26.19's clean-tree check in all three
+files that answer for it.
+
+### 26.15 What was refused
+
+- **Coders in the feature's own tree, no worktrees at all.** It is the cheapest version and it cannot have
+  per-phase gates: Gate 1 reads the working tree, so a tree holding three phases' work — one of them
+  half-written — gives a failure that belongs to nobody. The worktree is load-bearing, and this is why.
+- **Letting prose paths overlap** (the 94-round rule). It buys 11 rounds and pays in guaranteed conflicts in
+  `verify.md` and `README.md`, which are the files that answer what the commands are.
+- **The orchestrator writing the shared prose path itself**, for both phases, so a wider round could form.
+  It recovers those 11 rounds and lands an edit **Gate 2 never saw**, in the one file class where being
+  wrong is most expensive.
+- **Resolving a conflict between two coders.** Nothing here has the standing to decide whose version of a
+  file wins. §26.3 detects the overlap one step earlier instead.
+- **Closing a phase `blocked` because another phase touched its files.** The design did this and it was
+  wrong: nothing is the matter with that phase, and the run can finish it. §26.3 re-runs it alone.
+- **A typed flag**, which the design had. It made the permission cheap to argue for and the feature cost
+  the user a word to remember; §26.2 pays for it with a written exception instead.
+- **Reusing scratch trees across rounds**, re-pointing them at the new HEAD to keep the dependency install.
+  It would pay for itself — §26.12's cost is per phase per round — and a tree that outlives its phase is a
+  workspace again, carrying the previous phase's ignored build output into the next one's gate: §4.7's
+  *looks right and is missing half*, in a new costume.
+- **Making the scratch trees through the recorded invocation.** They would arrive named, env-copied and
+  possibly handed to an editor or an agent — a workspace per phase, three per round, in the user's tools.
+- **`--parallel=N`**, and **a fifth `/onboard` question for the cap**: §18.2's rejection of writing the
+  answer instead of asking, and §4.3's reason the number belongs in `executors.md`. The cap ships at 3 with
+  a safe default, so an install that never hears of it is correct rather than broken.
+- **A `check` rule.** Nothing here is a fact about an install, per §24.5's third refusal. A leftover scratch
+  tree is the one candidate, and `git worktree list` already answers it — `/feature-status` reports it.
+- **`git worktree prune` in the sweep.** It is repo-wide, and removal of a vanished directory works without
+  it (§26.5). A command whose exception is *only our own trees* does not run a repo-wide command.
+
+### 26.16 What it would cost, and what I would decide
+
+**The build:** one new ~6 KB file, seven edits totalling about 1.8 KB, five budget raises, and the content
+tests — the round's two checks, each refusal with the line that caused it, the scratch-tree location and its
+detached shape, cherry-pick-by-sha in phase order, the row riding the work, the per-phase report, the two
+exceptions with all three of their parts, the cap and its default, and the `verify.md` section with its
+refusal. Then CLAUDE.md's three checks and the tarball install.
+
+**What it buys, measured: 8 rounds out of 115 phases, in 6 of 18 plans** — and that is an upper bound,
+because it is computed from **Files:** lines the field says grow, and every growth turns a round into
+§26.3's second check firing.
+
+**Two things worth weighing before building it.** The parallelism already exists one tier up: `git.md`'s
+worktree answer puts several *features* in flight at once, bounded by nothing but the same usage limit, and
+that is built, running in five repositories, and needs no exception to any rule. And the measurement says
+the within-plan version is small **because plans write overlapping phases** — which makes `/feature-plan`
+the cheaper place to spend the next change, and would raise the ceiling this flag is working under before
+the flag is built.
+
+**So: the design is settled and I would not build it on these numbers.** If it is built anyway, build it as
+written — the scratch tree, the two checks, the serial gates — because that version costs one prose file and
+breaks nothing, and the version that looked valuable at 30% is the one that merges the answer files by hand.
+
+**The user read that and chose to build it anyway, on 2026-10-17**, with the flag removed, the refusals
+turned into fallbacks and the overlap re-run instead of blocked.
+
+### 26.17 What was built, and what it cost
+
+One new file — `skills/feature-implement/parallel.md`, 11,036 bytes as first written and 12,116 after
+§26.18, read only where step 3 forms a round of more than one phase. Ten edits elsewhere, listed in §26.14, the largest being the exception in
+`workflow.md` and the cap in `stubs/executors.md`. Two existing content tests changed: the one pinning
+`workflow.md`'s *one run is one phase*, which is no longer true, and the cap on the always-loaded block's
+line count, raised by one for the second permission home with the reason in the test.
+
+**25 new content tests**, in one block covering what forms a round, the prose-counts rule, the cap and its
+default, every fallback with the line that caused it, the scratch tree's shape and location, the
+runtime's own isolation being described and not named, the one ledger writer, cherry-pick by sha in phase
+order, the overlap sending the later phase back to run alone, the removal rule and the `--porcelain`
+discriminator, the sweep by location, the reset exception, the report, and the `verify.md` section. **480
+pass, 0 fail**, up from 455 — and 482 after §26.18.
+
+**Verified** by `npm run check`, `npm run build` and `npm test`, then by packing the tarball (137 files),
+installing it into an empty repository, and running `check` (exit 0) and `update --dry-run` (clean). Then
+against an install that predates the new section: `update --dry-run` reports *`context/verify.md` has no
+"Prepare a fresh tree" section* and names `/onboard`, which is the path an existing install takes to the
+fallback rather than to a broken run. Every git mechanic in this section was re-verified against **git
+2.56.0** on 2026-10-17 in a scratch repository: the detached tree under the git directory, `--porcelain`'s
+`branch` versus `detached`, the overlap read from the feature tree with no checkout, `cherry-pick -n` plus a
+row in one commit, removal refusing a dirty tree (exit 128) and succeeding with only ignored files, removal
+of a vanished directory exiting 0, and a discarded commit still readable by sha after its tree is gone.
+
+### 26.18 Four corrections, before any of it was committed
+
+The user read the built version and found four things wrong with it. All four are now in `parallel.md` and
+in the sections above; this is what they were and what each one was worth.
+
+**One — the *where work lands* fallback was borrowed from the wrong rule.** §26.4 turned rounds off in the
+main working tree with the default branch checked out, reasoning that landing a round *writes the default
+branch, which is asked for by name each time*. `git.md`'s asked-by-name list says **pushing** to the
+default branch, not committing to it; that sentence came from `/orchestrate --pr`, which pushes. A round
+commits, which an ordinary one-at-a-time phase on that branch already does under the same answers. The row
+bought nothing and cost everything: **13 of the 18 archived plans in the measurement live in a repository
+shaped exactly that way**, so the feature would have been off in most of the corpus it was measured
+against. Gone — and the test now asserts its absence rather than its presence.
+
+**Two — the gate loopback belongs in the feature's own tree.** The design re-briefed the coder in the
+phase's scratch tree and reset the staged cherry-pick to make room, which needed the second exception in
+§26.10. Two things were wrong at once. The state was already right in the feature's own tree — a staged
+cherry-pick is what step 10 re-briefs a coder in on any ordinary phase, so nothing has to come off. And the
+scratch tree is **missing every phase that landed earlier in the round**, so a failure the combination
+caused cannot be reproduced there, let alone fixed. §26.8 has the replacement; the exception came out of
+`parallel.md` and out of §26.10, and `git.md`'s *discarding someone's work* list ends this feature
+untouched. **The best outcome available to a design is an exception it turns out not to need.**
+
+**Three — land the tree, not the commit.** The design cherry-picked one sha per phase, which assumed a coder
+makes exactly one commit in its own tree. Nothing tells it to and nothing should. So the base sha is
+recorded when the tree is made (§26.5), the overlap check and the landing both read `<base>..<tip>`, and a
+tree with uncommitted changes in it is **a coder that stopped short rather than something to land** —
+step 11's *some landed* row, tree kept. The failure this removes is the quiet one: landing the tip alone
+produces a `done` phase missing most of its work, with no conflict and no gate failure to notice it by.
+Verified on git 2.56.0 — `git cherry-pick -n <base>..<tip>` applies every commit in the range, stages all of
+it, commits nothing, and leaves no `sequencer` and no `CHERRY_PICK_HEAD`; and `git -C <tree> status
+--porcelain` is empty in a tree whose coder committed everything.
+
+**Four — coders in a round collide on a fixed port.** §26.6 had designed the collision out of the *gates*
+and left it in the *coders*, which §23 requires to run their own failing assertion. Three at once means
+three test commands at once, and `baldurpan.com`'s Playwright config binds **47321** with
+`reuseExistingServer: false` — so the second one does not attach to the first server, it fails to start
+one. Rather than invent a port-allocation answer for `verify.md`, the brief gains a fourth sentence: the
+others are running, a test needing a server or a fixed port is Gate 1's, and **say which assertions you did
+not run.** Gate 1 is already serial and already on the combined tree, so those assertions end up with
+better evidence than they had. The same collision reaches *Prepare a fresh tree*, which the orchestrator
+runs per tree — there a failure means the round does not run, and since no coder has started, the trees are
+removed and the run falls back naming the command.
+
+**What it cost:** `parallel.md` 11,036 → **12,116** bytes, its limit and the our-templates ceiling each
+raised once more by hand (§26.14), and **two new content tests** — an unfinished tree landing nothing, and
+the brief's fourth sentence — with four rewritten to the range form, the loopback and the absent row.
+**482 pass, 0 fail.**
+
+**One claim in §26.3 changed with the form.** Re-verified on git 2.56.0: a conflicting `cherry-pick -n` of a
+**single sha** leaves no cherry-pick in progress, so `--abort` fails with *no cherry-pick or revert in
+progress* (exit 128) — the fact the design was written against. A conflicting **range** is different: it
+stops part-applied with the `sequencer` directory open, and `--abort` exits 0. The rule is unaffected, and
+it is not the reason for the rule either: the check stays before the cherry-pick because the way out of a
+conflict is a choice between two coders' versions of a file, which is the decision nothing here has the
+standing to make. Recoverable or not, that state is one this command never creates.
+
+### 26.19 A prepared tree has to come back clean
+
+§26.12 gave `/feature-implement` a section to run in a fresh checkout and §26.18 caught it failing. It can
+also **succeed and still ruin the round**, which the user caught next: an install that rewrites the
+lockfile, or a step that generates a file nobody ignores, leaves the tree dirty **before the phase has
+started**. Nothing downstream can tell that from the phase's own work:
+
+- **Landing reads it as a coder that stopped short.** §26.18's finished-tree check is
+  `git -C <tree> status --porcelain` empty, and a rewritten lockfile is exactly what that check reports. A
+  phase whose coder did everything right lands nothing.
+- **Or it lands and the overlap check discards the round.** §26.3 compares the real diffs, and a lockfile
+  every tree rewrote is a path every phase in the round touched — so every phase after the first is thrown
+  away and re-run one at a time, which is the fallback with the cost of the round already paid.
+
+**So the tree is checked after *Prepare a fresh tree* runs**, with the same command and the same outcome as
+a failure: remove the trees, **name the files it changed**, and run one phase at a time. An installed
+dependency directory is not dirt — verified on git 2.56.0, `status --porcelain` lists no ignored file, so an
+ignored `node_modules` reads clean, a rewritten lockfile reads ` M` and an unignored generated file reads
+`??`.
+
+**The two answers that prevent it belong where that section is filled in**, so `verify.notes.md` carries
+them: the install form that reads the lockfile instead of rewriting it, and a `.gitignore` entry for
+anything a step here generates. **Named by shape, not by package manager** — §4.2 keeps every real command
+in `verify.md`, and the content test that enforces it caught the first draft of this paragraph naming three.
+Three of the four violations in the reference repo named a tool the project did not have, which is the same
+mistake one level up.
+
+**And `/onboard` proves it rather than asking.** Step 7 already runs every gate candidate; *Prepare a fresh
+tree* is below the Gate 1 line, so step 4 skips it, and the tree `/onboard` is standing in is the one tree
+where the answer cannot be tested. It gets its own step: clone the repository into a temporary directory —
+`git clone --no-hardlinks . <tmp>`, **not a worktree**, so §26.10's exception stays the only one and
+`workflow.md`'s *no other command makes or removes one* stays true — run the candidates there, then check
+`status --porcelain` is empty. A dirty tree is a wrong answer and is fixed as one, in the answer rather
+than around it. Where the repository has no commit there is nothing to clone, so the section is written
+unverified and says so.
+
+**What it cost:** `parallel.md` 12,116 → **12,720**, `verify.notes.md` 3,655 → **4,326**, `onboard/SKILL.md`
+51,818 → **52,842**, three more hand-typed per-file limits and the our-templates ceiling at **402,944** —
+19,456 above where §26 found it. **One new content test**, and one existing one — *one home for commands* — did its job
+on the way through. **483 pass, 0 fail.**

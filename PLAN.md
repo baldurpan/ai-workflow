@@ -3,14 +3,14 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 5405 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 6136 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 454 tests. The 211 in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 483 tests. The 236 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, git on instruction rather than on
    initiative, a worktree made by the recorded command or not at all, one home for the tracker, no
@@ -26,11 +26,13 @@ Every `§`-number below points into that document.
    the template, **an expected value that has a source outside the code under test, with the rule in one
    file and its title in the four that cite it**, the tracker half of a command kept beside its body and
    read only where it applies, **a contract only one command acts on living in that command rather than
-   in the file every command loads**, a
+   in the file every command loads**, **a round of independent phases the command forms by itself, with a
+   fallback for every answer that forbids one and a removal rule that reaches only its own scratch
+   trees**, a
    model tier that is an alias and never a dated id, and every relative link resolving after install — in
    both skill trees. The 128 in `budget.test.ts` guard *size*: a byte limit and a ratchet per shipped
    file, a cited `§` behind every limit, the always-loaded ceiling, and the per-command read sets derived
-   from the links each skill carries (§24.5). `ci.yml`
+   from the links each skill carries (§24.5). There are 131 of them. `ci.yml`
    runs them on every push and pull request against `main`, plus an `engines-floor` job that builds on
    Node 20.10.0 and runs the packed CLI there — the suite itself cannot, since it executes `.ts` directly
    and that needs type stripping.
@@ -42,13 +44,37 @@ answer** (§11) in both its phases, with the event that completes it (§11.10), 
 and **§11.12** — and it was the first release cut from accumulated notes in this repository, so
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
 `blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
-adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; and **§20**, **§21**, **§22** and **§23** are
-written and unreleased.
+adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; and **§20**, **§21**, **§22**, **§23**, **§24**,
+**§25** and **§26** are written and unreleased.
 
 **The version each section shipped in is below, on the section.** A paragraph here is the summary of a
 `DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
+
+**Written and unreleased: §26**, phases of one plan running side by side. Step 3 picked one phase and
+`--all` ran them in sequence; now it forms a **round** — the runnable phases whose **Files:** lines share no
+path, prose included, up to the cap in `executors.md` (3, and `1` turns it off) — and gives each its own
+coder in a detached scratch checkout it makes with plain git under the git directory. The work comes back
+by `cherry-pick -n` in phase order, so one commit still carries a phase and its ledger row; both gates stay
+in the feature's own tree, one phase at a time, which is what keeps a failure attributable to the phase
+that caused it. **It was measured before it was built, and the measurement argued against it**: 115 phases
+across 18 archived plans would have run in 107 rounds rather than 115 — 8 rounds saved, in 6 of the 18 —
+because `Depends on` orders information and not files. It was built anyway, with the design's flag removed
+(the command decides, and the permission for the checkout is a written exception in `workflow.md` rather
+than a typed flag), every refusal turned into a fallback that names the answer that caused it, and a
+real-diff overlap sending the later phase back to run alone instead of closing it `blocked`. Then four
+corrections after the first build, all before anything was committed (§26.18): a fallback that came from
+`/orchestrate --pr`'s push rule and would have turned rounds off in most of the measured corpus, a gate
+loopback moved into the feature's own tree — which removed the reset exception entirely — landing the
+tree's whole `<base>..<tip>` rather than one commit, and a brief that tells a coder the others are running
+so a test needing a fixed port is left to Gate 1. Then a fifth (§26.19): *Prepare a fresh tree* can dirty a
+tree before any coder starts — a rewritten lockfile, an unignored generated file — which landing reads as a
+coder that stopped short and the overlap check reads as a path every phase touched, so the tree is checked
+clean after that section runs, `verify.notes.md` says how to keep it clean, and `/onboard` proves the answer
+in a throwaway clone. Costs one new conditional file beside the skill — `parallel.md`, 12,720 bytes, read
+only where a round forms — eight hand-typed per-file budget raises, and **19,456 bytes on the our-templates
+ceiling**, the largest raise it has taken.
 
 **Written and unreleased: §23**, the correctness rule the coder never had. `roles/coder.md` held nine
 coding principles and **no step saying when a test is written or where its expected value comes from**, so
@@ -974,10 +1000,11 @@ directly.
   the names agree. Until then that document says the pairing is maintained by hand and not checked, which
   is true and is the honest version of the claim.
 
-**The always-loaded ceiling has 491 bytes of headroom** — `agents-block.md` plus `context/workflow.md` is
-28,181 against a limit of 28,672, and it is the only number every invocation of every command pays. **So
-the next standing rule added to `workflow.md` needs a cut first**, or a raise typed into
-`templates.budget.json` with a `why` naming the section that justifies it. That is the budget working as
+**The always-loaded ceiling has 45 bytes of headroom** — `agents-block.md` plus `context/workflow.md` is
+28,627 against a limit of 28,672, and it is the only number every invocation of every command pays. §26
+spent 445 of the 491 that were free, on the worktree exception and *one run is one round*. **So the next
+standing rule added to `workflow.md` needs a cut first**, or a raise typed into `templates.budget.json`
+with a `why` naming the section that justifies it. That is the budget working as
 intended rather than a problem to report: §24.2 is what happened the last time nothing held the line.
 
 ---

@@ -30,7 +30,8 @@ that is not `done` and whose `Depends on` are all `done`; state which you picked
 the row as part of the same change as the work. **If the ledger disagrees with the repo, stop and say so.**
 
 **Never stage, commit, branch, worktree, push, open a pull request, or run what bumps, tags, publishes or
-deploys, on your own initiative.** Only where [`context/git.md`](context/git.md) says so, or the user typed it.
+deploys, on your own initiative.** Only where [`context/git.md`](context/git.md) or
+[`context/workflow.md`](context/workflow.md) says so, or the user typed it.
 
 **A phase is `done` only when its scope landed and both gates passed** — never on a self-report.
 

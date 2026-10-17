@@ -23,6 +23,11 @@ choose a subagent's model — otherwise implement in-host.** The phase's impleme
 context and returns that file's output contract; the ledger and the gates stay with the caller. A runtime
 with no subagent mechanism reads this answer, implements in-host, and says so.
 
+**At most 3 phases of one plan run at once.** `/feature-implement` forms a round out of phases that depend
+on nothing unfinished and share no file, and dispatches a coder for each; this number is the ceiling on how
+many. **1 turns that off** and every phase runs on its own. It is a fact about this machine and this
+account, so it is kept whichever of the three answers above is this project's.
+
 ## Reviewer
 
 **A reviewer subagent, where this runtime provides one — otherwise the host reviews the diff against the
@@ -42,8 +47,9 @@ hand skips whatever the recorded command does around it: the env files it copies
 the place it puts the directory, the editor or agent it hands the tree to. The result looks like a worktree
 and is missing the half that made the answer worth choosing.
 
-The same holds for removing one. Nothing in this workflow removes a worktree at all — but where a person
-asks for it, the command here is what runs.
+The same holds for removing one. Nothing in this workflow removes a worktree made here — but where a person
+asks for it, the command here is what runs. The scratch checkouts `/feature-implement` makes for a round of
+phases are not these: no branch, nobody looks at them, and this invocation does not make them.
 
 ## The contract, whatever is configured
 

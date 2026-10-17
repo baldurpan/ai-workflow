@@ -19,7 +19,7 @@ Nothing is committed — read the diff. Then, in your coding agent:
 | `/onboard` | **first, and once.** Writes your own answers: the real lint, typecheck, build and test commands, who commits and where work lands, where the backlog lives, what a change announces |
 | `/roadmap "an idea"` | puts it on the backlog |
 | `/feature-plan` | turns one backlog entry into a plan with a phase ledger — then **stops** |
-| `/feature-implement` | runs the next phase: code, verify, review. One phase a run, or `--all` |
+| `/feature-implement` | runs the next phase: code, verify, review — independent phases side by side where the plan has them. One round a run, or `--all` |
 | `/orchestrate "fix the X"` | one commit-sized change through the same gates, with no plan |
 
 Those four are the daily set. Five more commands — `/feature-status`, `/feature-close`, `/release`,
@@ -52,7 +52,7 @@ starting point — nothing has to be looked up first.
 |---|---|
 | `/roadmap` | prints the backlog, or appends one `pending` entry — capturing any material you supply as a draft |
 | `/feature-plan` | turns an entry into a plan document and **stops**. Planning is not activation |
-| `/feature-implement` | activates a planned feature and runs **one phase** through both gates — or phase after phase with `--all`, which stops at a `blocked` phase, a capped gate or a ledger that disagrees with the repo, and never at `/feature-close` |
+| `/feature-implement` | activates a planned feature and runs **one round** through both gates — one phase, or up to three that depend on nothing unfinished and share no file, side by side, each with its own coder in a scratch checkout it makes and removes — or round after round with `--all`, which stops at a `blocked` phase, a capped gate or a ledger that disagrees with the repo, and never at `/feature-close` |
 | `/feature-status` | read-only. Reconciles the ledger against the repo — sweeping every worktree where the project works that way — then names **exactly one** next action |
 | `/feature-close` | retires a feature: a `history.md` row, a `git mv` into `archive/`, a reviewed reference sweep, and the release note where `release.md` says one is owed |
 | `/orchestrate` | one ad-hoc, commit-sized change through the same gates — no entry, no ledger. With `--pr` the run ends at a pull request instead of in the working tree: the flag is the permission, it never creates a worktree, it stops rather than branching off the default branch itself, and nothing merges it |
