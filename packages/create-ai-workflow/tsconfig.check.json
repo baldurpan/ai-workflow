@@ -1,0 +1,13 @@
+// What `npm run check` typechecks: everything written in TypeScript here, not just what `build` emits.
+// `tsconfig.json` is the build, so its `include` is `src/` and its `rootDir` has to stay there — which
+// left `scripts/budget.ts` and the whole of `test/` unchecked, including the 175 KB of content tests.
+// Those are the files most likely to go stale against the code they read, so they are the ones that
+// most need the compiler. Emit is off here; the build config is the only one that writes `dist/`.
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "."
+  },
+  "include": ["src/**/*.ts", "scripts/**/*.ts", "test/**/*.ts"]
+}

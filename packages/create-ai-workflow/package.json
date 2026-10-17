@@ -1,6 +1,6 @@
 {
   "name": "@baldurpan/create-ai-workflow",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "description": "Overlay a tiered planning workflow — roadmap, plans, phase ledgers, verification gates — onto an existing repository, for coding agents.",
   "keywords": [
     "ai",
@@ -40,7 +40,7 @@
     "build": "tsc",
     "prepublishOnly": "npm run build && npm test",
     "test": "node --test \"test/*.test.ts\"",
-    "check": "tsc --noEmit",
+    "check": "tsc -p tsconfig.check.json",
     "budget:report": "node scripts/budget.ts",
     "budget:relock": "node scripts/budget.ts --relock"
   },

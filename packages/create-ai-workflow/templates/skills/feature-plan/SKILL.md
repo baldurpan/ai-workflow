@@ -134,13 +134,20 @@ planner's own default shape:
 a **reserve**. Measure the drafted plan's own size, add the reserve for each phase in it, and compare the
 total to the ceiling.
 
+**Measure the file, not your impression of it.** Nothing can count the characters of a draft it is holding
+in context. Write the draft to a path outside `context/` and run `wc -m` on it — the plan is written from
+there in step 6, or thrown away — and **say the number in the report.**
+
+**Do this before the write, not after one fails** — under the tracker answer the body is a single write and
+a failed one leaves the research with nowhere to go, and in the tree a plan that is already on disk is a
+plan somebody will keep rather than split.
+
 **If that section is not there** — an install from before it shipped — **name the gap, do not invent a
 number.** Say the budget is not recorded, name `/onboard`, and write the plan. Inventing a ceiling
 mid-run would write policy nobody chose, and refusing to plan over a missing answer would be worse: the
 same rule this workflow applies to a path [`context/release.md`](../../../context/release.md) does not
-cover. `check` carries its own fallback, so an oversized plan is still reported in that install. **Do this before the write, not after one fails** — under the tracker answer the body
-is a single write and a failed one leaves the research with nowhere to go, and in the tree a plan that is
-already on disk is a plan somebody will keep rather than split.
+cover. `check` carries its own fallback and says when it used it, so an oversized plan is still reported in
+that install.
 
 **It is not *does this fit*. It is *does it fit with room for the rows still to be written*.** The ledger
 is edited for the feature's whole life: every row opens to `in progress` and then closes with a sha and

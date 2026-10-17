@@ -6,9 +6,9 @@ not in the body.
 
 ## Over the budget, the feature is more than one feature
 
-A filled plan was meant to be a few thousand characters. One that reaches the ceiling holds the design, the
-phases and the risks of **more than one piece of work** — which is already a defect by *Feature or task?*
-in [`context/workflow.md`](../../../context/workflow.md), since a feature is work you would want one
+A plan that reaches the ceiling holds the design, the phases and the risks of **more than one piece of
+work** — which is already a defect by *Feature or task?* in
+[`context/workflow.md`](../../../context/workflow.md), since a feature is work you would want one
 `history.md` row for. Under the working-tree answer nothing else in the repository will ever say so.
 
 **The only honest response is to split the feature.** The budget is not the thing to argue with: it was

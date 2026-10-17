@@ -64,8 +64,9 @@ list exists to prevent.
   [`context/tracking.md`](../../../context/tracking.md) gives the ceiling and the per-phase reserve;
   measure every plan against both. **A repository that has been measuring never reaches this refusal** —
   the number is the same under both answers, so a plan `/feature-plan` passed in the tree fits a body.
-  Reaching it means these plans predate the budget, or somebody raised it here. Name each feature that overflows and the margin by which it does, and stop. **A plan
-  that does not fit is a feature that is several features**, and splitting one in two is a scope decision —
+  Reaching it means these plans predate the budget, or somebody raised it here. Name each feature that
+  overflows and the margin by which it does, and stop. **A plan that does not fit is a feature that is
+  several features**, and splitting one in two is a scope decision —
   the same reason the row above refuses. Split it in the tree first, into an entry and a plan apiece, then
   re-run. Never trim a plan to fit, and never spill one into comments or a linked paste: this command moves
   data, and a plan that arrives shorter than it left has not been moved.

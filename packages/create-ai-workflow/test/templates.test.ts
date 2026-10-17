@@ -819,22 +819,43 @@ describe('a round is formed by the command, and nothing types a flag for it', ()
     assert.ok(exists(path.join(templatesDir, 'skills', 'feature-implement', 'parallel.md')));
     assert.match(skill, /\[`parallel\.md`\]\(parallel\.md\)/, 'the body names the file');
     assert.match(flat(skill), /Where that is true, read \[`parallel\.md`\]/, 'and says when to open it');
-    assert.match(parallel, /A round of one phase is an ordinary run and reads none of this/i);
+    assert.match(parallel, /A round of one phase with nothing left behind is an ordinary run and reads none of this/i);
+
+    // It has a second reader, and without it the keep rule below is prose nobody opens: a kept tree is
+    // landed by the run that *resumes* its phase, and that run forms a round of one.
+    assert.match(parallel, /where step 4 found a row whose Note names a tree a previous round left/);
+    assert.match(flat(skill), /\*\*If the Note names a tree, this phase's work is already in it\*\*/);
+    assert.match(flat(skill), /land that tree before briefing anybody/);
   });
 
-  it('a phase joins a round only when nothing it depends on is unfinished', () => {
+  it('a phase joins a round only when nothing it depends on is unfinished, and nothing is part-done', () => {
     // Step 3's own test, unweakened: a round is a wider pick, never a different one.
     assert.match(parallel, /\*\*Runnable\*\* is step 3's test and nothing weaker/);
     assert.match(parallel, /not `done`, every `Depends on` `done`/);
+    // And one narrower than step 3's, which a round needs and a single phase does not: an `in progress`
+    // or `blocked` phase has half-work and a Note in the feature's own tree, and a scratch tree branched
+    // from HEAD does not have them. That phase is step 3's resume, which runs alone.
+    assert.match(parallel, /\*\*A round holds `not started` phases only\.\*\*/);
+    assert.match(parallel, /\*\*A resumed phase runs alone\*\*/);
+    assert.match(flat(skill), /Where this phase and another runnable one are both `not started`/);
   });
 
-  it('sharing any path keeps a phase out, and prose counts', () => {
+  it('sharing any path keeps a phase out, prose counts, and a path that contains another is one', () => {
     // `Depends on` orders information, not files: of the 26 multi-phase rounds in the corpus, 12 shared a
     // code path and 11 shared only prose. Allowing the prose ones would have bought 11 rounds and paid in
     // guaranteed conflicts in `verify.md` and `README.md` — the files that say what the commands are.
-    assert.match(parallel, /\*\*Shares no path\*\* is read off the phases' \*\*Files:\*\* lines, compared whole/);
-    assert.match(parallel, /\*\*Prose counts\*\* — a `\.md` file, a README, anything under `context\/`/);
-    assert.match(flat(skill), /shares \*\*no path\*\* with it, prose included/);
+    assert.match(
+      parallel,
+      /\*\*Shares no path\*\* is read off the phases' \*\*Files:\*\* lines, and \*\*a path that contains another is an overlap\*\*/,
+    );
+    // Compared whole, `src/` and `src/a.ts` are two strings and the round forms. They are one place, and
+    // the two coders find out by both editing it.
+    assert.match(parallel, /a directory or a glob on one line and a file under it on another are the same place/);
+    // The plan is the one path two phases may both name: this command is its only writer, and the field
+    // writes it onto a phase's own `Files:` line — `SUN-CALENDAR-FEED`'s phases 6 and 9 both do.
+    assert.match(parallel, /\*\*The plan's own path is the one exclusion\*\*/);
+    assert.match(parallel, /\*\*Prose counts\*\* otherwise — a `\.md` file, a README, anything under `context\/`/);
+    assert.match(flat(skill), /share \*\*no path\*\* on their \*\*Files:\*\* lines, prose included/);
   });
 
   it('the round is said out loud, with the test that left each phase out', () => {
@@ -877,6 +898,13 @@ describe('a round is formed by the command, and nothing types a flag for it', ()
       ['no fresh-tree answer', /has no \*\*Prepare a fresh tree\*\* answer/],
       ['the cap is 1', /the cap is \*\*1\*\* \| the project said one at a time/],
       ['the tree cannot be made', /`git worktree add` fails, for any reason/],
+      // §26.20: the host's own write rules are a limit no answer file records. A coder asked to approve
+      // every file it writes is not running unattended, and one sealed into a tree its host chose cannot
+      // be pointed at this command's. Both are fallbacks, named, not refusals.
+      [
+        'the host will not let a coder write there',
+        /the host will not let a coder write in the tree this command can make, or confines it to one of the host's own/,
+      ],
     ] as const) {
       assert.match(parallel, re, `${what} falls back rather than refusing`);
     }
@@ -889,22 +917,72 @@ describe('a round is formed by the command, and nothing types a flag for it', ()
     assert.doesNotMatch(parallel, /\*Where work lands\*/, 'that answer decides nothing here');
   });
 
-  it('the scratch tree is plain git, detached, and not what executors.md names', () => {
+  it('the scratch tree is plain git, detached, inside the working tree, and ignored', () => {
     // The user's own line: these are scratch space, not workspaces, and they are not wanted in the tools
-    // that manage one. Verified against git 2.56.0 — a worktree inside the git directory works and
-    // `git worktree list` still reports it.
-    assert.match(parallel, /git worktree add --detach "\$\(git rev-parse --git-dir\)\/phase-trees\//);
+    // that manage one. The *location* is §26.22's correction — the repository's admin directory is the
+    // one place a host is most likely to refuse, and under `git.md`'s worktree answer it is not even
+    // inside the session's own directory.
+    assert.match(parallel, /git worktree add --detach "\.phase-trees\/<PLAN>-phase-<n>" HEAD/);
     assert.match(parallel, /\*\*No branch is created\*\*/);
     assert.match(parallel, /the invocation \[`executors\.md`\].*names is not used/);
-    assert.match(parallel, /\*\*`--git-dir`, not the common directory\.\*\*/);
+    assert.match(parallel, /\*\*Inside this working tree\*\*/);
     assert.match(parallel, /\*\*The path is fixed\*\*/, 'the location is the identity');
+    assert.match(parallel, /\*\*recorded absolute\*\*/, 'a Note is read from another directory');
+    assert.doesNotMatch(parallel, /--git-dir/, 'nothing is asked to write under the admin directory');
+
+    // §26.25. The first version of this test asserted that a dotted path is invisible to a glob, which
+    // is true of two glob libraries and false of the tools the field actually runs: Biome 2.5.15 lints
+    // under a dotted directory unless the folder is git-ignored *and* it is configured to read that
+    // file, and Vitest 5's default include runs tests there. So the ignore entry is the property, the
+    // dot is not, and no claim here stands in for running this project's own commands.
+    assert.match(parallel, /\*\*And ignored, which is what keeps Gate 1 honest\.\*\*/);
+    assert.match(parallel, /The leading dot is not enough/, 'the claim that was wrong is named');
+    assert.match(parallel, /lints the other phases' half-written work/);
+    assert.match(parallel, /`\/onboard` \*\*proves\*\* that against this project's own Gate 1 commands/);
+    assert.doesNotMatch(parallel, /does not descend into a path segment/, 'that claim is gone');
+    // Which also retires the staging rule: an ignored tree is absent from `status` and from `git add -A`.
+    assert.doesNotMatch(parallel, /never `git add -A`/, 'the ignore entry does that job');
+    assert.match(parallel, /keeps a tree out of `git status` and out of `git add -A`/);
   });
 
-  it('a runtime that can isolate a coder itself is described, never named', () => {
+  it('a round will not form while the phase trees are not ignored, and /onboard proves they are', () => {
+    // The cheap half runs every round; the half that needs this project's own tools runs once, in the
+    // command that already runs them all. Verified on git 2.56.0: `check-ignore` answers before the
+    // directory exists, which is when a round asks — but only with the trailing slash, because a
+    // directory-only pattern cannot match a path git cannot see is a directory.
+    assert.match(parallel, /`git check-ignore -q \.phase-trees\/` exits non-zero, run at the top of the working tree/);
+    assert.match(parallel, /\*\*Keep the trailing slash\*\*/);
+    const onboard = flat(skillBody('onboard'));
+    assert.match(onboard, /\*\*Then put the phase trees out of Gate 1's way, and prove they are\.\*\*/);
+    assert.match(onboard, /\*\*Write `\.phase-trees\/` into this project's `\.gitignore`\*\* at the repository root/);
+    assert.match(onboard, /Not `\.git\/info\/exclude`/, 'per-clone, and inside a directory a host may refuse');
+    assert.match(onboard, /one the lint command must reject, and one test that must fail/);
+    assert.match(onboard, /\*\*None of them may see either file\.\*\*/);
+    assert.match(onboard, /\*\*Say which tool and which setting\*\*/);
+    // And the way out is the switch that already exists, rather than a second answer for one fact.
+    assert.match(onboard, /\*\*Where it cannot be fixed, set the cap to 1\*\*/);
+    assert.match(onboard, /\*\*Remove the planted files\*\*/);
+    // Named by shape, never by tool: §4.2 keeps every real command in `verify.md`.
+    for (const { rel, text } of ourTemplates()) {
+      assert.doesNotMatch(text, /\b(biome|vitest|eslint|jest|prettier)\b/i, `${rel} names a tool`);
+    }
+  });
+
+  it('a runtime that can isolate a coder itself is described, never named, and has to pass three tests', () => {
     // §4.3 again, and the same rule the coder and reviewer answers follow: what it does, not what it is.
     assert.match(parallel, /Where the runtime can give a coder its own temporary tree of this repository/);
     assert.match(parallel, /one whose commits are objects in this repository/);
     assert.match(parallel, /A copy or a fresh clone is not that/);
+    // The first test is the one a real runtime fails: an isolation worktree is commonly cut from the
+    // default branch, which is a tree with none of the feature's work in it rather than an isolated one.
+    assert.match(parallel, /`git -C <tree> rev-parse HEAD` is \*\*the sha this round recorded\*\*/);
+    assert.match(parallel, /\*\*something removes it when the phase lands\*\*/);
+    assert.match(parallel, /Any of the three failing is a fallback like the rest/);
+    // And what is different about it is reported rather than swept: it has a branch, so the removal rule
+    // below does not cover it, and removing it leaves a ref this workflow never deletes.
+    assert.match(parallel, /\*\*It is not this command's tree, so it is reported rather than swept\.\*\*/);
+    assert.match(parallel, /\*\*nothing here deletes a ref\*\*/);
+    assert.match(parallel, /reads a branch on a worktree as a feature in flight/);
   });
 
   it('the plan has one writer, and the coder is told the copy beside it is stale', () => {
@@ -912,6 +990,12 @@ describe('a round is formed by the command, and nothing types a flag for it', ()
     assert.match(parallel, /Coders never touch the plan/);
     assert.match(parallel, /\*\*The round's rows open in one write\*\*, before any tree is made/);
     assert.match(parallel, /the plan here is a stale copy and is not to be edited/);
+    // Which leaves step 7's §9 rule with no hands: it says the phase answers the open question it
+    // settled, and in a round the phase is a coder that may not write the file. So the coder reports and
+    // the one writer writes, in the commit that carries the row — the rule keeps its reader.
+    assert.match(parallel, /\*\*An open question this phase settles is still answered in the plan's §9\*\*/);
+    assert.match(parallel, /\*\*The coder reports what its phase settled and this command writes the answer\*\*/);
+    assert.match(parallel, /\*\*A closing row names the tip its work was at\*\*/);
     assert.doesNotMatch(
       readTemplate('context/roles/coder.md'),
       /cherry-pick|worktree|scratch (tree|checkout)|round/i,
@@ -925,8 +1009,12 @@ describe('a round is formed by the command, and nothing types a flag for it', ()
     // time in the feature's own tree, so that is where such a test belongs; what the coder owes is to say
     // which assertions it did not run, or the gap is invisible.
     assert.match(parallel, /\*\*The brief is step 7's, plus four sentences and no more:\*\*/);
-    assert.match(parallel, /other coders are running beside you/);
-    assert.match(parallel, /a test that needs a server or a fixed port is Gate 1's/);
+    assert.match(parallel, /other coders are running beside you and this tree is a fresh checkout/);
+    // And the third thing a fresh checkout does not have, beside a free port and a running server: a
+    // secret. `.env` is untracked by definition, so `git worktree add` leaves it behind — a test that
+    // needs one fails in the tree for a reason that is nothing to do with the phase.
+    assert.match(parallel, /a test that needs a server, a fixed port, or a secret the tree does not hold/);
+    assert.match(parallel, /nothing kept out of git came across into it/);
     assert.match(parallel, /say in your output which assertions you did not run/);
     // And the same collision reaches the one command the orchestrator runs per tree.
     assert.match(parallel, /\*\*If it fails in a tree, the round does not run\*\*/);
@@ -966,6 +1054,10 @@ describe('a round is formed by the command, and nothing types a flag for it', ()
     assert.match(parallel, /\*\*The later phase's work is thrown away\.\*\*/);
     assert.match(parallel, /\*\*Run that phase again, one at a time, on the combined tree\*\*/);
     assert.match(parallel, /at most once per phase per round/, 'the re-run cannot loop');
+    // And the Note has to let go of the tree, or §26.20's resume rule lands the one tree whose work was
+    // deliberately discarded — the same bug as the sweep's, with the sign flipped.
+    assert.match(parallel, /\*\*Its Note stops naming its tree\.\*\*/);
+    assert.match(parallel, /this is the one tree whose work must not be landed/);
     assert.match(parallel, /never merged — nothing here has the standing to decide/, 'no conflict is resolved');
     // And it is checked one command earlier than the conflict. Verified on git 2.56.0: a range that
     // conflicts stops part-applied with the sequencer open — recoverable, unlike a single sha, which
@@ -975,9 +1067,18 @@ describe('a round is formed by the command, and nothing types a flag for it', ()
     assert.match(parallel, /A range that conflicts stops part-applied with the sequencer open/);
   });
 
-  it('a phase that blocks does not hold the round, and the next round does not start', () => {
-    assert.match(parallel, /\*\*A phase that ends `blocked` does not hold the others back\.\*\*/);
-    assert.match(parallel, /\*\*A blocked phase's Note names the tree its work is in\.\*\*/);
+  it('a phase that blocks ends the landing, and every later tree is kept for the next run', () => {
+    // §26.20: *does not hold the others back* was true of the phases that landed **before** it and false
+    // of the ones after. Landing is in phase order on one tree, and the loopback moved into that tree —
+    // so a blocked phase leaves its half-work there, and carrying on cherry-picks the next phase onto it
+    // and gates it against it. Every failure from then on belongs to a phase that did not cause it.
+    assert.match(parallel, /\*\*A phase that ends `blocked` ends this round's landing\.\*\*/);
+    assert.match(parallel, /\*\*Every later tree is kept\*\*/);
+    assert.match(parallel, /would cherry-pick \*k\*\+1 onto \*k\*'s half-work and gate it there/);
+    assert.match(parallel, /\*\*A phase that closed `blocked` ends the landing here\*\*/, 'in the steps too');
+    // The Note carries the tip beside the path, because the path is what a sweep destroys.
+    assert.match(parallel, /\*\*A blocked phase's Note names the tree its work is in, and the tip it is at\.\*\*/);
+    assert.match(parallel, /`git merge-base <branch> <tip>` recovers the base/);
     assert.match(parallel, /\*\*The next round does not start\*\*/);
     assert.match(parallel, /each phase is reported as it lands/);
   });
@@ -1001,10 +1102,18 @@ describe('a round is formed by the command, and nothing types a flag for it', ()
       /`git worktree list --porcelain` prints `branch` for every worktree the recorded invocation has ever made and `detached` for these/,
     );
     assert.match(parallel, /A tree with a branch on it is never touched/);
-    assert.match(parallel, /\*\*A later run sweeps that same path first\*\*/);
-    assert.match(parallel, /removing what it finds there by the same test and touching nothing else/);
-    assert.match(parallel, /\*\*A tree goes as soon as its phase lands\*\*/);
-    assert.match(parallel, /\*\*otherwise kept, with its path in the report\.\*\*/);
+    // §26.20's first finding, and the one that destroyed work: *removing what it finds there by the same
+    // test* was the removal test, which is about the tree's shape. A tree whose phase did not land is
+    // kept — and a coder that did its job committed, so that tree is clean, so removal succeeds and the
+    // commit it held becomes unreachable while the Note still names the path. The test is the row.
+    assert.match(parallel, /\*\*A tree goes when its phase's row reads `done`\*\*/);
+    assert.match(parallel, /\*\*otherwise kept, with its path and its tip in the report\.\*\*/);
+    assert.match(
+      parallel,
+      /\*\*A later run sweeps that directory first, and removes only a tree whose row reads `done`\.\*\* \*\*Read the ledger before the sweep\.\*\*/,
+    );
+    assert.match(parallel, /A clean tree is not an abandoned one/);
+    assert.match(parallel, /\*\*A tree whose path names another plan is left alone\*\*/);
   });
 
   it('the exception is written where the absolute rule is, in a file `update` reaches', () => {
@@ -1014,8 +1123,8 @@ describe('a round is formed by the command, and nothing types a flag for it', ()
     const workflow = readTemplate('context/workflow.md');
     assert.match(workflow, /removes a worktree under any answer, any\s*flag or any command/);
     assert.match(workflow, /The one exception is not a worktree in that sense/);
-    assert.match(workflow, /\*\*detached, branchless checkout under the git directory\*\*/);
-    assert.match(workflow, /removes\s*it when that phase lands/);
+    assert.match(workflow, /\*\*detached, branchless checkout in `\.phase-trees\/`\*\*/);
+    assert.match(workflow, /removes it\s*when its row reads `done`/);
     assert.match(workflow, /Not by the recorded invocation, and no other command makes or removes one/);
     // And the always-loaded block's standing rule names both homes, or it contradicts the exception.
     assert.match(agentsBlockBody(), /`context\/git\.md`\]\(context\/git\.md\) or/);
@@ -1103,10 +1212,14 @@ describe('a round is formed by the command, and nothing types a flag for it', ()
   });
 
   it('the round reaches the tracker answer too', () => {
-    // One body write per round boundary rather than one per phase, and a sha that resolves: the scratch
-    // commit has no branch and stops existing when its tree is removed.
+    // The opening write batches and the closing ones do not, which is not a symmetry worth having: under
+    // this answer the row does not travel inside the commit, so a run that dies two phases into a round
+    // would leave two commits recorded nowhere but git. One more write window costs less than that.
     const tracker = flat(readTemplate('skills/feature-implement/tracker.md'));
-    assert.match(tracker, /\*\*The round's rows open in one body write and close in one\*\*/);
+    assert.match(tracker, /\*\*The round's rows open in one body write\.\*\*/);
+    assert.match(tracker, /\*\*They close one write per phase, as it lands\.\*\*/);
+    assert.match(tracker, /recorded nowhere but git/);
+    // And a sha that resolves: the scratch commit has no branch and stops existing with its tree.
     assert.match(tracker, /\*\*The sha in a closing row is the commit on the feature branch\*\*/);
     assert.match(tracker, /\*\*The heartbeat names every phase in the round\*\*/);
   });
@@ -2115,9 +2228,31 @@ describe('a defect the gate found has one home, and it is the ledger', () => {
     // later phase, against code that has moved.
     for (const { rel, text } of ourTemplates()) {
       assert.doesNotMatch(text, /\bP0\b|\bP[1-3]\b/, `${rel} still grades severity`);
+      // §22's lesson, applied here rather than predicted again: a grade does not have to be spelled
+      // `P2` to be promised. The reviewer's own frontmatter advertised "a verdict with severities" for
+      // five versions after its body said there is no scale — and a description is what a host shows
+      // when it picks a subagent, so it is the one line a caller reads before briefing one.
+      assert.doesNotMatch(
+        text,
+        /(verdict|review|report)[^.]{0,40}severit/i,
+        `${rel} promises a graded verdict, and the gate takes one bit`,
+      );
+    }
+    // And over the two documents that describe the rule rather than execute it, per §22.5.
+    for (const rel of ['INVARIANTS.md', 'README.md']) {
+      assert.doesNotMatch(
+        flat(readFileSync(path.join(packageRoot, rel), 'utf8')),
+        /(verdict|review|report)[^.]{0,40}severit/i,
+        `${rel} promises a graded verdict`,
+      );
     }
     assert.match(flat(workflow), /blocking or it is not/i, 'the one bit replaces it');
     assert.match(flat(workflow), /There is no severity scale/i, 'and the absence is stated');
+    assert.match(
+      readTemplate('claude/agents/reviewer.agent.md'),
+      /^description: .*with every item blocking or not\./m,
+      "the reviewer's description says what its verdict is",
+    );
   });
 
   it('one status vocabulary, and the ledger is the record', () => {
@@ -2302,9 +2437,24 @@ describe('a bug is not a backlog entry', () => {
     const ROUTES = /\b(appl(y|ies|ying)|adds?|adding|appends?|appending|belongs?|enters?|labell?ed)\b/i;
     const REFUSES = /\b(never|not|no|refuse|refuses)\b/i;
     const DEFERS = /`\/roadmap`/;
-    for (const name of SKILL_NAMES) {
-      if (MAY_WRITE_THE_LABEL.has(name)) continue;
-      for (const sentence of flat(skillBody(name)).split(/(?<=[.:])\s+/)) {
+    // §22.5: the guard ran over `skills/` only, and the sentence survived in `INVARIANTS.md` — the file
+    // that states this rule for a reader deciding whether to trust the tool, where it went on saying a
+    // non-blocking observation is work "unless it needs code changes" for as long as it took somebody to
+    // read it. §22.4 predicted exactly this and the prediction was not acted on: a guard misses the
+    // document that *describes* the rule as readily as it misses the sentence that breaks it. Every file
+    // whose prose is ours, plus the two at the package root that explain the workflow to a human.
+    const routed: { name: string; text: string }[] = [
+      ...SKILL_NAMES.filter((name) => !MAY_WRITE_THE_LABEL.has(name)).map((name) => ({
+        name,
+        text: skillBody(name),
+      })),
+      ...['INVARIANTS.md', 'README.md'].map((rel) => ({
+        name: rel,
+        text: readFileSync(path.join(packageRoot, rel), 'utf8'),
+      })),
+    ];
+    for (const { name, text } of routed) {
+      for (const sentence of flat(text).split(/(?<=[.:])\s+/)) {
         if (!/backlog/i.test(sentence) || !ROUTES.test(sentence)) continue;
         assert.ok(
           REFUSES.test(sentence) || DEFERS.test(sentence),
@@ -2312,6 +2462,10 @@ describe('a bug is not a backlog entry', () => {
         );
       }
     }
+    // And the three ends are stated where the rule is explained, not just where it is executed.
+    const invariants = flat(readFileSync(path.join(packageRoot, 'INVARIANTS.md'), 'utf8'));
+    assert.match(invariants, /\*\*kind decides which, not size and not whether it needs code changes\*\*/);
+    assert.match(invariants, /every true observation about code does, which is no bar at all/);
 
     // And the condition that made the stale sentence look reasonable is named where it bit, so the next
     // reader of that paragraph meets the reason rather than the rule alone.

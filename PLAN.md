@@ -10,7 +10,7 @@ Every `§`-number below points into that document.
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 483 tests. The 236 in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 485 tests. The 236 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, git on instruction rather than on
    initiative, a worktree made by the recorded command or not at all, one home for the tracker, no
@@ -30,9 +30,9 @@ Every `§`-number below points into that document.
    fallback for every answer that forbids one and a removal rule that reaches only its own scratch
    trees**, a
    model tier that is an alias and never a dated id, and every relative link resolving after install — in
-   both skill trees. The 128 in `budget.test.ts` guard *size*: a byte limit and a ratchet per shipped
+   both skill trees. The 131 in `budget.test.ts` guard *size*: a byte limit and a ratchet per shipped
    file, a cited `§` behind every limit, the always-loaded ceiling, and the per-command read sets derived
-   from the links each skill carries (§24.5). There are 131 of them. `ci.yml`
+   from the links each skill carries (§24.5). `ci.yml`
    runs them on every push and pull request against `main`, plus an `engines-floor` job that builds on
    Node 20.10.0 and runs the packed CLI there — the suite itself cannot, since it executes `.ts` directly
    and that needs type stripping.
@@ -45,35 +45,67 @@ and **§11.12** — and it was the first release cut from accumulated notes in t
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
 `blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
 adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; and **§20**, **§21**, **§22**, **§23**, **§24**,
-**§25** and **§26** are written and unreleased.
+**§25**, **§26** and **§27** are written and unreleased.
 
 **The version each section shipped in is below, on the section.** A paragraph here is the summary of a
 `DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
 
-**Written and unreleased: §26**, phases of one plan running side by side. Step 3 picked one phase and
-`--all` ran them in sequence; now it forms a **round** — the runnable phases whose **Files:** lines share no
-path, prose included, up to the cap in `executors.md` (3, and `1` turns it off) — and gives each its own
-coder in a detached scratch checkout it makes with plain git under the git directory. The work comes back
-by `cherry-pick -n` in phase order, so one commit still carries a phase and its ledger row; both gates stay
-in the feature's own tree, one phase at a time, which is what keeps a failure attributable to the phase
-that caused it. **It was measured before it was built, and the measurement argued against it**: 115 phases
-across 18 archived plans would have run in 107 rounds rather than 115 — 8 rounds saved, in 6 of the 18 —
-because `Depends on` orders information and not files. It was built anyway, with the design's flag removed
-(the command decides, and the permission for the checkout is a written exception in `workflow.md` rather
-than a typed flag), every refusal turned into a fallback that names the answer that caused it, and a
-real-diff overlap sending the later phase back to run alone instead of closing it `blocked`. Then four
-corrections after the first build, all before anything was committed (§26.18): a fallback that came from
-`/orchestrate --pr`'s push rule and would have turned rounds off in most of the measured corpus, a gate
-loopback moved into the feature's own tree — which removed the reset exception entirely — landing the
-tree's whole `<base>..<tip>` rather than one commit, and a brief that tells a coder the others are running
-so a test needing a fixed port is left to Gate 1. Then a fifth (§26.19): *Prepare a fresh tree* can dirty a
-tree before any coder starts — a rewritten lockfile, an unignored generated file — which landing reads as a
-coder that stopped short and the overlap check reads as a path every phase touched, so the tree is checked
-clean after that section runs, `verify.notes.md` says how to keep it clean, and `/onboard` proves the answer
-in a throwaway clone. Costs one new conditional file beside the skill — `parallel.md`, 12,720 bytes, read
-only where a round forms — eight hand-typed per-file budget raises, and **19,456 bytes on the our-templates
+**Written and unreleased: §27**, the checks this package was not running on itself. `npm run check` was `tsc
+--noEmit` against the **build** config, whose `include` is `src/` because that is what `tsc` emits — so
+`scripts/budget.ts`, which decides every byte limit, and the whole of `test/`, including 175 KB of content
+assertions, had **never been typechecked**. Those are the files most likely to go stale, because they read the
+code rather than being read by it. A second `tsconfig.check.json` extends the first, turns emit off and
+includes `src`, `scripts` and `test`; `build` still runs the original, so `dist/` has exactly one producer.
+**It found a real error on its first run** — an unguarded regex capture in the test added to catch a broken
+link in the vendored standards, one input away from throwing instead of asserting.
+
+**Written and unreleased: §26**, phases of one plan running side by side. Step 3 picked one phase and `--all`
+ran them in sequence; now it forms a **round** — the runnable phases whose **Files:** lines share no path,
+prose included, up to the cap in `executors.md` (3, and `1` turns it off) — and gives each its own coder in a
+detached scratch checkout it makes with plain git, in `.phase-trees/` inside the working tree it is standing
+in. The work comes back by `cherry-pick -n` in phase order, so one commit still carries a phase and its ledger
+row; both gates stay in the feature's own tree, one phase at a time, which is what keeps a failure
+attributable to the phase that caused it. **It was measured before it was built, and the measurement argued
+against it**: 115 phases across 18 archived plans would have run in 107 rounds rather than 115 — 8 rounds
+saved, in 6 of the 18 — because `Depends on` orders information and not files. It was built anyway, with the
+design's flag removed (the command decides, and the permission for the checkout is a written exception in
+`workflow.md` rather than a typed flag), every refusal turned into a fallback that names the answer that
+caused it, and a real-diff overlap sending the later phase back to run alone instead of closing it `blocked`.
+Then four corrections after the first build, all before anything was committed (§26.18): a fallback that came
+from `/orchestrate --pr`'s push rule and would have turned rounds off in most of the measured corpus, a gate
+loopback moved into the feature's own tree — which removed the reset exception entirely — landing the tree's
+whole `<base>..<tip>` rather than one commit, and a brief that tells a coder the others are running so a test
+needing a fixed port is left to Gate 1. Then a fifth (§26.19): *Prepare a fresh tree* can dirty a tree before
+any coder starts — a rewritten lockfile, an unignored generated file — which landing reads as a coder that
+stopped short and the overlap check reads as a path every phase touched, so the tree is checked clean after
+that section runs, `verify.notes.md` says how to keep it clean, and `/onboard` proves the answer in a
+throwaway clone. **Then a sixth round of corrections, from a review before the release** (§26.20–§26.24),
+three of them bugs in rules that had just been written: the sweep removed a tree **by its shape** and the
+shape test passes on exactly the tree the keep rule was protecting — a coder that committed leaves a clean
+tree, so removal succeeds and the commit goes — so it now removes only a tree whose row reads `done`, the Note
+carries the tip beside the path, and a resumed phase lands its kept tree instead of re-running a coder; a
+phase that blocks now **ends the round's landing**, because §26.18 moved the loopback into the feature's tree
+and every later phase is cherry-picked and gated on top of the blocked phase's half-work; and **the trees
+moved out of the git directory**, which is the one place the host running the coder is least likely to let it
+write — Claude Code treats `.git` as a protected path (prompted, denied under `dontAsk`, and
+`permissions.allow` cannot pre-approve it) and seals a worktree-isolated subagent out of the main checkout
+entirely, while its own isolation worktrees are cut from the **default branch** and are never swept once a
+coder has committed in one. A directory in the working tree is writable, and what keeps Gate 1 out of it is an
+ignore entry rather than the leading dot — **the seventh round's correction** (§26.25), after the user
+measured the tools these projects actually run: Biome lints inside a dotted directory unless the folder is
+git-ignored *and* it is configured to read that file, and Vitest's default include runs tests there, so phase
+*k*'s gate would have linted and tested the other phases' unfinished trees — and `dynjandi-core`'s `biome
+check --write .` would have written into them. So `/onboard` writes `.phase-trees/` into the project's
+`.gitignore` and then **proves it**, by planting a lint failure and a failing test under it and running every
+Gate 1 command; where a tool still sees them the fix is that tool's own setting, and where it cannot be fixed
+the cap goes to 1, which was already the recorded way to say one phase at a time. A round checks the cheap
+half every time with `git check-ignore -q .phase-trees/`. Plus four smaller holes: a round forms from `not
+started` phases only, a path that contains another is an overlap, the coder reports what §9 item its phase
+settled and the orchestrator writes it, and the tracker answer closes one row per phase as it lands. Costs one
+new conditional file beside the skill — `parallel.md`, 18,302 bytes, read only where a round forms or a kept
+tree is resumed — a hand-typed raise on every per-file limit it moved, and **27,648 bytes on the our-templates
 ceiling**, the largest raise it has taken.
 
 **Written and unreleased: §23**, the correctness rule the coder never had. `roles/coder.md` held nine
@@ -151,7 +183,9 @@ falsifies §10.13's "a filled plan is a few thousand characters" — the one loa
 section. §10.13 had already written down the consequence and left it unbuilt: under the working-tree
 answer *nothing in the tree ever says so*. **Now something does.** The ceiling and a **500-character
 per-phase reserve** are fields in `tracking.md`, one home for a question that file's primitive map already
-held, placed above the subsection `/onboard` deletes and as a `###` so `stubGaps` reports nothing.
+held, in a `##` section below the subsection `/onboard` deletes — a `###` would have been silent in exactly
+the installs that need to hear about it, which is §20.2's correction of treating §17.2's `stubGaps` silence
+as a rule rather than a side effect.
 **The number is the same under both answers on purpose** — a plan that passed in the tree fits a body, so
 `/tracking-migrate`'s refusal stops being a trap sprung by adopting a tracker. `/feature-plan` measures in
 step 5 and sends an over-budget plan to **`split.md`**, a supporting file beside the body: §17.2's rule a

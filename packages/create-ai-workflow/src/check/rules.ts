@@ -29,6 +29,20 @@ const FALLBACK_COLUMNS = ['#', 'Phase', 'Status', 'Depends on', 'Note'];
  */
 const FALLBACK_BUDGET = { ceiling: 65_536, reserve: 500 };
 
+/** The two fields, in the order `tracking.md` states them. */
+const BUDGET_FIELDS = ['Plan size ceiling', 'Ledger reserve'] as const;
+
+/**
+ * `fellBack` names the fields this run could not read out of `tracking.md` and had to take from the
+ * shipped pair. The numbers are usable either way — that is the point of the fallback — but a run that
+ * measured against a number the project never chose says which, or an edited field reads as an answer.
+ */
+export interface Budget {
+  ceiling: number;
+  reserve: number;
+  fellBack: string[];
+}
+
 const RULES = {
   columns:
     'context/plan-template.notes.md — "the ledger\'s column set is fixed — `check` compares every plan\'s ledger against the template\'s"',
@@ -82,20 +96,22 @@ export function trackingAnswer(root: string): 'tree' | 'tracker' {
  * compares a file's length to them. It does not decide what to do about an overrun — `/feature-plan`
  * proposes the split, and a plan over the line is reported as a note that fails nothing.
  */
-export function planBudget(root: string): { ceiling: number; reserve: number } {
+export function planBudget(root: string): Budget {
   const text = read(root, 'context/tracking.md');
-  if (text === null) return FALLBACK_BUDGET;
+  if (text === null) return { ...FALLBACK_BUDGET, fellBack: BUDGET_FIELDS.slice() };
   const clean = stripComments(text);
-  const field = (label: string): number | null => {
+  const fellBack: string[] = [];
+  const field = (label: string, shipped: number): number => {
     const match = new RegExp(`\\*\\*${label}:\\*\\*\\s*([\\d,_]+)`).exec(clean);
-    if (!match) return null;
-    const value = Number(match[1]?.replace(/[,_]/g, ''));
-    return Number.isFinite(value) && value > 0 ? value : null;
+    const value = match ? Number(match[1]?.replace(/[,_]/g, '')) : NaN;
+    if (Number.isFinite(value) && value > 0) return value;
+    fellBack.push(label);
+    return shipped;
   };
-  return {
-    ceiling: field('Plan size ceiling') ?? FALLBACK_BUDGET.ceiling,
-    reserve: field('Ledger reserve') ?? FALLBACK_BUDGET.reserve,
-  };
+  // Order matters only for the message: it reads them in the order the stub states them.
+  const ceiling = field(BUDGET_FIELDS[0], FALLBACK_BUDGET.ceiling);
+  const reserve = field(BUDGET_FIELDS[1], FALLBACK_BUDGET.reserve);
+  return { ceiling, reserve, fellBack };
 }
 
 export function expectedColumns(root: string): string[] {
@@ -222,6 +238,23 @@ export function runChecks(root: string): Problem[] {
       .map((entry) => path.posix.normalize(entry.doc as string)),
   );
 
+  // Said once, and only where it changed what was measured: a run with no plan in the tree measured
+  // nothing, so the fallback is a fact about the stub rather than about this run. §20.2 keeps the
+  // code-level default — it changes no file and fails nothing — and this is the half it was missing,
+  // since a number nobody chose otherwise reports as though the project had set it.
+  if (budget.fellBack.length > 0 && planPaths(root).length > 0) {
+    const fields = budget.fellBack.map((name) => `**${name}:**`).join(' and ');
+    problems.push({
+      level: 'note',
+      file: 'context/tracking.md',
+      message:
+        `${fields} ${budget.fellBack.length === 1 ? 'is' : 'are'} missing or unreadable, so the plans ` +
+        `below were measured against the shipped ${budget.ceiling.toLocaleString('en-US')} and ` +
+        `${budget.reserve} — numbers this project has not chosen. Run /onboard`,
+      rule: RULES.budget,
+    });
+  }
+
   for (const rel of planPaths(root)) {
     const text = read(root, rel) as string;
     const relFromContext = rel.slice('context/'.length);
@@ -288,20 +321,29 @@ export function runChecks(root: string): Problem[] {
     // limit, given to the answer that has no limit of its own and so never notices.
     //
     // Measured in code points, because the ceiling the tracker answer inherits counts characters. The
-    // reserve is multiplied by the ledger's own row count: the question is never whether the plan fits
-    // today, it is whether it still fits once every row has closed with a sha and a Note.
+    // reserve is held for the rows that have not closed yet: a `done` row already holds its sha and its
+    // Note, and counting it again charges the plan twice for the same characters. A plan that passed at
+    // planning time would otherwise start reporting as its phases land, which is the one moment the
+    // remedy — a split — is refused, and the measured field has 99 Notes over 400 characters.
     const size = [...text].length;
-    const reserve = budget.reserve * ledger.rows.length;
+    const open = ledger.rows.filter((row) => row.status !== 'done').length;
+    const closed = ledger.rows.length - open;
+    const reserve = budget.reserve * open;
     if (size + reserve > budget.ceiling) {
       const over = size + reserve - budget.ceiling;
+      // Where any row has closed, the plan is under way and `/feature-plan` says not to split one that is
+      // — so the pointer is the rule that governs what is still being written into it.
+      const remedy = closed
+        ? 'the ledger Notes are what is still growing — one line per row, per §6.1 of the plan'
+        : 'a plan this size is more than one feature. Run /feature-plan to split it';
       problems.push({
         level: 'note',
         file: rel,
         message:
           `${size.toLocaleString('en-US')} characters plus a ${reserve.toLocaleString('en-US')}-character ` +
-          `reserve for ${ledger.rows.length} ledger ${ledger.rows.length === 1 ? 'row' : 'rows'} is ` +
+          `reserve for ${open} unfinished ledger ${open === 1 ? 'row' : 'rows'} is ` +
           `${over.toLocaleString('en-US')} over the ${budget.ceiling.toLocaleString('en-US')} this project ` +
-          'allows a plan — a plan this size is more than one feature. Run /feature-plan to split it',
+          `allows a plan — ${remedy}`,
         rule: RULES.budget,
       });
     }

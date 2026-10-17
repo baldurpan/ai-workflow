@@ -78,10 +78,11 @@ entries are all `done`.**
 
 If it is already `in progress`, **read its Note and resume from there — do not restart it.**
 
-**Then see what can run beside it.** Where another runnable phase — not `done`, every `Depends on` `done` —
-shares **no path** with it, prose included, on its **Files:** line, the two can run at the same time, each
-with its own coder, up to the cap in [`context/executors.md`](../../../context/executors.md). Where that is
-true, read [`parallel.md`](parallel.md) beside this file before step 6: it holds how the round is formed,
+**Then see what can run beside it.** Where this phase and another runnable one are both `not started` —
+every `Depends on` `done` — and share **no path** on their **Files:** lines, prose included, the two can
+run at the same time, each with its own coder, up to the cap in
+[`context/executors.md`](../../../context/executors.md). Where that is true, read
+[`parallel.md`](parallel.md) beside this file before step 6: it holds how the round is formed,
 every line that makes it fall back to one phase at a time, and how the work comes back. **No flag asks for
 this and none turns it on** — it is this command's own decision, each round, and a round of one phase is
 the ordinary run the steps below describe.
@@ -91,6 +92,10 @@ the ordinary run the steps below describe.
 If the phase you picked reads `blocked`, its Note says what stopped it. **That is the work** — clear it
 before starting anything new, or say plainly why it cannot be cleared and stop. A `blocked` row is the only
 durable record a previous run left, so it is read rather than overwritten.
+
+**If the Note names a tree, this phase's work is already in it** — a round left it there. Read
+[`parallel.md`](parallel.md) and land that tree before briefing anybody; a coder re-run over finished work
+throws it away.
 
 ## 5. Stop on disagreement
 
@@ -108,8 +113,8 @@ run into step 5's disagreement stop, or into redoing work that is already there.
 
 One token and one Note, in the row that is already there — do not move the entry, restructure the table, or
 write a summary anywhere else. **One line**, by the same rule step 11 applies: what is underway, so a
-session arriving after an interruption knows where it landed. If the row is already `in progress` because you are resuming it, leave it
-alone; step 11 rewrites the Note.
+session arriving after an interruption knows where it landed. If the row is already `in progress` because
+you are resuming it, leave it alone; step 11 rewrites the Note.
 
 **This write is not a change of its own.** Leave it in the working tree — it lands with the phase's work
 under either answer in [`context/git.md`](../../../context/git.md). Never commit it on its own.

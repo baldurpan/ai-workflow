@@ -111,8 +111,8 @@ commits. Under those answers a push happens once per feature, at `/feature-close
 phase — and the only pushes outside them are the two asked for by name: `/orchestrate --pr`, and
 `/release`. **Nothing merges a pull request, deletes a branch, or removes a worktree under any answer, any
 flag or any command.** The one exception is not a worktree in that sense: `/feature-implement` makes a
-**detached, branchless checkout under the git directory** for a phase it runs beside another, and removes
-it when that phase lands. Not by the recorded invocation, and no other command makes or removes one.
+**detached, branchless checkout in `.phase-trees/`** for a phase it runs beside another, and removes it
+when its row reads `done`. Not by the recorded invocation, and no other command makes or removes one.
 
 **Those answers authorise the commands in this workflow, at the point each one names, and nothing else.**
 *The agent commits* is permission for `/feature-implement` to close a phase it just ran, not standing leave

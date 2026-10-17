@@ -1,5 +1,60 @@
 # @baldurpan/create-ai-workflow
 
+## 0.26.0
+
+### Minor Changes
+
+- 6f5192a: The workflow now says where an expected value comes from: a change with behaviour at a seam is worked
+  test-first in thin slices, each expected value is decided from the requirement or a source independent of
+  the implementation before the code runs, a plan's §8 names what decides every value the feature computes,
+  and the reviewer treats an untraceable expected value — or a rule the code implements that no test asserts
+  — as a finding even on a green suite. `/onboard` also offers a Gate 1 section that fails on a skipped,
+  focused or expected-to-fail test.
+- b50ad14: `/orchestrate` no longer tells a review to put a non-blocking observation in the feature backlog. Its step
+  4 now routes one by kind, the way `/feature-implement` already did — a bug goes wherever the project files
+  bugs, a feature is named for `/roadmap` to admit, and anything else stays in the run's report — which is
+  what the rest of that skill and `context/workflow.md` have said since 0.12.0.
+- b50ad14: `/feature-close` now goes through the plan's §9 Open questions, and the ledger's Note column, before it
+  writes anything: every item that still needs a person is answered, filed wherever this project already
+  files bugs, or waived by the user in that turn — so a feature no longer retires `shipped` with a human
+  check archived into a document no command reads again. The history row's Outcome is unchanged and its Why
+  names the issue that carries the check, and a phase now answers in place whatever open question it settles.
+- a5e8a60: Plans now have a size budget, in `context/tracking.md`, and it applies whether the backlog lives in the
+  working tree or in an issue tracker — `/feature-plan` measures before it writes and proposes a split along
+  phase boundaries instead of trimming, and `check` reports an oversized plan as a note that fails nothing, holding the reserve only for the
+  rows still to be written and saying so when it had to measure against the shipped numbers.
+  A ledger Note is now one line, with measurements and gate output going to the commit message or the run
+  report, and every phase carries a `Decisions:` line so the coder and the reviewer are briefed with the
+  phase's own section rather than the whole plan.
+- 6fbe00b: The owner-check contract moved out of `context/workflow.md` into `/feature-close`, the only command that
+  reads a plan's §9 after activation, leaving the standing rule and a pointer — every command's read falls
+  by 3,513 bytes. The package README now opens with a quickstart and links its *what makes it different*
+  section out to `INVARIANTS.md`.
+- 2cc7ff3: `/feature-implement` now runs independent phases of one plan side by side — up to three, each with its own
+  coder in a detached scratch checkout under `.phase-trees/` that it makes and removes itself, landing in
+  phase order as one commit per phase. It decides this per round with no flag to type, and falls back to one
+  phase at a time wherever an answer forbids a round or the host will not let a coder write in such a tree,
+  naming what decided it. A tree is removed only once its phase's row reads `done`, so a phase that blocked
+  or stopped short keeps its work for the next run, which lands it rather than re-running a coder.
+  `context/executors.md` gains the cap (`1` turns it off) and `context/verify.md` gains a **Prepare a fresh
+  tree** section — until `/onboard` fills that in, phases keep running one at a time. `/onboard` also adds
+  `.phase-trees/` to your `.gitignore` and proves your own lint and test commands skip it, since a round is
+  only safe where they do; no round forms while that entry is missing.
+- e0c3743: The surface question in `context/workflow.md` now names a URL the server will fetch as a trust boundary,
+  alongside input, authentication, a secret and a public endpoint — so a change that adds a server-side
+  fetch reaches the security standards instead of passing as ordinary plumbing.
+- 4c4b00f: The standards in `context/standards/` are now maintained in this package and covered by its MIT licence,
+  instead of being copied from a separate repository. They gain an SSRF section in `api-security.md`, and the
+  loading table now sends validation, forms and any `Date` work to `tooling/dates.md`. `update` removes the
+  old `context/standards/.source` marker.
+
+### Patch Changes
+
+- The reviewer subagent's description no longer promises "a verdict with severities" — the review returns one
+  bit per item, blocking or not, which is what its own body and `context/workflow.md` have always said and
+  what the host shows when it picks a subagent. The package's own `npm run check` now typechecks its scripts
+  and tests as well as `src/`, which changes nothing about an install.
+
 ## 0.25.0
 
 ### Minor Changes

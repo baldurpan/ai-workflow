@@ -169,7 +169,7 @@ describe('the conditional-loading table is the interface', () => {
       if (!/\.(md|tsx?|js)$/.test(posix)) continue;
       const dir = path.posix.dirname(posix);
       for (const [, target] of readTemplate(`standards/${posix}`).matchAll(/\]\(([^)]+)\)/g)) {
-        const [file] = target.split('#');
+        const [file] = (target ?? '').split('#');
         if (!file || /^(https?:|mailto:)/.test(file)) continue;
         const resolved = path.posix.normalize(path.posix.join(dir, file));
         if (!exists(path.join(standards, resolved))) broken.push(`${posix} → ${target}`);

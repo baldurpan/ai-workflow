@@ -454,6 +454,25 @@ in [`context/verify.notes.md`](../../../context/verify.notes.md).
    directory afterwards. Where this repository has no commit yet there is nothing to clone, so say the
    section was written unverified and name what you would have run.
 
+8. **Then put the phase trees out of Gate 1's way, and prove they are.** `/feature-implement` runs a round
+   of phases in detached checkouts under `.phase-trees/` **inside this working tree**, so every command
+   above has to pass over that directory — or phase *k*'s gate lints the other phases' half-written work,
+   runs their copies of the suite, and in at least one real configuration *writes* to them.
+   - **Write `.phase-trees/` into this project's `.gitignore`** at the repository root. Not
+     `.git/info/exclude`: that is per-clone rather than shared, and some hosts refuse to write inside the
+     git directory at all. The entry is where most tools take their ignore list from, and it is also what
+     keeps these checkouts out of `git status` and out of `git add -A`.
+   - **Then prove it, because honouring that file is a per-tool setting and not every tool does.** Plant
+     two files under `.phase-trees/probe/`: one the lint command must reject, and one test that must fail.
+     Run every command bound for a gate section. **None of them may see either file.**
+   - **Where one does, fix that tool's own configuration** — whichever it has: a setting that reads the
+     ignore file, a file list, a test exclude — then run it again. **Say which tool and which setting**;
+     that edit is this project's, not this workflow's.
+   - **Where it cannot be fixed, set the cap to 1** in *Coder* in
+     [`context/executors.md`](../../../context/executors.md), with the reason beside it. That is the
+     recorded way to say one phase at a time, and it is an answer rather than a gap.
+   - **Remove the planted files**, and report what the proof found either way.
+
 Explain what you are doing: this turns `verify.md` from someone's guess into something verified at install
 time, which is the one moment it is cheap to catch.
 

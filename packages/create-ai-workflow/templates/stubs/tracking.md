@@ -217,10 +217,15 @@ feature's whole life: every row opens to `in progress` and then closes, gaining 
 A plan that only just fits has already failed, because by the last phase it would not — so the question is
 never *does this plan fit*, it is *does it fit with room for the rows still to be written*.
 
+**Which is why a row that has closed holds no reserve.** It has already been written, and its characters
+are in the measurement; counting it again would charge the plan twice and report it for making progress.
+At planning time every row is still to be written, so the two readings agree — the difference only shows
+once phases start landing, and then the thing still growing is the Notes, not the plan.
+
 **Overflow is a scope signal and the answer is to split the feature**, which is `/feature-plan`'s to
-propose along phase boundaries and the user's to accept. A filled plan was meant to be a few thousand
-characters; one that reaches this line holds the design, the phases and the risks of more than one piece
-of work. **Three ways out are refused** — trimming the plan until it fits, continuing it into comments or
+propose along phase boundaries and the user's to accept. A plan that reaches this line holds the design,
+the phases and the risks of more than one piece of work.
+**Three ways out are refused** — trimming the plan until it fits, continuing it into comments or
 a second document, and linking out to a gist or a paste. The first throws away the research the plan
 exists to hold, to satisfy a number that was telling the truth; the other two give one plan two homes.
 

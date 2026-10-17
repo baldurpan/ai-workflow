@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Reviews a completed implementation against the plan's review checklist and the project's engineering standards, returning a verdict with severities and cited evidence. Use as the review gate after verification passes.
+description: Reviews a completed implementation against the plan's review checklist and the project's engineering standards, returning a verdict and cited evidence, with every item blocking or not. Use as the review gate after verification passes.
 model: opus
 effort: high
 tools: Read, Grep, Glob, Bash

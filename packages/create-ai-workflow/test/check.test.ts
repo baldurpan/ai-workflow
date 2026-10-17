@@ -249,9 +249,15 @@ describe('the plan size budget', () => {
   });
   after(() => rmSync(budgeted, { recursive: true, force: true }));
 
-  /** A plan padded to `size` characters, carrying the two-row shipped ledger. */
-  function sized(size: number): string {
-    const base = plan();
+  /**
+   * A plan padded to `size` characters. The shipped fixture's first row is `done`, which holds no
+   * reserve any more (§20.7) — so a test about the reserve passes `OPEN`, where both rows are still to
+   * be written and the arithmetic in its own comment holds.
+   */
+  const OPEN = LEDGER.replace('| 1 | scaffold | done |', '| 1 | scaffold | not started |');
+
+  function sized(size: number, ledger = LEDGER): string {
+    const base = plan(ledger);
     const padding = '\n' + 'x'.repeat(Math.max(size - base.length - 1, 0));
     return base + padding;
   }
@@ -272,7 +278,7 @@ describe('the plan size budget', () => {
   }
 
   it('reads the shipped numbers out of tracking.md', () => {
-    assert.deepEqual(planBudget(budgeted), { ceiling: 65_536, reserve: 500 });
+    assert.deepEqual(planBudget(budgeted), { ceiling: 65_536, reserve: 500, fellBack: [] });
   });
 
   it('says nothing about a plan comfortably under the line', () => {
@@ -284,19 +290,69 @@ describe('the plan size budget', () => {
     // 65,000 characters fits. It does not fit with 500 held back for each of the two ledger rows, and by
     // the time both have closed with a sha and a Note it would not have. That gap is the whole rule:
     // the body is written into for the feature's whole life, so a plan that only just fits has failed.
-    setPlan(sized(65_000));
+    setPlan(sized(65_000, OPEN));
     const [note, ...rest] = budgetNotes();
     assert.ok(note, 'a plan inside the reserve is reported');
     assert.deepEqual(rest, [], 'once');
     assert.equal(note.level, 'note', 'an oversized plan is not structural breakage');
-    assert.match(note.message, /1,000-character reserve for 2 ledger rows/, 'the reserve is shown, not hidden');
+    assert.match(note.message, /1,000-character reserve for 2 unfinished ledger rows/, 'the reserve is shown');
     assert.match(note.message, /464 over the 65,536/, 'and so is the margin');
     assert.match(note.message, /Run \/feature-plan to split it/, 'it names the command and proposes nothing');
     assert.match(note.rule, /tracking\.md/, 'a false positive points at the file that set the number');
   });
 
+  it('holds the reserve for the rows still to be written, and not for the ones already written', () => {
+    // §20.7. The reserve is what a closing row will add: a sha and a one-line Note. A `done` row has
+    // already added them and is already counted in the plan's own size, so holding the reserve for it
+    // charges those characters twice — and the plan that passed at planning time starts reporting as it
+    // succeeds, one phase at a time, which is the one moment the remedy is refused.
+    const done = (status: string): string =>
+      `# W\n\n### 6.1 Status ledger\n\n| # | Phase | Status | Depends on | Note |\n|---|---|---|---|---|\n` +
+      `| 1 | a | ${status} | — | landed in abc1234 |\n| 2 | b | not started | 1 | |\n`;
+    const pad = (text: string, size: number): string => text + '\n' + 'x'.repeat(size - text.length - 1);
+
+    setPlan(pad(done('not started'), 65_000));
+    assert.equal(budgetNotes().length, 1, 'two open rows: 65,000 + 1,000 is over the line');
+
+    setPlan(pad(done('done'), 65_000));
+    assert.deepEqual(budgetNotes(), [], 'one of them closed: the same plan is 500 under it');
+
+    // And where a row has closed, the message stops naming the split. `/feature-plan` refuses to split a
+    // plan that is under way, so pointing there is advice the workflow does not take; what is still
+    // growing is the Notes, and §6.1 is the rule that bounds them.
+    setPlan(pad(done('done'), 65_600));
+    const [note] = budgetNotes();
+    assert.ok(note, 'it still reports');
+    assert.doesNotMatch(note.message, /split/, 'a plan under way is not split');
+    assert.match(note.message, /one line per row, per §6\.1 of the plan/);
+  });
+
+  it('says when it measured against a number the project never set', () => {
+    // §20.2 gave `check` a code-level fallback to the shipped pair, which is safe because it changes no
+    // file and fails nothing. Silent is the part that was not safe: a plan reported against 65,536 in an
+    // install whose `tracking.md` says nothing reads exactly like one reported against a project answer.
+    const tracking = path.join(budgeted, 'context/tracking.md');
+    const text = readFileSync(tracking, 'utf8');
+    setPlan(sized(1_000));
+    writeFileSync(tracking, '# Tracking\n\n## Where tracking lives\n\n**In the working tree.**\n', 'utf8');
+    const [note, ...rest] = runChecks(budgeted).filter((p) => /shipped/.test(p.message));
+    assert.ok(note, 'it says so');
+    assert.deepEqual(rest, [], 'once, not per plan');
+    assert.equal(note.level, 'note');
+    assert.equal(note.file, 'context/tracking.md', 'at the file that should hold the answer');
+    assert.match(note.message, /\*\*Plan size ceiling:\*\* and \*\*Ledger reserve:\*\* are missing/);
+    assert.match(note.message, /Run \/onboard/, 'and names the command that writes them');
+
+    // And nothing is said where the fallback changed no verdict, because then it is a fact about the
+    // stub rather than about this run — which `update` already reports to that install.
+    rmSync(path.join(budgeted, 'context/plans/WIDGETS-PLAN.md'), { force: true });
+    writeFileSync(path.join(budgeted, 'context/roadmap.md'), roadmapWith(''), 'utf8');
+    assert.deepEqual(runChecks(budgeted).filter((p) => /shipped/.test(p.message)), [], 'no plan, no claim');
+    writeFileSync(tracking, text, 'utf8');
+  });
+
   it('a note does not fail the check', () => {
-    setPlan(sized(65_000));
+    setPlan(sized(65_000, OPEN));
     assert.equal(check(budgeted), 0, 'exit 0 — nothing here is broken');
   });
 
@@ -321,7 +377,11 @@ describe('the plan size budget', () => {
     const tracking = path.join(budgeted, 'context/tracking.md');
     const text = readFileSync(tracking, 'utf8');
     writeFileSync(tracking, '# Tracking\n\n## Where tracking lives\n\n**In the working tree.**\n', 'utf8');
-    assert.deepEqual(planBudget(budgeted), { ceiling: 65_536, reserve: 500 });
+    assert.deepEqual(planBudget(budgeted), {
+      ceiling: 65_536,
+      reserve: 500,
+      fellBack: ['Plan size ceiling', 'Ledger reserve'],
+    });
     writeFileSync(tracking, text, 'utf8');
   });
 

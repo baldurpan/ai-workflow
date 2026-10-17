@@ -87,8 +87,11 @@ commands changes. They ask *record a note per `release.md`*; that file says what
 **A defect the gate found has one home, and it is the ledger.** Every item a review returns is blocking or
 it is not — there is no severity scale. A blocking one is **fixed** by the loopback, or the phase closes
 `blocked` with the reason in its Note, or it is **an issue**, because it turned out to be work that
-outlives the phase. A non-blocking one goes in the run's report and dies with the session, unless it needs
-code changes — in which case it is work, and work already has a home.
+outlives the phase. A non-blocking one gets one of three ends and **kind decides which, not size and not
+whether it needs code changes** — every true observation about code does, which is no bar at all. A real
+defect is a **bug**, filed where this project files bugs and never in the backlog; work you would want a
+history row for is named for `/roadmap` and entered by nothing else; anything else is one line in
+`notes.md`, which the close deletes whole.
 
 **Nothing accumulates, so nothing has to be swept.** Earlier versions kept a `context/findings.md`, which
 was a second status vocabulary (`P0`–`P3`) laid across the one the ledger already had, kept in sync by

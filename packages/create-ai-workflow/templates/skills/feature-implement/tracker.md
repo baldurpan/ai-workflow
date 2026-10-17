@@ -114,8 +114,12 @@ that is never written is worse than one whose evidence is still owed, and this i
 
 [`parallel.md`](parallel.md) holds the round itself. Three things change under this answer:
 
-- **The round's rows open in one body write and close in one**, rather than one write per phase. Fewer
-  windows against a person editing the body, which is this answer's one hazard the tree answer lacks.
+- **The round's rows open in one body write.** Fewer windows against a person editing the body, which is
+  this answer's one hazard the tree answer lacks — and the opening write is the one that can be batched,
+  because no phase has landed yet.
+- **They close one write per phase, as it lands.** The tree answer's row travels inside the commit; here it
+  does not, so a run that dies two phases into a round would leave two commits recorded nowhere but git,
+  and the sha is the row's only evidence. One extra window is worth less than that.
 - **The sha in a closing row is the commit on the feature branch**, never the one in the phase's scratch
   tree: that one has no branch and stops existing when the tree is removed. A row naming a sha nothing can
   resolve is worse than a row naming none.

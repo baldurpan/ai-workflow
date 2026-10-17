@@ -57,9 +57,10 @@ catch.
 **These commands have to leave the tree clean**, which rules two things in. **Use the install form that
 reads the lockfile rather than rewriting it** — every package manager has one, usually a `--frozen-lockfile`
 or `--immutable` flag or an install subcommand of its own, and it is the form CI already uses — and
-**gitignore anything a step here generates**: a client, a built artifact a test imports, a schema. `/feature-implement` checks `git status --porcelain` after running this section and
-will not run a round of phases in a tree that came back dirty, so a rewritten lockfile costs the round; left
-unfixed it also shows up in every phase's diff from then on.
+**gitignore anything a step here generates**: a client, a built artifact a test imports, a schema.
+`/feature-implement` checks `git status --porcelain` after running this section and will not run a round of
+phases in a tree that came back dirty, so a rewritten lockfile costs the round; left unfixed it also shows
+up in every phase's diff from then on.
 
 **Shipped as:** empty. An empty section means `/feature-implement` runs one phase at a time instead of a
 round of them side by side, and says so. It is not a gate failure and nothing else changes.

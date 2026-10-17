@@ -11,8 +11,8 @@
       ]
     },
     "our-templates": {
-      "limit": 402944,
-      "why": "§26.19 — a prepared tree has to come out clean, in all three files that answer for it"
+      "limit": 411136,
+      "why": "§26.25 — the ignore entry Gate 1 actually needs, and the proof that it holds"
     }
   },
   "files": {
@@ -61,8 +61,8 @@
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "context/tracking.notes.md": {
-      "limit": 4096,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 4608,
+      "why": "§20.7 — the budget section mirrors the stub, as a `##` in the stub’s own position"
     },
     "context/verify.notes.md": {
       "limit": 4608,
@@ -85,16 +85,16 @@
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "skills/feature-implement/parallel.md": {
-      "limit": 12800,
-      "why": "§26.19 — the round’s contract, through the clean-tree check after the install"
+      "limit": 18432,
+      "why": "§26.22 — the tree moves into the working tree, with the keep rule, the cascade and the holes"
     },
     "skills/feature-implement/SKILL.md": {
       "limit": 24064,
       "why": "§26.3 — step 3 forms the round"
     },
     "skills/feature-implement/tracker.md": {
-      "limit": 9216,
-      "why": "§26.13 — the round under the tracker answer"
+      "limit": 9728,
+      "why": "§26.23 — a closing row per phase, as it lands"
     },
     "skills/feature-plan/SKILL.md": {
       "limit": 14848,
@@ -117,8 +117,8 @@
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "skills/onboard/SKILL.md": {
-      "limit": 53248,
-      "why": "§26.19 — Step 7 verifies the fresh-tree answer in a clone, and checks it left no mess"
+      "limit": 54784,
+      "why": "§26.25 — Step 7 also writes the phase-tree ignore entry and proves it against this project’s own commands"
     },
     "skills/orchestrate/SKILL.md": {
       "limit": 16896,

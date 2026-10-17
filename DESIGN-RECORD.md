@@ -4357,6 +4357,58 @@ it was leaving. **A claim about what the artifacts look like is the one kind of 
 against the artifacts**, and this design record says so about itself: *claims in either file are
 load-bearing.* Four installs and twenty minutes were what it took.
 
+### 20.7 The reserve was held for rows that had already closed
+
+The rule read `budget.reserve * ledger.rows.length` — **every** row, including the `done` ones. A closed
+row has already gained its sha and its Note, and those characters are already in the plan's own size, so
+the check charged for them twice. The consequence is backwards: **a plan that passed at planning time
+starts reporting as its phases land**, one row at a time, for making progress. On the measured corpus
+that is the common case rather than an edge — §20.1 found the field's Notes at a median 440 characters and
+99 of 142 rows over 400, so the reserve is real money.
+
+**It is `reserve × rows not done`**, and the test that pinned the old arithmetic moved with it: the shipped
+fixture's first row is `done`, so the test about room-to-spare now uses a ledger where both rows are still
+to be written, which is what the test was always about.
+
+**The stub says it too, in one clause**, because *the reserve times its phase count* is the sentence
+`check` cites and it is written for the moment the plan is measured — when every row is still to be
+written and the two readings agree. The difference only appears once phases land, so that is where the
+stub now points: what is still growing then is the Notes, not the prose.
+
+**And the remedy it named was the one `/feature-plan` refuses.** The message said *run /feature-plan to
+split it* in every case, including a plan already under way — which `split.md` and step 5 refuse, because a
+plan being worked cannot be cut in two without stranding phases somebody is mid-way through. So where any
+row has closed, the message points at **§6.1's one-line Note rule** instead: the plan's prose is finished
+by then, and what is still growing is the column with no visible bound.
+
+**A fallback that changed the verdict now says so.** §20.2 gave `check` a code-level fallback to the
+shipped pair and called it *the one place a default is safe: it changes no file and fails nothing.* True,
+and silent — a plan reported against 65,536 in an install whose `tracking.md` says nothing read exactly
+like one reported against a number the project chose. `planBudget` now returns which fields it could not
+read, and `check` says so **once**, at `context/tracking.md`, naming `/onboard` — and **only where there was
+a plan to measure**, because with no plan the fallback changed nothing and the gap is a fact about the stub
+that `update` already reports to that install.
+
+**What it cost:** `stubs/tracking.md` 18,965 → **19,317** for the clause above, `context/tracking.notes.md`
+4,030 → **4,137** for the heading move, and `skills/feature-plan/SKILL.md` 14,457 → **14,773** for the
+measurement step — against `split.md` and the stub each losing a sentence that was false. **Four new tests**
+in `check.test.ts`, and one existing one re-pointed at a ledger whose rows are all still open.
+
+**Three claims about the budget were wrong in prose, two of them load-bearing.** `PLAN.md` said the section
+was placed *above* the subsection `/onboard` deletes and as a `###` — the opposite of what §20.2 argued at
+length and of what the stub ships, in the file this repository says holds claims that are load-bearing.
+`tracking.notes.md` filed it as a `###` under *Where tracking lives* while claiming to mirror a stub where
+it is a `##` after the tracker subsection; it is now a `##` in the same position, which is the whole point
+of a notes file that mirrors a stub. And **"a filled plan was meant to be a few thousand characters"
+survived in `split.md` and in the stub** — the sentence §20.1 falsified by measuring, still arguing for
+over-splitting in the two files a run reads when it is deciding whether to split.
+
+**Step 5 never said how to measure.** Nothing can count the characters of a draft it is holding in context,
+so the step that says *measure the drafted plan* was asking for a number an agent would have to invent.
+It now says to write the draft outside `context/` and run `wc -m` on it, and to report the number — and
+the *do this before the write* sentence came out of the missing-section paragraph it had been glued to,
+where it read as advice about installs with no budget rather than the rule for every run.
+
 ---
 
 ## 21. The owner check — the question no gate can close, and the file it was archived into
@@ -4668,6 +4720,33 @@ fix, against the sentence that was wrong, by somebody holding that sentence in t
 worst possible moment to choose what the test matches on, and the best possible moment to think it is
 obvious. **Ask what else would violate this rule and not match this pattern** — and if the answer needs a
 grep, run the grep then, while the rule is still in frame.
+
+### 22.5 Two more copies of the rule, in the files the guard does not read
+
+§22.4 ended with an instruction to itself: *ask what else would violate this rule and not match this
+pattern — and if the answer needs a grep, run the grep then.* It was not run. Two copies survived.
+
+**`INVARIANTS.md` still had the sentence.** *"A non-blocking one goes in the run's report and dies with the
+session, unless it needs code changes — in which case it is work, and work already has a home."* That is
+the §22 sentence almost verbatim, in the document that explains the workflow's guarantees to somebody
+deciding whether to trust the tool, and **the guard ran over `skills/` only.** It now carries the three
+ends by kind, with the dead condition named where it bit — *not size and not whether it needs code
+changes, which every true observation about code does.*
+
+**The guard now runs over `INVARIANTS.md` and `README.md` too.** Those are the two files at the package
+root whose prose is ours and whose job is to describe the rules rather than execute them, which makes them
+the likeliest place for a replaced rule to survive — nothing routes work from them, so nobody rereads them
+when the routing changes. The lesson generalises one step past §22.2: **a guard scoped to the files that
+*act* on a rule misses the files that *describe* it**, and a description is what a reader believes.
+
+**And the reviewer's description promised a verdict it does not give.** `reviewer.agent.md`'s frontmatter
+said *"returning a verdict with severities and cited evidence"* while its own body says *every item is
+blocking or it is not, and there is no scale in between* — the §13 answer, contradicted on line 3 of the
+same file. **A subagent's description is the line a host shows when it picks one**, so it is the only part
+of that file a caller may ever read. The existing guard looked for `P0`–`P3`, which is the shape the
+deleted findings file used; a promise of *severities* spells none of them. It is now keyed on the fact — a
+verdict, review or report described as carrying severity — which is the same repair §22.2 made to the
+backlog guard, applied before a second sibling turned up rather than after.
 
 ## 23. The gates never asked where an expected value came from
 
@@ -6135,3 +6214,273 @@ unverified and says so.
 51,818 → **52,842**, three more hand-typed per-file limits and the our-templates ceiling at **402,944** —
 19,456 above where §26 found it. **One new content test**, and one existing one — *one home for commands* — did its job
 on the way through. **483 pass, 0 fail.**
+
+### 26.20 The sweep deleted the work the keep rule had just promised to keep
+
+§26.10 wrote the removal rule as one sentence with a keep clause — *a tree whose phase did not land is
+kept, with its path in the report* — and then a second sentence that took it back: **a later run sweeps
+the same path, removing what it finds there by the same test.** That test is the *removal* test, which is
+about the tree's **shape**: detached, no branch, no `--force`. It says nothing about whether the phase
+landed.
+
+**And the shape test passes on exactly the tree worth keeping.** A coder that followed its brief
+*committed* — that is the third of the four sentences the brief adds — so its tree is clean, and removal
+without `--force` succeeds on a clean tree. Re-verified on **git 2.56.0** on 2026-10-17: two commits in a
+detached tree under a working tree, `git worktree remove` exits 0, and the tip is unreachable afterwards.
+The next run would have destroyed a blocked phase's work and left the Note naming a path that no longer
+exists. **The keep rule was correct and the sweep was keyed on the wrong fact.**
+
+**The fix is that the test is the row, not the shape.** A tree goes when its phase's row reads `done`, and
+the sweep reads the ledger before it removes anything. Three consequences, all of them cheaper than the
+alternative:
+
+- **A tree whose path names another plan is left alone**, and named in the report. This run has not read
+  that plan's ledger and has no business guessing at it — the same reason §26.15 refused a repo-wide
+  `git worktree prune`.
+- **The Note carries the tip beside the path.** The path is what a sweep destroys; the tip is what survives
+  one, and `git merge-base <branch> <tip>` recovers the base if the recorded one is lost. Still one line,
+  so §20.3 is untouched.
+- **A resumed phase lands its kept tree rather than re-running the coder.** The work is finished and
+  nothing has reviewed it; briefing a second coder over it throws a phase away to arrive back where it
+  already was.
+
+**That last one needed a second reader, which is the same bug one level up.** `parallel.md` opens *where
+step 3 formed a round of more than one phase* — and a resumed phase is a round of **one**, so the rule
+telling it to land the tree would have lived in a file that run never opens. The header now names the
+second case and step 4 points at it, because a row whose Note names a tree is where a session finds out.
+**A rule written in a file its reader does not open is the failure this section is about, written twice.**
+
+### 26.21 A phase that blocked mid-landing cascaded into every phase after it
+
+§26.9's first bullet — *a phase that ends `blocked` does not hold the others back* — was written when the
+loopback ran in the phase's own scratch tree. **§26.18 moved the loopback into the feature's tree and the
+bullet was not re-read.** After that move, a gate that hits its cap at phase *k* leaves *k*'s half-work
+**in the one tree every later phase is landed on top of**, and step 12 commits it with the `blocked` row.
+
+So carrying on does this: phase *k*+1 is cherry-picked onto *k*'s broken state, Gate 1 fails for reasons
+*k*+1 did not cause, its loopback briefs a coder to fix somebody else's phase, and the cap blocks it too.
+**One blocked phase becomes a round of blocked phases, each with a Note about a failure it did not cause.**
+
+**A blocked phase now ends the round's landing**, exactly as it ends an `--all` run. Every later tree is
+kept and landed by the next run under §26.20, from rows that still read `in progress` from the opening
+write. The bullet was true of the phases that landed **before** the blocked one and false of the ones after
+— and §26.9's own heading already said the right thing, *the phases that passed land, and the round stops*.
+
+**The general shape, which is §22's with no guard in it at all.** A sentence that was true under the old
+mechanism, sitting under a heading that already described the new one, in the section the correction itself
+edited. §22 found a stale sentence a *test* was keyed too narrowly to catch; this one had no test, so the
+content test now pins the cascade and the reason rather than the bullet's wording.
+
+### 26.22 Where a coder's tree can live, once the host is asked
+
+The scratch tree was placed under the repository's own admin directory — §26.5 — and every claim made
+about it as *git* is true, re-verified on git 2.56.0: the worktree works there, `git worktree list`
+reports it, `--git-dir` resolves per-feature inside a linked worktree, and nothing scanning the working
+tree sees it. **What was never asked is whether the host running the coder may write there**, which the
+user asked for before letting the placement stand.
+
+**The host all seven installs run on says no.** Read first-hand from the documentation on 2026-10-17 —
+`code.claude.com/docs/en/permission-modes` and `/worktrees`, not reported from memory:
+
+- **`.git` is a protected directory.** Protected-path writes are **Prompted** in `default` and
+  `acceptEdits`, routed to a classifier in `auto`, **Denied** in `dontAsk`, and allowed only in
+  `bypassPermissions`. And they cannot be allowlisted out: *"`permissions.allow` rules in settings files do
+  not pre-approve protected-path writes."* A coder in a tree there is asked about **every file it writes**
+  — which is not a coder running unattended, and the round exists to run three of them at once.
+- **A subagent in its own worktree is sealed out of the main checkout entirely**: an `Edit`, `Write` or
+  `NotebookEdit` targeting a path in it, a command whose working directory resolves into it, and git
+  redirected there by `-C`, `--git-dir`, `GIT_DIR`, `GIT_WORK_TREE` or a `cd` are all blocked — and *"they
+  also cover the main checkout a linked worktree is linked from."* The admin directory is inside the main
+  checkout under both of `git.md`'s answers, so that coder could not be pointed at a tree there at all.
+- **Under the worktree answer it is not even inside the session's directory.** Verified on git 2.56.0:
+  `--absolute-git-dir` from a linked worktree is `<main>/.git/worktrees/<name>`, and a linked worktree's
+  own `.git` is a *file*, so nothing can be placed "under" it from there.
+- **And the runtime's own isolation is not the way out.** Its worktrees land in `.claude/worktrees/<name>`
+  on a new branch, and they *"branch from your repository's default branch unless `worktree.baseRef` is set
+  to `head`"* — a tree with none of this feature's work in it. It is removed automatically only when the
+  subagent *"finishes without changes"*; with changes it waits for a periodic sweep that **keeps** anything
+  holding *"changed or untracked files, or unpushed commits"*, which a committed phase is for as long as
+  the branch is unpushed. Parent-initiated removal is not documented.
+
+**So this was not a fallback row. The location was wrong**, and it moves into the working tree the run is
+standing in: **`.phase-trees/<PLAN>-phase-<n>`**, still detached, still plain git, still removed without
+`--force`. The three requirements the user set, each verified rather than argued:
+
+| Requirement | Why the new location holds it |
+|---|---|
+| no prompt per edit | it is inside the session's own working directory — the scope `acceptEdits` and auto mode auto-approve — and not a protected path |
+| a defined removal | unchanged: `git worktree remove` without `--force`, which refuses a dirty tree, now gated on the row (§26.20) |
+| not picked up by the feature tree's own tools | the directory is git-ignored, and `/onboard` proves that against this project's own commands — **§26.25**, which is where this row was wrong once |
+
+**The dot is not the load-bearing part, and §26.25 is the correction.** What was measured here is narrow
+and still true: TypeScript 5.9 with `include: ["**/*.ts"]` does not see a broken file inside a nested
+checkout at `.claude/worktrees/…` and reports it the instant the pattern names the dotted directory, and
+node's own `fs.globSync("**/*.ts")` behaves the same. Those are two glob *libraries*. **The tools a project
+actually puts in `verify.md` walk the tree themselves**, and two of them walk straight into a dotted
+directory — so what keeps Gate 1 out is the ignore entry, written and **proved** by `/onboard`.
+
+**What it cost before the ignore entry, and why that entry pays for itself twice.** A tree in the working
+tree showed up as one untracked line — `?? .phase-trees/`, because git stops at the nested checkout's
+boundary rather than listing its contents — and **`git add -A` stages a nested checkout as a gitlink**
+(mode `160000`), with a warning and exit 0, so the first draft of this section carried a rule about
+staging by path. §26.25's entry removes both: verified on git 2.56.0, an ignored tree is absent from
+`status --porcelain` and `git add -A` leaves it alone. The rule came back out of `parallel.md`.
+
+**Two things the old location was chosen for survive.** Per-feature isolation is now structural rather than
+a trick of `--git-dir`: each feature's trees are inside that feature's own working tree, so a sweep cannot
+reach another's. And the recorded path is **absolute** — `git rev-parse --show-toplevel` plus the fixed
+path — which is the other half of the review's `--absolute-git-dir` finding, since `--git-dir` prints a
+relative `.git` from a main tree's top level and an absolute path from a subdirectory, so what landed in a
+Note depended on where the command happened to be standing.
+
+**The host limit is named by shape, in a fallback row**: *the host will not let a coder write in the tree
+this command can make, or confines it to one of the host's own.* §4.2's rule — this record names the
+product and the template names the shape, because a template that names one host is wrong everywhere else.
+Under that row the runtime's tree is taken if it passes three tests, the first a command rather than a
+claim: `git -C <tree> rev-parse HEAD` is the sha this round recorded; something removes it when the phase
+lands; and it is outside this working tree or dotted inside it. **What is different about it is written
+down rather than worked around** — it has a branch, so the detached test does not cover it, removing it
+leaves a ref this workflow never deletes, and `/feature-status` cannot tell it from a feature in flight for
+as long as it exists. All three go in the report.
+
+**Three placements were refused.** Writing into the host's own worktree directory, because it is the host's
+to sweep and that is §26.5's argument against the OS temp directory wearing new clothes. A sibling
+directory outside the repository, because outside the working directory is a prompt's or a classifier's
+business in every mode that matters. And **adding `.gitignore` entry for `.phase-trees/`**, which would
+make the untracked entry disappear and is a repository edit this command has no permission to make; a
+project that wants it can add the line, and nothing here depends on it.
+
+### 26.23 Four holes in the round's contract
+
+Smaller, and each one a sentence that was right about the sequential run it was lifted from.
+
+- **A round is formed from `not started` phases only.** An `in progress` or `blocked` phase passed step 3's
+  runnable test and could join a round — but its half-work and its Note are in the feature's own tree, and
+  a scratch tree branched from HEAD has neither. A resumed phase runs alone, as it does today.
+- **A path that contains another is an overlap.** *Compared whole* read `src/` on one **Files:** line and
+  `src/a.ts` on another as disjoint. They are one place, and the two coders find out by both editing it.
+  **The plan's own path is the one exclusion**, because this command is its only writer and the field puts
+  it on a phase's `Files:` line — `SUN-CALENDAR-FEED`'s phases 6 and 9 both do.
+- **Step 7's §9 answer keeps its reader.** *An open question this phase settles is answered in the plan's
+  §9, by this phase* — and in a round the phase is a coder that may not touch the plan. The coder reports
+  what it settled; this command writes it, in the commit that carries the row.
+- **A discarded phase's Note stops naming its tree.** The opening write puts the tree's path in every
+  row, and step 4 now reads a Note that names one as *land that tree* — so the one tree whose work the
+  overlap rule threw away would have been landed by the next run, which is §26.20's bug with the sign
+  flipped. The tree is still kept and still named in the report; the Note is what changes.
+- **Under the tracker answer the closing rows are one write per phase, as each lands.** §26.13 batched both
+  boundaries for symmetry. The opening write can be batched because no phase has landed yet; the closing
+  ones cannot, because the row does not travel inside the commit under that answer — so a run that died two
+  phases into a round would leave two commits recorded nowhere but git, and the sha is the row's only
+  evidence. One more write window costs less than that.
+
+**And the brief's fourth sentence gained the third thing a fresh checkout does not have.** §26.18 gave it a
+server and a fixed port; a `.env` is untracked by definition, so `git worktree add` leaves it behind and
+*Prepare a fresh tree* cannot write one. A test that needs a secret fails in the tree for a reason that has
+nothing to do with the phase, which is the same disposal the other two get: leave it to Gate 1, and say
+which assertions you did not run.
+
+### 26.25 "Invisible to a glob" was a claim about two glob libraries, not about Gate 1
+
+§26.22 moved the phase trees into the working tree on the strength of a measurement, and **the
+measurement did not cover the tools that matter.** What was run was TypeScript's `include` globs and
+node's `fs.globSync` — both of which skip a path segment beginning with a dot. What was written down was
+*a tool that finds its own work by glob does not descend into a path segment starting with one*, as a
+property of tools in general. It is a property of two glob libraries.
+
+**The field runs tools that walk the tree themselves.** Measured by the user against the real versions,
+and the configurations confirmed here by reading the three repositories on 2026-10-17:
+
+- **Biome 2.5.15 lints files under `.phase-trees/`**, including under `baldurpan.com`'s own `biome.json`.
+  It skips them once the folder is git-ignored **and** `vcs.useIgnoreFile` is on — which `baldurpan.com`
+  and `quotavero` both set. **`dynjandi-core` has no `vcs` key at all**, so Biome there lints whatever git
+  ignores, its `files.includes` opens with `"**"`, and its `check` script is `biome check --write .`:
+  that gate would have **written into three coders' trees** mid-round.
+- **Vitest 5 with its default `include` runs tests under `.phase-trees/`.** `baldurpan.com` and
+  `quotavero` are safe only because their configs narrow `include` to `src/**`.
+
+So during a round, phase *k*'s Gate 1 would have linted and tested the other phases' unfinished trees —
+the exact failure the placement was chosen to avoid, in the two repositories the measurement was drawn
+from.
+
+**The ignore entry is the load-bearing property, and it is necessary rather than sufficient.**
+`/onboard` writes `.phase-trees/` into the project's own `.gitignore` — not `.git/info/exclude`, which is
+per-clone rather than shared and which sits inside the one directory §26.22 found a host refusing to write
+to. Then **it proves it**: plant a file the lint command must reject and a test that must fail under
+`.phase-trees/probe/`, run every command bound for a gate section, and none of them may see either. Where
+one does, the fix is that tool's own setting — its ignore switch, its file list, its test exclude — named
+in the report, because that edit belongs to the project. **Where it cannot be fixed, the cap goes to 1**,
+which §26.11 already made an answer rather than a gap, so nothing new has to exist to say *rounds cannot
+run here*.
+
+**And the command checks the cheap half of it every round**: `git check-ignore -q .phase-trees/` at the top
+of the working tree, non-zero being a fallback with its reason named. Verified on git 2.56.0 — exit 1
+before the entry and 0 after, and it answers **before the directory exists**, which is when a round needs
+it. Two details the test has to carry: **the trailing slash is required**, because a directory-only pattern
+cannot match a path git cannot see is a directory, so the bare form reports *not ignored* until the tree is
+there and *ignored* afterwards; and it runs **at the top level**, because a project that anchors the pattern
+as `/.phase-trees/` reports not-ignored from a subdirectory.
+
+**What it buys back:** the untracked `??` line and the `git add -A` gitlink rule both go, since an ignored
+tree is absent from `status --porcelain` and `git add -A` leaves it alone.
+
+**The lesson, which is about the word *verified*.** This record's own rule is that a verified claim says
+what it was verified against. It did — *TypeScript 5.9 and node's `fs.globSync`* — and then the sentence
+next to it generalised past that scope, which is the failure §20.1 recorded one level down: reasoning
+correctly from a premise nobody had measured, except here the premise *was* measured and the conclusion was
+widened anyway. **The tools that decide this question are the ones in `verify.md`, which is the file that
+exists because this workflow does not know them** — so the only evidence that settles it is running them,
+and the only command that can is the one that already runs them all.
+
+### 26.24 What the corrections cost
+
+`skills/feature-implement/parallel.md` **12,720 → 18,302**, the largest single move the file has taken and
+the reason its limit and the our-templates ceiling were each raised by hand once more — **411,136**, which
+is 27,648 above where §26 found it. `skills/onboard/SKILL.md` 52,842 → **54,528** for §26.25's step 7.8,
+`feature-implement/tracker.md` 9,019 → 9,358, `feature-implement/SKILL.md` 23,804 → 24,046 for step 4's
+pointer and step 3's `not started`, `feature-status/SKILL.md` and `context/workflow.md` byte-neutral at the
+new path — the always-loaded pair came out one byte *lighter*, at 28,626 against its 28,672 ceiling.
+
+**Verified** by `npm run check`, `npm run build` and `npm test`, then by packing the tarball, installing it
+into an empty repository and running `check` and `update --dry-run` against it. Every git mechanic above was
+re-verified on **git 2.56.0** on 2026-10-17 in a scratch repository with a linked worktree in it: the
+detached tree in a dotted directory inside a working tree, `?? .phase-trees/` as the whole of what `status`
+reports, `git add -A` staging a gitlink with exit 0, `git worktree remove` exiting 0 on a clean detached
+tree and leaving its commit unreachable, removal of a branch worktree leaving the branch behind, and a tree
+cut from the default branch failing the recorded-sha test. §26.25 adds `git check-ignore` answering before
+the directory exists and only with the trailing slash, an ignored tree absent from `status --porcelain`,
+and `git add -A` leaving one alone. The host's rules were read from its documentation, which is the only
+place they are stated, and this record says so rather than claiming a tool verified them; the lint and
+test behaviour in §26.25 was measured by the user against Biome 2.5.15 and Vitest 5, with the three
+repositories' configurations read here.
+
+---
+
+## 27. `npm run check` was not checking the files most likely to be wrong
+
+`tsconfig.json` is the **build**: `rootDir` is `src`, `outDir` is `dist`, and its `include` is
+`src/**/*.ts` because that is what `tsc` emits. `check` was `tsc --noEmit` against that same config — so it
+typechecked exactly what the build already typechecks, and **nothing else in the package had ever been
+typechecked**: `scripts/budget.ts`, which decides every byte limit, and the whole of `test/`, where
+`templates.test.ts` alone is 175 KB of assertions about prose.
+
+**Those are the files most likely to go stale**, because they read the code rather than being read by it.
+A content test names a function, an exported shape and a template path; when one of the three moves, the
+test still compiles under no compiler at all and fails at run time with an assertion message about prose.
+
+**A second config, `tsconfig.check.json`**, extends the build config, turns emit off, resets `rootDir` to
+the package root and includes `src`, `scripts` and `test`. `check` runs that one; `build` still runs the
+first, so `dist/` is written by exactly one configuration and the emit boundary is unchanged. **A single
+config could not do both**: `rootDir: src` and a `test/` include are contradictory, and widening `rootDir`
+for the build would change where `dist/` lands.
+
+**It found a real error on its first run** — `test/standards.test.ts` destructured a regex capture group
+and used it without a guard, under `noUncheckedIndexedAccess`, in the test added to catch a broken link in
+the vendored standards. Nothing was failing; the test was one input away from throwing instead of
+asserting. That is the whole argument for the config, found by the config, in the first minute it existed.
+
+Housekeeping that rode along: four prose lines that had escaped the 110-column wrap during earlier edits
+(`feature-implement/SKILL.md`, `feature-plan/SKILL.md`, `tracking-migrate/SKILL.md` and
+`verify.notes.md`), and `tracking.notes.md`'s budget heading promoted to a `##` in the stub's own position
+— §20.7.
+

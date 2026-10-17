@@ -1,7 +1,8 @@
 # /feature-implement — a round of phases, side by side
 
-Read this where step 3 formed a round of **more than one phase**. Every step in [`SKILL.md`](SKILL.md)
-holds; this says what a round adds. A round of one phase is an ordinary run and reads none of this.
+Read this where step 3 formed a round of **more than one phase**, and where step 4 found a row whose Note
+names a tree a previous round left. Every step in [`SKILL.md`](SKILL.md) holds; this says what a round
+adds. A round of one phase with nothing left behind is an ordinary run and reads none of this.
 
 **There is no flag.** How wide a round is is this command's own decision, made fresh each round from the
 ledger, the phases' **Files:** lines and the cap in
@@ -15,7 +16,13 @@ are all `done`. Then walk the remaining runnable phases in number order and add 
 path with any phase already in the round**, up to the cap.
 
 - **Runnable** is step 3's test and nothing weaker: not `done`, every `Depends on` `done`.
-- **Shares no path** is read off the phases' **Files:** lines, compared whole. **Prose counts** — a `.md`
+- **A round holds `not started` phases only.** A phase reading `in progress` or `blocked` has half-work and
+  a Note of its own in the feature's tree — step 3 resumes it and step 4 reads its row — and that state
+  cannot be branched into a tree beside it. **A resumed phase runs alone**, exactly as it does today.
+- **Shares no path** is read off the phases' **Files:** lines, and **a path that contains another is an
+  overlap**: a directory or a glob on one line and a file under it on another are the same place, however
+  differently the two phases spelled it. **The plan's own path is the one exclusion** — only this command
+  writes the ledger, so two phases naming it are not two writers. **Prose counts** otherwise — a `.md`
   file, a README, anything under `context/`. Two phases that each add a section to one file both append, in
   two trees, from one base: that is a conflict every time, and in the files that answer what this project's
   commands are.
@@ -40,26 +47,38 @@ the file and the answer that decided it.
 | [`git.md`](../../../context/git.md) *Who commits* — **the user commits** | every mechanism below is a commit, and a tree carrying three phases cannot be cut back into three. Step 14's argument, one level down |
 | [`executors.md`](../../../context/executors.md) *Coder* — not configured, or in-host | one coder, by construction. That is what ships, so a fresh install runs one at a time |
 | the host cannot run two coders at once, whatever that answer says | **say which of the two it was**, the recorded answer or the runtime; they are fixed in different places |
+| the host will not let a coder write in the tree this command can make, or confines it to one of the host's own | a coder that has to be asked about every file it writes is not running unattended, and one sealed into a tree the host chose cannot be pointed at this one. **Name the limit**, take the runtime's tree where it passes the three tests below, and otherwise run one at a time |
 | [`verify.md`](../../../context/verify.md) has no **Prepare a fresh tree** answer | a fresh checkout has no installed dependencies, so a coder in one cannot write a failing assertion and run it. Name the file and `/onboard` |
+| `git check-ignore -q .phase-trees/` exits non-zero, run at the top of the working tree | the trees would be in Gate 1's way — a linter would lint the other phases' half-written work and a test runner would run their copies of the suite. **Keep the trailing slash**, or the test answers for a file that is not there. Name `/onboard`, which writes the entry and proves it against this project's commands |
 | the cap is **1** | the project said one at a time. Not a gap — an answer |
 | `git worktree add` fails, for any reason | report the error and run the phase. A tree that cannot be made is not a phase that cannot be run |
 
 ## The scratch tree
 
 One per phase in the round, made by this command with plain git, at the feature branch's HEAD, **detached**,
-under the repository's own admin directory:
+in one fixed directory inside the working tree this run is standing in:
 
 ```bash
-git worktree add --detach "$(git rev-parse --git-dir)/phase-trees/<PLAN>-phase-<n>" HEAD
+git worktree add --detach ".phase-trees/<PLAN>-phase-<n>" HEAD
 ```
 
 - **No branch is created**, and **the invocation [`executors.md`](../../../context/executors.md) names is
   not used.** That one makes a *workspace* — env files, a naming convention, a directory somebody opens,
   something it is handed to. This is a checkout nobody looks at, and the two are not interchangeable.
-- **`--git-dir`, not the common directory.** From inside a linked worktree it resolves to that worktree's
-  own admin directory, so under [`git.md`](../../../context/git.md)'s worktree answer each feature's
-  scratch trees sit under the feature's own — and the sweep below cannot reach another feature's.
-- **The path is fixed**, because it is the only thing that identifies these trees as this command's.
+- **Inside this working tree**, because a host that scopes a coder's writes to the session's own working
+  directory can write here and the repository's admin directory is not that: under
+  [`git.md`](../../../context/git.md)'s worktree answer it is not even inside this directory, and a host
+  may hold it to a stricter rule than the files beside it.
+- **And ignored, which is what keeps Gate 1 honest.** The leading dot is not enough — a linter or a test
+  runner that walks the tree itself finds these checkouts, lints the other phases' half-written work and
+  runs their copies of the suite, and some will *write* to them. What stops it is the entry in this
+  project's `.gitignore`, which is where most tools take their ignore list from, and `/onboard` **proves**
+  that against this project's own Gate 1 commands, because honouring that file is a per-tool setting. The
+  entry is also what keeps a tree out of `git status` and out of `git add -A`.
+- **The path is fixed** — it is the only thing identifying these trees as this command's — and is
+  **recorded absolute**, `$(git rev-parse --show-toplevel)` and the path above, because a Note is read from
+  wherever the next session is standing. Each feature's trees sit in that feature's own tree, so the sweep
+  below cannot reach another's.
 - **Record the sha `HEAD` resolved to.** It is this tree's base, `<base>..HEAD` is the phase's whole work,
   and the feature branch moves as the round lands — so the base cannot be read back afterwards.
 - **Make it runnable.** Run what *Prepare a fresh tree* in
@@ -77,12 +96,23 @@ git worktree add --detach "$(git rev-parse --git-dir)/phase-trees/<PLAN>-phase-<
 
 **Where the runtime can give a coder its own temporary tree of this repository — one whose commits are
 objects in this repository — take that and make nothing.** A copy or a fresh clone is not that: its commits
-cannot be cherry-picked from here, so it falls back like any line above.
+cannot be cherry-picked from here, so it falls back like any line above. **Three things have to hold**, and
+the first is a command rather than a claim: `git -C <tree> rev-parse HEAD` is **the sha this round
+recorded**, since a runtime that cuts its trees from the default branch has handed the coder a tree with
+none of this feature's work in it — a different base, not an isolated one; **something removes it when the
+phase lands**, the runtime or this command by the path it recorded; and it is **outside this working tree
+or dotted inside it**, for the Gate 1 reason above. Any of the three failing is a fallback like the rest.
+
+**It is not this command's tree, so it is reported rather than swept.** It has a branch: the detached test
+below does not cover it, removing it leaves the branch behind because **nothing here deletes a ref**, and
+`/feature-status` reads a branch on a worktree as a feature in flight for as long as the tree exists.
+**Name its path, its branch and its tip.**
 
 **The brief is step 7's, plus four sentences and no more:** work in this directory; the plan here is a
 stale copy and is not to be edited; commit your work in this tree when you are done, because that commit is
-what the caller takes; **other coders are running beside you, so a test that needs a server or a fixed
-port is Gate 1's — leave it, and say in your output which assertions you did not run.**
+what the caller takes; **other coders are running beside you and this tree is a fresh checkout, so a test
+that needs a server, a fixed port, or a secret the tree does not hold — nothing kept out of git came across
+into it — is Gate 1's: leave it, and say in your output which assertions you did not run.**
 [`roles/coder.md`](../../../context/roles/coder.md) is unchanged — one prompt for
 every way a coder is dispatched, and committing is a property of this dispatch rather than of the role.
 
@@ -97,9 +127,16 @@ unchanged: two loops per gate, per phase. Nothing runs the verification stack in
 even where a phase's **Files:** line names it.
 
 - **The round's rows open in one write**, before any tree is made: one `in progress` and one Note each,
-  naming the round. Step 6's rule, for every phase in it.
+  naming the round and the absolute path of the tree the phase will be worked in. Step 6's rule, for every
+  phase in it.
 - **A scratch tree's copy of the plan is stale, and that is harmless.** It is branched before the opening
   write is committed, and nothing in the tree reads it.
+- **A closing row names the tip its work was at**, beside the path — the path is what a later sweep
+  destroys, and the tip is what survives one. `git merge-base <branch> <tip>` recovers the base if the
+  recorded one is lost.
+- **An open question this phase settles is still answered in the plan's §9**, per step 7 — but not by the
+  coder, which never touches the plan. **The coder reports what its phase settled and this command writes
+  the answer**, in the commit that carries the row.
 
 ## Landing — the whole tree, as a range, in phase order
 
@@ -117,6 +154,11 @@ Per phase, in phase order:
 5. **Close the row**, per step 11.
 6. **One commit**, carrying the phase's change and its row — [`git.md`](../../../context/git.md)'s *one
    commit per phase*, unchanged.
+7. **A phase that closed `blocked` ends the landing here**, with every later tree kept — *Mixed results*.
+
+**A kept tree is landed by the run that resumes its phase** — these same steps, from the base and tip its
+Note recorded, before any coder is briefed. Re-running a coder would throw away a phase's finished work to
+arrive back where it already is.
 
 **The range, not the tip.** How many commits a coder makes in its own tree is its own business, and
 `<base>..<tip>` is the phase either way. Landing the tip alone would drop work silently.
@@ -140,6 +182,8 @@ one this round has already landed:
 - **The later phase's work is thrown away.** Nothing is cherry-picked from it, and the two versions are
   never merged — nothing here has the standing to decide which of two coders' versions of a file wins.
   Name the discarded tip in the report; its range is readable until git collects it.
+- **Its Note stops naming its tree.** A Note that names one means *land that tree* — step 4 — and this is
+  the one tree whose work must not be landed. It is kept, and it is named in the report instead.
 - **Run that phase again, one at a time, on the combined tree**, from step 7, with its row still
   `in progress` and its Note saying so. It can happen at most once per phase per round: the re-run is
   alone, so there is nothing left for it to overlap with.
@@ -152,10 +196,14 @@ never exists.
 
 ## Mixed results
 
-- **A phase that ends `blocked` does not hold the others back.** Their work passed both gates in the
-  feature's own tree, and withholding it buys nothing.
-- **A blocked phase's Note names the tree its work is in.** `git worktree list` shows the tree and nothing
-  else says which phase it belongs to. One line, by the same rule as every other Note.
+- **A phase that ends `blocked` ends this round's landing.** What landed before it stands — those are
+  commits, and withholding them buys nothing. **Every later tree is kept**, with its path and tip in the
+  report, and the next run lands it: those rows still read `in progress` from the opening write, so step 3
+  resumes each one alone. Landing is in phase order, each phase on top of the last, so carrying on past a
+  blocked phase would cherry-pick *k*+1 onto *k*'s half-work and gate it there — the failures from then on
+  belong to a phase that did not cause them, and the loopback would brief a coder to fix somebody else's.
+- **A blocked phase's Note names the tree its work is in, and the tip it is at.** `git worktree list` shows
+  the tree and nothing else says which phase it belongs to. One line, by the same rule as every other Note.
 - **The next round does not start**, and **each phase is reported as it lands** — step 14's stop list and
   its per-phase report, neither of them widened by a round.
 
@@ -167,14 +215,19 @@ exception, and it is this narrow:**
 - **Only a tree this command made, at the path above, detached and with no branch** — and **never with
   `--force`.** `git worktree list --porcelain` prints `branch` for every worktree the recorded invocation
   has ever made and `detached` for these. A tree with a branch on it is never touched.
-- **A tree goes as soon as its phase lands** — `git worktree remove <path>`, never `--force` — and is
-  **otherwise kept, with its path in the report.** One rule, covering a blocked phase and a discarded one
-  alike. A record whose directory has already gone is removed the same way; nothing here prunes.
+- **A tree goes when its phase's row reads `done`** — `git worktree remove <path>`, never `--force` — and
+  is **otherwise kept, with its path and its tip in the report.** One rule, covering a blocked phase, a
+  discarded one and a coder that stopped short alike. A record whose directory has already gone is removed
+  the same way; nothing here prunes.
 - **Without `--force`, removal cannot destroy work a coder failed to commit.** Git refuses a tree holding
   modified or untracked files and succeeds where the only leftovers are ignored — which is what an
   installed dependency directory is. A refusal is reported, not forced.
-- **A later run sweeps that same path first**, removing what it finds there by the same test and touching
-  nothing else. These are the only trees in this workflow that nobody else is keeping.
+- **A later run sweeps that directory first, and removes only a tree whose row reads `done`.** **Read the
+  ledger before the sweep.** A clean tree is not an abandoned one: a coder that did its job committed, so
+  removal succeeds without `--force` and the commit it leaves behind has no branch and nothing else
+  pointing at it. That is exactly the tree an `in progress` or `blocked` row is keeping for the next run,
+  and the Note would be left naming a path that no longer exists. **A tree whose path names another plan is
+  left alone** and named in the report — this run has not read that plan's ledger and is not entitled to.
 
 ## The report
 
