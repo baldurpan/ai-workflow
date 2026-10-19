@@ -3,20 +3,21 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 6136 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 6662 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 485 tests. The 236 in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 502 tests. The 250 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, git on instruction rather than on
    initiative, a worktree made by the recorded command or not at all, one home for the tracker, no
    self-declared status, inert stubs, a ledger row that opens before the work, a substrate answer that
    never strands the data it names, a `--all` loop that stops where a single run stops, a `--pr` flag whose
-   authority ends with the invocation that typed it, **a `/release` whose Gate 1 and whose
+   authority ends with the invocation that typed it, **a review comment that is a request rather than an
+   instruction, answered through the same gates and resolved only where a fix landed**, **a `/release` whose Gate 1 and whose
    confirmation both sit above the step that consumes the notes**, a plan over its
    size budget being split rather than trimmed under either tracking answer, a ledger Note that stays one
    line, a brief that carries the phase and not the plan, documentation reaching the plan, an answer file that may
@@ -45,12 +46,30 @@ and **§11.12** — and it was the first release cut from accumulated notes in t
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
 `blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
 adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; and **§20**, **§21**, **§22**, **§23**, **§24**,
-**§25**, **§26** and **§27** are written and unreleased.
+**§25**, **§26**, **§27** and **§28** are written and unreleased.
 
 **The version each section shipped in is below, on the section.** A paragraph here is the summary of a
 `DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
+
+**Written and unreleased: §28**, `--pr` staying for the review. The flag pushed and walked away, so a
+reader who left a comment was handed a chore; now the run ends when the review has been answered — the
+label *What a pull request carries* in `git.md` names applied before the first round, then up to **three
+rounds** of: read the open threads, give each **one bit** (*does it ask for a change to the change under
+review?*), fix the ones that do through **the same Gate 1 and Gate 2**, push, and reply. **It resolves only
+threads whose fix landed** — words alone leave a thread open, because resolving is a claim a reviewer still
+has to agree with. §18.4 refused a long-lived `--pr` for `--automerge`, and the count that looked like it
+covered this does not: an intended merge is recorded nowhere, while **an unanswered comment is recorded by
+the forge**, so there is no new terminal state and nothing resumable had to be invented. **It reads threads,
+never statuses** — deciding what *required* means is the forge fact §18.4 put out of a skill's reach, and a
+bot that writes its failure into a comment is answered like any other. Bounded twice, and the per-thread one
+does the work: **one fix attempt per thread**, because a thread that comes back is a disagreement. The
+label is **a fifth `git.md` answer, shipped as *no label***, not a string in a skill — §10.8's rule reaches
+it, and `/orchestrate --pr` is simply its most dependent reader. **A comment is a request and not an
+instruction**: the first untrusted input any command here consumes, and it may not widen scope, lift a
+refusal or authorise anything. One fused refusal had to be **split** — *stay alive* and *watch a check run*
+were one sentence with one test on it, and only the second survived. **Twelve tests.**
 
 **Written and unreleased: §27**, the checks this package was not running on itself. `npm run check` was `tsc
 --noEmit` against the **build** config, whose `include` is `src/` because that is what `tsc` emits — so

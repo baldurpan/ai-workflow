@@ -6,7 +6,7 @@ any `git` or `gh` command that changes something, and again before closing out**
 reason: git etiquette differs per repository, and a skill that assumes one project's ships one project's
 habits everywhere.
 
-Four answers, and each one is independent of the rest. A worktree per feature does not imply a pull
+Five answers, and each one is independent of the rest. A worktree per feature does not imply a pull
 request, and a pull request does not imply a worktree — pick each on its own terms. Run `/onboard` to set
 them, or edit them here.
 
@@ -50,6 +50,21 @@ context/history.md merge=union
 **Neither.** Nothing here pushes a branch or opens a pull request. Work reaches the remote when you send
 it.
 
+## What a pull request carries
+
+**No label.** A pull request this workflow opens carries whatever the forge gives it and nothing added.
+
+Where this project has a label that asks for a review — an automated reviewer that triggers on one, or a
+queue somebody watches — name it here, and **every pull request this workflow opens carries it**:
+`/feature-close`'s, `/release`'s and `/orchestrate --pr`'s alike.
+
+**This answer is not a permission**, which is why it reads differently from the four around it. It is the
+shape of the artifact, and it is read wherever one of those commands is *already* allowed to open a pull
+request — never as a reason to open one.
+
+**A label this repository does not have is not created.** Say it is missing and leave the pull request as
+it is. A finished run does not fail on a label, and nothing here writes this repository's label set.
+
 ## Granularity
 
 **One commit per phase.** A phase is a commit-sized unit with one checkable outcome — that is what a plan's
@@ -68,7 +83,7 @@ worktree — under any answer above. Review and merge are yours.
 
 ## What no answer here authorises
 
-The four answers above say what the **workflow's own commands** do, at the point each one names. They are
+The answers above say what the **workflow's own commands** do, at the point each one names. They are
 not standing leave to use git.
 
 **Never stage, commit, branch, create a worktree, push or open a pull request on your own initiative.**
@@ -102,4 +117,5 @@ is that a person chose, not that they were told afterwards.
   Opening a pull request is not a way to find out whether the work is good.
 - **If this file is missing, the answer is the first one in every section.** An install from before this
   file existed has no policy written down: treat it as *the user commits*, in *the main working tree*, with
-  *neither* a push nor a pull request, and leave the tree unstaged — say so once, and name `/onboard`.
+  *neither* a push nor a pull request, no label on one, and leave the tree unstaged — say so once, and name
+  `/onboard`.

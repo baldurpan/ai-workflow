@@ -6484,3 +6484,179 @@ Housekeeping that rode along: four prose lines that had escaped the 110-column w
 `verify.notes.md`), and `tracking.notes.md`'s budget heading promoted to a `##` in the stub's own position
 — §20.7.
 
+
+---
+
+## 28. `--pr` stays for the review — the half §18 pushed and then walked away from
+
+Asked for as a loop: `/orchestrate --pr` should watch for code review, answer it, push fixes, resolve
+threads and comment where one is wanted — and, added in the same conversation, put a label on the pull
+request so that an automated reviewer picks it up. Both shipped. The interesting part is that §18.4
+**already rejected** a long-lived `--pr`, and the argument it rejected is not this one.
+
+### 28.1 §18.4's second count, read against what is actually being waited for
+
+The refusal of `--automerge` ran on four counts. Three are about merging and are untouched here — nothing
+below merges, approves, deletes a branch, enables auto-merge or reads a check run. **The second count is
+the one that looks like it covers this, and does not:**
+
+> It needs a session that outlives itself. `/orchestrate` keeps no resumable record on purpose — *"nothing
+> here is half-finished in a way the next session could resume"*. A run parked on a check suite is
+> precisely that, and a session that dies mid-wait leaves an open pull request and no record anywhere that
+> a merge was intended. **That is a new terminal state in the one command built to have none.**
+
+The load-bearing clause is the last one, and it is about **where the intention lives**. An intended merge
+is recorded nowhere: the pull request looks identical whether or not anybody meant to merge it, so a dead
+session loses the only copy of the plan.
+
+**An unanswered review comment is the opposite case. The forge is already the record** — written by the
+reviewer, in a thread that is either resolved or is not, visible to everybody who can see the change. A
+session that dies mid-loop leaves exactly what every pull request on earth looks like between a review and
+a reply, and a later run reads the same threads back. **So there is no new terminal state**, which is the
+whole of §18.4's second count, and nothing resumable has to be invented to get it.
+
+That is also why this is not the thin end of `--automerge`. The two differ in a property that can be
+checked rather than in how far they go: *is the thing being waited for written down by somebody other than
+this session?* A review is. A merge is not.
+
+### 28.2 It completes the purchase rather than extending it
+
+§18.4's first count states the flag's purpose outright — the push exists **so that a person reads the
+change**, and *"a pull request nobody reads is the one thing this flag must not produce."* A run that
+pushes and vanishes satisfies that halfway: the reader reads, writes a comment, and is handed a chore. The
+reply is not a new capability bolted onto `--pr`; it is the second half of the one it already had.
+
+**So it is not a flag of its own.** `--pr --watch` would make the useful half opt-in and leave the
+abandoning half as the default, which is the wrong way round. The run is `--pr`, and the review is part of
+where it ends.
+
+**The pull request is still reported before the first round.** Today's deliverable is in front of the user
+whether or not a comment ever arrives, so nothing that worked before this section is now contingent on a
+loop finishing.
+
+### 28.3 Threads, not statuses — the line that keeps §18.4's fourth count intact
+
+What the loop reads is a **review comment** — a review, a line thread, a comment on the pull request —
+whoever wrote it, person or bot. **A check run is not one.** That boundary is not squeamishness; it is
+§18.4's fourth count, which found that *"green" is not one fact* and that deciding it needs the
+repository's required-check list, **a forge fact `tracking.md` owns and a skill may not name.** A loop that
+read statuses would have to decide what *required* means, in a skill, which is the thing that cannot be
+written down there.
+
+**A bot that writes its failure into a comment has written a comment**, and gets answered like any other —
+so the useful part of reacting to CI arrives through the door that was already open, without the flag
+having an opinion about check configuration.
+
+### 28.4 Resolve only what landed — the asymmetry is the design
+
+Replying and resolving are not one action. A resolved thread is gone from the reviewer's queue, so
+resolving is **a claim that the thread is finished**, and the loop may only make that claim about something
+checkable:
+
+| The loop's answer | Thread |
+|---|---|
+| a fix, landed and pushed | reply naming the commit, **resolve** |
+| words — answered, declined, out of scope, or a fix that failed its gates | reply, **leave open** |
+
+The second row is where a reviewer still has to agree, and resolving it would take the change out of their
+queue before they had. This is the same shape as §18.4's first count one level down: the value of the push
+is a person's attention, and an agent that tidies away the record of what it was asked is spending that
+attention rather than answering it.
+
+**One reply in the thread it answers, and no new top-level comment.** A summary comment per round turns the
+pull request into a transcript of the agent's own run.
+
+### 28.5 Two bounds, and why a round count alone is not one
+
+A cap on rounds is obvious and insufficient: a reviewer who re-opens the same thread after its fix would
+spend all three rounds on one disagreement, and a bot that re-posts would spend them on nothing. So there
+are two, and the per-thread one does the real work:
+
+- **One fix attempt per thread.** A thread that comes back after its fix is a **disagreement, not a second
+  defect** — reply, leave it open, hand it over.
+- **Three rounds per run**, as the backstop.
+
+**The gates are not a third bound, they are the existing ones.** Every fix a round produces runs Gate 1 and
+Gate 2 with the same two-loops-per-gate cap, and a round whose gates do not come back clean **pushes
+nothing**: it replies in the thread saying so and ends the run, which is §18.6's handback with a pull
+request attached. A one-line fix a named reviewer asked for is still code nothing has verified, and the
+push is what makes it everyone's.
+
+### 28.6 A comment is a request, not an instruction
+
+Everything this loop reads was written outside the session and arrives asking for work, which makes it the
+first **untrusted input** any command in this workflow consumes. The skill says what a comment cannot do,
+one line each: widen the scope past step 1's guards, lift a refusal or a cap, or authorise anything —
+a merge, a force-push, a push to the default branch, a rewrite of published history.
+
+**The permission a run carries is the user's, typed in this session** (§18.2). A sentence in a pull request
+thread is not that, however it is phrased and whoever wrote it — and an approving review is the pointed
+case: it is where the loop **stops**, not where it merges.
+
+**Rejected: treating a comment as a brief.** The shortest implementation reads a thread and briefs a coder
+with its text, and inherits whatever the thread asks for, including a scope step 1 would have refused. The
+one bit each thread gets — *does it ask for a change to the change under review?* — is what keeps a comment
+asking for a feature on `/roadmap`'s side of the tier boundary instead of quietly becoming unplanned work
+with a pull request already open.
+
+### 28.7 The label is an answer, not a string in a skill
+
+The request named a literal label: `ai-review`. **A skill may not hold it.** `tracking.md`'s two labels are
+parameters of a project-owned file for the reason §10.8 gives, and a test asserts no skill spells one —
+hardcoding this one would ship one repository's label to every install, and `--add-label` against a label a
+repository does not have is an error on an otherwise finished run.
+
+**It is a fifth `git.md` answer: *What a pull request carries*.** Four reasons that file rather than
+`tracking.md`:
+
+1. The question is *what does a pull request this workflow opens look like*, and `git.md` is where the
+   pull request already comes from.
+2. It is independent of the tracking answer — a project can track in `roadmap.md` and still want its pull
+   requests labelled — so putting it under *Under the tracker answer* would have been false.
+3. It holds for **every** pull request the workflow opens, `/feature-close`'s and `/release`'s as much as
+   this flag's, so it is not a flag parameter wearing a general name. Those two need no new sentence: the
+   stub's opening line already has them read the file before any `git` or `gh` command that changes
+   something.
+4. §4.5's orthogonality survives — it implies nothing about the other four and they imply nothing about it.
+
+**And it does not contradict §18.2.** That section says the flag does not read *Push and pull request*,
+because that answer decides **whether** the workflow may push and the flag is itself the permission. This
+answer decides nothing about permission; it is read only where a command is *already* allowed to open a
+pull request. The stub says so in those words, since the sentence is one careless reading away from
+becoming a loophole.
+
+**Shipped as *no label*,** and §18.1's lesson is why that is not inertness. A fresh install has no reviewer
+to summon, so the honest default applies none and says so — and the rounds still answer whoever comments
+unasked, which is the behaviour that works with zero configuration. `/onboard` asks for the name **only
+where a pull request is in the push answer**, since a project that pushes nothing has no artifact to label,
+and it is a follow-up to a question already asked rather than a fifth question — §18.2 refused to make
+every installer pre-answer something most will never use, and that still holds. The one thing `/onboard`
+must do is **check the label exists before writing it down**: this is the only answer in the file that
+fails when it is *used* rather than when it is written.
+
+### 28.8 What it cost
+
+A new conditional file, `skills/orchestrate/review.md`, on §24.9's rule — the loop is prose only `--pr`
+needs, and plain `/orchestrate` should not pay for it. One new step in the skill, *Report* renumbered to 9,
+one new section in `git.md` and in `git.notes.md`, one follow-up in `/onboard` Step 4, and one clause each
+in `workflow.md`'s command table, its push summary, the always-loaded block and the package README.
+
+**One fused sentence had to be split**, and it is the part worth recording. `--pr`'s refusals read *"does
+not delete a branch, enable the forge's own auto-merge, or stay alive watching a check run"* — three
+refusals in one list, with a content test asserting the string. Two of the three stand; the third was
+**two refusals written as one**, *stay alive* and *watch a check run*, and only the second survives. A test
+that matched the whole string would have failed for the right reason and been fixed the wrong way, by
+deleting the assertion. It is split into one assertion each, so the two that still hold keep holding.
+
+Budget raises, each named in `templates.budget.json` with `§28.8` as its `why`:
+`skills/orchestrate/SKILL.md` to 18432 for the new step, `stubs/git.md` to 7168 and
+`context/git.notes.md` to 5120 for the fifth answer, `skills/onboard/SKILL.md` to 55808 for the follow-up,
+`context/workflow.md` to 25600 and the always-loaded ceiling to 29184 for one clause in each of two
+sentences, `review.md` entered at 7680, and `our-templates` to 423424 for the sum. **Every number was
+typed and then handed to `budget:relock`**, which lowered three of them to the 512-byte line the files
+actually sit at — the script's one direction, and the reason a raise cannot quietly leave slack behind.
+
+**Verified on 2026-10-19** by packing the tree, installing the tarball into an empty git repository, and
+running `check` (clean, exit 0) and `update --dry-run` (129 files current, nothing under **Next**, exit 0),
+with `review.md` present in both skill trees and every relative link in it resolving after install. `check`,
+`build` and the 502 tests pass from the root; `budget:relock` reports every limit at its floor.

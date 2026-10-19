@@ -3,16 +3,16 @@
   "slack": 2048,
   "ceilings": {
     "always-loaded": {
-      "limit": 28672,
-      "why": "§24.5 — the only bytes every invocation of every command pays",
+      "limit": 29184,
+      "why": "§28.8 — one clause in the command table and one in the git row",
       "files": [
         "blocks/agents-block.md",
         "context/workflow.md"
       ]
     },
     "our-templates": {
-      "limit": 411136,
-      "why": "§26.25 — the ignore entry Gate 1 actually needs, and the proof that it holds"
+      "limit": 423424,
+      "why": "§28.8 — the review loop, the fifth git answer, and the clauses that name them"
     }
   },
   "files": {
@@ -33,8 +33,8 @@
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "context/git.notes.md": {
-      "limit": 4096,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 5120,
+      "why": "§28.8 — the fifth answer, with its two copy-ready forms"
     },
     "context/plan-template.md": {
       "limit": 5120,
@@ -70,7 +70,7 @@
     },
     "context/workflow.md": {
       "limit": 25600,
-      "why": "§26.10 — the one exception, written where the absolute rule is"
+      "why": "§28.8 — the label and the review in the command table"
     },
     "context/workflow.notes.md": {
       "limit": 24064,
@@ -117,12 +117,16 @@
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "skills/onboard/SKILL.md": {
-      "limit": 54784,
-      "why": "§26.25 — Step 7 also writes the phase-tree ignore entry and proves it against this project’s own commands"
+      "limit": 55808,
+      "why": "§28.8 — Step 4 asks what a pull request carries"
+    },
+    "skills/orchestrate/review.md": {
+      "limit": 7680,
+      "why": "§28.8 — the review loop, read only under --pr"
     },
     "skills/orchestrate/SKILL.md": {
-      "limit": 16896,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 18432,
+      "why": "§28.8 — step 8 answers the review"
     },
     "skills/prototype/SKILL.md": {
       "limit": 6656,
@@ -149,8 +153,8 @@
       "why": "§26.11 — the cap on how many phases run at once"
     },
     "stubs/git.md": {
-      "limit": 6144,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 7168,
+      "why": "§28.8 — the fifth answer — what a pull request carries"
     },
     "stubs/history.md": {
       "limit": 1024,
