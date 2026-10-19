@@ -6660,3 +6660,140 @@ actually sit at — the script's one direction, and the reason a raise cannot qu
 running `check` (clean, exit 0) and `update --dry-run` (129 files current, nothing under **Next**, exit 0),
 with `review.md` present in both skill trees and every relative link in it resolving after install. `check`,
 `build` and the 502 tests pass from the root; `budget:relock` reports every limit at its floor.
+
+## 29. The loop answered a review it had not waited for — what one real pull request found in §28
+
+§28 shipped in 0.27.0, and the first repository to take the update opened a pull request for it carrying
+the `ai-review` answer that section invented. The app that answer summons reviewed that pull request, and
+its review was about the loop that would have answered it. Three findings held; checking them turned up two
+more. They share a cause worth naming: **§28 reasoned hard about what the loop must refuse and left the
+mechanics of being reviewed at all implicit** — who summons the reviewer, when, whether anything has
+arrived yet, and whose comment is worth a commit.
+
+### 29.1 The label was promised by three commands and applied by one
+
+§28.7 wrote the answer as the shape of the artifact rather than a flag parameter, and said so in `git.md`:
+*every pull request this workflow opens carries it — `/feature-close`'s, `/release`'s and
+`/orchestrate --pr`'s alike*. Only `review.md` ever read the section. `/feature-close`'s push step and
+`/release`'s step 6 both open pull requests and said nothing about a label, and neither file's hash moved
+in 0.27.0.
+
+Two ways out. **Narrowing the sentence to `--pr` was rejected**: it is §28.7's own argument thrown away.
+The answer is about the artifact, and a feature's pull request — a whole plan's worth of phases, landed
+over days — is the one most worth a reviewer's attention. Labelling the ad-hoc change and not the feature
+is the opposite of what the answer is for. So the other two commands read the section at the point they
+open a pull request, and the *not created* rule travels with it: a missing label is reported and the pull
+request is left alone, because a finished feature does not fail on a label.
+
+**How the claim survived review in the first place** is the part to remember. A content test asserted the
+sentence, and its rationale read *"it is not a flag parameter — `/feature-close` and `/release` open pull
+requests too"*. The test was pinning prose that described behaviour nothing implemented, which is exactly
+the failure §22 recorded in a different costume: an assertion about words cannot tell you whether anything
+reads them.
+
+### 29.2 A review asked for arrives in minutes, and round one read the threads at once
+
+The loop said: apply the label *before the first round*; a round is *one pass over everything the review
+has left unaddressed*; and **Nothing is unaddressed** ends the run. Run as written on a pull request thirty
+seconds old, those three lines end the run before the review exists. The feature the user asked for was
+*watch for the review and answer it*, and the loop as shipped could finish before being reviewed at all.
+
+So a round reads, waits, reads again, and **gives each round up to fifteen minutes** before concluding
+there is nothing. A number rather than *until it arrives*, because a bound somebody can check is the only
+kind this file accepts; fifteen because an app-sized review of one pull request is a matter of minutes —
+on the pull request that found this, the review landed **50 seconds** after the label — and past that the
+thing being waited for is a person, which §28.1 already answered: the threads are on the forge and a later
+run reads them back. A wait that expires reports the pull request as *opened, labelled and unread*, which
+is a result and not a failure.
+
+**This is not the wait §18.4 refused.** That was a wait for a merge, whose intention is recorded nowhere;
+this is a wait for a comment, bounded, on an artifact that holds the record either way.
+
+### 29.3 The label goes back on, because the reviewer takes it off
+
+**Verified against the live forge on 2026-10-19**, on both pull requests that have used this answer: the
+label was applied by the user and **removed by the reviewing app** three seconds to a minute later — the
+app clears its own queue. A label applied once therefore buys exactly one review, of the first commit, and
+every fix the loop pushes afterwards is unread by the thing the label exists to summon. The three-round cap
+would have run its rounds against a reviewer the first round un-invited.
+
+So the label goes on **whenever there is something new to read**: at the pull request, and again after each
+round's fixes are pushed. Re-applying one that is still sitting there changes nothing, so this needs no
+state, no bookkeeping and no forge fact consulted first — the cheapest possible shape for the fix.
+
+**Rejected: writing in `git.md` that fix rounds are not re-reviewed**, which is what the review itself
+suggested as the alternative. It documents the defect instead of removing it, and it bills every project
+whose reviewer leaves the label alone for a limitation they do not have.
+
+### 29.4 Standing — the axis §28.6 did not have
+
+§28.6 bounded *what* a comment may ask for: it cannot widen the scope, lift a refusal or authorise
+anything. It said nothing about *who* asked, and step 1 went out of its way to say the loop answers a
+comment *whoever or whatever wrote it, a person or a bot*. On a repository anybody can read, that is a path
+from a stranger's sentence to code written, gated and pushed on the user's credentials — into a pull
+request the owner then reads as having been through the gates. The scope guards hold the whole way down
+that path. None of them is about the author.
+
+So step 2 asks two bits, and standing is the first: **the author of this pull request, an account the forge
+says can write to this repository, or an app the repository has installed.** Anything else is replied to,
+left open, and reported on its own line, because the user's sentence is what turns it into work — §18.2's
+second source of permission, doing exactly the job it was written for.
+
+**Why an installed app has standing is the part that had to be checked rather than reasoned.** The obvious
+rule — trust whoever the forge associates with the repository — excludes the one reviewer this feature
+exists to answer. On the pull request that found all of this, the reviewing app's comments carry
+`author_association: NONE` while the human author's carry `MEMBER`, **verified against the live forge on
+2026-10-19**. An association test alone would have silenced the reviewer the project wrote down in its own
+`git.md`. An app earns standing a different way: it cannot comment on a repository nobody installed it on,
+and installing one takes admin. A bot's comment is an installed app's comment by construction, and
+somebody's decision is upstream of it.
+
+**Rejected: naming the reviewer in the skill.** §10.8's rule — a literal in a skill ships one repository's
+tooling to every install. **Rejected: extending the `git.md` answer to name who answers the label**, so the
+loop could match the author against it. It makes trust depend on a clause the user may not have written,
+and the installed-app argument needs nothing written down at all.
+
+**Standing is never read off the comment** — not from a name, a title, a claim made inside it, or how much
+it reads like a reviewer. The comment is untrusted input in full, including whatever its account says it
+is.
+
+### 29.5 The permission paragraph was still counting three things
+
+`workflow.md`'s *A typed flag or a typed command is that ask* said each of the two authorises *that
+invocation's commit, push and pull request*. Under §28 the flag also applies a label, commits and pushes
+once per round, replies in threads and resolves them. That sentence is the always-loaded statement of what
+a typed flag buys, so under-counting it is the §18.2 failure running backwards: the command does more than
+the file says it may. One clause added, naming the rounds.
+
+### 29.6 A section added to an older file leaves the sentence that counted them
+
+§28.7 took `git.md` from four answers to five. The stub says five; a project-owned `git.md` written by an
+earlier `/onboard` still says *four*, and the 0.27.0 `/onboard` added the fifth section without touching the
+intro — which is what the install that found all this is now carrying. `git.md` is project-owned, so §6.2
+puts it out of `update`'s reach by construction: nothing else was ever going to fix it.
+
+One line in Step 4: where the file predates a section, the sentences that count them are part of the edit.
+The class of bug is general and comes back at the sixth answer.
+
+### 29.7 What it cost
+
+Three hand-typed raises, each named in `templates.budget.json` with a `§29` section as its `why`:
+`skills/orchestrate/review.md` 7680 → 10240 for the wait, the re-applied label and the standing bit;
+`skills/release/SKILL.md` 16384 → 16896, its first raise since the budget was written, for the label
+sentence; `context/workflow.md` 25600 → 26112 for §29.5's clause; and `our-templates` 423424 → 427008 for
+the sum. `skills/feature-close/SKILL.md`, `skills/orchestrate/SKILL.md` and `skills/onboard/SKILL.md`
+absorbed theirs inside limits §28.8 had already raised. **The always-loaded ceiling stayed at 29184**: it
+was typed at 29696 and `budget:relock` took it back down, the script's one direction again.
+
+Nothing was added to `/orchestrate`'s own load — §24.9 is still doing the work it was built for. All of
+§29.2 to §29.4 lands in the conditional file, which only `--pr` reads.
+
+**Verified on 2026-10-19** by packing the tree, installing the tarball into an empty git repository, and
+running `check` (clean, exit 0) and `update --dry-run` (129 files current, nothing to write, exit 0), with
+`review.md` at 9921 bytes in both skill trees and all four of its relative links resolving after install.
+`check`, `build` and the 510 tests pass from the root, and `budget:relock` reports every limit at its floor.
+
+The three findings this section answers were **verified against the live forge on 2026-10-19**, not read
+off the review that reported them: the label events on both pull requests that have carried the answer
+(applied by the author, removed by the app), the reviewing app's `author_association` on its own comments,
+and the 50 seconds between the label going on and the review arriving.

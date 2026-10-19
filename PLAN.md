@@ -3,21 +3,22 @@
 **The tool is built and tested. This file is the live list.** Everything below is work that has not
 happened yet, plus the handful of calls that are cheap to reverse now and annoying later.
 
-Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 6662 lines of
+Why the tool is shaped the way it is lives in [`DESIGN-RECORD.md`](DESIGN-RECORD.md) — 6799 lines of
 tests, rejected alternatives and reasoning, **superseded by the code and read on demand, not on arrival.**
 Every `§`-number below points into that document.
 
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 502 tests. The 250 in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 510 tests. The 258 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, git on instruction rather than on
    initiative, a worktree made by the recorded command or not at all, one home for the tracker, no
    self-declared status, inert stubs, a ledger row that opens before the work, a substrate answer that
    never strands the data it names, a `--all` loop that stops where a single run stops, a `--pr` flag whose
    authority ends with the invocation that typed it, **a review comment that is a request rather than an
-   instruction, answered through the same gates and resolved only where a fix landed**, **a `/release` whose Gate 1 and whose
+   instruction, answered through the same gates, acted on only where its author has standing, and resolved
+   only where a fix landed**, **a `/release` whose Gate 1 and whose
    confirmation both sit above the step that consumes the notes**, a plan over its
    size budget being split rather than trimmed under either tracking answer, a ledger Note that stays one
    line, a brief that carries the phase and not the plan, documentation reaching the plan, an answer file that may
@@ -40,18 +41,38 @@ Every `§`-number below points into that document.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** `main` carries **0.25.0**. 0.14.0 was the body's ceiling (§10.13) and **item 6, the release
+**State:** `main` carries **0.27.0**. 0.14.0 was the body's ceiling (§10.13) and **item 6, the release
 answer** (§11) in both its phases, with the event that completes it (§11.10), the event's record (§11.11)
 and **§11.12** — and it was the first release cut from accumulated notes in this repository, so
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
 `blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
 adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; 0.26.0 adds **§20** through **§27** in eight
-commits; and 0.27.0 adds **§28**.
+commits; and 0.27.0 adds **§28**. **§29 is written and unreleased.**
 
 **The version each section shipped in is below, on the section.** A paragraph here is the summary of a
 `DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
+
+**Written and unreleased: §29**, the three holes a real review found in §28 — and the review that found
+them was the app the §28.7 answer exists to summon, reading the pull request that first carried it. **The
+label was promised on three commands' pull requests and applied on one**: `git.md` said `/feature-close`'s,
+`/release`'s and `/orchestrate --pr`'s alike, and only the loop read the section, so the two commands now
+read it where they open one — narrowing the sentence instead was rejected, since a feature's pull request is
+the one most worth a reviewer. **A round had no wait**, so the three lines after the push would finish the
+run on a pull request seconds old; each round now reads, waits and reads again for **up to fifteen
+minutes**, and an expired wait reports *opened, labelled and unread*, which is a result. **The label goes
+back on after every round's fixes**, because the app that answers it removes it when it is done — verified
+on both pull requests that have used the answer — so applied once it buys one review of the first commit
+and nothing that reads the fixes. **Standing is the axis §28.6 did not have**: it bounded what a comment may
+ask for and said nothing about who asked, so step 2 now asks **two bits**, and only the pull request's
+author, an account the forge says can write, or **an app the repository has installed** gets a fix made —
+the installed app is the clause that matters, because the reviewing app's own comments come back with no
+association at all, so a rule written on association would have silenced the one reviewer the project named.
+Everything else is replied to, left open and reported, for the user to turn into work. Plus the two found
+while checking: `workflow.md`'s permission paragraph still **counted three purchases** for a flag that now
+makes five, and `/onboard` adding a fifth `git.md` section **left the sentence that counted them** saying
+four, in a project-owned file `update` cannot reach. **Eight tests**, and the *two bounds* test became three.
 
 **Shipped in 0.27.0: §28**, `--pr` staying for the review. The flag pushed and walked away, so a
 reader who left a comment was handed a chore; now the run ends when the review has been answered — the

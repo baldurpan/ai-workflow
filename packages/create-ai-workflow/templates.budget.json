@@ -11,8 +11,8 @@
       ]
     },
     "our-templates": {
-      "limit": 423424,
-      "why": "§28.8 — the review loop, the fifth git answer, and the clauses that name them"
+      "limit": 427008,
+      "why": "§29 — the three holes a real review found in the loop"
     }
   },
   "files": {
@@ -69,8 +69,8 @@
       "why": "§26.19 — the install form, and generated files that have to be ignored"
     },
     "context/workflow.md": {
-      "limit": 25600,
-      "why": "§28.8 — the label and the review in the command table"
+      "limit": 26112,
+      "why": "§29.5 — the typed-flag paragraph counts what --pr now buys"
     },
     "context/workflow.notes.md": {
       "limit": 24064,
@@ -121,8 +121,8 @@
       "why": "§28.8 — Step 4 asks what a pull request carries"
     },
     "skills/orchestrate/review.md": {
-      "limit": 7680,
-      "why": "§28.8 — the review loop, read only under --pr"
+      "limit": 10240,
+      "why": "§29 — the wait, the label going back on, and standing"
     },
     "skills/orchestrate/SKILL.md": {
       "limit": 18432,
@@ -133,8 +133,8 @@
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "skills/release/SKILL.md": {
-      "limit": 16384,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 16896,
+      "why": "§29.1 — its pull request carries the label too"
     },
     "skills/roadmap/SKILL.md": {
       "limit": 6144,
