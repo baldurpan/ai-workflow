@@ -45,15 +45,15 @@ answer** (§11) in both its phases, with the event that completes it (§11.10), 
 and **§11.12** — and it was the first release cut from accumulated notes in this repository, so
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
 `blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
-adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; and **§20**, **§21**, **§22**, **§23**, **§24**,
-**§25**, **§26**, **§27** and **§28** are written and unreleased.
+adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; 0.26.0 adds **§20** through **§27** in eight
+commits; and 0.27.0 adds **§28**.
 
 **The version each section shipped in is below, on the section.** A paragraph here is the summary of a
 `DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
 
-**Written and unreleased: §28**, `--pr` staying for the review. The flag pushed and walked away, so a
+**Shipped in 0.27.0: §28**, `--pr` staying for the review. The flag pushed and walked away, so a
 reader who left a comment was handed a chore; now the run ends when the review has been answered — the
 label *What a pull request carries* in `git.md` names applied before the first round, then up to **three
 rounds** of: read the open threads, give each **one bit** (*does it ask for a change to the change under
@@ -71,7 +71,7 @@ instruction**: the first untrusted input any command here consumes, and it may n
 refusal or authorise anything. One fused refusal had to be **split** — *stay alive* and *watch a check run*
 were one sentence with one test on it, and only the second survived. **Twelve tests.**
 
-**Written and unreleased: §27**, the checks this package was not running on itself. `npm run check` was `tsc
+**Shipped in 0.26.0: §27**, the checks this package was not running on itself. `npm run check` was `tsc
 --noEmit` against the **build** config, whose `include` is `src/` because that is what `tsc` emits — so
 `scripts/budget.ts`, which decides every byte limit, and the whole of `test/`, including 175 KB of content
 assertions, had **never been typechecked**. Those are the files most likely to go stale, because they read the
@@ -80,7 +80,7 @@ includes `src`, `scripts` and `test`; `build` still runs the original, so `dist/
 **It found a real error on its first run** — an unguarded regex capture in the test added to catch a broken
 link in the vendored standards, one input away from throwing instead of asserting.
 
-**Written and unreleased: §26**, phases of one plan running side by side. Step 3 picked one phase and `--all`
+**Shipped in 0.26.0: §26**, phases of one plan running side by side. Step 3 picked one phase and `--all`
 ran them in sequence; now it forms a **round** — the runnable phases whose **Files:** lines share no path,
 prose included, up to the cap in `executors.md` (3, and `1` turns it off) — and gives each its own coder in a
 detached scratch checkout it makes with plain git, in `.phase-trees/` inside the working tree it is standing
@@ -127,7 +127,7 @@ new conditional file beside the skill — `parallel.md`, 18,302 bytes, read only
 tree is resumed — a hand-typed raise on every per-file limit it moved, and **27,648 bytes on the our-templates
 ceiling**, the largest raise it has taken.
 
-**Written and unreleased: §23**, the correctness rule the coder never had. `roles/coder.md` held nine
+**Shipped in 0.26.0: §23**, the correctness rule the coder never had. `roles/coder.md` held nine
 coding principles and **no step saying when a test is written or where its expected value comes from**, so
 a test could assert whatever the code returned and both gates would pass — Gate 1 because a copied
 expectation is the one assertion that cannot fail, Gate 2 because the checklist asks whether the behaviour
@@ -156,7 +156,7 @@ and the syntax never is**, as a new test over every template: a marker's spellin
 under `standards/` changed (§6.3) and no skill body did — the host-review fallback already reads
 `workflow.md`. **Nine tests**, +1,643 bytes on the per-phase read.
 
-**Written and unreleased: §22**, found in the paragraph next door while §21 was being written.
+**Shipped in 0.26.0: §22**, found in the paragraph next door while §21 was being written.
 `/orchestrate` step 4 still said a non-blocking observation *"needs code changes, in which case it is work
 and belongs in the backlog per `tracking.md`"* — the condition §14.3 showed was not a bar, routing to the
 destination §15.3 forbade, **four versions after both landed**, and contradicting step 5 of the same file
@@ -173,7 +173,7 @@ keyed on `backlog` with a routing-verb set and two exemptions — the sentence r
 condition is **named where it bit** rather than dropped. One leftover const went with it. **No new rule:
 the rule was already right in `workflow.md` and in two of the three places that cite it.**
 
-**Written and unreleased: §21**, the owner check — the fifth field report, and the first about a section
+**Shipped in 0.26.0: §21**, the owner check — the fifth field report, and the first about a section
 of a document rather than a store. `baldurpan.com` retired **nine of thirteen** features `shipped` with a
 human check still open, every one of them said out loud in the `history.md` Why column: *"the Icelandic and
 VoiceOver check await the owner"*, *"the owner's wording (Q11, Q18), the halo and look (Q16, Q20) and an
@@ -196,7 +196,7 @@ whole fix: the sentence becomes a pointer instead of being the record. `/feature
 whatever a phase settles, which is §2.9's documentation rule applied to the plan's own questions and is what
 keeps the close's pass to one bit rather than twenty dispositions. **Thirteen tests.**
 
-**Written and unreleased: §20**, the plan's size budget. Measured 23 plans in four real installs on
+**Shipped in 0.26.0: §20**, the plan's size budget. Measured 23 plans in four real installs on
 2026-10-16: the median is **48,893 characters** and six are over the 65,536 an issue body holds, which
 falsifies §10.13's "a filled plan is a few thousand characters" — the one load-bearing premise in that
 section. §10.13 had already written down the consequence and left it unbuilt: under the working-tree
