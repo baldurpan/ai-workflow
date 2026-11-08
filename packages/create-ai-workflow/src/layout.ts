@@ -60,9 +60,14 @@ export type SkillName = (typeof SKILL_NAMES)[number];
  * remainder on the session model. The lines still cover every one-turn run outright and the first
  * turn of the rest, and they put the intended tier where a reader looks for it. Running the session on
  * `sonnet` is what makes the tier hold across the ask.
+ *
+ * `null` pins no tier, and only a command in `AGENT_INVOCABLE` may have it. The same rule read the other
+ * way: an agent runs that command in the middle of other work, and a tier it pinned would hold for the rest
+ * of *that* turn — a phase that filed a backlog entry at step 9 would gate, commit and report at the
+ * entry's effort (§30).
  */
-export const CLAUDE_SKILL_SETTINGS: Record<SkillName, { model: string; effort: string }> = {
-  roadmap: { model: 'sonnet', effort: 'low' },
+export const CLAUDE_SKILL_SETTINGS: Record<SkillName, { model: string; effort: string } | null> = {
+  roadmap: null,
   'feature-plan': { model: 'sonnet', effort: 'medium' },
   'feature-implement': { model: 'sonnet', effort: 'medium' },
   'feature-status': { model: 'sonnet', effort: 'low' },
@@ -73,6 +78,16 @@ export const CLAUDE_SKILL_SETTINGS: Record<SkillName, { model: string; effort: s
   onboard: { model: 'opus', effort: 'high' },
   'tracking-migrate': { model: 'sonnet', effort: 'medium' },
 };
+
+/**
+ * The commands an agent may run without the user typing them, which in the Claude copy means the one skill
+ * that does not get `disable-model-invocation: true`. Every other command writes code, moves a tier, closes
+ * an issue, pushes or bumps, and runs only when typed (§3.1). `/roadmap` appends one `pending` entry — the
+ * smallest write in the loop — and the gates route a feature-sized finding to it, which the flag left them
+ * no way to do but ask the user to type it (§30). Its description says when; under the tracker answer it
+ * asks before opening an issue.
+ */
+export const AGENT_INVOCABLE: ReadonlySet<SkillName> = new Set<SkillName>(['roadmap']);
 
 /** The frontmatter keys the Claude copy adds. The shared body must carry none of them. */
 export const CLAUDE_ONLY_KEYS = ['disable-model-invocation', 'model', 'effort'] as const;
@@ -88,19 +103,22 @@ export interface ManagedFile {
 
 /**
  * A skill body is shared verbatim between adapter trees. The Claude Code copy differs by frontmatter only:
- * `disable-model-invocation: true`, and the `model` and `effort` from `CLAUDE_SKILL_SETTINGS`. All three
- * are injected here rather than written into the template, so a second tree can reuse the same body
- * untouched. The skill is identified by its own `name:` line, so a caller needs nothing but the text.
+ * `disable-model-invocation: true` unless the command is in `AGENT_INVOCABLE`, and the `model` and
+ * `effort` from `CLAUDE_SKILL_SETTINGS` where it pins any. All three are injected here rather than written
+ * into the template, so a second tree can reuse the same body untouched. The skill is identified by its own
+ * `name:` line, so a caller needs nothing but the text. A command that is agent-invocable and pins no tier
+ * comes out byte-for-byte the shared body.
  */
 export function claudeSkillTransform(text: string): string {
   const match = /^---\n([\s\S]*?)\n---\n/.exec(text);
   if (!match) throw new Error('skill template has no frontmatter block');
   const frontmatter = match[1] as string;
   const name = /^name: (.+)$/m.exec(frontmatter)?.[1]?.trim();
-  const settings = name && name in CLAUDE_SKILL_SETTINGS ? CLAUDE_SKILL_SETTINGS[name as SkillName] : null;
+  const known = name && name in CLAUDE_SKILL_SETTINGS ? (name as SkillName) : null;
+  const settings = known ? CLAUDE_SKILL_SETTINGS[known] : null;
 
   const lines = [
-    'disable-model-invocation: true',
+    ...(known && AGENT_INVOCABLE.has(known) ? [] : ['disable-model-invocation: true']),
     ...(settings ? [`model: ${settings.model}`, `effort: ${settings.effort}`] : []),
   ].filter((line) => !new RegExp(`^${line.split(':')[0]}:`, 'm').test(frontmatter));
   if (lines.length === 0) return text;

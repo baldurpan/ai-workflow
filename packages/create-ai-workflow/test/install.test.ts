@@ -6,7 +6,7 @@ import { describe, it } from 'node:test';
 import { render } from '../src/agents-block.ts';
 import { install } from '../src/commands/install.ts';
 import { update } from '../src/commands/update.ts';
-import { AGENTS_BLOCK_KEY, CLAUDE_ONLY_KEYS, SKILL_NAMES, STANDARDS_PREFIX } from '../src/layout.ts';
+import { AGENT_INVOCABLE, AGENTS_BLOCK_KEY, CLAUDE_ONLY_KEYS, SKILL_NAMES, STANDARDS_PREFIX } from '../src/layout.ts';
 import { UserError } from '../src/log.ts';
 import { readManifest, writeManifest } from '../src/manifest.ts';
 import { exists, hash } from '../src/paths.ts';
@@ -59,7 +59,11 @@ describe('install', () => {
     for (const name of SKILL_NAMES) {
       const skill = readFileSync(path.join(root, `.claude/skills/${name}/SKILL.md`), 'utf8');
       assert.match(skill, /^---\n/);
-      assert.match(skill, /^disable-model-invocation: true$/m);
+      if (AGENT_INVOCABLE.has(name)) {
+        assert.doesNotMatch(skill, /^disable-model-invocation:/m, `${name} is the one an agent may run`);
+      } else {
+        assert.match(skill, /^disable-model-invocation: true$/m);
+      }
     }
 
     const manifest = readManifest(root);
@@ -93,7 +97,11 @@ describe('install', () => {
       for (const key of CLAUDE_ONLY_KEYS) {
         assert.doesNotMatch(agents, new RegExp(`^${key}:`, 'm'), `${name}: ${key} is Claude Code's`);
       }
-      assert.match(claude, /^model: /m, `${name}: the Claude copy names its model`);
+      if (AGENT_INVOCABLE.has(name)) {
+        assert.equal(claude, agents, `${name}: pins no tier and keeps no flag, so the two copies are one file`);
+      } else {
+        assert.match(claude, /^model: /m, `${name}: the Claude copy names its model`);
+      }
       assert.equal(
         claude
           .split('\n')

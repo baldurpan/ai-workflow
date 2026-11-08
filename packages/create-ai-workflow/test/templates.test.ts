@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import {
+  AGENT_INVOCABLE,
   CLAUDE_ONLY_KEYS,
   CLAUDE_SKILL_SETTINGS,
   claudeSkillTransform,
@@ -49,14 +50,28 @@ function ourTemplates(): { rel: string; text: string }[] {
 }
 
 describe('skill frontmatter', () => {
-  it('every skill declares its own name and a narrow, explicit-invocation description', () => {
+  it('every skill declares its own name and a narrow description that says who runs it', () => {
     for (const name of SKILL_NAMES) {
       const text = skillMain(name);
       assert.match(text, new RegExp(`^name: ${name}$`, 'm'), `${name} declares its name`);
       assert.match(text, /^description: /m, `${name} has a description`);
-      assert.match(text, /Explicit invocation only/, `${name} says so in prose`);
       assert.match(text, /Do NOT match on/, `${name} names what it must not match`);
+      if (AGENT_INVOCABLE.has(name)) {
+        // §30: the description is the whole of the line here, under both hosts, so it names the cases.
+        assert.doesNotMatch(text, /Explicit invocation only/, `${name} is not typed-only, and says so`);
+        assert.match(text, /when they ask in their own words/, `${name} names the user's ask`);
+        assert.match(text, /a gate's finding/, `${name} names the gate's route`);
+        assert.match(text, /an idea of your own/, `${name} refuses its own initiative`);
+      } else {
+        assert.match(text, /Explicit invocation only/, `${name} says so in prose`);
+      }
     }
+  });
+
+  it('only /roadmap is agent-invocable', () => {
+    // The flag came off one command, for one reason: it is the smallest write in the loop and the gates
+    // route to it. A second entry here is a decision that needs its own section, not a line in a set.
+    assert.deepEqual([...AGENT_INVOCABLE], ['roadmap']);
   });
 
   it('the Claude copy differs from the shared body by its frontmatter lines only', () => {
@@ -68,26 +83,40 @@ describe('skill frontmatter', () => {
       const added = claude.split('\n').filter((line) => !body.split('\n').includes(line));
       const settings = CLAUDE_SKILL_SETTINGS[name];
       assert.deepEqual(added, [
-        'disable-model-invocation: true',
-        `model: ${settings.model}`,
-        `effort: ${settings.effort}`,
+        ...(AGENT_INVOCABLE.has(name) ? [] : ['disable-model-invocation: true']),
+        ...(settings ? [`model: ${settings.model}`, `effort: ${settings.effort}`] : []),
       ]);
     }
   });
 
-  it('every skill has a model and an effort, as aliases rather than dated ids', () => {
+  it('every typed-only skill has a model and an effort, as aliases rather than dated ids', () => {
     // An alias resolves to whatever the account has; a dated id is a line to update when models turn over,
     // in a file `update` replaces and a person never opens.
     for (const name of SKILL_NAMES) {
-      const { model, effort } = CLAUDE_SKILL_SETTINGS[name];
-      assert.match(model, /^[a-z]+$/, `${name} pins an alias, not an id (${model})`);
-      assert.ok(['low', 'medium', 'high', 'xhigh', 'max'].includes(effort), `${name} effort ${effort}`);
+      const settings = CLAUDE_SKILL_SETTINGS[name];
+      if (AGENT_INVOCABLE.has(name)) continue;
+      assert.ok(settings, `${name} runs only when typed, so its turn is its own and it pins a tier`);
+      assert.match(settings.model, /^[a-z]+$/, `${name} pins an alias, not an id (${settings.model})`);
+      assert.ok(['low', 'medium', 'high', 'xhigh', 'max'].includes(settings.effort), `${name} effort`);
+    }
+  });
+
+  it('an agent-invocable skill pins no tier', () => {
+    // A skill's model and effort hold for the rest of the turn it was invoked in (§17.5, and the host's
+    // skill frontmatter reference as read on 2026-11-08). An agent runs this one in the middle of other
+    // work — a phase's step 9 — so a tier pinned here would gate, commit and report the rest of that phase
+    // at the backlog entry's effort (§30).
+    for (const name of AGENT_INVOCABLE) {
+      assert.equal(CLAUDE_SKILL_SETTINGS[name], null, `${name} pins nothing`);
+      assert.equal(claudeSkillTransform(skillMain(name)), skillMain(name), `${name}'s Claude copy is the body`);
     }
   });
 
   it('the transform is idempotent', () => {
-    const once = claudeSkillTransform(skillMain('roadmap'));
-    assert.equal(claudeSkillTransform(once), once);
+    for (const name of SKILL_NAMES) {
+      const once = claudeSkillTransform(skillMain(name));
+      assert.equal(claudeSkillTransform(once), once, name);
+    }
   });
 
   it('the shared body carries no adapter-only frontmatter', () => {
@@ -2667,9 +2696,36 @@ describe('a bug is not a backlog entry', () => {
   });
 
   it('a finding that really is a feature is handed to /roadmap, not appended', () => {
-    const implement = flat(skillBody('feature-implement'));
-    assert.match(implement, /adding\s+one is `\/roadmap`'s/i, 'it names the owner of the backlog');
-    assert.match(implement, /do not append to the backlog from here/i);
+    // §30: the gate runs the command rather than naming it for the user to type. What it still may not do
+    // is write the entry itself — the test and the ranked fields are the command's, not the gate's.
+    for (const name of GATES) {
+      const body = flat(skillBody(name));
+      assert.match(body, /adding\s+one is `\/roadmap`'s/i, `${name} names the owner of the backlog`);
+      assert.match(body, /\*\*Run it with what you would add\*\*/, `${name} runs it`);
+      assert.match(body, /never append to the backlog by hand/i, `${name} still never writes it`);
+    }
+    assert.match(flat(workflow), /\*\*run `\/roadmap` and let it decide\.\*\*/);
+  });
+
+  it('a commenter on a pull request gets /roadmap named, not run', () => {
+    // The flag came off for the user's ask and the gate's finding. A review comment is neither — §28.6 makes
+    // it a request, not an instruction — so the review loop keeps the old route, and says why it differs.
+    const review = flat(readTemplate('skills/orchestrate/review.md'));
+    assert.match(review, /\*\*named rather than run\*\* — a commenter asked for it, not the user/);
+  });
+
+  it('/roadmap asks before opening an issue the user did not type it for', () => {
+    // An issue notifies people and outlives the session; a working-tree line is in a diff somebody reads.
+    // So the ask is the tracker answer's alone, and a "no" writes nothing.
+    const main = flat(skillMain('roadmap'));
+    assert.match(main, /## When nobody typed it/);
+    assert.match(main, /in two cases and no third/);
+    assert.match(main, /\*\*Say that you ran it and why\*\*/);
+    const tracker = flat(readTemplate('skills/roadmap/tracker.md'));
+    assert.match(tracker, /\*\*Ask before opening anything, when the user did not type `\/roadmap`\.\*\*/);
+    assert.match(tracker, /\*\*No ends it, with nothing written\.\*\*/);
+    assert.match(tracker, /Adoption asks the same way/);
+    assert.match(tracker, /Where the run cannot ask, open nothing/);
   });
 
   it('/orchestrate takes an issue, so a bug has a route through the gates', () => {

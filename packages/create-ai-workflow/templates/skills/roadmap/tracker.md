@@ -30,6 +30,13 @@ above, and everything under *With an argument* is unaffected.
 reference material goes into that same body under a heading rather than into a separate document — the
 draft and the plan are one object here, edited in place, which is why `/feature-plan` can keep the id.
 
+**Ask before opening anything, when the user did not type `/roadmap`.** An issue notifies whoever watches
+the repository and outlives the session that opened it; a line in a working-tree file does neither. Show
+the title, the body with its `Size:` and `Priority:`, and any type or relationship you would set, and ask
+whether to open it — one question, which is also where the priority is asked. **No ends it, with nothing
+written.** Adoption asks the same way, since its label and comment reach the reporter. Where the run
+cannot ask, open nothing and report the `/roadmap "…"` line to type.
+
 **Set two things the file answer has no room for**, both named in
 [`context/tracking.md`](../../../context/tracking.md) and neither read by anything in this workflow's loop:
 

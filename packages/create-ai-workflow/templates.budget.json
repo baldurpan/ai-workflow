@@ -11,8 +11,8 @@
       ]
     },
     "our-templates": {
-      "limit": 427008,
-      "why": "§29 — the three holes a real review found in the loop"
+      "limit": 428544,
+      "why": "§30 — /roadmap runs without being typed, and asks before opening an issue"
     }
   },
   "files": {
@@ -89,8 +89,8 @@
       "why": "§26.22 — the tree moves into the working tree, with the keep rule, the cascade and the holes"
     },
     "skills/feature-implement/SKILL.md": {
-      "limit": 24064,
-      "why": "§26.3 — step 3 forms the round"
+      "limit": 24576,
+      "why": "§30 — a gate runs /roadmap, and the entry rides the phase commit"
     },
     "skills/feature-implement/tracker.md": {
       "limit": 9728,
@@ -137,12 +137,12 @@
       "why": "§29.1 — its pull request carries the label too"
     },
     "skills/roadmap/SKILL.md": {
-      "limit": 6144,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 6656,
+      "why": "§30 — when an agent may run it without the user typing it"
     },
     "skills/roadmap/tracker.md": {
-      "limit": 11264,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 11776,
+      "why": "§30 — the ask before an issue nobody typed for"
     },
     "skills/tracking-migrate/SKILL.md": {
       "limit": 13824,

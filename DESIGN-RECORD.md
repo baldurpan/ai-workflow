@@ -307,7 +307,8 @@ disable-model-invocation: true    # .claude/ copy only
 `disable-model-invocation: true` is Claude Code's actual switch for this, and is the **only**
 difference between the `.claude/` and `.agents/` copies of a skill — verified against
 create-ai-blueprint, whose entire adapter diff across 23 skills is that one line. Prose in the
-description is a hint; the flag is a switch. Use both.
+description is a hint; the flag is a switch. Use both. **§30 later takes the flag off `/roadmap`**,
+the one command an agent may run; every other still carries it.
 
 **Name collisions:** `/plan` and `/status` are taken by Claude Code built-ins, which is why the
 commands are `/feature-plan` and `/feature-status`. Keep the `feature-` prefix for anything new.
@@ -3728,8 +3729,8 @@ The same transform now injects two more, `model` and `effort`, from a map in `la
 skill's own `name:` line, so the shared body stays runtime-neutral and the `.agents/` copy is untouched.
 Every command's orchestration runs on `sonnet` — picking a row, writing a brief, running Gate 1, writing the
 row back is bookkeeping — except `/onboard`, which runs once and whose wrong answer costs every later run.
-`/roadmap` and `/feature-status` run at low effort, the rest at medium, `/onboard` at high. The planner and
-reviewer agent files move from `model: inherit` to `opus` at high effort, which reverses a decision the
+`/roadmap` and `/feature-status` run at low effort (§30 later takes `/roadmap`'s tier off altogether), the
+rest at medium, `/onboard` at high. The planner and reviewer agent files move from `model: inherit` to `opus` at high effort, which reverses a decision the
 PLAN.md table recorded as cheap to reverse: aliases resolve to whatever the account has, which still assumes
 those two tiers exist, and they are the two every plan has. A project that wants otherwise edits the agent
 files and takes the conflict on the next `update`, which is the correct signal, or sets the host's
@@ -6797,3 +6798,113 @@ The three findings this section answers were **verified against the live forge o
 off the review that reported them: the label events on both pull requests that have carried the answer
 (applied by the author, removed by the app), the reviewing app's `author_association` on its own comments,
 and the 50 seconds between the label going on and the review arriving.
+
+## 30. `/roadmap` comes off the flag — the one command an agent may run
+
+The observation that opened this was the user's: an agent cannot add to the roadmap. It could not, and
+nobody had decided that it should not. Two rules, written for different reasons, met at this command and
+nothing ever read them together.
+
+### 30.1 Two rules that never met
+
+**§3.1 put `disable-model-invocation: true` on every skill.** Its case was a loose description firing on
+ordinary talk — `/feature-plan` on *plan out X* — and the transform in `layout.ts` applied it uniformly. No
+section weighed a command on its own. §17.5 later settled that the flag removes the description from
+context altogether, so under Claude Code an agent did not know `/roadmap` existed.
+
+**§15.3 made `/roadmap` the only way into the backlog**, and told a gate with a feature-sized finding to
+name the command and stop. Its reason was the worth-adopting test and the `Size:` and `Priority:` lines
+the ranking reads — both of which live in the command. **That a person must be the one to type it was never
+the reason.**
+
+Together, the workflow routed every feature-sized finding to a command the agent was forbidden to run. Its
+only legal move was to ask the user to type it, and a finding the user did not act on died with the report.
+Under the `.agents/` tree, where the host has no flag, the description was always the only line (PLAN.md
+item 1), so the limit was Claude Code's alone.
+
+### 30.2 Why this command and no other
+
+Every other command writes code, crosses a tier, closes an issue, pushes, or bumps. **`/roadmap` appends one
+`pending` entry** — it never promotes, never removes, and checks for a duplicate and a dropped idea first.
+Under the working-tree answer a wrong entry is one line in a diff somebody reads. Running it also makes
+§15.3 stronger rather than weaker: the finding meets the worth-adopting test while the context that
+produced it is still in hand, instead of depending on a line in a report.
+
+**The description carries the line now, and names two cases and no third**: the user asks in their own
+words for something to go on the backlog, or a gate's finding is work `workflow.md` routes there. It
+refuses planning talk, as before, and adds *an idea of your own*. The body repeats the two cases under
+*When nobody typed it* and asks the agent to say that it ran the command and why.
+
+`AGENT_INVOCABLE` in `layout.ts` is the set, and a test pins it to this one name. A second member is a
+decision that needs its own section.
+
+### 30.3 The ask, under the tracker answer
+
+**An issue notifies whoever watches the repository and outlives the session that opened it.** A line in a
+working-tree file does neither. So where the user did not type `/roadmap`, `tracker.md` shows the title,
+the body with its `Size:` and `Priority:`, and any type or relationship, and asks whether to open it. It is
+one question, and it is also where the priority is asked — the existing rule said to ask *if the user's
+wording does not imply one*, and a gate's call has no user wording. **No writes nothing.** Adoption asks
+the same way, because its label and comment reach the reporter. A run that cannot ask opens nothing and
+reports the `/roadmap "…"` line to type.
+
+**This is the first trial, chosen by the user over opening without asking.** The alternative — open the
+issue as the working-tree answer appends the line — is one paragraph in `tracker.md` away, and is the one
+to try if the asks turn out to be noise. Note that a gate already files *bugs* without asking
+(`workflow.md`), so for now the backlog route is the more careful of the two, deliberately.
+
+### 30.4 Where the gates run it, and where they still name it
+
+**`/feature-implement` step 9 and `/orchestrate` step 4 run it**, before landing, so the entry rides the
+phase's commit or the change's. `roadmap.md` already changes on a feature branch — the `active` marker —
+so a `pending` entry there is not a new kind of change. Under `--all` with the tracker answer, the ask
+stops the run until it is answered; that is the ask's cost, paid where it is most visible.
+
+**`review.md` keeps naming it.** A review comment asking for later work is a request, not an instruction
+(§28.6), and the person asking is a commenter, not the user. The sentence that said step 4 routes it
+*unchanged* now says *with one change*, and why.
+
+**`/orchestrate`'s refusals keep naming it too.** Step 1 refusing a category of work and the rule for work
+that turns out to be a feature are about the user's own request, which they asked to have done now.
+Turning that into a backlog entry is their call, not a finding's. The rule that said *no roadmap entry is
+created* would have contradicted step 4, so it now says one is created only by step 4's `/roadmap`.
+
+### 30.5 It pins no tier
+
+§17.5 recorded that a skill's `model:` holds for the rest of the turn it was invoked in. **Re-read against
+the host's skill frontmatter reference on 2026-11-08**, through its published documentation rather than a
+run: *the override applies for the rest of the current turn*, and a skill's `effort` *applies to that
+turn*. `/roadmap` pinned `sonnet` at low effort. Called at step 9, the rest of the phase — Gate 2's
+loopback, the ledger row, the commit, the report, and under `--all` every phase after it in that turn —
+would have run at low effort.
+
+So `CLAUDE_SKILL_SETTINGS.roadmap` is `null`, and its Claude copy comes out byte-for-byte the shared body.
+A typed `/roadmap` now runs on whatever the session runs on, which costs more on an `opus` session; the
+command is short. **Rejected: `medium`, to match the two gates that call it.** That holds only for those
+callers, and the user's own ask arrives in whatever turn they happen to be in.
+
+**The other cost**: the description is back in context on every turn under Claude Code. §17.5's *the nine
+skills cost nothing per turn* is now nine of ten.
+
+### 30.6 What is unobserved
+
+Whether the description fires on the two cases and stays quiet on *what should we build next* — PLAN.md
+item 1 asks it of the `.agents/` tree, and now asks it of Claude Code for this one skill. And whether the
+ask earns its interruption, which is the question §30.3 leaves open on purpose.
+
+### 30.7 What it cost
+
+Four hand-typed raises, each with a `§30` `why` in `templates.budget.json`:
+`skills/feature-implement/SKILL.md` 24064 → 24576 for the clause that puts the entry on the phase commit,
+`skills/roadmap/SKILL.md` 6144 → 6656 for *When nobody typed it*, `skills/roadmap/tracker.md` 11264 →
+11776 for the ask, and `our-templates` 427008 → 428544 for the sum. `skills/orchestrate/SKILL.md`,
+`skills/orchestrate/review.md` and `context/workflow.md` absorbed theirs inside their limits, and the
+always-loaded ceiling did not move.
+
+**Verified on 2026-11-08** by packing the tree and installing the tarball into an empty git repository:
+`check` clean (exit 0), `update --dry-run` with 129 files current (exit 0), `/roadmap`'s Claude copy
+byte-for-byte its `.agents/` copy, and every other Claude skill still carrying the flag. **The upgrade path
+too**: the published 0.28.0, installed and then taken to this tree by `update`, replaced eleven files —
+`workflow.md`, and in each tree `/roadmap`'s two, both gates' and `review.md` — left 118 current, took all
+three keys off `/roadmap`'s Claude copy, and `check` stayed clean. `check`, `build` and the 514 tests pass
+from the root, and `budget:relock` lowered nothing.

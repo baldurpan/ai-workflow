@@ -10,7 +10,7 @@ Every `§`-number below points into that document.
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 510 tests. The 258 in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 514 tests. The 262 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, git on instruction rather than on
    initiative, a worktree made by the recorded command or not at all, one home for the tracker, no
@@ -32,7 +32,7 @@ Every `§`-number below points into that document.
    fallback for every answer that forbids one and a removal rule that reaches only its own scratch
    trees**, a
    model tier that is an alias and never a dated id, and every relative link resolving after install — in
-   both skill trees. The 131 in `budget.test.ts` guard *size*: a byte limit and a ratchet per shipped
+   both skill trees. The 134 in `budget.test.ts` guard *size*: a byte limit and a ratchet per shipped
    file, a cited `§` behind every limit, the always-loaded ceiling, and the per-command read sets derived
    from the links each skill carries (§24.5). `ci.yml`
    runs them on every push and pull request against `main`, plus an `engines-floor` job that builds on
@@ -47,12 +47,21 @@ and **§11.12** — and it was the first release cut from accumulated notes in t
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
 `blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
 adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; 0.26.0 adds **§20** through **§27** in eight
-commits; 0.27.0 adds **§28**; and 0.28.0 adds **§29**.
+commits; 0.27.0 adds **§28**; and 0.28.0 adds **§29**. **§30 is written and unreleased.**
 
 **The version each section shipped in is below, on the section.** A paragraph here is the summary of a
 `DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
+
+**Written and unreleased: §30**, `/roadmap` off the flag. **An agent could not add to the roadmap**,
+because §3.1 put `disable-model-invocation: true` on every skill and §15.3 made `/roadmap` the only way in —
+so a gate with a feature-sized finding could only ask the user to type it. `/roadmap` is now the one command
+an agent may run, in two cases its description names: the user asks in their own words, or a gate's finding
+is work `workflow.md` routes there. `/feature-implement` step 9 and `/orchestrate` step 4 run it; the
+`--pr` review loop and `/orchestrate`'s refusals still name it. **Under the tracker answer it asks before
+opening an issue nobody typed for** — the first trial, chosen over opening without asking. It pins no
+model or effort, because a skill's tier holds for the rest of the turn it was called in.
 
 **Shipped in 0.28.0: §29**, the three holes a real review found in §28 — and the review that found
 them was the app the §28.7 answer exists to summon, reading the pull request that first carried it. **The
@@ -533,6 +542,9 @@ follows is what the seven repositories prove on top of it, and what they still d
   definition, and every skill trace is `.claude/skills/`. §1.2 proved the tree is discovered; that a skill
   in it fires on the right prompt and stays quiet on the wrong one is still unobserved, and that host has
   no `disable-model-invocation` equivalent, so the description text is the only thing holding the line.
+  **Since §30 the same is true of `/roadmap` under Claude Code**, and so is the open question: whether it
+  fires on its two cases and stays quiet on *what should we build next*, and whether §30.3's ask earns its
+  interruption.
   *Checked:* `ls .agents/skills` in all seven, and every `context/` file, commit message and issue comment
   for a trace of one — all of it is Claude-Code-shaped, which is weaker than proof and is all there is.
 - **The planner subagent answer.** `/feature-plan` offers to delegate research and the draft to one;

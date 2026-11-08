@@ -50,7 +50,7 @@ starting point — nothing has to be looked up first.
 
 | Command | Does |
 |---|---|
-| `/roadmap` | prints the backlog, or appends one `pending` entry — capturing any material you supply as a draft |
+| `/roadmap` | prints the backlog, or appends one `pending` entry — capturing any material you supply as a draft. The one command an agent may run without you typing it — when you ask for something to go on the backlog, or a gate's finding is feature-sized. Under the tracker answer it asks before opening the issue |
 | `/feature-plan` | turns an entry into a plan document and **stops**. Planning is not activation |
 | `/feature-implement` | activates a planned feature and runs **one round** through both gates — one phase, or up to three that depend on nothing unfinished and share no file, side by side, each with its own coder in a scratch checkout it makes and removes — or round after round with `--all`, which stops at a `blocked` phase, a capped gate or a ledger that disagrees with the repo, and never at `/feature-close` |
 | `/feature-status` | read-only. Reconciles the ledger against the repo — sweeping every worktree where the project works that way — then names **exactly one** next action |
@@ -232,12 +232,14 @@ positive points at the document that is out of step.
 
 **Both skill trees ship.** Claude Code reads `.claude/skills/`; Codex reads `.agents/skills/` and never
 looks at the other one. They get the same ten bodies — the only difference is the Claude Code copy's frontmatter:
-`disable-model-invocation: true`, and a `model` and `effort` per command, keys that mean nothing elsewhere.
+`disable-model-invocation: true` on every command but `/roadmap`, and a `model` and `effort` on every
+command that pins one, keys that mean nothing elsewhere.
 The bodies are written runtime-neutral, with no runtime primitive named in any of them, and a test enforces
 it.
 
-**Every command's own orchestration runs on `sonnet`**, except `/onboard`, which runs once on `opus`; the
-planner and reviewer subagents are pinned to `opus`. Picking a ledger row, writing a brief, running the
+**Every command's own orchestration runs on `sonnet`**, except `/onboard`, which runs once on `opus`, and
+`/roadmap`, which pins nothing because an agent may run it in the middle of other work and a pinned tier
+would hold for the rest of that turn; the planner and reviewer subagents are pinned to `opus`. Picking a ledger row, writing a brief, running the
 gates and writing the row back is bookkeeping, and the planner and the reviewer are where the judgment
 lives. A skill's model holds for the turn it was invoked in and your session model resumes on your next
 prompt, so a command that stops to ask — the approval checkpoint, the bump confirmation — continues on the

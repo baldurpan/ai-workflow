@@ -90,7 +90,7 @@ it is not — there is no severity scale. A blocking one is **fixed** by the loo
 outlives the phase. A non-blocking one gets one of three ends and **kind decides which, not size and not
 whether it needs code changes** — every true observation about code does, which is no bar at all. A real
 defect is a **bug**, filed where this project files bugs and never in the backlog; work you would want a
-history row for is named for `/roadmap` and entered by nothing else; anything else is one line in
+history row for is handed to `/roadmap` and entered by nothing else; anything else is one line in
 `notes.md`, which the close deletes whole.
 
 **Nothing accumulates, so nothing has to be swept.** Earlier versions kept a `context/findings.md`, which

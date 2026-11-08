@@ -1,6 +1,6 @@
 ---
 name: roadmap
-description: "Print the Tier-1 feature backlog, or append one new pending entry to it — in context/roadmap.md, or in the issue tracker where context/tracking.md says so. Explicit invocation only — run this when the user types /roadmap. Do NOT match on general planning talk, 'what should we build next', or any request to design, plan, or implement a feature."
+description: "Print the Tier-1 feature backlog, or append one new pending entry to it — in context/roadmap.md, or in the issue tracker where context/tracking.md says so. Run this when the user types /roadmap, when they ask in their own words for something to go on the backlog, or when a gate's finding is work context/workflow.md routes here. Do NOT match on general planning talk, 'what should we build next', an idea of your own, or any request to design, plan, or implement a feature."
 ---
 
 # /roadmap
@@ -24,6 +24,16 @@ file names the tracker, read [`tracker.md`](tracker.md) beside this file before 
 /roadmap "some idea"  # append one pending entry
 /roadmap #123         # adopt an existing issue — tracker answer only
 ```
+
+## When nobody typed it
+
+**This is the one command you may run yourself**, in two cases and no third: the user asked, in their own
+words, for something to go on the backlog; or a gate's non-blocking observation is work you would want a
+`history.md` row for, which [`context/workflow.md`](../../../context/workflow.md) routes here. An idea of
+your own is neither.
+
+Everything below holds unchanged, the duplicate check first. **Say that you ran it and why**, beside the
+entry you show. Under the tracker answer, [`tracker.md`](tracker.md) asks before anything is opened.
 
 ## No arguments — print the backlog
 
