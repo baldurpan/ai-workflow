@@ -1,5 +1,12 @@
 # @baldurpan/create-ai-workflow
 
+## 0.29.0
+
+### Minor Changes
+
+- 66eefda: `/roadmap`'s print now ends with a count of the open issues outside the backlog, under your own labels (bugs, the owner checks `/feature-close` files, and everything else), so the backlog no longer reads as everything that is open. It gives counts only, with no titles and no order.
+- a0f5218: `/roadmap` is now the one command an agent may run without you typing it — when you ask for something to go on the backlog, or a gate in `/feature-implement` or `/orchestrate` finds feature-sized work — and under the tracker answer it asks before opening the issue. It no longer pins a model or effort, so a typed `/roadmap` runs on your session's.
+
 ## 0.28.0
 
 ### Minor Changes
