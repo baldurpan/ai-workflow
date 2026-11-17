@@ -41,20 +41,25 @@ Every `§`-number below points into that document.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** `main` carries **0.28.0**. 0.14.0 was the body's ceiling (§10.13) and **item 6, the release
+**State:** `main` carries **0.29.0**. 0.14.0 was the body's ceiling (§10.13) and **item 6, the release
 answer** (§11) in both its phases, with the event that completes it (§11.10), the event's record (§11.11)
 and **§11.12** — and it was the first release cut from accumulated notes in this repository, so
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
 `blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
 adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; 0.26.0 adds **§20** through **§27** in eight
-commits; 0.27.0 adds **§28**; and 0.28.0 adds **§29**. **§30 is written and unreleased.**
+commits; 0.27.0 adds **§28**; 0.28.0 adds **§29**; and 0.29.0 adds **§30** and **§31**.
 
 **The version each section shipped in is below, on the section.** A paragraph here is the summary of a
 `DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
 
-**Written and unreleased: §30**, `/roadmap` off the flag. **An agent could not add to the roadmap**,
+**Shipped in 0.29.0: §31**, `/roadmap` counts what is open outside the backlog. The print showed
+`workflow:feature` alone, so bgmusik's 56 open issues read as 1, and most of what it hid were owner checks
+`/feature-close` had filed. Step 5 adds one line of counts under the project's own labels. It has no
+titles and no order, and it gives no label a meaning. Item 8 has the rest.
+
+**Shipped in 0.29.0: §30**, `/roadmap` off the flag. **An agent could not add to the roadmap**,
 because §3.1 put `disable-model-invocation: true` on every skill and §15.3 made `/roadmap` the only way in —
 so a gate with a feature-sized finding could only ask the user to type it. `/roadmap` is now the one command
 an agent may run, in two cases its description names: the user asks in their own words, or a gate's finding
