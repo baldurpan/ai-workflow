@@ -269,10 +269,11 @@ written down anywhere, and a file that tracked it would be a cache of something 
   not a thing this file has an answer about.
 - **A bug is not a backlog entry**, under either answer. The backlog holds **features** — work you would
   want a `history.md` row for. A defect goes wherever this project already files bugs, keeping this
-  project's own labels, and nothing in the workflow reads it, ranks it or carries it. The **backlog**
-  label above is the bit that puts an issue in the loop, and a bug is outside it — which is also why that
-  label is `/roadmap`'s to apply and no gate's. The planned label follows it and never leads: an issue that
-  is not in the backlog cannot be planned, so nothing applies the second without the first.
+  project's own labels, and nothing in the workflow ranks it or carries it — `/roadmap` counts it, and
+  nothing branches on the count. The **backlog** label above is the bit that puts an issue in the loop,
+  and a bug is outside it — which is also why that label is `/roadmap`'s to apply and no gate's. The
+  planned label follows it and never leads: an issue that is not in the backlog cannot be planned, so
+  nothing applies the second without the first.
 - **Neither `history.md` nor `archive/` is ever converted, in either direction.** Fabricating closed
   issues for features shipped months ago produces wrong dates, empty threads and an audit trail that looks
   real and is not. Under the tracker answer they stay as the frozen record of the era before the switch —

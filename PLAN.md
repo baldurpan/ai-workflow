@@ -1054,6 +1054,12 @@ presence and nothing past it** — the body is already open, so the Status colum
 label** — a report that read the rendering while holding the original would go wrong precisely when the
 two had drifted, which is the case the label was allowed to exist on condition of nobody depending on.
 
+**Added after: the print counts what is open outside the backlog (§31).** The user's report was that the
+print showed `workflow:feature` and nothing else. In bgmusik that is 1 issue of 56, and most of the other
+55 are owner checks `/feature-close` filed. Step 5 prints one line of counts under the project's own
+labels: no titles, no order, and no meaning given to a label. Under the tracker answer that is a second
+read, and it has to cover every page of the listing rather than the first.
+
 **Neither half has been run by a live agent**, which puts this in exactly the state item 5 describes for
 everything else under §10: it is what a careful read found, not what running it found. The label's one new
 hazard is the window between the body write and the label write, and the print's is the pull towards

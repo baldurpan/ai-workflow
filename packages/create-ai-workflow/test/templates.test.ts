@@ -3123,6 +3123,53 @@ describe("/roadmap's print has a shape under the tracker answer", () => {
   });
 });
 
+describe('/roadmap counts what is open outside the backlog, and lists none of it', () => {
+  // §31: a print of the backlog alone made a repository with 56 open issues look like it had one, and most
+  // of what it left out — owner checks and bugs — the workflow had filed itself. §15.5 refused a reader of
+  // the bug shelf because a reader becomes a queue. A count has no member to pick, so the line is drawn
+  // between counting and listing, and these hold it.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const main = flat(skillMain('roadmap'));
+
+  it('the print counts, and never lists or orders', () => {
+    assert.match(main, /\*\*Count what is open outside the backlog, and list none of it\*\*/);
+    assert.match(main, /\*\*Counts, never titles, and no order\*\*/);
+  });
+
+  it('a label prints as the project named it, and is given no meaning', () => {
+    // Mapping `question` to owner checks or `bug` to /orchestrate is the second vocabulary §10.11 refused.
+    assert.match(main, /\*\*do not decide what it means\*\*/);
+  });
+
+  it('the count is of every page, not the first', () => {
+    // A listing's first page is 30 rows on GitHub: quotavero would have read 30 of its 94.
+    assert.match(main, /every page of the listing/);
+  });
+
+  it('the tracker delta keeps the count rather than replacing it', () => {
+    const tracker = flat(readTemplate('skills/roadmap/tracker.md'));
+    assert.match(tracker, /step 5's count is unchanged/);
+    assert.match(tracker, /OUTSIDE THE BACKLOG/);
+  });
+
+  it('nothing still says the workflow never reads a bug', () => {
+    // §22: a sentence a change contradicts, left where it was. What holds is that nothing ranks, carries or
+    // branches on one — and the count is the one read.
+    const workflow = flat(readTemplate('context/workflow.md'));
+    assert.match(workflow, /only `\/roadmap`'s print counts it/);
+    assert.match(workflow, /branches on nothing else/);
+    const STALE = /does not read it, rank it|reads it, ranks it|neither reads it|nothing in the workflow reads it/i;
+    for (const rel of [
+      'context/workflow.md',
+      'stubs/tracking.md',
+      'skills/feature-close/SKILL.md',
+      'skills/feature-close/tracker.md',
+    ]) {
+      assert.doesNotMatch(flat(readTemplate(rel)), STALE, `${rel} still says nothing reads a bug`);
+    }
+  });
+});
+
 describe('a question the plan could not settle has an end at close', () => {
   // The field report: baldurpan.com retired features `shipped` whose history rows read "the Icelandic and
   // VoiceOver check await the owner" and "the owner's wording (Q11, Q18), the halo and look (Q16, Q20) and

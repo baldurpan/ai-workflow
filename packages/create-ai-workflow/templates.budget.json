@@ -11,8 +11,8 @@
       ]
     },
     "our-templates": {
-      "limit": 428544,
-      "why": "§30 — /roadmap runs without being typed, and asks before opening an issue"
+      "limit": 429568,
+      "why": "§31 — /roadmap counts what is open outside the backlog"
     }
   },
   "files": {
@@ -137,8 +137,8 @@
       "why": "§29.1 — its pull request carries the label too"
     },
     "skills/roadmap/SKILL.md": {
-      "limit": 6656,
-      "why": "§30 — when an agent may run it without the user typing it"
+      "limit": 7168,
+      "why": "§31 — step 5, the count of what is open outside the backlog"
     },
     "skills/roadmap/tracker.md": {
       "limit": 11776,

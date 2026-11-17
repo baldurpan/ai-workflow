@@ -334,8 +334,8 @@ was to find:
 however real it is.
 
 **A bug goes wherever this project already files bugs**, carrying this project's own labels. The workflow
-does not read it, rank it or carry it: [`tracking.md`](tracking.md) adds one bit to an issue and reads
-nothing else, and a bug is outside that bit. **Do not apply the backlog label to it.**
+does not rank it or carry it, and only `/roadmap`'s print counts it: [`tracking.md`](tracking.md) adds
+one bit to an issue and branches on nothing else, and a bug is outside that bit. **Do not apply the backlog label to it.**
 
 > **A gate never applies the backlog label.** That label is what `/roadmap` writes, and that command
 > applies the worth-adopting test first — *would you want a history row for it* — then writes what an entry

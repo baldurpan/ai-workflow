@@ -6908,3 +6908,95 @@ too**: the published 0.28.0, installed and then taken to this tree by `update`, 
 `workflow.md`, and in each tree `/roadmap`'s two, both gates' and `review.md` — left 118 current, took all
 three keys off `/roadmap`'s Claude copy, and `check` stayed clean. `check`, `build` and the 514 tests pass
 from the root, and `budget:relock` lowered nothing.
+
+## 31. `/roadmap` counts what is open outside the backlog — the print that made 56 issues look like one
+
+The report was the user's: *"I feel like there is stuff missing when I run /roadmap. Shouldn't there be an
+overview of how many bugs there are and enhancements? It only shows workflow:feature stuff but leaves out
+other things related to the whole workflow."*
+
+### 31.1 What the print left out, measured
+
+Every repository with the tracker answer installed, open issues only, read with `gh` 2.104.0 on
+**2026-11-17**:
+
+| Repository | Open | In the backlog | Outside it, by label |
+|---|---|---|---|
+| bgmusik | 56 | 1 | 55 — question 49 · accessibility 4 · bug 4 · enhancement 2 |
+| quotavero | 110 | 16 | 94 — question 83 · accessibility 16 · enhancement 6 · no label 4 · bug 1 · documentation 1 |
+| dynjandi-core | 85 | 15 | 70 — question 37 · bug 28 · no label 5 |
+| dynjandi | 46 | 2 | 44 — bug 29 · question 15 · accessibility 3 · documentation 1 |
+| piff | 21 | 16 | 5 — bug 5 · accessibility 1 |
+| snowsense | 13 | 8 | 5 — bug 3 · no label 2 · security 1 |
+
+**In four of the six, the backlog is under a fifth of what is open**, and in bgmusik it is one issue in 56.
+The print kept its own contract: §3.3 scoped it to Tier 1, and §15 put bugs outside the bit on purpose.
+**But the workflow filed most of what it left out.** Of the `question` issues in the three repositories that
+have the most, 167 of 169 are owner checks `/feature-close` filed under §21. The `bug` issues are what
+§15.4's `/orchestrate #<issue>` takes. So the print showed the one part of the open work the loop ranks,
+and said nothing about the two parts the loop files itself.
+
+### 31.2 The line: count, never list
+
+§15.5 refused a reader of the bug shelf because a reader turns into a queue. `/orchestrate` would then need
+a ranking and a priority, and would be Tier 1 under another name. **A count is not a queue.** It has no
+member to pick and no order to pick in, and nothing branches on it. So step 5 prints one number per label
+and nothing anyone can choose from: no titles, no order, no oldest first, and no *next*.
+
+**The print uses each label as the project named it, and gives none of them a meaning.** It does not know
+which label is the bug label, and it does not need to. Mapping `question` to owner checks or `bug` to
+`/orchestrate` would be the second vocabulary §10.11 refused, and it breaks the first time a project calls
+its bugs `defect`.
+
+**The count covers every page.** A listing's first page is 30 rows on the forge these repositories use, so
+quotavero would count 30 of its 94 and nothing would say so. The skill says *every page of the listing*
+without naming a forge command, which no skill does.
+
+**It runs under both answers.** A working-tree install files its bugs somewhere too, so step 5 sits in
+`SKILL.md`, and `tracker.md` only says it is unchanged and is the print's second read, asking for labels
+alone.
+
+### 31.3 Four sentences said nothing reads a bug
+
+Once the count existed, *reads* was literally false, and §22 records what happens to a sentence a change
+contradicts and nobody edits.
+
+- **`workflow.md`** now says the workflow does not rank or carry a bug, and *only `/roadmap`'s print counts
+  it*. It also says `tracking.md`'s bit is the only thing anything **branches** on, which is the invariant
+  *reads nothing else* was always standing in for.
+- **The stub** says the same.
+- **`/feature-close` and its tracker file** said of an owner check that the workflow *neither reads it nor
+  ranks it* and that *nothing reads it again*. Both now say *acts on*.
+
+`context/tracking.md` is project-owned (`STUBS` in `layout.ts`) and `update` never reaches it. So an
+existing install keeps the old sentence beside the new behaviour. That is harmless, because the sentence
+describes what nothing does and is not an instruction anything follows.
+
+### 31.4 Rejected
+
+| Candidate | Why not |
+|---|---|
+| **listing them, with titles** | That is a queue (§31.2). The question was *how many*. |
+| **grouping by the issue's type** | §10.11 forbids any report from branching on the type. And in these six repositories 276 of 331 open issues have no type. |
+| **putting it in `/feature-status`** | That command answers *where does it stand*, with one next action. A count of what is open answers *what is on the list*, which is this command's question. |
+| **a line naming what acts on each label** | It would need to know what each label means, and it would be wrong for owner checks, which a person closes. |
+
+### 31.5 What it cost
+
+Two raises typed by hand, each with a `§31` `why`: `skills/roadmap/SKILL.md` 6656 → 7168 for step 5, and
+`our-templates` 428544 → 429568 for the sum. The other five files fit within their existing limits:
+`tracker.md`, `workflow.md`, `stubs/tracking.md` and both `/feature-close` files. The always-loaded
+ceiling did not move.
+
+**Verified on 2026-11-17** by packing the tree and installing the tarball into an empty git repository.
+`check` passed (exit 0), and `update --dry-run` found 129 files current (exit 0). Step 5 appears in both
+`/roadmap` copies, which are identical byte for byte, and in the new `workflow.md` sentence.
+
+**The upgrade path too.** The published 0.28.0 was installed and then taken to this tree by `update`. It
+replaced fifteen files and left 114 current. The fifteen are §30's eleven, both `/feature-close` files in
+each tree, and the manifest. `context/tracking.md` was untouched, and `check` still passed. From the root,
+`check`, `build` and all 519 tests pass.
+
+**Not run by a live agent.** That includes whether an agent counts every page rather than the first, and
+whether it keeps to one line of counts with the issue bodies open in front of it. It goes into PLAN.md
+item 8's run with the rest of the print.

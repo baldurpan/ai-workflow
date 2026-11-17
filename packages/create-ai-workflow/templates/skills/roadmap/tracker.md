@@ -22,9 +22,9 @@ backlog is a set of issues rather than a file.
 | the print's **Doc** field | nothing to print; *has a plan* is read off the body, and the shape below says how |
 | the print's *nothing is `active`* | no issue carrying the backlog label is assigned |
 
-**The print has its own shape under this answer**, because three of its four steps name things this
+**The print has its own shape under this answer**, because three of its steps name things this
 substrate does not have. *The backlog, printed* below replaces steps 2 to 4; step 1 becomes the listing
-above, and everything under *With an argument* is unaffected.
+above, step 5's count is unchanged, and everything under *With an argument* is unaffected.
 
 **Write no file.** No entry, no draft, no `Doc` field. The issue body carries the one or two lines, and the
 reference material goes into that same body under a heading rather than into a separate document — the
@@ -63,9 +63,9 @@ Everything the *Capturing reference material* section says still holds, includin
 
 ### The backlog, printed
 
-**One read answers all of it.** The listing that carries the open backlog issues carries each one's body,
-its assignee and what it waits on, so this whole print is a single query — no per-issue fetch, and nothing
-cached between runs.
+**Two reads answer all of it.** The listing that carries the open backlog issues carries each one's body,
+its assignee and what it waits on, so the backlog is a single query — no per-issue fetch, and nothing
+cached between runs. Step 5's count is the second, and asks for labels alone.
 
 **Group by tier, because that is the question this command answers.** Planned first, ideas second, and
 each row on one line:
@@ -81,6 +81,9 @@ IDEAS (3)
   #21  billing-export  Large · Medium             waits on #12 export-api
 
 2 planned · 3 ideas · 1 waiting
+
+OUTSIDE THE BACKLOG (9)
+  bug 6 · question 3
 ```
 
 - **`Size:` and `Priority:` come off the body**, and an issue carrying no `Priority:` line reads as
