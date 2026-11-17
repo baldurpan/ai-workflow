@@ -1,5 +1,11 @@
 # @baldurpan/create-ai-workflow
 
+## 0.29.1
+
+### Patch Changes
+
+- 8aeafa3: Under the tracker answer, `/feature-implement` and `/orchestrate` no longer say a gate's backlog entry rides the commit, and their reports call an entry nothing was opened for *proposed*, with the `/roadmap` line to type. `/feature-implement --all` now holds that ask until the run stops instead of pausing between phases.
+
 ## 0.29.0
 
 ### Minor Changes

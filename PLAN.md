@@ -41,21 +41,21 @@ Every `§`-number below points into that document.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** `main` carries **0.29.0**. 0.14.0 was the body's ceiling (§10.13) and **item 6, the release
+**State:** `main` carries **0.29.1**. 0.14.0 was the body's ceiling (§10.13) and **item 6, the release
 answer** (§11) in both its phases, with the event that completes it (§11.10), the event's record (§11.11)
 and **§11.12** — and it was the first release cut from accumulated notes in this repository, so
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
 `blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
 adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; 0.26.0 adds **§20** through **§27** in eight
-commits; 0.27.0 adds **§28**; 0.28.0 adds **§29**; and 0.29.0 adds **§30** and **§31**. **§32 is
-written and unreleased.**
+commits; 0.27.0 adds **§28**; 0.28.0 adds **§29**; 0.29.0 adds **§30** and **§31**; and 0.29.1 adds
+**§32**.
 
 **The version each section shipped in is below, on the section.** A paragraph here is the summary of a
 `DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
 
-**Written and unreleased: §32**, a gate's `/roadmap` under the tracker answer. The reviewing app found it
+**Shipped in 0.29.1: §32**, a gate's `/roadmap` under the tracker answer. The reviewing app found it
 on dynjandi#77. Both gates said the entry rode the commit, which is true only under the working-tree
 answer. Under the tracker answer `/roadmap` asks, then opens an issue or nothing. Both now say so, and
 their reports call an entry nothing was opened for *proposed*, with the line to type. **Under `--all` the
