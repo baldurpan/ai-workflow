@@ -47,12 +47,20 @@ and **§11.12** — and it was the first release cut from accumulated notes in t
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
 `blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
 adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; 0.26.0 adds **§20** through **§27** in eight
-commits; 0.27.0 adds **§28**; 0.28.0 adds **§29**; and 0.29.0 adds **§30** and **§31**.
+commits; 0.27.0 adds **§28**; 0.28.0 adds **§29**; and 0.29.0 adds **§30** and **§31**. **§32 is
+written and unreleased.**
 
 **The version each section shipped in is below, on the section.** A paragraph here is the summary of a
 `DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
+
+**Written and unreleased: §32**, a gate's `/roadmap` under the tracker answer. The reviewing app found it
+on dynjandi#77. Both gates said the entry rode the commit, which is true only under the working-tree
+answer. Under the tracker answer `/roadmap` asks, then opens an issue or nothing. Both now say so, and
+their reports call an entry nothing was opened for *proposed*, with the line to type. **Under `--all` the
+ask is held until the run stops** rather than being a stop between phases. That is the call §11.5 C3 made
+for the release-note level.
 
 **Shipped in 0.29.0: §31**, `/roadmap` counts what is open outside the backlog. The print showed
 `workflow:feature` alone, so bgmusik's 56 open issues read as 1, and most of what it hid were owner checks
@@ -548,8 +556,8 @@ follows is what the seven repositories prove on top of it, and what they still d
   in it fires on the right prompt and stays quiet on the wrong one is still unobserved, and that host has
   no `disable-model-invocation` equivalent, so the description text is the only thing holding the line.
   **Since §30 the same is true of `/roadmap` under Claude Code**, and so is the open question: whether it
-  fires on its two cases and stays quiet on *what should we build next*, and whether §30.3's ask earns its
-  interruption.
+  fires on its two cases and stays quiet on *what should we build next*, whether §30.3's ask earns its
+  interruption, and whether an `--all` run holds that ask until it stops (§32.3).
   *Checked:* `ls .agents/skills` in all seven, and every `context/` file, commit message and issue comment
   for a trace of one — all of it is Claude-Code-shaped, which is weaker than proof and is all there is.
 - **The planner subagent answer.** `/feature-plan` offers to delegate research and the draft to one;

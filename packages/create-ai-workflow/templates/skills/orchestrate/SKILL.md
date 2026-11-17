@@ -115,9 +115,11 @@ whether it needs code changes**, which every true observation about code does.
   project already files bugs, carrying this project's own labels. **Never the backlog label** — see *A bug
   is not a backlog entry* in that same file. The backlog is a list of features and this is not one.
 - **Not a defect, but work you would want a `history.md` row for** → that is a backlog entry, and adding
-  one is `/roadmap`'s. **Run it with what you would add**, before step 6, so the entry lands with this
-  change; never append to the backlog by hand. That command applies the worth-adopting test and writes
-  what the ranking reads, and a gate doing it by hand produces neither.
+  one is `/roadmap`'s. **Run it with what you would add**; never append to the backlog by hand. That
+  command applies the worth-adopting test and writes what the ranking reads, and a gate doing it by hand
+  produces neither. **Under the working-tree answer**, run it before step 6, so the entry lands with this
+  change. Under the tracker answer nothing lands with it: `/roadmap` asks first, then opens an issue at
+  once or nothing at all, and nothing opened means the entry was only *proposed*.
 - **Anything else** → this run's report, and it dies with the session. **There is no `context/notes.md` in
   this command** — step 5 says why.
 
@@ -253,8 +255,9 @@ answer, and this step does not apply to it in any form.
 
 What changed, whether it is committed or waiting in the tree, the Gate 1 output, the Gate 2 verdict, any
 loopbacks, any non-blocking observations the review raised — which die here — any bug filed for work that
-outlived the change, whether the commit closes the issue it ran from, and any release note written, with
-the paths that were checked and owed nothing.
+outlived the change, any backlog entry step 4's `/roadmap` added — or only *proposed*, with the
+`/roadmap "…"` line to type, where its ask was declined or could not be made — whether the commit closes
+the issue it ran from, and any release note written, with the paths that were checked and owed nothing.
 
 **Under `--pr`**, also the branch that was pushed and the pull request that was opened — or the line in
 step 7 that stopped short of one — plus what [`review.md`](review.md) says each round reports, and that

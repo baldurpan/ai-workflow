@@ -6860,6 +6860,9 @@ phase's commit or the change's. `roadmap.md` already changes on a feature branch
 so a `pending` entry there is not a new kind of change. Under `--all` with the tracker answer, the ask
 stops the run until it is answered; that is the ask's cost, paid where it is most visible.
 
+> **Corrected by §32.** The entry rides the commit under the working-tree answer only, and under `--all`
+> the tracker ask is held until the run stops rather than paid between phases.
+
 **`review.md` keeps naming it.** A review comment asking for later work is a request, not an instruction
 (§28.6), and the person asking is a commenter, not the user. The sentence that said step 4 routes it
 *unchanged* now says *with one change*, and why.
@@ -7000,3 +7003,101 @@ each tree, and the manifest. `context/tracking.md` was untouched, and `check` st
 **Not run by a live agent.** That includes whether an agent counts every page rather than the first, and
 whether it keeps to one line of counts with the issue bodies open in front of it. It goes into PLAN.md
 item 8's run with the rest of the print.
+
+## 32. A gate's `/roadmap` under the tracker answer — the commit §30 said the entry rode
+
+The report was the reviewing app's, on **dynjandi-dev/dynjandi#77**, the pull request updating that
+repository to 0.29.0, inline on `.claude/skills/feature-implement/SKILL.md`. **dynjandi-core#484** installed
+the same text and merged on 2026-11-17. Both repositories run the tracker answer. Read with `gh` on
+**2026-11-17**: #77 was still open, and the comment says the files are tool-owned and the fix belongs here.
+
+### 32.1 Three sentences that held under one answer
+
+- **Step 9 said *before step 12, so the entry rides this phase's commit*, and `/orchestrate` step 4 said
+  *before step 6, so the entry lands with this change*.** That is true of a line in `roadmap.md`. Under the
+  tracker answer `/roadmap` writes no file. It asks, then opens an issue at once or opens nothing, and
+  neither result is part of any commit. §30.4 wrote the clause against `roadmap.md` and never read it
+  against `roadmap/tracker.md`, which §30.3 had changed in the same commit.
+- **Under `--all` the ask was a pause between phases that step 14's stop list did not name.** §30.4
+  recorded it as *the ask's cost*, but only in this file. An agent reading step 14 found a list of what
+  ends the run, and a question that was not on it.
+- **Step 13's *a `/roadmap` you ran* was false wherever the ask was declined or could not be made.**
+  Nothing was opened, and only a line to type came out of it. `/orchestrate`'s report did not mention a
+  backlog entry at all.
+
+`/feature-implement`'s *Everything below is written for the working-tree answer* did not cover the
+first one. That line promises that `tracker.md` says what changes, and `tracker.md` said it for the ledger
+row (*The row cannot ride the commit here*) and said nothing about the entry. `/orchestrate` has no
+`tracker.md` at all.
+
+### 32.2 The repair
+
+- **Both gates qualify the clause.** Under the working-tree answer, the gate runs `/roadmap` before landing
+  and the entry rides the commit. Under the tracker answer nothing rides it, and an entry nothing was opened
+  for was only *proposed*.
+- **Both reports say *proposed*, with the `/roadmap "…"` line to type,** where the ask was declined, held or
+  not made. `/feature-implement`'s report says *the entry `/roadmap` added* instead of *a `/roadmap` you
+  ran*.
+- **`roadmap/tracker.md` says the same from its side.** An entry that is declined, held or never asked is
+  proposed, not added, and the caller's report says so. Under `/feature-implement --all` it opens nothing
+  yet.
+- **`feature-implement/tracker.md` gets a section** for the finding in steps 9, 13 and 14, beside the
+  closing-row section whose *cannot ride the commit* it extends.
+
+### 32.3 `--all` holds the ask until the run stops
+
+The choice was between adding the ask to step 14's stop list and saying it does not stop `--all`. **It
+does not stop `--all`.** `/roadmap` goes as far as the ask and opens nothing. The phase's report carries the
+entry as proposed, with its line. The hand-back that ends the run makes every held ask, one question each.
+
+- **§11.5 C3 settled the same question for the release-note level.** `--all` exists so that nothing asks
+  between phases. That confirmation moved to where the note leaves the machine, and *`--all` gains no new
+  stop*. The shape is the same here.
+- **Every line on the stop list is about whether the next phase can build on this one.** The lines are:
+  blocked, part-landed, a capped gate, a disagreement, nothing runnable, and all done. A backlog finding
+  comes out of a gate that passed, and the next phase reads nothing it would change. Step 14 already says
+  `PASS WITH NOTES` continues. A stop there would make the length of a run depend on how much later work
+  the reviewer happened to notice.
+- **Holding loses nothing a stop would keep.** Step 14 reports every phase as it ends, so a run that dies
+  before its hand-back has left each line in the report of the phase that found it.
+
+| Rejected | Why not |
+|---|---|
+| **put the ask on the stop list** | It ends a run on a non-blocking observation, which no other line does, and costs a re-invocation for a question the hand-back can ask. |
+| **ask between phases and carry on**, as §30.4 meant | A run nobody is watching waits on the question indefinitely. That is a stop that is not on the list, which is the defect that was reported. |
+| **list the lines and never ask** | It brings back §30.1's failure, a finding nobody acted on dying with the report, in the one place where asking is cheapest: a hand-back the user is reading anyway. |
+
+**`/orchestrate` is unchanged in this respect.** It is one change with no next phase to build on, and
+under `--pr` its step 7 already waits on the release-note ask and calls that working as intended.
+
+### 32.4 What the grep found
+
+`rides`, `riding` and `lands with` across `templates/` turned up no other place that puts a `/roadmap`
+entry on a commit. The other hits are claims that hold under both answers: the ledger row (whose tracker
+case `tracker.md` already overrides), release notes and `notes.md`, which are files under both answers,
+and `/orchestrate`'s `Closes #<issue>` trailer. **A new test** fails any template sentence that has an
+*entry* riding or landing with something without naming the working-tree answer. So the next clause like
+this one is caught where it is written.
+
+### 32.5 What it cost
+
+Five raises typed by hand, each with a `§32` `why`:
+
+- `skills/feature-implement/SKILL.md` 24576 → 25088
+- `skills/feature-implement/tracker.md` 9728 → 10240
+- `skills/orchestrate/SKILL.md` 18432 → 18944
+- `skills/roadmap/tracker.md` 11776 → 12288
+- `our-templates` 429568 → 431616, for the sum
+
+The always-loaded ceiling did not move.
+
+**Verified on 2026-11-17** by packing the tree and installing the tarball into an empty git repository.
+`check` passed (exit 0) and `update --dry-run` found 129 files current (exit 0). The four files carry the
+new text in both trees: `tracker.md` byte for byte, and each `SKILL.md` differing from its `.agents/` copy
+only in the Claude frontmatter. **The upgrade path too.** The published 0.29.0 was installed and then taken
+to this tree by `update`. That replaced the four files in each tree and the manifest, and left 121 current.
+`check` still passed. From the root, `check`, `build` and all 520 tests pass.
+
+**Not run by a live agent.** That includes whether an `--all` run holds the ask rather than making it at
+step 9, and whether the hand-back makes it. It joins §30.6's open question about whether the ask earns its
+interruption.

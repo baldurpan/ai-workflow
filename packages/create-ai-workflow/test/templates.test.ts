@@ -2728,6 +2728,37 @@ describe('a bug is not a backlog entry', () => {
     assert.match(tracker, /Where the run cannot ask, open nothing/);
   });
 
+  it('a backlog entry rides the change under the working-tree answer only, and --all holds the ask', () => {
+    // §32: both gates said the entry rides this phase's commit or lands with this change. Under the tracker
+    // answer /roadmap writes no file — it asks, then opens an issue at once or nothing — so the claim was
+    // false in every repository that runs it, and the reports said "a /roadmap you ran" where nothing ran.
+    // And the ask was a pause between phases that step 14's stop list never named.
+    for (const name of GATES) {
+      const main = flat(skillMain(name));
+      assert.match(
+        main,
+        /\*\*Under the working-tree answer\*\*, run it before step \d+, so the entry (rides|lands with)/,
+        `${name} qualifies the claim`,
+      );
+      assert.match(main, /Under the tracker answer nothing (rides|lands with) it/, `${name} says what happens instead`);
+      assert.match(main, /\*proposed\*/, `${name}'s report says an entry nothing opened was proposed`);
+    }
+    // The claim is a working-tree fact, so no template may make it without saying so.
+    for (const { rel, text } of ourTemplates()) {
+      for (const sentence of flat(text).split(/(?<=[.:])\s+/)) {
+        if (!/\bentry (rides|lands with)\b/i.test(sentence)) continue;
+        assert.match(sentence, /working-tree answer/, `${rel} puts a backlog entry on a commit unqualified`);
+      }
+    }
+    const fi = flat(skillBody('feature-implement'));
+    assert.match(fi, /\*\*A finding step 9 sends to `\/roadmap` does not stop it either\.\*\*/);
+    assert.match(fi, /\*\*Under `--all`, hold the ask until the run stops\.\*\*/);
+    assert.match(fi, /\*\*the hand-back that ends the run makes every held ask\*\*/);
+    const roadmap = flat(readTemplate('skills/roadmap/tracker.md'));
+    assert.match(roadmap, /Under `\/feature-implement --all`, open nothing yet/);
+    assert.match(roadmap, /\*\*Declined, held or never asked, the entry is \*proposed\*, not added\*\*/);
+  });
+
   it('/orchestrate takes an issue, so a bug has a route through the gates', () => {
     // Without it the tracker and the work never touch: you retype the issue as a sentence and close it by
     // hand afterwards. A task-sized defect has no backlog entry and never will, so this is its only path.

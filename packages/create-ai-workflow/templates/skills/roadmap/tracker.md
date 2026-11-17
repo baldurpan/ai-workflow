@@ -35,7 +35,9 @@ the repository and outlives the session that opened it; a line in a working-tree
 the title, the body with its `Size:` and `Priority:`, and any type or relationship you would set, and ask
 whether to open it — one question, which is also where the priority is asked. **No ends it, with nothing
 written.** Adoption asks the same way, since its label and comment reach the reporter. Where the run
-cannot ask, open nothing and report the `/roadmap "…"` line to type.
+cannot ask, open nothing and report the `/roadmap "…"` line to type. Under `/feature-implement --all`, open
+nothing yet: that run makes the ask when it stops. **Declined, held or never asked, the entry is
+*proposed*, not added**, and the caller's report says so, with that line.
 
 **Set two things the file answer has no room for**, both named in
 [`context/tracking.md`](../../../context/tracking.md) and neither read by anything in this workflow's loop:

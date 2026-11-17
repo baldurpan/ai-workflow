@@ -11,8 +11,8 @@
       ]
     },
     "our-templates": {
-      "limit": 429568,
-      "why": "§31 — /roadmap counts what is open outside the backlog"
+      "limit": 431616,
+      "why": "§32 — a backlog finding under the tracker answer, and --all holding its ask"
     }
   },
   "files": {
@@ -89,12 +89,12 @@
       "why": "§26.22 — the tree moves into the working tree, with the keep rule, the cascade and the holes"
     },
     "skills/feature-implement/SKILL.md": {
-      "limit": 24576,
-      "why": "§30 — a gate runs /roadmap, and the entry rides the phase commit"
+      "limit": 25088,
+      "why": "§32 — the entry rides the phase commit under the working-tree answer only"
     },
     "skills/feature-implement/tracker.md": {
-      "limit": 9728,
-      "why": "§26.23 — a closing row per phase, as it lands"
+      "limit": 10240,
+      "why": "§32 — a backlog finding, and the ask --all holds until the run stops"
     },
     "skills/feature-plan/SKILL.md": {
       "limit": 14848,
@@ -125,8 +125,8 @@
       "why": "§29 — the wait, the label going back on, and standing"
     },
     "skills/orchestrate/SKILL.md": {
-      "limit": 18432,
-      "why": "§28.8 — step 8 answers the review"
+      "limit": 18944,
+      "why": "§32 — the entry lands with the change under the working-tree answer only"
     },
     "skills/prototype/SKILL.md": {
       "limit": 6656,
@@ -141,8 +141,8 @@
       "why": "§31 — step 5, the count of what is open outside the backlog"
     },
     "skills/roadmap/tracker.md": {
-      "limit": 11776,
-      "why": "§30 — the ask before an issue nobody typed for"
+      "limit": 12288,
+      "why": "§32 — an entry not opened is proposed, and --all holds the ask"
     },
     "skills/tracking-migrate/SKILL.md": {
       "limit": 13824,
