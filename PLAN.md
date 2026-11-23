@@ -41,21 +41,21 @@ Every `§`-number below points into that document.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** `main` carries **0.29.1**. 0.14.0 was the body's ceiling (§10.13) and **item 6, the release
+**State:** `main` carries **0.30.0**. 0.14.0 was the body's ceiling (§10.13) and **item 6, the release
 answer** (§11) in both its phases, with the event that completes it (§11.10), the event's record (§11.11)
 and **§11.12** — and it was the first release cut from accumulated notes in this repository, so
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
 `blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
 adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; 0.26.0 adds **§20** through **§27** in eight
-commits; 0.27.0 adds **§28**; 0.28.0 adds **§29**; 0.29.0 adds **§30** and **§31**; and 0.29.1 adds
-**§32**. **§33 is written and unreleased.**
+commits; 0.27.0 adds **§28**; 0.28.0 adds **§29**; 0.29.0 adds **§30** and **§31**; 0.29.1 adds
+**§32**; and 0.30.0 adds **§33**.
 
 **The version each section shipped in is below, on the section.** A paragraph here is the summary of a
 `DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
 
-**Written and unreleased: §33**, an issue named and closed the way `tracking.md` says. verk tracks
+**Shipped in 0.30.0: §33**, an issue named and closed the way `tracking.md` says. verk tracks
 itself in verk, where an issue is `VERK-<n>` and a command closes it, and the skills wrote GitHub's `#<issue>`
 and `Closes #<issue>` themselves. Two rows of the tracker table now hold the reference and the close. The
 close is a keyword written into the change or a command run after the commit. Every skill reads them, and
