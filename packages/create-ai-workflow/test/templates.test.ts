@@ -1269,7 +1269,7 @@ describe('--pr ends the run at a pull request without becoming policy', () => {
     assert.ok(start > 0, 'the flag has a section of its own');
     const usage = body.slice(body.indexOf('## Usage'), body.indexOf('## 1.'));
     assert.match(usage, /\/orchestrate --pr "<what to do>"/, 'the prose form is shown');
-    assert.match(usage, /\/orchestrate --pr #<issue>/, 'and the issue form, since a bug is why this exists');
+    assert.match(usage, /\/orchestrate --pr <issue>/, 'and the issue form, since a bug is why this exists');
     assert.match(skillMain('orchestrate'), /^description: .*--pr/m, 'the description carries it, like --all');
   });
 
@@ -2763,12 +2763,12 @@ describe('a bug is not a backlog entry', () => {
     // Without it the tracker and the work never touch: you retype the issue as a sentence and close it by
     // hand afterwards. A task-sized defect has no backlog entry and never will, so this is its only path.
     const body = skillBody('orchestrate');
-    assert.match(body, /\/orchestrate #<issue>/, 'the form is in the usage block');
+    assert.match(body, /\/orchestrate <issue>/, 'the form is in the usage block');
     assert.match(flat(body), /Refuse an issue that carries the backlog label/i, 'a feature is not its work');
-    assert.match(flat(body), /Closes #<issue>/, 'and the commit is what closes it');
+    assert.match(flat(body), /the change is what closes it\*\*, by \*how a change closes one\*/, 'by the answer');
     assert.match(
       flat(body),
-      /Never close the issue by hand as a separate act/i,
+      /Close by the recorded answer, and only after the change is committed/i,
       'a close that does not ride the change can outrun it',
     );
   });
@@ -2846,6 +2846,56 @@ describe('a bug is not a backlog entry', () => {
     // Same rule as every other forge detail: tracking.md is the only file that spells one.
     assert.match(readTemplate('stubs/tracking.md'), /how a change closes one/i);
     assert.match(flat(readTemplate('stubs/tracking.md')), /A bug is not a backlog entry/i);
+  });
+});
+
+describe('an issue is named and closed the way tracking.md says', () => {
+  // §33: the skills wrote GitHub's `#<issue>` and `Closes #<issue>` themselves, so verk — which tracks itself
+  // in verk, where an issue is VERK-<n> and is closed by a command — got references that named pull requests
+  // and a trailer nothing acted on, and wrote the contradiction into its own git.md to route around it.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const stub = readTemplate('stubs/tracking.md');
+
+  it('both answers are rows of the tracker table, with GitHub as the shipped answer', () => {
+    const table = stub.slice(stub.indexOf('| To know | Read |'), stub.indexOf('**The ledger is one table'));
+    assert.match(table, /^\| how an issue is referenced \| `#<n>`/m);
+    assert.match(table, /^\| how a change closes one \| \*\*a keyword\*\* — `Closes #<n>`/m);
+    assert.ok(
+      stub.indexOf('how an issue is referenced') > stub.indexOf('### Under the tracker answer') &&
+        stub.indexOf('how an issue is referenced') < stub.indexOf('## How much a plan may hold'),
+      'inside the subsection the working-tree answer deletes, so that answer is untouched',
+    );
+    const notes = flat(readTemplate('context/tracking.notes.md'));
+    for (const alt of [/`#<n>`/, /`VERK-<n>`/, /\*\*A keyword\*\*/, /\*\*A command\*\*/, /\*not planned\*/]) {
+      assert.match(notes, alt, `tracking.notes.md writes out ${alt}`);
+    }
+    assert.match(flat(skillBody('onboard')), /How an issue is referenced, and how a change closes one/);
+  });
+
+  it('no skill spells GitHub syntax except as GitHub’s labelled default', () => {
+    // The sample listing in roadmap/tracker.md is the one example, and it says whose form it shows.
+    const SYNTAX = /#<issue>|#<n>|#N\b|Closes #|\/\w[\w-]* #\d/;
+    for (const name of SKILL_NAMES.filter((n) => n !== 'onboard')) {
+      for (const sentence of flat(skillBody(name)).split(/(?<=[.:|])\s+/)) {
+        if (!SYNTAX.test(sentence)) continue;
+        assert.match(sentence, /GitHub's/, `${name} spells issue syntax unlabelled: ${sentence.slice(0, 120)}`);
+      }
+    }
+  });
+
+  it('a command close runs after the commit and writes no keyword', () => {
+    const orchestrate = flat(skillBody('orchestrate'));
+    assert.match(orchestrate, /An argument is an issue when it has a form that file's \*how an issue is referenced\* accepts/);
+    assert.match(orchestrate, /\*\*A command\*\* → run it once the commit exists, and write no keyword/);
+    const close = flat(readTemplate('skills/feature-close/tracker.md'));
+    assert.match(close, /Where the close is a command, run it here, once what this command writes is committed/);
+    assert.match(close, /put no keyword in the pull request/);
+  });
+
+  it('a project with neither row behaves as before, and is told once', () => {
+    for (const rel of ['skills/orchestrate/SKILL.md', 'skills/feature-close/tracker.md']) {
+      assert.match(flat(readTemplate(rel)), /GitHub's[^.]*`(#<n>|Closes #<n>)`[^.]*(say so once|said once)[^.]*`\/onboard`/i, rel);
+    }
   });
 });
 
@@ -3332,7 +3382,7 @@ describe('a question the plan could not settle has an end at close', () => {
   it('the tracker answer moves where it is written and nothing else', () => {
     const tracker = flat(readTemplate('skills/feature-close/tracker.md'));
     assert.match(tracker, /§9 is a section of the body, and the body is the plan/i);
-    assert.match(tracker, /the closing comment names it, by number/i);
+    assert.match(tracker, /the closing comment names it, by its reference/i);
     // The primitive someone will reach for and must not: `blocked by` is between features.
     assert.match(tracker, /no `blocked by` relationship/i);
     assert.match(tracker, /an owner check is not one/i);

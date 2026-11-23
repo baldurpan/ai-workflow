@@ -11,8 +11,8 @@
       ]
     },
     "our-templates": {
-      "limit": 431616,
-      "why": "§32 — a backlog finding under the tracker answer, and --all holding its ask"
+      "limit": 435712,
+      "why": "§33 — an issue named and closed the way tracking.md says"
     }
   },
   "files": {
@@ -61,8 +61,8 @@
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "context/tracking.notes.md": {
-      "limit": 4608,
-      "why": "§20.7 — the budget section mirrors the stub, as a `##` in the stub’s own position"
+      "limit": 5632,
+      "why": "§33 — how an issue is referenced and how a change closes one, with the alternatives"
     },
     "context/verify.notes.md": {
       "limit": 4608,
@@ -81,8 +81,8 @@
       "why": "§24.9 — it is that reader, so it carries the ends"
     },
     "skills/feature-close/tracker.md": {
-      "limit": 5120,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 6144,
+      "why": "§33 — the close is tracking.md's answer, and a command runs after the commit"
     },
     "skills/feature-implement/parallel.md": {
       "limit": 18432,
@@ -117,16 +117,16 @@
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "skills/onboard/SKILL.md": {
-      "limit": 55808,
-      "why": "§28.8 — Step 4 asks what a pull request carries"
+      "limit": 56832,
+      "why": "§33 — Step 5 asks how an issue is referenced and how a change closes one"
     },
     "skills/orchestrate/review.md": {
       "limit": 10240,
       "why": "§29 — the wait, the label going back on, and standing"
     },
     "skills/orchestrate/SKILL.md": {
-      "limit": 18944,
-      "why": "§32 — the entry lands with the change under the working-tree answer only"
+      "limit": 19456,
+      "why": "§33 — an issue argument and its close read from tracking.md"
     },
     "skills/prototype/SKILL.md": {
       "limit": 6656,
@@ -173,8 +173,8 @@
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "stubs/tracking.md": {
-      "limit": 19456,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 19968,
+      "why": "§33 — the reference and the close are rows of the tracker table"
     },
     "stubs/verify.md": {
       "limit": 3072,

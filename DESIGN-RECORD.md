@@ -7101,3 +7101,90 @@ to this tree by `update`. That replaced the four files in each tree and the mani
 **Not run by a live agent.** That includes whether an `--all` run holds the ask rather than making it at
 step 9, and whether the hand-back makes it. It joins §30.6's open question about whether the ask earns its
 interruption.
+
+## 33. An issue is named and closed the way `tracking.md` says — the row the skills never read
+
+The report came from verk, which tracks itself in verk. There an issue is `VERK-<n>` and is closed by
+`verk close <n> --reason completed`. On GitHub `#<n>` names a different object, often a pull request. The
+line numbers in the report were taken from verk's installed copies. **They were not re-read here.** The
+template lines they point at were, and every one of them was still there.
+
+### 33.1 The answer existed, and nothing read it
+
+`tracking.md` already had the row *how a change closes one | `Closes #<n>`…*. **No skill consulted it.**
+`/orchestrate` wrote `Closes #<issue>` into the commit and accepted only `#<issue>` as an argument.
+`/feature-close` wrote the same keyword into the pull request body. `/feature-plan` and `/roadmap` showed
+`#<issue>` and `#123` in their usage. The test guarding the row was called *the skills do not*, but it
+only checked the stub. It never looked at a skill, so it passed while four of them spelled the syntax.
+
+verk routed around it in its own `git.md`, saying the pull request "carries no `Closes #<n>`" and that
+`/feature-close` runs `verk close` instead. That is project prose contradicting a tool-owned skill. It is
+the drift `tracking.md` exists to prevent, and only an agent that read both files and picked the right one
+would get it right.
+
+### 33.2 The repair
+
+- **Two rows of the tracker table.** *How an issue is referenced* gives the form a commit, a pull request
+  and a report write, and the forms a command accepts. *How a change closes one* is **a keyword** the forge
+  acts on at merge, or **a command**, one for *completed* and one for *not planned*. Both ship with
+  GitHub's answer, inside `### Under the tracker answer`, so the working-tree answer deletes them with the
+  rest and nothing changes there.
+- **The skills branch on the kind, not on the string.** A keyword is written into the commit or pull
+  request. A command is run once the change is committed, and no keyword is written. One placeholder that
+  a skill pasted into a trailer or into a shell was rejected, because the two kinds are used differently:
+  one is written and the other is run.
+- **The rule moved.** *Never close the issue by hand as a separate act* became *close by the recorded
+  answer, and only after the change is committed*. Where the user commits, the command is handed over
+  with the change rather than run ahead of their commit, which is the keyword's *say the line rather than
+  writing it*.
+- **`/feature-close` runs the command whatever `git.md` says.** No merge will run it. Under a keyword
+  answer everything stays as it was. The keyword goes in the pull request where the agent opens one,
+  otherwise the issue is closed here, and `--dropped` always closes here.
+- **`/onboard` Step 5 asks for both** where the tracker is not the forge, and writes them from
+  `tracking.notes.md` where they are absent.
+
+### 33.3 Where the default lives
+
+`tracking.md` is project-owned, so `update` cannot add the rows to an existing install. `stubGaps`
+compares `##` headings, and these are rows in a `###` table, so it will not report them either. **The
+fallback therefore has to be in the tool-owned files.** It is stated in the two places that close an issue
+(`/orchestrate` and `feature-close/tracker.md`) and the two that parse one (`feature-plan/tracker.md` and
+`roadmap/tracker.md`), each labelled as GitHub's answer. Each says so once and names `/onboard`.
+
+| Rejected | Why not |
+|---|---|
+| **the fallback in `workflow.md`**, which every command loads | It puts forge syntax in the always-loaded file to serve four commands, which is §24.9's case for moving a contract into the command that acts on it. |
+| **a per-skill setting, or the close written into `git.md`** | Both would give one fact a second home, and that second home is how verk got its contradiction. |
+| **teaching `stubGaps` about table rows** | That is code to report two lines that `/onboard` already writes on its next run. A project with neither row behaves exactly as it did before. |
+
+A new test fails any skill sentence that spells `#<issue>`, `#<n>`, `#N`, `Closes #` or a command
+followed by `#<digits>` unless the same sentence says *GitHub's*. The `/roadmap` sample listing passes
+because it says whose form it shows.
+
+### 33.4 What is unobserved
+
+- **No live agent has run either kind.** That includes whether `/orchestrate VERK-12` is recognised as an
+  issue, and whether a command close runs after the commit rather than before it.
+- **verk's command for *not planned* is not known here.** `tracking.notes.md` asks for it by name and does
+  not guess its spelling.
+- **verk's `git.md` still carries its workaround** until verk updates, reruns `/onboard` and deletes it.
+  Nothing in the tool can remove it, because the file is verk's.
+
+### 33.5 What it cost
+
+Six raises typed by hand, each with a `§33` `why`:
+
+- `stubs/tracking.md` 19456 → 19968
+- `context/tracking.notes.md` 4608 → 5632
+- `skills/orchestrate/SKILL.md` 18944 → 19456
+- `skills/feature-close/tracker.md` 5120 → 6144
+- `skills/onboard/SKILL.md` 55808 → 56832
+- `our-templates` 431616 → 435712, for the sum
+
+The always-loaded ceiling did not move.
+
+**Verified on 2026-11-23** by packing the tree and installing the tarball into an empty git repository.
+`check` passed (exit 0) and `update --dry-run` found 129 files current (exit 0). The installed
+`tracking.md` carries both rows. **The upgrade path too.** The published 0.29.1 was installed and then
+taken to this tree by `update`. That replaced seven skill files in each tree plus `tracking.notes.md`, and
+left the project's `tracking.md` without the rows, which is the fallback case. `check` still passed.
