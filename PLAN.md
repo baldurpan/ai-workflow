@@ -10,7 +10,7 @@ Every `§`-number below points into that document.
 ## Start here
 
 1. Read this file. It is the whole of what is outstanding.
-2. `npm test` — 514 tests. The 262 in `templates.test.ts` guard *content* invariants rather than
+2. `npm test` — 532 tests. The 280 in `templates.test.ts` guard *content* invariants rather than
    code, and they are fastest way to see what the design refuses to let rot: runtime neutrality, one home
    for commands, one home for dispatch, one home for git etiquette, git on instruction rather than on
    initiative, a worktree made by the recorded command or not at all, one home for the tracker, no

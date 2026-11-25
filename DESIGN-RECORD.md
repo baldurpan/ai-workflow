@@ -7278,7 +7278,7 @@ Six raises typed by hand, each with a `§34` `why`:
 - `skills/orchestrate/SKILL.md` 19456 → 20480
 - `skills/feature-implement/SKILL.md` 25088 → 25600
 - `always-loaded` 29184 → 30208, because `workflow.md` is in it
-- `our-templates` 435712 → 438784, for the sum
+- `our-templates` 435712 → 439296, for the sum
 
 `workflow.md`'s addition was cut by half before the raise, and the reasoning moved to `workflow.notes.md`.
 

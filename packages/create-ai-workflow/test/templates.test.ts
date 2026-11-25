@@ -2691,6 +2691,9 @@ describe('a defect this work put there is never filed', () => {
     // file anything bigger. A pre-existing defect must not be able to block a phase at the loop cap.
     assert.match(workflow, /in a file this phase changes, and the fix is one targeted edit needing no new decision/);
     assert.match(workflow, /never holds the phase/);
+    for (const name of ['feature-implement', 'orchestrate'] as const) {
+      assert.match(flat(skillBody(name)), /never reaches the cap\.(\*\*)? If one loop does not settle it, back its edit out/, `${name} says it at its cap`);
+    }
   });
 
   it('only what was there before can be filed', () => {
@@ -2712,7 +2715,7 @@ describe('a defect this work put there is never filed', () => {
   });
 
   it('a later phase fixes an earlier phase’s defect instead of reopening its row', () => {
-    assert.match(workflow, /A later phase's gate fixes it (> )?instead/);
+    assert.match(workflow, /Where a later phase's gate finds (> )?it, that gate's loopback fixes it instead/);
   });
 });
 

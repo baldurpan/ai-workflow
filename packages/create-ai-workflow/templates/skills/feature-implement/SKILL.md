@@ -266,6 +266,9 @@ Under the cap: re-brief with the prior implementation and the validator's feedba
 summarise or paraphrase it** — plus the instruction to address only the failing items, refactor nothing
 that passes, and expand no scope. Then re-run the same gate.
 
+**An old defect step 9's sort promoted never reaches the cap.** If one loop does not settle it, back its
+edit out and give it its kind's end, and the verdict stands on the rest.
+
 At the cap: **close the row to `blocked` with the reason in its Note — before you escalate**, not after.
 A phase whose verification cannot pass is blocked by definition. Then hand back to the user with the
 current state and the last feedback verbatim.

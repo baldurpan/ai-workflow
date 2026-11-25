@@ -144,6 +144,9 @@ Cap: **two loops per gate.** Re-brief with the prior implementation and the vali
 **verbatim**, plus the instruction to address only the failing items, refactor nothing that passes, and
 expand no scope.
 
+**An old defect step 4's sort promoted never reaches the cap.** If one loop does not settle it, back its
+edit out and give it its kind's end, and the verdict stands on the rest.
+
 At the cap: **stop and hand back.** This command has no ledger to write a `blocked` row into, so the record
 is the working tree plus the report: leave the change exactly where it is, uncommitted, and say what failed,
 what was tried, and what the last feedback was. **If the work is still worth doing, it is a bug** — file it

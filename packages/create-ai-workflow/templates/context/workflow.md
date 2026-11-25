@@ -319,7 +319,7 @@ holds no status, gates nothing, and is read by no command.
 | The defect | It |
 |---|---|
 | **this work put it there** | **blocks**, whatever the reviewer called it. A rule in it a regression could break with the suite green is a test this phase writes |
-| **it was there before**, in a file this phase changes, and the fix is one targeted edit needing no new decision | **blocks** too. If the fix grows or fails its loop, it is judged as below instead, and never holds the phase |
+| **it was there before**, in a file this phase changes, and the fix is one targeted edit needing no new decision | **blocks** too. If the fix grows or one loop does not settle it, back it out, judge it as below: it never holds the phase |
 | **anything else** | is judged as below |
 
 **A blocking item has three ends, and the run that found it picks one before it reports:**
@@ -378,8 +378,8 @@ has already written where the phase stands.
 
 > **A defect found against a phase that is already `done` sets that phase back to `blocked`**, with the
 > reason in its Note. Do not record it elsewhere and leave the row claiming `done`. If it is larger than
-> the feature, it is an issue instead, and the row stays as it is. **A later phase's gate fixes it
-> instead**, and the earlier row stays `done`.
+> the feature, it is an issue instead, and the row stays as it is. **Where a later phase's gate finds
+> it, that gate's loopback fixes it instead**, and that row stays `done`.
 
 **Nothing accumulates across features.** A `blocked` row is archived with its plan at `/feature-close`,
 `notes.md` is deleted there, and an issue was never this feature's to carry.
