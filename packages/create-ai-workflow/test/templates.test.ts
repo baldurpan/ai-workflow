@@ -2665,6 +2665,81 @@ describe('a defect the gate found has one home, and it is the ledger', () => {
   });
 });
 
+describe('a defect this work put there is never filed', () => {
+  // §34: Gate 2 found defects in code the feature had written minutes earlier, called them non-blocking,
+  // and the kind test sent them to bugs. In four repositories, 80 of 253 bugs filed in a month said
+  // "on branch …, not yet on main" in their first line, and verk carried one "rules a regression could break
+  // with the suite green" issue per area of a single feature. Each became a pull request of its own after
+  // the feature merged. Where the defect came from is asked before kind, and it blocks.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const workflow = flat(readTemplate('context/workflow.md'));
+
+  it('the contract asks where it came from before kind, and says it blocks', () => {
+    assert.match(readTemplate('context/workflow.md'), /^### A defect this work put there is never filed$/m);
+    assert.match(workflow, /Ask where a defect came from before its kind/);
+    assert.match(workflow, /\*\*this work put it there\*\*[^|]*\| \*\*blocks\*\*, whatever the reviewer called it/);
+    assert.match(workflow, /a test this phase writes/, 'a missing test in its own code is the phase’s');
+    assert.ok(
+      workflow.indexOf('A defect this work put there is never filed') <
+        workflow.indexOf('A non-blocking observation has two ends'),
+      'it is asked before kind, not after',
+    );
+  });
+
+  it('an old defect blocks only when the fix fits, and never holds the phase', () => {
+    // The user's answer: fix one that was already there when it is small and in a file the phase changes;
+    // file anything bigger. A pre-existing defect must not be able to block a phase at the loop cap.
+    assert.match(workflow, /in a file this phase changes, and the fix is one targeted edit needing no new decision/);
+    assert.match(workflow, /never holds the phase/);
+  });
+
+  it('only what was there before can be filed', () => {
+    assert.match(workflow, /\*\*filed\*\* \| it is real work that outlives this phase, and it was there before \|/);
+    assert.match(workflow, /\*\*a bug\*\* \| it is a real defect that was there before,/);
+  });
+
+  it('both gates sort the notes first, and a pass carrying one is a fail', () => {
+    for (const name of ['feature-implement', 'orchestrate'] as const) {
+      const body = flat(skillBody(name));
+      assert.match(body, /sort each note by where its defect came from/, `${name} sorts first`);
+      assert.match(body, /A `PASS WITH NOTES` carrying one that blocks is a `FAIL`/, `${name} loops back on it`);
+      assert.match(body, /is ever filed as a bug/, `${name} files none of its own`);
+      assert.ok(
+        body.indexOf('sort each note') < body.indexOf('`PASS` or `PASS WITH NOTES` →'),
+        `${name} sorts before it reads the verdict`,
+      );
+    }
+  });
+
+  it('a later phase fixes an earlier phase’s defect instead of reopening its row', () => {
+    assert.match(workflow, /A later phase's gate fixes it (> )?instead/);
+  });
+});
+
+describe('/orchestrate takes several issues when one change settles them', () => {
+  // So a coordinator can send related bugs as one pull request instead of one each. The commit-sized
+  // guard still judges the set, which is what keeps this from being a way to batch a category.
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const body = flat(skillBody('orchestrate'));
+
+  it('the usage has the form, and the set is judged as one change', () => {
+    assert.match(skillBody('orchestrate'), /^\/orchestrate <issue> <issue> …/m);
+    assert.match(skillBody('orchestrate'), /^\/orchestrate --pr <issue> \[<issue> …\]/m);
+    assert.match(body, /Several issues are one brief when one change settles them all/);
+    assert.match(body, /are a category, and the refusal names which to run alone/);
+    assert.match(body, /\*\*do not mix prose with issues\*\*/);
+  });
+
+  it('the backlog guard applies to every issue in the set', () => {
+    assert.match(body, /or a set where any one does/);
+  });
+
+  it('each issue gets its own close', () => {
+    assert.match(body, /close each one/);
+    assert.match(body, /how each issue it ran from is closed/, 'and the report says how each closed');
+  });
+});
+
 describe('a bug is not a backlog entry', () => {
   // The backlog is a list of features. `/feature-implement` used to send every qualifying finding to it
   // "per tracking.md", and tracking.md says the backlog is the labelled issues — so a gate read the two

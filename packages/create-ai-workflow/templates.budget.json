@@ -3,16 +3,16 @@
   "slack": 2048,
   "ceilings": {
     "always-loaded": {
-      "limit": 29184,
-      "why": "§28.8 — one clause in the command table and one in the git row",
+      "limit": 30208,
+      "why": "§34 — where a defect came from is asked before its kind",
       "files": [
         "blocks/agents-block.md",
         "context/workflow.md"
       ]
     },
     "our-templates": {
-      "limit": 435712,
-      "why": "§33 — an issue named and closed the way tracking.md says"
+      "limit": 438784,
+      "why": "§34 — a defect this work put there is never filed, and several issues to /orchestrate"
     }
   },
   "files": {
@@ -69,12 +69,12 @@
       "why": "§26.19 — the install form, and generated files that have to be ignored"
     },
     "context/workflow.md": {
-      "limit": 26112,
-      "why": "§29.5 — the typed-flag paragraph counts what --pr now buys"
+      "limit": 26624,
+      "why": "§34 — where a defect came from is asked before its kind"
     },
     "context/workflow.notes.md": {
-      "limit": 24064,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 25088,
+      "why": "§34 — why a defect this work put there blocks"
     },
     "skills/feature-close/SKILL.md": {
       "limit": 19968,
@@ -89,8 +89,8 @@
       "why": "§26.22 — the tree moves into the working tree, with the keep rule, the cascade and the holes"
     },
     "skills/feature-implement/SKILL.md": {
-      "limit": 25088,
-      "why": "§32 — the entry rides the phase commit under the working-tree answer only"
+      "limit": 25600,
+      "why": "§34 — the notes sorted by where the defect came from"
     },
     "skills/feature-implement/tracker.md": {
       "limit": 10240,
@@ -125,8 +125,8 @@
       "why": "§29 — the wait, the label going back on, and standing"
     },
     "skills/orchestrate/SKILL.md": {
-      "limit": 19456,
-      "why": "§33 — an issue argument and its close read from tracking.md"
+      "limit": 20480,
+      "why": "§34 — several issues one change settles, and the notes sorted first"
     },
     "skills/prototype/SKILL.md": {
       "limit": 6656,

@@ -20,8 +20,9 @@ Read [`context/workflow.md`](../../../context/workflow.md) for the gate contract
 ```
 /orchestrate "<what to do>"
 /orchestrate <issue>               # the issue is the brief
+/orchestrate <issue> <issue> …     # several issues one change settles, closing each
 /orchestrate --pr "<what to do>"   # end at a pull request and answer its review (steps 7-8)
-/orchestrate --pr <issue>
+/orchestrate --pr <issue> [<issue> …]
 ```
 
 **The second form is how a bug reaches this loop.** A defect too small to plan has no backlog entry and
@@ -35,6 +36,11 @@ file names no tracker, this form has nothing to read: say so and ask for the wor
 quoted form is prose. Write the issue in that form wherever this run names it. Where the row is absent,
 GitHub's `#<n>` is the answer: say so once and name `/onboard`.
 
+**Several issues are one brief when one change settles them all** — one defect filed twice, or small
+defects in the same code that one commit fixes, each still checkable on its own. Step 1 judges the set as
+one change: issues sharing only an area, a label or a feature are a category, and the refusal names which
+to run alone. Read each, close each, and **do not mix prose with issues**.
+
 ## 1. Refuse, before anything else
 
 Two guards, or this becomes the way to skip planning:
@@ -44,9 +50,9 @@ Two guards, or this becomes the way to skip planning:
    scope would need to be split into, and name `/roadmap`.
 2. **Refuse anything an existing roadmap entry already covers.** Read `context/roadmap.md` and check. If
    one covers it, say which, and name `/feature-plan` and `/feature-implement`.
-3. **Refuse an issue that carries the backlog label.** That label says the backlog owns it, and a labelled
-   issue is a feature whether or not it looks small from here. Name `/feature-plan`. This guard replaces
-   guard 2 under the tracker answer, where the backlog is not a file.
+3. **Refuse an issue that carries the backlog label**, or a set where any one does. That label says the
+   backlog owns it, and a labelled issue is a feature whether or not it looks small from here. Name
+   `/feature-plan`. This guard replaces guard 2 under the tracker answer, where the backlog is not a file.
 
 Apply the standing test from [`context/workflow.md`](../../../context/workflow.md): *if you would want a
 `history.md` row for it, it is a feature.* Ask that question out loud and answer it before proceeding.
@@ -108,14 +114,19 @@ Require concrete evidence — file paths, command output — for every verdict, 
 bit: does it block this change or not.** There is no severity scale — see *What happens to a defect the gate
 found* in [`context/workflow.md`](../../../context/workflow.md).
 
+**Before reading the verdict, sort each note by where its defect came from**, per *A defect this work put
+there is never filed* in that same file. **A `PASS WITH NOTES` carrying one that blocks is a `FAIL`**, and
+step 5 fixes it. Nothing this change wrote is ever filed as a bug.
+
 - `PASS` or `PASS WITH NOTES` → done.
 - `FAIL` → loop back.
 
-**Every non-blocking observation gets one of the ends in *What happens to a defect the gate found* in
-[`context/workflow.md`](../../../context/workflow.md), and kind decides which** — not size, and **not
+**Every other non-blocking observation gets one of the ends in *What happens to a defect the gate found*
+in [`context/workflow.md`](../../../context/workflow.md), and kind decides which** — not size, and **not
 whether it needs code changes**, which every true observation about code does.
 
-- **A real defect, and it is user-visible or a regression would land green** → a **bug**, wherever this
+- **A real defect that was there before this change, and it is user-visible or a regression would land
+  green** → a **bug**, wherever this
   project already files bugs, carrying this project's own labels. **Never the backlog label** — see *A bug
   is not a backlog entry* in that same file. The backlog is a list of features and this is not one.
 - **Not a defect, but work you would want a `history.md` row for** → that is a backlog entry, and adding
@@ -138,7 +149,7 @@ is the working tree plus the report: leave the change exactly where it is, uncom
 what was tried, and what the last feedback was. **If the work is still worth doing, it is a bug** — file it
 wherever this project files bugs and name it. **Never the backlog label**, for the reason in
 [`context/workflow.md`](../../../context/workflow.md). Run from an issue, the issue is already that
-record: say what is left in it rather than opening a second one.
+record: say what is left in it rather than opening a second one, in each issue it is about.
 
 **A commit-sized change that cannot pass its gates is handed back, not filed away.** Nothing here writes a
 record that outlives the session, because nothing here is half-finished in a way the next session could
@@ -175,6 +186,8 @@ step somebody has to remember, which is the whole reason this command takes an i
 - **A keyword** → put it in the commit message, the same way `/feature-close` puts it in a pull request
   body. Where the row is absent, it is GitHub's `Closes #<n>`.
 - **A command** → run it once the commit exists, and write no keyword.
+
+**From several issues, close each one**: a whole keyword per issue, or the command once per issue.
 
 **Where the user commits, say the line or the command rather than writing or running it**: it is their
 commit, and a close is not yours to make on their behalf. **Close by the recorded answer, and only after
@@ -266,7 +279,7 @@ answer, and this step does not apply to it in any form.
 What changed, whether it is committed or waiting in the tree, the Gate 1 output, the Gate 2 verdict, any
 loopbacks, any non-blocking observations the review raised — which die here — any bug filed for work that
 outlived the change, any backlog entry step 4's `/roadmap` added — or only *proposed*, with the
-`/roadmap "…"` line to type, where its ask was declined or could not be made — how the issue it ran from
+`/roadmap "…"` line to type, where its ask was declined or could not be made — how each issue it ran from
 is closed, by the keyword in the commit or the command that ran, or the line still to type — and any
 release note written, with the paths that were checked and owed nothing.
 

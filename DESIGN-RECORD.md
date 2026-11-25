@@ -7188,3 +7188,100 @@ The always-loaded ceiling did not move.
 `tracking.md` carries both rows. **The upgrade path too.** The published 0.29.1 was installed and then
 taken to this tree by `update`. That replaced seven skill files in each tree plus `tracking.notes.md`, and
 left the project's `tracking.md` without the rows, which is the fallback case. `check` still passed.
+
+## 34. A defect this work put there is never filed — and `/orchestrate` takes several issues
+
+The complaint came from running `/worktree-bugfix-autopilot` after features: ten to fifteen bugs filed per
+feature, each fixed in its own pull request, and the question of whether some of them belonged in the
+feature they came from. **They did.** The first line of every bug filed between 2026-10-25 and 2026-11-25,
+read with `gh issue list --label bug`:
+
+| Repository | Bugs filed | Found by a gate | *on branch …, not yet on main* |
+|---|---|---|---|
+| verk | 48 | 45 | 23 |
+| dynjandi | 28 | 27 | 22 |
+| dynjandi-core | 109 | 80 | 22 |
+| quotavero | 68 | 20 | 13 |
+
+verk#86 is typical: *Found by Gate 2 on #4 phase 12 (5ae4c6e, branch feature/4-tracker-ui, not yet on
+main).* verk also carried one *rules a regression could break with the suite green* issue per area of that
+one feature (#65, #69, #71, #73, #76, #83, #85): tests the phase that wrote the code had not written.
+
+### 34.1 Why the gate filed them
+
+§14 and §15 settled what happens to a **non-blocking** observation: kind decides, and a real defect that
+is user-visible or that a regression would let through green is a bug. The reviewer's three conditions for
+blocking (a checklist item or a cited standard, a verbatim quote, one targeted fix) say nothing about whose
+code the defect is in. A defect in code the phase had just written could fail the first condition, come
+back as a note, and be filed by the kind test. Both rules were working as written. **The question that was
+missing is where the defect came from, and it has to be asked before kind.**
+
+### 34.2 The rule
+
+*A defect this work put there is never filed* (`workflow.md`), where *this work* is the feature, any phase
+of it, or the one `/orchestrate` change:
+
+- **This work put it there** → it blocks, whatever the reviewer called it, and the loopback fixes it. A
+  missing test for a rule in that code is a test the phase writes. At the cap the phase is `blocked`, which
+  is already the record, so nothing is filed.
+- **It was there before, in a file this phase changes, and the fix is one targeted edit needing no new
+  decision** → it blocks too. **If the fix grows or fails its loop, it goes back to kind and never holds
+  the phase.** That last clause is the guard. Without it, a defect the phase did not cause could stop the
+  phase at the cap.
+- **Anything else** → kind decides, as before.
+
+**The old-defect row was the user's call.** It was put to them as three options: fix it when small, always
+fix it in the feature, or always file it. *Fix when small* was chosen. *Always* lets a phase grow past its
+plan, and *never* leaves cheap fixes as pull requests of their own.
+
+**Both gates sort the notes before reading the verdict**, and a `PASS WITH NOTES` carrying a note that
+blocks is a `FAIL`. The rule sits in the callers and not in the reviewer, because the caller knows where
+the work started and the reviewer only sees a diff. The reviewer's three conditions are unchanged.
+
+**A later phase's gate fixes an earlier phase's defect in its own loopback**, and the earlier row stays
+`done`. This is the stated exception to *a defect found against a `done` phase sets it back to `blocked`*.
+That rule still holds for anything found outside a gate.
+
+### 34.3 `/orchestrate <issue> <issue> …`
+
+The other half of the complaint was one pull request per bug. A coordinator could not group related bugs
+because `/orchestrate` took one issue, and the prose form closes nothing. **Several issues are one brief
+when one change settles them all**: one defect filed twice, or small defects in the same code that one
+commit fixes, each still checkable on its own. Step 1's commit-sized guard judges the set as one change,
+so issues that share only an area, a label or a feature are a category and are refused. The backlog guard
+refuses the set if any member carries the label. Each issue gets its own close.
+
+| Rejected | Why not |
+|---|---|
+| **a coordinator closing the others as duplicates of a lead issue** | Only one issue would be read as the brief, so the worker would fix the symptom it was shown, and the others would be closed by a guess. |
+| **an umbrella issue** | It files one more issue to solve too many issues, and it forks the issues' text into a copy nobody updates. |
+| **grouping by label or area alone** | That is batching a category, which guard 1 exists to refuse. |
+
+The grouping itself belongs to the personal coordinator (`~/.claude/skills/worktree-bugfix-autopilot`), on
+§18's line: the package gains the capability, and the unattended choice of what to group lives outside it.
+
+### 34.4 What is unobserved
+
+- **No live gate has run the sort.** Whether a reviewer's note is reliably traced to *this work* or
+  *before* is untested. `git blame` against the commit the work started from is the obvious check, and the
+  rule does not name it.
+- **No live `/orchestrate` has run with several issues**, nor has a refusal of a set that is a category.
+- **The count of bugs filed per feature after this change is not known yet.** verk and dynjandi-core are
+  where to look.
+
+### 34.5 What it cost
+
+Six raises typed by hand, each with a `§34` `why`:
+
+- `context/workflow.md` 26112 → 26624
+- `context/workflow.notes.md` 24064 → 25088
+- `skills/orchestrate/SKILL.md` 19456 → 20480
+- `skills/feature-implement/SKILL.md` 25088 → 25600
+- `always-loaded` 29184 → 30208, because `workflow.md` is in it
+- `our-templates` 435712 → 438784, for the sum
+
+`workflow.md`'s addition was cut by half before the raise, and the reasoning moved to `workflow.notes.md`.
+
+**Verified on 2026-11-25** by packing the tree and installing the tarball into an empty git repository.
+`check` passed (exit 0), `update --dry-run` found 129 files current (exit 0), and the installed
+`/orchestrate` and `/feature-implement` both carry the sort.

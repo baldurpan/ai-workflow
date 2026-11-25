@@ -55,6 +55,12 @@ commits; 0.27.0 adds **§28**; 0.28.0 adds **§29**; 0.29.0 adds **§30** and **
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
 
+**Pending: §34**, a defect this work put there is never filed. In four repositories, 80 of 253 bugs filed
+in a month were Gate 2 findings against the feature's own unmerged branch. Where a defect came from is now
+asked before its kind. A defect this work put there blocks and the loopback fixes it. So does an old one
+in a file the phase changes, when the fix is one edit. `/orchestrate` also takes several issues that one
+change settles, so a coordinator can send related bugs as one pull request.
+
 **Shipped in 0.30.0: §33**, an issue named and closed the way `tracking.md` says. verk tracks
 itself in verk, where an issue is `VERK-<n>` and a command closes it, and the skills wrote GitHub's `#<issue>`
 and `Closes #<issue>` themselves. Two rows of the tracker table now hold the reference and the close. The
