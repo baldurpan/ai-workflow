@@ -41,21 +41,21 @@ Every `§`-number below points into that document.
 3. `README.md` is the user-facing description of what the tool does.
 4. Open `DESIGN-RECORD.md` only when a *why* is actually in question.
 
-**State:** `main` carries **0.30.0**. 0.14.0 was the body's ceiling (§10.13) and **item 6, the release
+**State:** `main` carries **0.31.0**. 0.14.0 was the body's ceiling (§10.13) and **item 6, the release
 answer** (§11) in both its phases, with the event that completes it (§11.10), the event's record (§11.11)
 and **§11.12** — and it was the first release cut from accumulated notes in this repository, so
 `packages/create-ai-workflow/CHANGELOG.md` starts there. 0.16.0 adds **§13**; 0.17.0 adds **§10.14**,
 `blocked by` between features, the first thing a live agent running the tracker answer asked for; 0.18.0
 adds **§4.7**; 0.23.0 adds **§18**; 0.24.0 adds **§19**; 0.26.0 adds **§20** through **§27** in eight
 commits; 0.27.0 adds **§28**; 0.28.0 adds **§29**; 0.29.0 adds **§30** and **§31**; 0.29.1 adds
-**§32**; and 0.30.0 adds **§33**.
+**§32**; 0.30.0 adds **§33**; and 0.31.0 adds **§34**.
 
 **The version each section shipped in is below, on the section.** A paragraph here is the summary of a
 `DESIGN-RECORD.md` section and stays after the release that carried it — but it says which release that
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
 
-**Pending: §34**, a defect this work put there is never filed. In four repositories, 80 of 253 bugs filed
+**Shipped in 0.31.0: §34**, a defect this work put there is never filed. In four repositories, 80 of 253 bugs filed
 in a month were Gate 2 findings against the feature's own unmerged branch. Where a defect came from is now
 asked before its kind. A defect this work put there blocks and the loopback fixes it. So does an old one
 in a file the phase changes, when the fix is one edit. `/orchestrate` also takes several issues that one
