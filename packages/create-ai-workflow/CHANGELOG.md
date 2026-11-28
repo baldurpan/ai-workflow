@@ -1,5 +1,12 @@
 # @baldurpan/create-ai-workflow
 
+## 0.32.0
+
+### Minor Changes
+
+- f9541da: `/onboard` now asks who uses the project and records it as `## Audience` in `context/stack.md`. A *private* answer holds accessibility to a floor (semantic elements, labels, keyboard), so the work past that floor is no longer reviewed, verified or filed as bugs. Installs that leave it unanswered keep the full standard. Run `/onboard` after updating to answer it.
+- e8c2ff8: `/feature-implement` and `/orchestrate` no longer stop at the two-loop cap over a missing or weak test: a blocking item whose fix touches only tests is made in-host once, re-run through Gate 1, and confirmed by the same reviewer. A fix that needs production code still stops at the cap as before.
+
 ## 0.31.0
 
 ### Minor Changes
