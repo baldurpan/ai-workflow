@@ -3025,6 +3025,47 @@ describe('a surface with no gate is asked for, not noticed', () => {
   });
 });
 
+describe('how far the accessibility row reaches is the audience, and the default is the standard', () => {
+  const flat = (text: string) => text.replace(/\s+/g, ' ');
+  const notes = flat(readTemplate('context/stack.notes.md'));
+
+  // DESIGN-RECORD §35. The vendored standard says accessibility is not optional, which is right for a
+  // product and wrong for a tool three people use. The project says which it is; nothing else moves.
+  it('the answer is a `##` section of stack.md, so an install without it is told', () => {
+    // stubGaps compares `##` headings only, and stack.md is project-owned, so update cannot add it.
+    assert.ok(sections(readTemplate('stubs/stack.md')).includes('Audience'));
+    assert.match(skillBody('onboard'), /\*Audience\* section/, '/onboard is what fills it');
+  });
+
+  it('an install that never answered keeps the standard as written', () => {
+    // Every install that predates the section has none, and silence must not relax anything.
+    assert.match(flat(readTemplate('context/workflow.md')), /Missing or empty, it is the standard as written/);
+    assert.match(notes, /Missing or empty reads as public/);
+  });
+
+  it('private keeps the floor, and moves nothing but accessibility', () => {
+    assert.match(notes, /the right element for the job, a label on every input, > and every control reachable by keyboard/);
+    assert.match(notes, /The floor is reviewed like any other standard/);
+    assert.match(notes, /performance and security are owed whoever the users are/);
+    assert.match(notes, /and so is an end-to-end pass for a user interface/);
+    assert.match(flat(skillBody('feature-plan')), /end-to-end pass in a real browser\*\* there, whatever the audience/);
+  });
+
+  it('a gap past the floor that was already there is not filed', () => {
+    // The `accessibility` issues §31 counted are where the weight landed, and a gate files them as bugs.
+    assert.match(flat(readTemplate('context/workflow.md')), /a gap past the floor is neither a finding nor a bug/);
+  });
+
+  it('whoever loads the accessibility row reads the answer', () => {
+    assert.match(flat(readTemplate('claude/agents/reviewer.agent.md')), /`context\/stack\.md`'s \*Audience\* first/);
+    assert.match(flat(readTemplate('claude/agents/planner.agent.md')), /`context\/stack\.md`'s \*Audience\*/);
+  });
+
+  it('/onboard never reads private off the repository', () => {
+    assert.match(flat(skillBody('onboard')), /Never infer \*private\* from a repository being private/);
+  });
+});
+
 describe('Gate 1 reads a list, not four headings', () => {
   const flat = (text: string) => text.replace(/\s+/g, ' ');
 

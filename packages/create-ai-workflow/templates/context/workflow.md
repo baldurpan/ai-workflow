@@ -176,6 +176,10 @@ review expectations on the phase that carries it, and whatever proves it goes in
 Verification — for something a person operates, an **end-to-end pass in a real browser**. Which browser
 driver is [`verify.md`](verify.md)'s answer like every other command, and nothing here names one.
 
+**How far the accessibility row reaches is [`stack.md`](stack.md)'s *Audience*.** Missing or empty, it is
+the standard as written. *Private* holds a change to the floor that answer names, and a gap past the
+floor is neither a finding nor a bug.
+
 ### An expected value has a source, and it is never the code under test
 
 > **Where a change has behaviour you can observe at a seam, work test-first in thin slices: decide what

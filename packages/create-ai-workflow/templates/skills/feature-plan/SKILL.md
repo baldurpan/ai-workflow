@@ -173,8 +173,9 @@ Fill in the template's shape. Then:
   checked and why none of them describe this — that is an answer, and leaving the section blank is not.
 - **Fill in §8 Verification with what proves each surface the question found** — the keyboard and contrast
   pass for something a person operates, the number to compare against §1's measurement for a hot path. A
-  feature with a user interface names an **end-to-end pass in a real browser** there. Which driver runs it
-  is `context/verify.md`'s answer; **if that file names nothing that drives a browser, say so in §9 rather
+  *private* `context/stack.md` *Audience* owes no contrast pass. A user interface gets an **end-to-end
+  pass in a real browser** there, whatever the audience. Which driver runs it is `context/verify.md`'s
+  answer; **if that file names nothing that drives a browser, say so in §9 rather
   than inventing one** — a standard named in a phase's review expectations and nowhere checkable is a rule
   nobody runs, and `/onboard` is what fills the gap.
 - Fill in **§9 Open questions** honestly. An honest gap is worth more than an invented decision. **Say

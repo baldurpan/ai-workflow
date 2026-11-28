@@ -37,7 +37,7 @@ Read [`context/workflow.md`](../../../context/workflow.md) for the tier model.
 | [`context/git.md`](../../../context/git.md) | who commits, where work lands, whether it is pushed, what a pull request carries, and at what granularity |
 | [`context/tracking.md`](../../../context/tracking.md) | where the backlog, the plans and the phase ledgers live |
 | [`context/release.md`](../../../context/release.md) | what a change here announces and to whom, what records a note, and how often |
-| [`context/stack.md`](../../../context/stack.md) | runtime, layout, conventions, and the index of where this project documents itself |
+| [`context/stack.md`](../../../context/stack.md) | runtime, audience, layout, conventions, and the index of where this project documents itself |
 | [`AGENTS.md`](../../../AGENTS.md) | pruned, on confirmation, of what moved into those six. The region between the `ai-workflow` markers is never touched |
 
 Show every proposed edit before writing it, and **do not commit.** The user reviews and commits.
@@ -503,6 +503,10 @@ routed here, show it back as a draft, and ask only for the gaps:
 
 - What does this project do, in a paragraph — and anything about its history that explains its shape.
 - Runtime, package manager, database, storage, hosting.
+- **Who uses it**, for the *Audience* section. Ask whether everyone who uses what this project puts in
+  front of a person is known by name and needs nothing past the floor, and paste *public* or *private*
+  from the notes. Say what it changes: how far the accessibility row reaches, and nothing else. Never
+  infer *private* from a repository being private. A private repository can ship a public site.
 - The directories that matter, one line each.
 - **The conventions that would not be guessed** — what breaks in this runtime, what is deliberately kept
   separate, where local secrets live, what must never be run against production. This section is the one

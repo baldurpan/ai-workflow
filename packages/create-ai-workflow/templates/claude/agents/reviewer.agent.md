@@ -37,7 +37,8 @@ Your verdict gates completion:
   `context/standards/README.md` yourself; and open that table anyway if the change plainly reached
   something the line does not cover. **Where the plan answered the surface question in
   `context/workflow.md` — something a person operates, a hot path, a trust boundary — those rows are part
-  of what you review against, whether or not the checklist repeats them.**
+  of what you review against, whether or not the checklist repeats them.** For accessibility, read
+  `context/stack.md`'s *Audience* first: under *private*, only the floor it names is.
 - Read the diff: `git diff` for uncommitted work, `git diff <base>...HEAD` against a base branch.
 
 **You may not cite a line, quote code, or reference a file you have not opened.** If you find yourself

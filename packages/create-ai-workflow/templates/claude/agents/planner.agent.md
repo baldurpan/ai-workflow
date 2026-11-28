@@ -55,7 +55,7 @@ The default shape below applies only when the brief names none.
 4. **Verify externals.** Check documentation for every library and API involved. Cite what you confirmed.
 5. **Consider.** Edge cases, error states, and implicit requirements the request did not mention —
    including the three surfaces nothing else will ask about: **accessibility** if this puts something in
-   front of a person, **performance** if it sits in a hot path or grows a payload, **security** if it
+   front of a person (as far as `context/stack.md`'s *Audience* says), **performance** if it sits in a hot path or grows a payload, **security** if it
    crosses a trust boundary. Each is a row of the conditional table that is only reached by someone who
    already had it in mind, so ask rather than notice. Name the rows you loaded, and say which surfaces this
    change does not have — *none of these* is an answer and silence is not.

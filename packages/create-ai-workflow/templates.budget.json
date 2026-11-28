@@ -11,8 +11,8 @@
       ]
     },
     "our-templates": {
-      "limit": 439296,
-      "why": "§34 — a defect this work put there is never filed, and several issues to /orchestrate"
+      "limit": 441856,
+      "why": "§35 — the Audience answer, its two notes and the rule that reads it"
     }
   },
   "files": {
@@ -57,8 +57,8 @@
       "why": "§24.5 — locked at its size when the budget was written"
     },
     "context/stack.notes.md": {
-      "limit": 3072,
-      "why": "§24.5 — locked at its size when the budget was written"
+      "limit": 4096,
+      "why": "§35 — how far the accessibility row reaches is stack.md's Audience"
     },
     "context/tracking.notes.md": {
       "limit": 5632,
@@ -69,12 +69,12 @@
       "why": "§26.19 — the install form, and generated files that have to be ignored"
     },
     "context/workflow.md": {
-      "limit": 26624,
-      "why": "§34 — where a defect came from is asked before its kind"
+      "limit": 27136,
+      "why": "§35 — how far the accessibility row reaches is stack.md's Audience"
     },
     "context/workflow.notes.md": {
-      "limit": 25088,
-      "why": "§34 — why a defect this work put there blocks"
+      "limit": 25600,
+      "why": "§35 — how far the accessibility row reaches is stack.md's Audience"
     },
     "skills/feature-close/SKILL.md": {
       "limit": 19968,

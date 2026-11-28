@@ -3292,6 +3292,10 @@ kept in step by discipline. A review item is blocking or it is not, and nothing 
 of `verify.md` and is not one: the standards tree already answers it, and the gap was never that the answer
 was missing.
 
+> **Partly reversed by §35.** Still no seventh stub, but the question is now asked, in `stack.md`. The
+> standards tree does answer it, and it gives one answer everywhere, which is the reason this refusal did
+> not hold.
+
 **Any edit to `templates/standards/`.** It is vendored verbatim from a pinned ref, and an edited file there
 hands the whole tree over to the user on the next update. New standards content belongs upstream.
 
@@ -7285,3 +7289,87 @@ Six raises typed by hand, each with a `§34` `why`:
 **Verified on 2026-11-25** by packing the tree and installing the tarball into an empty git repository.
 `check` passed (exit 0), `update --dry-run` found 129 files current (exit 0), and the installed
 `/orchestrate` and `/feature-implement` both carry the sort.
+
+---
+
+## 35. How far the accessibility row reaches is the project's answer — §13.3 reopened
+
+The user's question: *"I think perhaps the workflow setup should prompt me on wanted a11y strictness. Some
+projects are just private and don't need all these heavy a11y gates."*
+
+### 35.1 Why §13.3's refusal did not hold
+
+§13.3 refused a project-owned answer to *does this project care about WCAG AA*, because the standards tree
+already answers it. It does, and it gives that answer everywhere: `react/accessibility.md` says *not
+optional, part of the definition of done*, and `docs/SPEC.md` says *should be strict*. That is right for a
+product and wrong for a tool three people use. The tree is vendored (§6.3) and cannot say anything else
+here, so the only place a different answer can live is a file the project owns.
+
+### 35.2 Where the weight was
+
+Read from the shipped templates, not measured in a live run:
+
+- **The planner asks the surface question on every change.** It is cheap and stays.
+- **§8 Verification names a keyboard and contrast pass** for something a person operates, and the reviewer
+  holds the whole accessibility row as review expectations.
+- **A gate files a gap that was already present as a bug**, under §14's *user-visible* condition. §31
+  counted 16 open `accessibility` issues in quotavero, 4 in bgmusik, 3 in dynjandi and 1 in piff on
+  2026-11-17. Which step filed each one was not checked.
+- **The end-to-end pass in a real browser** sat in the same sentence of `/feature-plan` and read as part of
+  the accessibility cost. It is not. It proves the feature works.
+
+### 35.3 What shipped
+
+**A `## Audience` section in `stack.md`**, with two answers written out in `stack.notes.md` for pasting:
+
+- **Public**: anyone may use it, or people you cannot name. The standard applies as written. A company's
+  internal tool is public under this test.
+- **Private**: everyone who uses it is known by name, none of them needs more than the floor, and that is
+  not expected to change. Accessibility is held to the floor: the right element for the job, a label on
+  every input, and every control reachable by keyboard. Past the floor, screen-reader passes, contrast,
+  focus management and audits are not review expectations, not §8 rows, and a gap that was already present
+  is a note, not a bug.
+
+**Missing or empty reads as public.** Every install before this version has no such section, and silence
+must not relax a rule. `stubGaps` reports the new `##` heading on `update`, which sends the install to
+`/onboard` Step 8, the step that asks.
+
+**The rule is one paragraph in `workflow.md`**, under the surface rule it qualifies. The reviewer, the
+planner and `/feature-plan` read the answer in a clause each. `/orchestrate` already reads `stack.md` and
+cites the rule, so it gained nothing.
+
+### 35.4 What was refused
+
+- **A strictness dial** (*strict / basic / off*). That is §13.3's per-dimension scorecard arriving by
+  another route, a scale every agent would read differently. The question is who uses it, which the user
+  can answer at once and an agent cannot misread.
+- **An *off* answer.** The floor costs almost nothing: `jsx-a11y` in the bundled example lint config catches most
+  of it, and `react/testing.md` has tests query by role, which depends on it.
+- **Relaxing performance or security with it.** A private app still has trust boundaries.
+- **Moving the end-to-end pass with it.** It is owed to any audience, and `/feature-plan` now says
+  *whatever the audience*.
+- **A seventh stub.** §13.3's refusal stands for the file. The answer is one section of `stack.md`, which
+  already describes what the project is.
+- **Inferring *private* from a private repository.** A private repository can ship a public site, so
+  `/onboard` is told never to.
+
+### 35.5 What is unobserved
+
+- **No live `/onboard` has asked the question**, and no reviewer has run under *private*.
+- **Whether the `accessibility` bug count falls** in a repository answered *private* is not known yet.
+
+### 35.6 What it cost
+
+Raises typed by hand, each with a `§35` `why`:
+
+- `context/workflow.md` 26624 → 27136
+- `context/workflow.notes.md` 25088 → 25600
+- `context/stack.notes.md` 3072 → 4096
+- `our-templates` 439296 → 441856, for the sum
+
+`/feature-plan` absorbed its sentence by rewording the one beside it.
+
+**Verified on 2026-11-27** by packing the tree and installing the tarball into an empty git repository.
+`check` passed (exit 0) and `update --dry-run` exited 0. With `## Audience` deleted from the installed
+`stack.md`, which is the shape of every older install, `update --dry-run` printed *context/stack.md has no
+"Audience" section — this version's stub has one* and sent it to `/onboard`.

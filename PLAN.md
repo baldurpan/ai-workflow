@@ -55,6 +55,13 @@ commits; 0.27.0 adds **§28**; 0.28.0 adds **§29**; 0.29.0 adds **§30** and **
 was, because three of them read *pending* for up to six versions after shipping, which is the one kind of
 claim this file must not make.
 
+**Pending, not yet released: §35**, how far the accessibility row reaches. The vendored standard says
+accessibility is not optional everywhere, which is wrong for a tool three people use. `/onboard` now asks
+who uses the project and writes `## Audience` in `stack.md`. *Private* holds accessibility to a floor of
+semantic elements, labels and keyboard reach, and a gap past it is neither a finding nor a bug. Missing
+or empty reads as public, so an old install keeps the standard as written. The end-to-end browser pass
+does not move.
+
 **Shipped in 0.31.0: §34**, a defect this work put there is never filed. In four repositories, 80 of 253 bugs filed
 in a month were Gate 2 findings against the feature's own unmerged branch. Where a defect came from is now
 asked before its kind. A defect this work put there blocks and the loopback fixes it. So does an old one

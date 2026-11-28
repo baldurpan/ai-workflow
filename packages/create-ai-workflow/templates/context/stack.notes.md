@@ -10,6 +10,29 @@ One paragraph, above the table: what the project does, and anything about its hi
 it is shaped the way it is. Then fill the table — runtime, package manager, database, storage, hosting —
 one target each, and leave a cell empty where the project has none.
 
+## Audience
+
+Who uses what this project puts in front of a person. It sets how far the accessibility row of the
+standards reaches, and nothing else: performance and security are owed whoever the users are, and so is
+an end-to-end pass for a user interface. Paste one of the two answers. **Missing or empty reads as
+public**, so an install that never answers keeps the standard as written.
+
+**Public**: anyone may use it, or people you cannot name. That covers a product, a public site, and a
+company's internal tool.
+
+> **Public.** The accessibility standard applies as written.
+
+**Private**: everyone who uses it is known by name, none of them needs more than the floor, and that is
+not expected to change. A personal tool, a hobby project, an app for one household.
+
+> **Private.** Accessibility is held to the floor: the right element for the job, a label on every input,
+> and every control reachable by keyboard. The floor is reviewed like any other standard. Past it,
+> screen-reader passes, contrast, focus management and audits are not review expectations, not §8
+> Verification rows, and a gap there that was already present is a note, not a bug.
+
+The floor stays because it costs almost nothing. The lint rules catch most of it, and tests that query by
+role depend on it. A project with no user interface writes "no user interface".
+
 ## Layout
 
 The directories that matter, one line each on what lives there, inside the fenced block. The fence is what

@@ -92,6 +92,13 @@ catches a fraction of the first and none of the rest. Neither gap was a missing 
 already said accessibility was part of done — so the fix is a question asked out loud, with *none of these*
 a legitimate answer and silence not one.
 
+**How far that row reaches is the project's answer, because the vendored standard gives one answer
+everywhere.** *Not optional* is right for a product and wrong for a tool three people use. The question is
+who the users are, not how strict to be. A dial would be a severity scale under another name, and every
+agent would read it differently. The floor stays under *private* because it costs almost nothing. What
+goes is the work past it. The end-to-end browser pass does not move: it proves the feature works, and
+that is owed to any audience.
+
 ### An expected value has a source, and it is never the code under test
 
 The gates had no opinion about where an expectation came from. A test that asserts whatever the function

@@ -50,6 +50,7 @@ const drop = (root: string, rel: string, heading: string): void => {
 describe('reading a stub\'s sections', () => {
   it('takes the headings in order', () => {
     assert.deepEqual(sections(readTemplate('stubs/stack.md')), [
+      'Audience',
       'Layout',
       'Conventions',
       'Documentation',
