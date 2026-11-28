@@ -7373,3 +7373,58 @@ Raises typed by hand, each with a `§35` `why`:
 `check` passed (exit 0) and `update --dry-run` exited 0. With `## Audience` deleted from the installed
 `stack.md`, which is the shape of every older install, `update --dry-run` printed *context/stack.md has no
 "Audience" section — this version's stub has one* and sent it to `/onboard`.
+
+## 36. A test-only fix is made past the cap
+
+§34 made every defect this work put there block, and a missing test in that code is one. The loop cap of
+two stayed. Run on verk's VERK-105 under `/feature-implement --all` on 2026-11-27, the two met badly: **two
+of the first three phases stopped `blocked` at the cap on a test.** Phase 1's last note was a test dated
+1990 that sorted after another test's 1985 rows. Phase 5's was a guard covered only by an empty page. Each
+fix was a few lines, no production code moved, and each stop cost a hand-back and a re-run to make it.
+
+**Why the cap was reached.** A reviewer reading a corrected diff reads closer each round, and *a rule a
+regression could break with the suite green* always has one more instance. The production code had passed;
+what kept failing was the account of it.
+
+### 36.1 The rule
+
+At the cap, a blocking item whose whole fix adds or tightens a test, one targeted edit with no line outside
+the tests, is made in-host. Gate 1 re-runs, and the same reviewer confirms that edit alone. Once per gate,
+per phase. **A test that fails because the code is wrong is not test-only.** That is a production defect,
+and the cap stands. If the confirmation does not pass, the cap stands too.
+
+Four bounds keep this from becoming a third loop by another name:
+
+- **Test-only** is checkable from the diff, not from a reviewer's adjective. Nothing it touches can change
+  behaviour.
+- **One targeted edit**, the same bar §34 sets for an old defect.
+- **Once.** What the confirmation raises is judged by the cap as before, so the loop still converges.
+- **Still gated.** Gate 1 and the reviewer both run, so nothing lands on a self-report.
+
+The user chose it over two others, put to them as options:
+
+| Rejected | Why not |
+|---|---|
+| **a note the reviewer marked non-blocking stays a note on the last loop** | It undoes §34 for exactly the defects §34 was written about, production code included. |
+| **a cap of three** | Every phase can cost one more coder and review round, and a fourth note is as likely as a third. |
+
+### 36.2 What it cost
+
+Three raises typed by hand, each with a `§36` `why`:
+
+- `skills/feature-implement/SKILL.md` 25600 → 26112.
+- `skills/orchestrate/SKILL.md` 20480 → 20992.
+- `our-templates` 441856 → 442880, for the sum.
+
+`context/workflow.md` fits under the limit §35 set, and `always-loaded` and `context/workflow.notes.md`
+fit too, with 19 and 12 bytes to spare.
+
+**Verified on 2026-11-28** by packing the tree and installing the tarball into an empty git repository.
+`check` passed (exit 0), `update --dry-run` found 129 files current, and the installed `/feature-implement`,
+`/orchestrate` and `workflow.md` carry the rule.
+
+### 36.3 What is unobserved
+
+- **No phase has run it yet.** VERK-105's phase 5 is the first candidate.
+- **Whether the bound holds in practice is not known.** The open question is whether a reviewer reliably
+  tells *the test is weak* from *the code is wrong* when one assertion fails.

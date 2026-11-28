@@ -305,7 +305,7 @@ and say so.
 
 **Gate 2 — review.** Dispatch per [`executors.md`](executors.md). Every verdict needs concrete evidence —
 file paths, command output — and every item in it is **blocking or it is not.** A `FAIL` is looped back on.
-Cap: two loops, then the phase goes `blocked` and the run escalates. **Escalating is not a substitute for
+Cap: two loops, then the phase goes `blocked` and the run escalates; a test-only fix is made in-host first. **Escalating is not a substitute for
 recording** — the conversation ends, the ledger does not, so the row is written before the hand-back.
 
 ## What happens to a defect the gate found

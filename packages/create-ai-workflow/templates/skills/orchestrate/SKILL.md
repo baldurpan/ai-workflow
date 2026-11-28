@@ -147,6 +147,11 @@ expand no scope.
 **An old defect step 4's sort promoted never reaches the cap.** If one loop does not settle it, back its
 edit out and give it its kind's end, and the verdict stands on the rest.
 
+**A test-only fix never reaches the cap either.** At the cap, a blocking item whose whole fix adds or
+tightens a test, one targeted edit with no line outside the tests, is made in-host: re-run Gate 1, then have
+the same reviewer confirm that edit alone. Once per gate. A test that fails because the code is wrong is not
+test-only. If the confirmation does not pass, the cap stands.
+
 At the cap: **stop and hand back.** This command has no ledger to write a `blocked` row into, so the record
 is the working tree plus the report: leave the change exactly where it is, uncommitted, and say what failed,
 what was tried, and what the last feedback was. **If the work is still worth doing, it is a bug** — file it

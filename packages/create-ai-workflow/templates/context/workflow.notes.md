@@ -216,6 +216,11 @@ Gate 2's cap of two loops is what makes the loop converge instead of spin, and t
 escalation because the conversation ends and the ledger does not — a run that escalates without writing the
 row leaves the next session nothing to read.
 
+**A test-only fix is made past the cap** because *a defect this work put there blocks* sends every missing
+test to the loopback, and a reviewer reading a fixed diff finds a narrower gap each round. Stopping a phase
+for one assertion costs a hand-back and a re-run to buy nothing the in-host edit does not. The edit cannot
+change behaviour, the reviewer still confirms it, and it runs once, so the loop still converges.
+
 ## What happens to a defect the gate found
 
 **Why there is no severity scale.** Earlier versions kept a findings file under `context/` with four

@@ -2696,6 +2696,24 @@ describe('a defect this work put there is never filed', () => {
     }
   });
 
+  it('a test-only fix is made past the cap, once, and confirmed', () => {
+    // DESIGN-RECORD §36: a missing assertion in this work's own code stopped phases at the cap. The fix may be
+    // made in-host there, but only when no line outside the tests changes, once, and with the reviewer's confirmation.
+    for (const name of ['feature-implement', 'orchestrate'] as const) {
+      const body = flat(skillBody(name));
+      assert.match(body, /A test-only fix never reaches the cap either/, `${name} names it`);
+      assert.match(body, /no line outside the tests/, `${name} bounds it to the tests`);
+      assert.match(body, /same reviewer confirm that edit alone/, `${name} still gates it`);
+      assert.match(body, /Once per gate/, `${name} runs it once`);
+      assert.match(body, /fails because the code is wrong is not test-only/, `${name} keeps a code defect blocked`);
+      assert.ok(
+        body.indexOf('A test-only fix never reaches the cap') < body.indexOf('At the cap:'),
+        `${name} states it before the cap's end`,
+      );
+    }
+    assert.match(workflow, /a test-only fix is made in-host first/);
+  });
+
   it('only what was there before can be filed', () => {
     assert.match(workflow, /\*\*filed\*\* \| it is real work that outlives this phase, and it was there before \|/);
     assert.match(workflow, /\*\*a bug\*\* \| it is a real defect that was there before,/);
